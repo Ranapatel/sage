@@ -41,6 +41,12 @@ const allowedOrigin = (origin, callback) => {
     origin.startsWith('http://localhost') ||
     origin.startsWith('http://127.0.0.1')
   ) return callback(null, true)
+  
+  // Explicitly allow custom production domains
+  if (origin === 'https://tripsage.in' || origin === 'https://www.tripsage.in') {
+    return callback(null, true);
+  }
+
   // Allow wildcard
   if (process.env.CORS_ORIGIN === '*') return callback(null, true)
   // Allow explicit origin match

@@ -12,10 +12,9 @@ export function useSocket() {
   const { setConnected, setTransport, setHotels, setWeather, addNotification, setLoading } = useTripStore()
 
   useEffect(() => {
-    const socket = io(SOCKET_URL, {
-      transports: ['websocket', 'polling'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000', {
+      transports: ['websocket'],
+      withCredentials: true,
     })
 
     socketRef.current = socket
