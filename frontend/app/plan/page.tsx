@@ -61,6 +61,7 @@ export default function PlanPage() {
   const [initialized, setInitialized] = useState(false)
   const [aiThinking, setAiThinking] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchForm, setSearchForm] = useState({
     from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure'
   })
@@ -278,7 +279,7 @@ export default function PlanPage() {
               </button>
             </div>
           ) : (
-            <button onClick={() => router.push('/auth')} className="btn-primary py-2 px-4 text-sm">
+            <button onClick={() => router.push('/auth')} className="btn-primary py-2 px-4 text-sm hidden sm:block">
               Sign In
             </button>
           )}
@@ -290,8 +291,63 @@ export default function PlanPage() {
           >
             {loading ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : '🔄'}
           </button>
+          
+          <button className="sm:hidden p-2 text-[var(--text-primary)] text-xl" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? '✖' : '☰'}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden fixed inset-0 top-[60px] bg-[var(--bg-base)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-[var(--text-primary)]">Currency</span>
+            <select
+              value={currency}
+              onChange={e => updateCurrency(e.target.value as any)}
+              className="glass border border-[var(--border)] rounded-lg text-xs px-2 py-1.5 text-[var(--text-primary)] font-mono cursor-pointer"
+            >
+              {ALL_CURRENCIES.map(c => (
+                <option key={c} value={c}>{SYMBOLS[c]} {c}</option>
+              ))}
+            </select>
+          </div>
+          
+          {tripStatus === 'planning' || tripStatus === 'active' ? (
+            <button
+              onClick={() => { completeTrip(); setShowFeedback(true); setMobileMenuOpen(false); }}
+              disabled={itinerary.length === 0}
+              className="btn-outline w-full py-3 text-sm border-green-500/50 text-green-400"
+            >
+              ✅ Complete Trip
+            </button>
+          ) : (
+            <button
+              onClick={() => { startNewTrip(); setActiveTab('overview'); setMobileMenuOpen(false); }}
+              className="btn-outline w-full py-3 text-sm border-[var(--primary)] text-[var(--primary)]"
+            >
+              ➕ New Trip
+            </button>
+          )}
+
+          <div className="h-px bg-[var(--border)] my-2"></div>
+
+          {isLoggedIn && user ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white font-bold">
+                  {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-semibold text-[var(--text-primary)]">{user.name}</span>
+              </div>
+              <button onClick={() => { logout(); router.push('/auth'); }} className="btn-outline text-red-400 border-red-500/30 w-full py-3">Logout</button>
+            </div>
+          ) : (
+            <button onClick={() => { router.push('/auth'); setMobileMenuOpen(false); }} className="btn-primary w-full py-3">Sign In</button>
+          )}
+        </div>
+      )}
 
       {/* NOTIFICATIONS PANEL */}
       {showNotifs && (
@@ -303,7 +359,7 @@ export default function PlanPage() {
       {/* SEARCH BAR */}
       <div className="px-4 py-4 max-w-7xl mx-auto">
         <div className="glass rounded-xl p-4">
-          <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-3">
             <LocationAutocomplete className="input-field text-sm w-full" placeholder="From..." value={searchForm.from}
               onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
             <LocationAutocomplete className="input-field text-sm w-full" placeholder="To..." value={searchForm.to}

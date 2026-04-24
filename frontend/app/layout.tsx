@@ -3,14 +3,24 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: 'TripSage — AI-Powered Travel OS',
-  description: 'Real-time AI travel operating system. Plan, book, navigate, and explore with TripSage.',
-  keywords: 'travel, AI, booking, itinerary, hotel, flight, activities',
-  openGraph: {
-    title: 'TripSage — AI-Powered Travel OS',
-    description: 'Real-time AI travel operating system',
-    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png'],
+  title: {
+    default: 'AI Trip Planner India | Plan Smart Travel with TripSage',
+    template: '%s | TripSage AI Travel OS'
   },
+  description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
+  keywords: 'AI trip planner India, travel planner app, cheapest flights India, itinerary planner AI, TripSage, smart travel',
+  openGraph: {
+    title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
+    description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
+    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png'],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
+    description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
+    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png'],
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

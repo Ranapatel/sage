@@ -16,6 +16,7 @@ export default function AuthPage() {
   const { login, signup, isLoggedIn, loading, error, clearError } = useAuthStore()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [showPass, setShowPass] = useState(false)
+  const [agreeTerms, setAgreeTerms] = useState(false)
   const [form, setForm] = useState({
     name: '', email: '', password: '',
     currency: 'INR', country: 'India',
@@ -36,6 +37,7 @@ export default function AuthPage() {
         toast.success('Welcome back! 🎉')
       } else {
         if (!form.name.trim()) { toast.error('Name is required'); return }
+        if (!agreeTerms) { toast.error('You must agree to the Terms & Conditions'); return }
         await signup({ name: form.name, email: form.email, password: form.password, currency: form.currency, country: form.country })
         toast.success(`Welcome to TripSage, ${form.name}! ✈️`)
       }
@@ -128,6 +130,18 @@ export default function AuthPage() {
                 <p className="text-[0.65rem] text-[var(--text-muted)]">
                   All prices will be shown in {form.currency}. You can change this anytime.
                 </p>
+                <div className="flex items-start gap-2 pt-2">
+                  <input 
+                    type="checkbox" 
+                    id="terms" 
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 rounded border-[var(--border)] bg-[var(--bg-card)] text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
+                  />
+                  <label htmlFor="terms" className="text-xs text-[var(--text-muted)] cursor-pointer select-none leading-relaxed">
+                    I agree to the <Link href="/terms-and-conditions" className="text-[var(--primary)] hover:underline" target="_blank" onClick={(e) => e.stopPropagation()}>Terms & Conditions</Link>
+                  </label>
+                </div>
               </>
             )}
 
@@ -177,7 +191,7 @@ export default function AuthPage() {
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-6">
           By signing up you agree to our{' '}
-          <span className="text-[var(--primary)] cursor-pointer hover:underline">Terms of Service</span>
+          <Link href="/terms-and-conditions" className="text-[var(--primary)] cursor-pointer hover:underline">Terms & Conditions</Link>
         </p>
       </div>
     </div>

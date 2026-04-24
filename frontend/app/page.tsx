@@ -39,6 +39,7 @@ export default function Home() {
     style: 'adventure',
   })
   const [loading, setLoading] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,6 +68,34 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-grid">
+      {/* Schema Markup for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                "name": "TripSage",
+                "url": "https://tripsage.ai",
+                "logo": "https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png"
+              },
+              {
+                "@type": "WebSite",
+                "name": "TripSage",
+                "url": "https://tripsage.ai",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://tripsage.ai/plan?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            ]
+          })
+        }}
+      />
+      
       {/* NAV */}
       <nav className="glass-dark sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -82,12 +111,12 @@ export default function Home() {
           <span className="badge badge-green ml-1">LIVE</span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm text-[var(--text-secondary)]">
-          <a href="#features" className="hover:text-[var(--primary)] transition-colors">Features</a>
-          <a href="#destinations" className="hover:text-[var(--primary)] transition-colors">Destinations</a>
-          <Link href="/support" className="hover:text-[var(--primary)] transition-colors">Support</Link>
+          <a href="#features" className="hover:text-[var(--primary)] transition-colors p-2">Features</a>
+          <a href="#destinations" className="hover:text-[var(--primary)] transition-colors p-2">Destinations</a>
+          <Link href="/support" className="hover:text-[var(--primary)] transition-colors p-2">Support</Link>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--text-muted)]">
             <span className="live-dot"></span>
             <span className="font-mono">Real-time Engine</span>
           </div>
@@ -97,17 +126,50 @@ export default function Home() {
                 {user.name?.charAt(0).toUpperCase()}
               </div>
               <span className="text-sm font-semibold text-[var(--text-primary)] hidden sm:block">{user.name}</span>
-              <Link href="/plan" className="btn-primary text-sm py-2 px-4 flex items-center justify-center">Dashboard →</Link>
-              <button onClick={() => logout()} className="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors" title="Logout">↩</button>
+              <Link href="/plan" className="btn-primary text-sm py-2 px-4 flex items-center justify-center">Dashboard</Link>
+              <button onClick={() => logout()} className="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors p-2" title="Logout">↩</button>
             </div>
           ) : (
             <>
-              <Link href="/auth" className="btn-outline text-sm py-2 px-4 flex items-center justify-center">Sign In</Link>
+              <Link href="/auth" className="hidden sm:flex btn-outline text-sm py-2 px-4 items-center justify-center">Sign In</Link>
               <Link href="/plan" className="btn-primary text-sm py-2 px-5 flex items-center justify-center">Plan Trip →</Link>
             </>
           )}
+          {/* Mobile Menu Toggle */}
+          <button className="md:hidden p-2 text-[var(--text-primary)] text-xl" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? '✖' : '☰'}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 top-[72px] bg-[var(--bg-base)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
+          <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-lg font-semibold text-[var(--text-primary)]">Features</a>
+          <a href="#destinations" onClick={() => setMobileMenuOpen(false)} className="text-lg font-semibold text-[var(--text-primary)]">Destinations</a>
+          <Link href="/support" onClick={() => setMobileMenuOpen(false)} className="text-lg font-semibold text-[var(--text-primary)]">Support</Link>
+          
+          <div className="h-px bg-[var(--border)] my-2"></div>
+          
+          {isLoggedIn && user ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white font-bold">
+                  {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-semibold text-[var(--text-primary)]">{user.name}</span>
+              </div>
+              <Link href="/plan" onClick={() => setMobileMenuOpen(false)} className="btn-primary w-full py-3 flex items-center justify-center">Dashboard</Link>
+              <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="btn-outline text-red-400 border-red-500/30 w-full py-3">Logout</button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="btn-outline w-full py-3 flex items-center justify-center">Sign In</Link>
+              <Link href="/plan" onClick={() => setMobileMenuOpen(false)} className="btn-primary w-full py-3 flex items-center justify-center">Plan Trip →</Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* HERO */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden">
