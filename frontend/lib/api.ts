@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
-})
+});
 
 // Request interceptor — inject session + auth token
 API.interceptors.request.use((config) => {
