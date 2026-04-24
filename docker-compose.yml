@@ -1,0 +1,74 @@
+version: '3.9'
+
+services:
+  # ─── Frontend ───────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tripsage-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:4000
+      - NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+    depends_on:
+      - backend
+    networks:
+      - tripsage-net
+    restart: unless-stopped
+
+  # ─── Backend ────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tripsage-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - CORS_ORIGIN=http://localhost:3000
+      - REDIS_URL=redis://redis:6379
+      - DB_URL=${DB_URL}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+      - RAPIDAPI_HOST_FLIGHTS=${RAPIDAPI_HOST_FLIGHTS}
+      - RAPIDAPI_HOST_HOTELS=${RAPIDAPI_HOST_HOTELS}
+      - RAPIDAPI_HOST_ACTIVITIES=${RAPIDAPI_HOST_ACTIVITIES}
+      - RAPIDAPI_HOST_BUSES=${RAPIDAPI_HOST_BUSES}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
+      - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - AFFILIATE_ID_FLIGHTS=${AFFILIATE_ID_FLIGHTS}
+      - AFFILIATE_ID_HOTELS=${AFFILIATE_ID_HOTELS}
+      - AFFILIATE_ID_ACTIVITIES=${AFFILIATE_ID_ACTIVITIES}
+      - AFFILIATE_ID_BUSES=${AFFILIATE_ID_BUSES}
+      - AFFILIATE_ID_CARS=${AFFILIATE_ID_CARS}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - tripsage-net
+    restart: unless-stopped
+
+  # ─── Redis Cache ─────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: tripsage-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - tripsage-net
+    restart: unless-stopped
+
+networks:
+  tripsage-net:
+    driver: bridge
+
+volumes:
+  redis-data:

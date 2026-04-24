@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.local
+.next/
+dist/
+build/
+*.log
+.DS_Store
+.vercel/
+node_modules/
+.env
+frontend/node_modules/
+backend/node_modules/
+frontend/.next/
+frontend/dist/

@@ -1,0 +1,37 @@
+{
+  "name": "tripsage-backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "kill": "npx kill-port 4000",
+    "restart": "npx kill-port 4000 && nodemon src/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
+    "bullmq": "^5.76.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "date-fns": "^3.3.1",
+    "dns": "^0.1.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "express-rate-limit": "^7.2.0",
+    "express-validator": "^7.0.1",
+    "groq-sdk": "^0.3.3",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.2",
+    "morgan": "^1.10.0",
+    "redis": "^4.6.13",
+    "socket.io": "^4.7.4",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
