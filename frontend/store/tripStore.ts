@@ -133,6 +133,8 @@ interface TripStore {
   transport: TransportOption[]
   returnTransport: TransportOption[]
   hotels: HotelOption[]
+  buses: TransportOption[]
+  cars: TransportOption[]
   itinerary: ItineraryDay[]
   weather: WeatherData | null
   notifications: Notification[]
@@ -152,6 +154,8 @@ interface TripStore {
   setTransport: (transport: TransportOption[]) => void
   setReturnTransport: (transport: TransportOption[]) => void
   setHotels: (hotels: HotelOption[]) => void
+  setBuses: (buses: TransportOption[]) => void
+  setCars: (cars: TransportOption[]) => void
   setItinerary: (itinerary: ItineraryDay[]) => void
   setWeather: (weather: WeatherData) => void
   addNotification: (notif: Notification) => void
@@ -201,6 +205,8 @@ export const useTripStore = create<TripStore>()(
       transport: [],
       returnTransport: [],
       hotels: [],
+      buses: [],
+      cars: [],
       itinerary: [],
       weather: null,
       notifications: [],
@@ -219,6 +225,8 @@ export const useTripStore = create<TripStore>()(
       setTransport: (transport) => set({ transport }),
       setReturnTransport: (returnTransport) => set({ returnTransport }),
       setHotels: (hotels) => set({ hotels }),
+      setBuses: (buses) => set({ buses }),
+      setCars: (cars) => set({ cars }),
       setItinerary: (itinerary) => set({ itinerary }),
       setWeather: (weather) => set({ weather }),
       addNotification: (notif) => set((s) => ({ notifications: [notif, ...s.notifications].slice(0, 20) })),
@@ -278,6 +286,8 @@ export const useTripStore = create<TripStore>()(
           transport: [],
           returnTransport: [],
           hotels: [],
+          buses: [],
+          cars: [],
           itinerary: [],
           weather: null,
           bookingStatus: initialBooking,
@@ -298,7 +308,7 @@ export const useTripStore = create<TripStore>()(
       })),
 
       reset: () => set({
-        transport: [], returnTransport: [], hotels: [], itinerary: [], weather: null,
+        transport: [], returnTransport: [], hotels: [], buses: [], cars: [], itinerary: [], weather: null,
         notifications: [], bookingStatus: initialBooking, error: null, loading: false,
         tripStatus: 'planning', feedbackStatus: 'idle',
       }),
@@ -313,6 +323,8 @@ export const useTripStore = create<TripStore>()(
         tripContext: state.tripContext,
         transport: state.transport,
         hotels: state.hotels,
+        buses: state.buses,
+        cars: state.cars,
         itinerary: state.itinerary,
         bookingStatus: state.bookingStatus,
         tripStatus: state.tripStatus,

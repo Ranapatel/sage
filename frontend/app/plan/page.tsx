@@ -26,10 +26,14 @@ import TripHistoryTab from '@/components/history/TripHistoryTab'
 import TripActions from '@/components/actions/TripActions'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import BudgetOptimizerTab from '@/components/optimizer/BudgetOptimizerTab'
+import BusesTab from '@/components/transport/BusesTab'
+import CarsTab from '@/components/transport/CarsTab'
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: '🏠' },
-  { id: 'transport', label: 'Transport', icon: '✈️' },
+  { id: 'transport', label: 'Flights', icon: '✈️' },
+  { id: 'buses', label: 'Buses', icon: '🚌' },
+  { id: 'cars', label: 'Cabs', icon: '🚕' },
   { id: 'hotels', label: 'Hotels', icon: '🏨' },
   { id: 'itinerary', label: 'Itinerary', icon: '📅' },
   { id: 'optimizer', label: 'Optimizer', icon: '💰' },
@@ -44,10 +48,10 @@ export default function PlanPage() {
   const router = useRouter()
   const { emit } = useSocket()
   const {
-    userProfile, tripContext, transport, hotels, itinerary,
+    userProfile, tripContext, transport, hotels, buses, cars, itinerary,
     weather, notifications, bookingStatus, loading, isConnected,
     tripStatus, feedbackStatus, tripHistory,
-    setTrip, setProfile, setTransport, setHotels, setItinerary,
+    setTrip, setProfile, setTransport, setHotels, setBuses, setCars, setItinerary,
     setWeather, setLoading, setError, addNotification,
     completeTrip, startNewTrip, setItinerary: restoreItinerary,
   } = useTripStore()
@@ -139,6 +143,8 @@ export default function PlanPage() {
         const d = searchRes.value.data
         if (d.transport) setTransport(d.transport)
         if (d.hotels) setHotels(d.hotels)
+        if (d.buses) setBuses(d.buses)
+        if (d.cars) setCars(d.cars)
         toast.success(`Found ${d.transport?.length || 0} flights and ${d.hotels?.length || 0} hotels!`)
       }
 
@@ -454,6 +460,8 @@ export default function PlanPage() {
           />
         )}
         {activeTab === 'transport' && <TransportTab transport={transport} loading={loading} tripContext={tripContext} searchForm={searchForm} />}
+        {activeTab === 'buses' && <BusesTab />}
+        {activeTab === 'cars' && <CarsTab />}
         {activeTab === 'hotels' && <HotelsTab hotels={hotels} loading={loading} tripContext={tripContext} searchForm={searchForm} />}
         {activeTab === 'itinerary' && <ItineraryView itinerary={itinerary} loading={loading} />}
         {activeTab === 'optimizer' && <BudgetOptimizerTab />}
@@ -676,26 +684,11 @@ function TransportTab({ transport, loading, tripContext, searchForm }: any) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">✈️ Transport Options</h2>
+        <h2 className="section-title text-xl">✈️ Flight Options</h2>
         <div className="flex items-center gap-2">
           <span className="live-dot"></span>
           <span className="text-xs font-mono text-[var(--text-muted)]">Live prices</span>
         </div>
-      </div>
-
-      {/* Bus option */}
-      <div className="glass rounded-xl p-4 flex items-center justify-between">
-        <div>
-          <p className="font-semibold text-sm">🚌 Also check buses</p>
-          <p className="text-xs text-[var(--text-muted)]">Affordable intercity travel options</p>
-        </div>
-        <a
-          href={affiliateLinks.bus(searchForm.from || '', searchForm.to || '', searchForm.startDate || '')}
-          target="_blank" rel="noopener noreferrer"
-          className="btn-outline text-xs py-1.5 px-3"
-        >
-          Search Buses →
-        </a>
       </div>
 
       {loading ? <SkeletonCards count={3} /> : (
@@ -721,18 +714,6 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: any) {
           <span className="live-dot"></span>
           <span className="text-xs font-mono text-[var(--text-muted)]">Live availability</span>
         </div>
-      </div>
-
-      {/* Car rental */}
-      <div className="glass rounded-xl p-4 flex items-center justify-between">
-        <div>
-          <p className="font-semibold text-sm">🚗 Need a rental car?</p>
-          <p className="text-xs text-[var(--text-muted)]">Best rates from top providers</p>
-        </div>
-        <a href={affiliateLinks.car(tripContext?.destination || '')} target="_blank" rel="noopener noreferrer"
-          className="btn-outline text-xs py-1.5 px-3">
-          Find Cars →
-        </a>
       </div>
 
       {loading ? <SkeletonCards count={3} /> : (

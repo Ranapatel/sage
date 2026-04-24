@@ -469,5 +469,117 @@ function normalizeBookingCom(rawData, destination, checkin, checkout, members) {
     .slice(0, 6)
 }
 
+// ─── Buses Search ─────────────────────────────────────────────────────────────
+
+const BUS_OPERATORS = [
+  { name: 'IntrCity SmartBus', rating: 4.5, type: 'AC Sleeper (2+1)', color: '#e74c3c' },
+  { name: 'Zingbus', rating: 4.2, type: 'Volvo Multi-Axle I-Shift', color: '#3498db' },
+  { name: 'VRL Travels', rating: 4.0, type: 'AC Semi Sleeper (2+2)', color: '#f39c12' },
+  { name: 'SRS Travels', rating: 3.9, type: 'Non-AC Sleeper (2+1)', color: '#27ae60' },
+  { name: 'Orange Tours', rating: 4.1, type: 'Scania Multi-Axle', color: '#e67e22' },
+]
+
+function generateMockBuses(from, to, date, budget) {
+  const seed = `${(from || 'a').split(',')[0]}-${(to || 'b').split(',')[0]}`.toLowerCase().trim()
+  const basePrice = Math.max(500, Math.round((seededRandom(seed) * 1500 + 400) / 100) * 100)
+  
+  return BUS_OPERATORS.map((op, i) => {
+    const r = seededRandom(seed + i)
+    const price = Math.max(basePrice + Math.round((r * 1000 - 200) / 100) * 100, 300)
+    const depHour = 18 + Math.floor(r * 5) // Night buses mostly
+    const durHr = 6 + Math.floor(seededRandom(seed + i + 'dur') * 8)
+    const durMin = Math.floor(seededRandom(seed + i + 'min') * 60)
+    
+    // Affiliate link format for Redbus with tracking parameters
+    const affiliateUrl = `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage&medium=web&campaign_id=bus_tab`
+
+    return {
+      id: `bs_mock_${i}`,
+      type: 'bus',
+      name: op.name,
+      busType: op.type,
+      price: price,
+      rating: parseFloat((op.rating - 0.5 + seededRandom(seed + i + 'r')).toFixed(1)),
+      duration: `${durHr}h ${durMin}m`,
+      departure: `${String(depHour % 24).padStart(2, '0')}:${String(Math.floor(r * 60)).padStart(2, '0')}`,
+      arrival: `${String((depHour + durHr) % 24).padStart(2, '0')}:${String(durMin).padStart(2, '0')}`,
+      image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80',
+      logo: '',
+      color: op.color,
+      bookingLink: affiliateUrl,
+      score: parseFloat((0.6 + seededRandom(seed + i + 's') * 0.4).toFixed(2)),
+      liveStatus: i === 0 ? 'Filling Fast' : 'Available',
+      offers: i === 1 ? ['Early Bird Deal'] : [],
+      source: 'estimated',
+    }
+  }).sort((a, b) => a.price - b.price)
+}
+
+async function searchBuses({ from, to, date, budget }) {
+  const cacheKey = generateCacheKey('buses_v1', { from, to, date, budget })
+  const cached = await cacheGet(cacheKey)
+  if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+
+  console.log(`[Buses] Using estimated data for ${from} → ${to}`)
+  const mocks = generateMockBuses(from, to, date, budget)
+  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
+  await cacheSet(cacheKey, result)
+  return result
+}
+
+// ─── Rental Cars Search ───────────────────────────────────────────────────────
+
+const CAR_PROVIDERS = [
+  { name: 'DiscoverCars', type: 'SUV • Automatic', capacity: '5 Seats', color: '#16a085' },
+  { name: 'Rentalcars.com', type: 'Sedan • Manual', capacity: '4 Seats', color: '#2980b9' },
+  { name: 'Hertz', type: 'Compact • Automatic', capacity: '4 Seats', color: '#f1c40f' },
+  { name: 'Avis', type: 'Luxury • Automatic', capacity: '5 Seats', color: '#c0392b' },
+]
+
+function generateMockCars(destination, date, budget) {
+  const seed = (destination || 'dest').split(',')[0].toLowerCase().trim()
+  const basePrice = Math.max(1500, Math.round((seededRandom(seed) * 2000 + 1000) / 100) * 100)
+  
+  return CAR_PROVIDERS.map((op, i) => {
+    const r = seededRandom(seed + i)
+    const price = Math.max(basePrice + Math.round((r * 1500) / 100) * 100, 1000)
+    
+    // Affiliate link
+    const dest = encodeURIComponent(destination)
+    const affiliateUrl = `https://naiawork.com/g/wqjhitsyjqbd777ee50d5ea594bb46/?dest=${dest}&source=tripsage&medium=web`
+
+    return {
+      id: `cr_mock_${i}`,
+      type: 'car',
+      name: op.name,
+      carType: op.type,
+      capacity: op.capacity,
+      price: price, // price per day
+      rating: parseFloat((4.0 + seededRandom(seed + i + 'r') * 1.0).toFixed(1)),
+      image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80',
+      logo: '',
+      color: op.color,
+      bookingLink: affiliateUrl,
+      score: parseFloat((0.6 + seededRandom(seed + i + 's') * 0.4).toFixed(2)),
+      liveStatus: i === 0 ? 'Limited Availability' : 'Available',
+      offers: i === 0 ? ['Free Cancellation'] : [],
+      source: 'estimated',
+    }
+  }).sort((a, b) => a.price - b.price)
+}
+
+async function searchCars({ destination, date, budget }) {
+  const cacheKey = generateCacheKey('cars_v1', { destination, date, budget })
+  const cached = await cacheGet(cacheKey)
+  if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+
+  console.log(`[Cars] Using estimated data for ${destination}`)
+  const mocks = generateMockCars(destination, date, budget)
+  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
+  await cacheSet(cacheKey, result)
+  return result
+}
+
 // ─── Exports ──────────────────────────────────────────────────────────────────
-module.exports = { searchFlights, searchHotels, flightBookingLink, hotelBookingLink }
+module.exports = { searchFlights, searchHotels, searchBuses, searchCars, flightBookingLink, hotelBookingLink }
+

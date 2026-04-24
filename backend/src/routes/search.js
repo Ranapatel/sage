@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { body, validationResult } = require('express-validator')
-const { searchFlights, searchHotels } = require('../services/travelService')
+const { searchFlights, searchHotels, searchBuses, searchCars } = require('../services/travelService')
 const { getWeather } = require('../services/weatherService')
 const { v4: uuidv4 } = require('uuid')
 
@@ -34,14 +34,18 @@ router.post('/', searchValidation, async (req, res) => {
 
   try {
     // Execute all searches in parallel (3-5 sec timeout)
-    const [flightResult, hotelResult, weatherResult] = await Promise.allSettled([
+    const [flightResult, hotelResult, busResult, carResult, weatherResult] = await Promise.allSettled([
       searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
       searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget }),
+      searchBuses({ from, to, date: startDate, budget }),
+      searchCars({ destination: to, date: startDate, budget }),
       getWeather(to),
     ])
 
     const transport = flightResult.status === 'fulfilled' ? flightResult.value.data : []
     const hotels = hotelResult.status === 'fulfilled' ? hotelResult.value.data : []
+    const buses = busResult.status === 'fulfilled' ? busResult.value.data : []
+    const cars = carResult.status === 'fulfilled' ? carResult.value.data : []
     const weather = weatherResult.status === 'fulfilled' ? weatherResult.value.data : null
 
     const flightSource = flightResult.status === 'fulfilled' ? flightResult.value.meta?.source : 'error'
@@ -50,7 +54,7 @@ router.post('/', searchValidation, async (req, res) => {
     res.json({
       success: true,
       meta: { timestamp, requestId, cache: false, flightSource, hotelSource },
-      data: { transport, hotels, weather },
+      data: { transport, hotels, buses, cars, weather },
       message: 'LIVE_UPDATE',
       error: null,
     })

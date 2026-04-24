@@ -144,7 +144,7 @@ export default function Home() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[72px] bg-[var(--bg-base)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
+        <div className="md:hidden fixed inset-0 top-[72px] bg-black/95 backdrop-blur-xl z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto border-t border-white/10">
           <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-lg font-semibold text-[var(--text-primary)]">Features</a>
           <a href="#destinations" onClick={() => setMobileMenuOpen(false)} className="text-lg font-semibold text-[var(--text-primary)]">Destinations</a>
           <Link href="/support" onClick={() => setMobileMenuOpen(false)} className="text-lg font-semibold text-[var(--text-primary)]">Support</Link>
