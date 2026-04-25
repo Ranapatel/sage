@@ -224,7 +224,7 @@ export default function PlanPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Download + Share */}
           <TripActions />
 
@@ -269,7 +269,7 @@ export default function PlanPage() {
 
           {/* User avatar / login */}
           {isLoggedIn && user ? (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 {user.name?.charAt(0).toUpperCase()}
               </div>
@@ -292,7 +292,7 @@ export default function PlanPage() {
 
           <button
             onClick={() => runSearch()}
-            className="btn-primary py-2 px-3 text-sm"
+            className="btn-primary p-2 sm:py-2 sm:px-3 text-sm flex items-center justify-center"
             disabled={loading || !searchForm.from || !searchForm.to}
           >
             {loading ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : '🔄'}
@@ -306,7 +306,7 @@ export default function PlanPage() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="sm:hidden fixed inset-0 top-[60px] bg-[var(--bg-base)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
+        <div className="sm:hidden fixed inset-0 top-[60px] bg-[var(--bg-dark)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[var(--text-primary)]">Currency</span>
             <select
@@ -363,26 +363,26 @@ export default function PlanPage() {
       )}
 
       {/* SEARCH BAR */}
-      <div className="px-4 py-4 max-w-7xl mx-auto">
-        <div className="glass rounded-xl p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-3">
-            <LocationAutocomplete className="input-field text-sm w-full" placeholder="From..." value={searchForm.from}
+      <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
+        <div className="glass rounded-xl p-3 sm:p-4 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
+            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." value={searchForm.from}
               onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
-            <LocationAutocomplete className="input-field text-sm w-full" placeholder="To..." value={searchForm.to}
+            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full" placeholder="To..." value={searchForm.to}
               onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
-            <input className="input-field text-sm w-full" type="date" value={searchForm.startDate}
+            <input className="input-field text-[13px] sm:text-sm w-full" type="date" value={searchForm.startDate}
               onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
-            <input className="input-field text-sm w-full" type="date" value={searchForm.endDate}
+            <input className="input-field text-[13px] sm:text-sm w-full" type="date" value={searchForm.endDate}
               onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
-            <input className="input-field text-sm w-full" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
+            <input className="input-field text-[13px] sm:text-sm w-full" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
               onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
-            <select className="input-field text-sm w-full bg-[var(--bg-card)]" value={searchForm.travelers}
+            <select className="input-field text-[13px] sm:text-sm w-full bg-[var(--bg-card)]" value={searchForm.travelers}
               onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
               {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
             </select>
             <button
               onClick={() => runSearch()}
-              className="btn-primary text-sm py-2"
+              className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
               disabled={loading}
             >
               {loading ? '...' : '🔍 Search'}
@@ -413,8 +413,8 @@ export default function PlanPage() {
       )}
 
       {/* TABS */}
-      <div className="px-4 max-w-7xl mx-auto">
-        <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+      <div className="px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
+        <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar w-full relative snap-x">
           {TABS.map(t => (
             <button
               key={t.id}

@@ -171,6 +171,17 @@ body {
 
 .input-field::placeholder { color: var(--text-muted); }
 
+@media (max-width: 640px) {
+  .input-field {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
 /* Badge */
 .badge {
   display: inline-flex;

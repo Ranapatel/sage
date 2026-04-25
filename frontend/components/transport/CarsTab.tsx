@@ -42,7 +42,7 @@ export default function CarsTab() {
            <span className="text-sm text-[var(--text-muted)] font-medium self-center mr-2">Sort by:</span>
            <button 
              onClick={() => setSortBy('cheapest')}
-             className={`px-3 py-1 text-xs rounded-full transition-colors ${sortBy === 'cheapest' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-base)] text-[var(--text-primary)] hover:bg-[var(--border)]'}`}
+             className={`px-3 py-1 text-xs rounded-full transition-colors ${sortBy === 'cheapest' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--border)]'}`}
            >
              Cheapest First
            </button>

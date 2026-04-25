@@ -97,46 +97,47 @@ export default function Home() {
       />
       
       {/* NAV */}
-      <nav className="glass-dark sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      {/* NAV */}
+      <nav className="glass-dark sticky top-0 z-50 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between overflow-hidden box-border max-w-[100vw]">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Image
             src="https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png"
             alt="TripSage"
-            width={40}
-            height={40}
-            className="rounded-xl"
+            width={32}
+            height={32}
+            className="rounded-xl sm:w-10 sm:h-10"
             unoptimized
           />
-          <span className="font-display text-xl font-bold gradient-text-green">TripSage</span>
-          <span className="badge badge-green ml-1">LIVE</span>
+          <span className="font-display text-[1.1rem] sm:text-xl font-bold gradient-text-green">TripSage</span>
+          <span className="badge badge-green ml-1 hidden sm:inline-flex">LIVE</span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm text-[var(--text-secondary)]">
           <a href="#features" className="hover:text-[var(--primary)] transition-colors p-2">Features</a>
           <a href="#destinations" className="hover:text-[var(--primary)] transition-colors p-2">Destinations</a>
           <Link href="/support" className="hover:text-[var(--primary)] transition-colors p-2">Support</Link>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--text-muted)]">
             <span className="live-dot"></span>
             <span className="font-mono">Real-time Engine</span>
           </div>
           {isLoggedIn && user ? (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white text-xs font-bold">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden sm:flex w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] items-center justify-center text-white text-xs font-bold">
                 {user.name?.charAt(0).toUpperCase()}
               </div>
               <span className="text-sm font-semibold text-[var(--text-primary)] hidden sm:block">{user.name}</span>
-              <Link href="/plan" className="btn-primary text-sm py-2 px-4 flex items-center justify-center">Dashboard</Link>
-              <button onClick={() => logout()} className="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors p-2" title="Logout">↩</button>
+              <Link href="/plan" className="btn-primary whitespace-nowrap flex-shrink-0 text-xs sm:text-sm py-1.5 px-3 sm:py-2 sm:px-4 flex items-center justify-center">Dashboard</Link>
+              <button onClick={() => logout()} className="hidden sm:block text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors p-2" title="Logout">↩</button>
             </div>
           ) : (
             <>
               <Link href="/auth" className="hidden sm:flex btn-outline text-sm py-2 px-4 items-center justify-center">Sign In</Link>
-              <Link href="/plan" className="btn-primary text-sm py-2 px-5 flex items-center justify-center">Plan Trip →</Link>
+              <Link href="/plan" className="btn-primary whitespace-nowrap flex-shrink-0 text-xs sm:text-sm py-1.5 px-3 sm:py-2 sm:px-5 flex items-center justify-center">Plan Trip →</Link>
             </>
           )}
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden p-2 text-[var(--text-primary)] text-xl" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <button className="md:hidden p-1.5 sm:p-2 text-[var(--text-primary)] text-xl" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? '✖' : '☰'}
           </button>
         </div>

@@ -142,7 +142,7 @@ export default function BookingStatus() {
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
               <p className="text-green-400 font-bold">✅ Flight Confirmed!</p>
               <a
-                href={bookingStatus.selectedFlight?.bookingLink}
+                href={process.env.NEXT_PUBLIC_AFFILIATE_FLIGHTS || bookingStatus.selectedFlight?.bookingLink}
                 target="_blank" rel="noopener noreferrer"
                 className="text-xs text-[var(--primary)] hover:underline mt-1 block"
               >
