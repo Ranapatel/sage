@@ -9,13 +9,21 @@ const RAPIDAPI_HOSTS = {
 }
 
 // ─── Booking Links ────────────────────────────────────────────────────────────
-// Use reliable deep-links to Skyscanner and Booking.com. No affiliate URLs.
+// Use configured affiliate links if available, else fallback to generic deep-links.
 
 function citySlug(str) {
   return (str || '').split(',')[0].trim().replace(/\s+/g, '-').toLowerCase()
 }
 
 function flightBookingLink(from, to, date) {
+  const affiliateLink = process.env.AFFILIATE_ID_FLIGHTS;
+  if (affiliateLink) {
+    const origin = encodeURIComponent((from || '').split(',')[0].trim())
+    const dest = encodeURIComponent((to || '').split(',')[0].trim())
+    const separator = affiliateLink.includes('?') ? '&' : '?'
+    return `${affiliateLink}${separator}origin=${origin}&destination=${dest}&source=tripsage`
+  }
+
   const f = encodeURIComponent(citySlug(from).replace(/\s+/g, '-').toLowerCase())
   const t = encodeURIComponent(citySlug(to).replace(/\s+/g, '-').toLowerCase())
   const d = (date || '').replace(/-/g, '')
