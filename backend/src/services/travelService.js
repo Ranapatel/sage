@@ -111,6 +111,14 @@ const FLIGHT_IMAGES = [
   'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80',
 ]
 
+const HOTEL_IMAGES = [
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
+  'https://images.unsplash.com/photo-1551882547-ff40c0d51928?w=600&q=80',
+  'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
+  'https://images.unsplash.com/photo-1455587734955-081b22074882?w=600&q=80',
+  'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80',
+]
+
 function seededRandom(seed) {
   let h = 0
   for (let i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0 }
