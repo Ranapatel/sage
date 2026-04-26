@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import { tripAPI } from '@/lib/api'
+import { trackEvent } from '@/lib/analytics'
 
 const POPULAR_DESTINATIONS = [
   { name: 'Bali, Indonesia', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80', tag: 'Tropical' },
@@ -45,6 +46,9 @@ export default function Home() {
     e.preventDefault()
     if (!form.from || !form.to || !form.startDate) return
     setLoading(true)
+    
+    trackEvent('plan_trip_click', { source: 'hero_form' })
+    
     // Store in session and navigate
     sessionStorage.setItem('tripContext', JSON.stringify(form))
     setTimeout(() => router.push('/plan'), 800)
@@ -133,7 +137,7 @@ export default function Home() {
           ) : (
             <>
               <Link href="/auth" className="hidden sm:flex btn-outline text-sm py-2 px-4 items-center justify-center">Sign In</Link>
-              <Link href="/plan" className="btn-primary whitespace-nowrap flex-shrink-0 text-xs sm:text-sm py-1.5 px-3 sm:py-2 sm:px-5 flex items-center justify-center">Plan Trip →</Link>
+              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="btn-primary whitespace-nowrap flex-shrink-0 text-xs sm:text-sm py-1.5 px-3 sm:py-2 sm:px-5 flex items-center justify-center">Plan Trip →</Link>
             </>
           )}
           {/* Mobile Menu Toggle */}
@@ -166,7 +170,7 @@ export default function Home() {
           ) : (
             <div className="flex flex-col gap-4">
               <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="btn-outline w-full py-3 flex items-center justify-center">Sign In</Link>
-              <Link href="/plan" onClick={() => setMobileMenuOpen(false)} className="btn-primary w-full py-3 flex items-center justify-center">Plan Trip →</Link>
+              <Link href="/plan" onClick={() => { setMobileMenuOpen(false); trackEvent('plan_trip_click', { source: 'mobile_nav' }) }} className="btn-primary w-full py-3 flex items-center justify-center">Plan Trip →</Link>
             </div>
           )}
         </div>
@@ -379,7 +383,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto text-center glass rounded-3xl p-12">
           <h2 className="section-title mb-4">Ready to Travel <span className="gradient-text">Smarter?</span></h2>
           <p className="text-[var(--text-secondary)] mb-8">Join thousands using TripSage for AI-powered travel planning</p>
-          <Link href="/plan" className="btn-primary text-base py-4 px-10 inline-block">
+          <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'cta_section' })} className="btn-primary text-base py-4 px-10 inline-block">
             Start Planning Free →
           </Link>
         </div>

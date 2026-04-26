@@ -4,6 +4,7 @@ import { useTripStore } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { useUrgency } from '@/hooks/useUrgency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -146,6 +147,7 @@ export default function TransportCard({ item, showDetail }: Props) {
               href={item.bookingLink}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })}
               className="flex-1 text-center py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
             >
               Book Now — Save {discount}% →

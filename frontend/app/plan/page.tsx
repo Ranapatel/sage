@@ -9,6 +9,7 @@ import { tripAPI } from '@/lib/api'
 import { affiliateLinks, formatCurrency, formatDate, getDaysBetween } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { SYMBOLS, formatPrice, ALL_CURRENCIES } from '@/lib/currency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 
 // Sub-components
@@ -165,6 +166,7 @@ export default function PlanPage() {
       })
       if (itiRes?.data?.itinerary) {
         setItinerary(itiRes.data.itinerary)
+        trackEvent('trip_generated', { destination: p.to, days: days, style: p.style })
       }
 
       // Emit socket event for real-time updates

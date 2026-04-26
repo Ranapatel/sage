@@ -6,6 +6,7 @@ import { affiliateLinks } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { useUrgency } from '@/hooks/useUrgency'
+import { trackEvent } from '@/lib/analytics'
 
 interface Props {
   destination: string
@@ -67,6 +68,7 @@ function ActivityCard({ a, destination, currency }: { a: any; destination: strin
         </div>
         <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
         <a href={affiliateLinks.activity(destination || a.name)} target="_blank" rel="noopener noreferrer"
+          onClick={() => trackEvent('booking_click', { type: 'activity', name: a.name, price: a.price })}
           className="block w-full text-center py-2 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity">
           Book Now — Save {discount}% →
         </a>
@@ -109,6 +111,7 @@ function CarCard({ car, destination, currency }: { car: any; destination: string
         </div>
         <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
         <a href={affiliateLinks.car(destination)} target="_blank" rel="noopener noreferrer"
+          onClick={() => trackEvent('booking_click', { type: 'car_rental', name: car.name, price: car.price })}
           className="block w-full text-center py-2.5 px-3 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity">
           Book Car — {discount}% OFF →
         </a>

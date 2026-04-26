@@ -2,6 +2,7 @@
 
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
+import { trackEvent } from '@/lib/analytics'
 
 interface Props {
   item: any
@@ -15,6 +16,7 @@ export default function BusCard({ item }: Props) {
   const handleBook = () => {
     // Analytics tracking event
     console.log('Event Tracked: bus_affiliate_click', { operator: item.name, price: item.price, url: item.bookingLink })
+    trackEvent('booking_click', { type: 'bus', name: item.name, price: item.price })
   }
 
   return (

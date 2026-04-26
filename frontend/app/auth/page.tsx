@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAuthStore } from '@/store/authStore'
 import { SYMBOLS } from '@/lib/currency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 
 const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED'] as const
@@ -39,6 +40,7 @@ export default function AuthPage() {
         if (!form.name.trim()) { toast.error('Name is required'); return }
         if (!agreeTerms) { toast.error('You must agree to the Terms & Conditions'); return }
         await signup({ name: form.name, email: form.email, password: form.password, currency: form.currency, country: form.country })
+        trackEvent('signup', { method: 'email' })
         toast.success(`Welcome to TripSage, ${form.name}! ✈️`)
       }
       router.push('/plan')
