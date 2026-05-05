@@ -39,51 +39,61 @@ router.get('/', async (req, res) => {
     
     // 1. Google Places Autocomplete (Preferred & Fastest)
     if (GOOGLE_PLACES_API_KEY && GOOGLE_PLACES_API_KEY !== 'your_google_places_key') {
-      const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
-        params: {
-          input: query,
-          types: '(cities)',
-          key: GOOGLE_PLACES_API_KEY,
-        },
-        timeout: 2500 // Strict < 300ms goal is supported by Redis, this is a fallback timeout
-      });
+      try {
+        const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+          params: {
+            input: query,
+            types: '(cities)',
+            key: GOOGLE_PLACES_API_KEY,
+          },
+          timeout: 2500
+        });
 
-      if (response.data?.predictions) {
-        results = response.data.predictions.slice(0, 8).map(p => ({
-          name: p.description,
-          place_id: p.place_id
-        }));
+        if (response.data?.status === 'OK' && response.data?.predictions) {
+          results = response.data.predictions.slice(0, 8).map(p => ({
+            name: p.description,
+            place_id: p.place_id
+          }));
+        }
+      } catch (err) {
+        console.warn('[Cities Autocomplete] Google API failed, falling back to Nominatim');
       }
-    } else {
-      // 2. Nominatim (OpenStreetMap) Fallback
-      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-        params: {
-          q: query,
-          format: 'json',
-          addressdetails: 1,
-          limit: 8,
-          featuretype: 'city',
-        },
-        headers: { 'User-Agent': 'TripSage/2.0' },
-        timeout: 2500
-      });
-      
-      const raw = response.data || [];
-      const seen = new Set();
-      results = raw.map(r => {
-        const addr = r.address || {};
-        const cityName = addr.city || addr.town || addr.village || addr.municipality || r.name || r.display_name.split(',')[0];
-        const country = addr.country || '';
-        const fullName = `${cityName}${country && cityName !== country ? ', ' + country : ''}`;
-        return {
-          name: fullName,
-          place_id: r.place_id?.toString() || `nom_${Math.random()}`
-        };
-      }).filter(item => {
-        if (!item.name || seen.has(item.name.toLowerCase())) return false;
-        seen.add(item.name.toLowerCase());
-        return true;
-      }).slice(0, 8);
+    }
+
+    // 2. Nominatim (OpenStreetMap) Fallback if Google failed or key missing
+    if (results.length === 0) {
+      try {
+        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+          params: {
+            q: query,
+            format: 'json',
+            addressdetails: 1,
+            limit: 8,
+            featuretype: 'city',
+          },
+          headers: { 'User-Agent': 'TripSage/2.0' },
+          timeout: 4000
+        });
+        
+        const raw = response.data || [];
+        const seen = new Set();
+        results = raw.map(r => {
+          const addr = r.address || {};
+          const cityName = addr.city || addr.town || addr.village || addr.municipality || r.name || r.display_name.split(',')[0];
+          const country = addr.country || '';
+          const fullName = `${cityName}${country && cityName !== country ? ', ' + country : ''}`;
+          return {
+            name: fullName,
+            place_id: r.place_id?.toString() || `nom_${Math.random()}`
+          };
+        }).filter(item => {
+          if (!item.name || seen.has(item.name.toLowerCase())) return false;
+          seen.add(item.name.toLowerCase());
+          return true;
+        }).slice(0, 8);
+      } catch (err) {
+        console.warn('[Cities Autocomplete] Nominatim failed:', err.message);
+      }
     }
 
     // 3. Fallback to predefined list if API returned 0 results
