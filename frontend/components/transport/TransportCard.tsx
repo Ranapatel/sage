@@ -45,35 +45,43 @@ function TransportCard({ item, showDetail }: Props) {
   })()
 
   return (
-    <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)]/10">
+    <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-[var(--primary)]/10 hover:scale-[1.02] group">
 
       {/* Flight image banner */}
       {item.image && (
-        <div className="relative h-28 overflow-hidden">
+        <div className="relative h-28 overflow-hidden bg-slate-800">
           <img
             src={getOptimizedImageUrl(item.image, isMobile)}
             alt={item.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"
+            className="w-full h-full object-cover group-hover:scale-105 group-hover:brightness-110 transition-all duration-500 ease-out"
             onError={(e: any) => { e.target.style.display = 'none' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
 
           {/* Airline logo + name overlay */}
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-3">
-            {item.logo && (
-              <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-lg flex-shrink-0">
-                <img
-                  src={item.logo}
-                  alt={item.name}
-                  className="w-full h-full object-contain"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e: any) => { e.target.style.display = 'none' }}
-                />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-white flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden relative">
+              <img
+                src={item.logo || `https://www.gstatic.com/flights/airline_logos/70px/${item.iata || 'AI'}.png`}
+                alt={item.name}
+                className="w-full h-full object-contain p-1"
+                loading="lazy"
+                decoding="async"
+                onError={(e: any) => {
+                  // Show colored initial as fallback
+                  e.currentTarget.style.display = 'none'
+                  const parent = e.currentTarget.parentElement
+                  if (parent) {
+                    parent.style.background = item.airlineColor || '#1a1abb'
+                    const fb = parent.querySelector('.logo-fallback')
+                    if (fb) fb.classList.remove('hidden')
+                  }
+                }}
+              />
+              <div className="logo-fallback hidden w-full h-full absolute inset-0 flex items-center justify-center text-white font-black text-lg">
+                {(item.name || '?')[0]}
               </div>
-            )}
+            </div>
             <div>
               <div className="text-white font-bold text-sm leading-tight">
                 {item.name?.split('—')[0]?.trim()}
@@ -129,13 +137,13 @@ function TransportCard({ item, showDetail }: Props) {
           <div className="text-right flex-shrink-0">
             {displayPrice ? (
               <>
-                <div className="text-xl font-black font-mono text-[var(--primary)] leading-tight">
+                <div className="text-lg sm:text-xl font-black font-mono text-[var(--primary)] leading-tight">
                   {displayPrice}
                 </div>
-                <div className="text-[0.65rem] text-[var(--text-muted)]">per person · economy</div>
+                <div className="text-[0.6rem] text-[var(--text-muted)] whitespace-nowrap">per person</div>
               </>
             ) : (
-              <div className="text-xs text-[var(--text-muted)] italic">Price on booking site</div>
+              <div className="text-xs text-[var(--text-muted)] italic">Price on site</div>
             )}
           </div>
         </div>
@@ -156,12 +164,12 @@ function TransportCard({ item, showDetail }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })}
-            className="flex-1 text-center py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
+            className="flex-1 text-center py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 active:scale-95 transition-all shadow-md shadow-[var(--primary)]/30"
           >
             {item.source === 'affiliate_redirect' ? 'Search Live Prices →' : 'Book Now →'}
           </a>
           {item.source === 'live' && (
-            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3">
+            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3 hover:opacity-90 active:scale-95 transition-all">
               Select
             </button>
           )}

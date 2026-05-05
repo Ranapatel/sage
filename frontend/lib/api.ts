@@ -73,8 +73,8 @@ export const tripAPI = {
   search: (params: {
     from: string; to: string; startDate: string; endDate?: string
     budget?: number; travelers?: number; style?: string
-  }): Promise<ApiResponse<SearchData>> =>
-    API.post('/api/search', params),
+  }, noCache = false): Promise<ApiResponse<SearchData>> =>
+    API.post('/api/search', params, noCache ? { headers: { 'x-no-cache': '1' } } : {}),
 
   getAutocomplete: (query: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/places/autocomplete?query=${encodeURIComponent(query)}`),
@@ -85,8 +85,8 @@ export const tripAPI = {
   generateItinerary: (params: {
     destination: string; days: number; budget: number
     style: string; preferences: string[]; members: number; startDate?: string
-  }): Promise<ApiResponse<ItineraryData>> =>
-    API.post('/api/itinerary/generate', params),
+  }, noCache = false): Promise<ApiResponse<ItineraryData>> =>
+    API.post('/api/itinerary/generate', params, noCache ? { headers: { 'x-no-cache': '1' } } : {}),
 
   optimizeBudget: (params: {
     destination: string; days: number; budget: number

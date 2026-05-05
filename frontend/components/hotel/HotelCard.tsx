@@ -51,15 +51,13 @@ function HotelCard({ item, showDetail }: Props) {
   })()
 
   return (
-    <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)]/10">
+    <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-[var(--primary)]/10 hover:scale-[1.02] group">
 
       {/* Hero image */}
       <div className="relative h-48 overflow-hidden">
         <img 
           src={getOptimizedImageUrl(item.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', isMobile)} 
-          alt={item.name} 
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 group-hover:brightness-110 transition-all duration-500 ease-out" 
           decoding="async"
           onError={(e: any) => {
             e.target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'
@@ -90,11 +88,11 @@ function HotelCard({ item, showDetail }: Props) {
       <div className="p-4 space-y-3">
         {/* Name + Price */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-[var(--text-primary)] leading-tight flex-1">{item.name}</h3>
+          <h3 className="font-bold text-[var(--text-primary)] leading-tight flex-1 min-w-0 text-sm sm:text-base line-clamp-2">{item.name}</h3>
           <div className="text-right flex-shrink-0">
             {displayPrice ? (
               <>
-                <div className="text-2xl font-black font-mono text-[var(--primary)] leading-tight">
+                <div className="text-lg sm:text-2xl font-black font-mono text-[var(--primary)] leading-tight">
                   {displayPrice}
                 </div>
                 <div className="text-[0.65rem] text-[var(--text-muted)]">/night</div>
@@ -142,12 +140,12 @@ function HotelCard({ item, showDetail }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent('booking_click', { type: 'hotel', name: item.name, price: item.price })}
-            className="flex-1 text-center py-3 px-4 rounded-xl font-black text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
+            className="flex-1 text-center py-3 px-4 rounded-xl font-black text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 active:scale-95 transition-all shadow-md shadow-[var(--primary)]/30"
           >
             {item.source === 'affiliate_redirect' ? 'Search on Agoda →' : 'Book on Agoda →'}
           </a>
           {item.source === 'live' && (
-            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3">
+            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3 hover:opacity-90 active:scale-95 transition-all">
               Select
             </button>
           )}

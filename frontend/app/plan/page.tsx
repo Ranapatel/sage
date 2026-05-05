@@ -130,7 +130,18 @@ export default function PlanPage() {
     setInitialized(true)
   }, [])
 
-  const runSearch = async (params?: any) => {
+  const handleNewTrip = () => {
+    startNewTrip()
+    setSearchForm({
+      from: '', to: '', startDate: '', endDate: '',
+      budget: '2000', travelers: '2', style: 'adventure'
+    })
+    setActiveTab('overview')
+    setTabCache({ overview: true }) // reset tab cache so stale content is cleared
+    setMobileMenuOpen(false)
+  }
+
+  const runSearch = async (params?: any, forceNoCache = false) => {
     const p = params || {
       from: searchForm.from, to: searchForm.to,
       startDate: searchForm.startDate, endDate: searchForm.endDate,
@@ -140,16 +151,21 @@ export default function PlanPage() {
     }
     if (!p.from || !p.to) return
 
+    // Detect if this is a new/changed destination vs regeneration of same trip
+    const isNewDestination = tripContext.destination !== p.to || tripContext.startDate !== p.startDate
+    const noCache = forceNoCache || isNewDestination || transport.length > 0 || itinerary.length > 0
+
     setLoading(true)
     setAiThinking(true)
     setError(null)
     
-    // Clear previous results
+    // Clear ALL previous results immediately
     setTransport([])
     setHotels([])
     setBuses([])
     setCars([])
     setItinerary([])
+    setWeather(null as any)
 
     setTrip({
       startLocation: p.from,
@@ -164,44 +180,53 @@ export default function PlanPage() {
       travelStyle: p.style,
     })
 
-    try {
-      // 1. Fire progressive WebSocket stream for trips
-      emit('GENERATE_TRIP_STREAM', {
+    // Emit socket event for real-time updates (price/weather alerts)
+    emit('SUBSCRIBE_UPDATES', { destination: p.to, sessionId: sessionStorage.getItem('sessionId') })
+
+    const days = getDaysBetween(p.startDate, p.endDate) || 3
+
+    Promise.allSettled([
+      tripAPI.search(p, noCache),
+      tripAPI.generateItinerary({
         destination: p.to,
-        from: p.from,
-        startDate: p.startDate,
-        endDate: p.endDate,
+        days,
         budget: p.budget,
-        travelers: p.travelers,
         style: p.style,
-        preferences: userProfile.preferences
-      });
-
-      // Emit socket event for real-time updates (price/weather alerts)
-      emit('SUBSCRIBE_UPDATES', { destination: p.to, sessionId: sessionStorage.getItem('sessionId') })
-
-      // 2. Fetch weather asynchronously in parallel
+        preferences: userProfile.preferences,
+        members: p.travelers,
+        startDate: p.startDate,
+      }, noCache),
       tripAPI.getWeather(p.to)
-        .then(res => {
-          if (res?.data) setWeather(res.data)
-        })
-        .catch(err => console.warn('[Weather] failed:', err.message));
-
-      addNotification({
+    ]).then(([searchRes, itinRes, weatherRes]) => {
+       if (searchRes.status === 'fulfilled' && searchRes.value.success) {
+         const d = searchRes.value.data;
+         setTransport(d.transport || [])
+         setHotels(d.hotels || [])
+         setBuses(d.buses || [])
+         setCars(d.cars || [])
+       }
+       if (itinRes.status === 'fulfilled' && itinRes.value.success) {
+         setItinerary(itinRes.value.data.itinerary || [])
+       }
+       if (weatherRes.status === 'fulfilled' && weatherRes.value.success) {
+         setWeather(weatherRes.value.data)
+       }
+       setLoading(false)
+       setAiThinking(false)
+       
+       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: '🔄 Generating Trip',
-        message: `Building your ${p.to} trip plan progressively...`,
+        title: '✅ Trip Ready',
+        message: `Your ${p.to} trip plan is ready!`,
         timestamp: new Date().toISOString(),
         read: false,
-      })
-
-    } catch (err: any) {
-      setError(err.message)
-      toast.error(err.message || 'Stream initiation failed')
-      setLoading(false)
-      setAiThinking(false)
-    }
+       })
+    }).catch(err => {
+       setError(err.message)
+       setLoading(false)
+       setAiThinking(false)
+    })
   }
 
   // Listen to complete event to turn off local aiThinking
@@ -345,7 +370,7 @@ export default function PlanPage() {
             </button>
           ) : (
             <button
-              onClick={() => { startNewTrip(); setActiveTab('overview'); setMobileMenuOpen(false); }}
+              onClick={() => { handleNewTrip(); }}
               className="btn-outline w-full py-3 text-sm border-[var(--primary)] text-[var(--primary)]"
             >
               <Plus size={16} /> New Trip
@@ -377,8 +402,10 @@ export default function PlanPage() {
         </div>
       )}
 
-      {/* SEARCH BAR */}
-      <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
+      {/* SEARCH BAR — always visible on desktop; on mobile only show when on overview tab */}
+      <div className={`px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border relative z-[60] ${
+        activeTab !== 'overview' ? 'hidden md:block' : ''
+      }`}>
         <div className="glass rounded-xl p-3 sm:p-4 w-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
             <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
@@ -397,10 +424,16 @@ export default function PlanPage() {
             </select>
             <button
               onClick={() => runSearch()}
-              className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
+              className="btn-primary w-full py-2.5 text-[13px] sm:text-sm hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
               disabled={loading}
             >
-              {loading ? '...' : <><Search size={16} /> Search</>}
+              {loading ? (
+                <><span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Loading...</>
+              ) : (itinerary.length > 0 || transport.length > 0) ? (
+                <><RefreshCw size={16} /> Regenerate</>
+              ) : (
+                <><Search size={16} /> Search</>
+              )}
             </button>
           </div>
         </div>
@@ -427,16 +460,28 @@ export default function PlanPage() {
         </div>
       )}
 
-      {/* TABS */}
-      <div className="px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
+      {/* TABS — hidden on mobile (bottom nav handles navigation) */}
+      <div className="hidden md:block px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
         <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar w-full relative snap-x">
-          {TABS.map(t => (
+          {TABS.map(t => {
+            const isDisabled = !loading && (
+              (t.id === 'transport' && transport.length === 0) ||
+              (t.id === 'hotels' && hotels.length === 0) ||
+              (t.id === 'itinerary' && itinerary.length === 0) ||
+              (t.id === 'buses' && buses.length === 0) ||
+              (t.id === 'cars' && cars.length === 0)
+            ) && !['overview', 'history', 'return', 'explore', 'map', 'bookings', 'optimizer'].includes(t.id);
+
+            return (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
+              disabled={isDisabled}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                 activeTab === t.id
                   ? 'bg-[var(--primary)] text-white'
+                  : isDisabled
+                  ? 'opacity-50 cursor-not-allowed glass text-[var(--text-muted)]'
                   : 'glass text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
@@ -455,12 +500,13 @@ export default function PlanPage() {
                 <span className="badge badge-green text-[0.6rem] py-0 px-1">✓</span>
               )}
             </button>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="px-4 py-6 max-w-7xl mx-auto animate-fade-in pb-24 md:pb-6">
+      <main className="px-3 sm:px-4 py-4 sm:py-6 max-w-7xl mx-auto animate-fade-in pb-28 md:pb-8">
         <Suspense fallback={<TabLoader />}>
           <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
             <OverviewTab
@@ -473,7 +519,7 @@ export default function PlanPage() {
               tripStatus={tripStatus}
               tripHistory={tripHistory}
               onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
-              onNewTrip={() => { startNewTrip(); setActiveTab('overview') }}
+              onNewTrip={() => { handleNewTrip(); }}
             />
           </div>
           
@@ -503,7 +549,7 @@ export default function PlanPage() {
           
           {tabCache.itinerary && (
             <div className={activeTab === 'itinerary' ? 'block' : 'hidden'}>
-              <ItineraryView itinerary={itinerary} loading={loading} />
+              <ItineraryView itinerary={itinerary} loading={loading} destination={tripContext.destination} />
             </div>
           )}
           
@@ -527,7 +573,12 @@ export default function PlanPage() {
           
           {tabCache.map && (
             <div className={activeTab === 'map' ? 'block' : 'hidden'}>
-              <MapView itinerary={itinerary} hotels={hotels} tripContext={tripContext} />
+              <MapView
+                key={`map-${tripContext.destination}-${tripContext.startDate}`}
+                itinerary={itinerary}
+                hotels={hotels}
+                tripContext={tripContext}
+              />
             </div>
           )}
           
@@ -562,37 +613,62 @@ export default function PlanPage() {
         <FeedbackModal onClose={() => setShowFeedback(false)} />
       )}
 
-      {/* MOBILE BOTTOM NAV */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 z-[1000] shadow-[0_-8px_30px_rgba(0,0,0,0.05)]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-center justify-around h-[64px]">
+      {/* MOBILE BOTTOM NAV — all tabs, horizontally scrollable */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-[1000]"
+        style={{
+          background: 'rgba(15,23,42,0.97)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(255,255,255,0.10)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        <div
+          className="flex items-stretch overflow-x-auto hide-scrollbar"
+          style={{ height: '64px' }}
+        >
           {[
-            { id: 'overview', label: 'Overview', icon: Home },
-            { id: 'transport', label: 'Flights', icon: Plane },
-            { id: 'hotels', label: 'Hotels', icon: Hotel },
-            { id: 'itinerary', label: 'Itinerary', icon: MapPin },
-            { id: 'bookings', label: 'Bookings', icon: ClipboardList },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => {
-                setActiveTab(t.id)
-                window.scrollTo({ top: 0, behavior: 'smooth' })
-              }}
-              className={`flex flex-col items-center justify-center gap-1.5 flex-1 h-full transition-all duration-300 relative ${
-                activeTab === t.id ? 'text-orange-500' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <t.icon size={22} strokeWidth={activeTab === t.id ? 2.5 : 2} />
-              <span className="text-[10px] font-bold tracking-tight uppercase">{t.label}</span>
-              {activeTab === t.id && (
-                <motion.div 
-                  layoutId="activeTabUnderline"
-                  className="absolute top-0 w-8 h-1 bg-orange-500 rounded-b-full"
-                />
-              )}
-            </button>
-          ))}
+            { id: 'overview',   label: 'Home',      icon: Home },
+            { id: 'transport',  label: 'Flights',   icon: Plane },
+            { id: 'hotels',     label: 'Hotels',    icon: Hotel },
+            { id: 'itinerary',  label: 'Itinerary', icon: MapPin },
+            { id: 'map',        label: 'Map',       icon: Map },
+            { id: 'buses',      label: 'Buses',     icon: Bus },
+            { id: 'cars',       label: 'Cabs',      icon: Car },
+            { id: 'explore',    label: 'Explore',   icon: Compass },
+            { id: 'optimizer',  label: 'Budget',    icon: TrendingUp },
+            { id: 'return',     label: 'Return',    icon: RefreshCw },
+            { id: 'bookings',   label: 'Bookings',  icon: ClipboardList },
+            { id: 'history',    label: 'History',   icon: History },
+          ].map(t => {
+            const isActive = activeTab === t.id
+            return (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setActiveTab(t.id)
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
+                className="flex flex-col items-center justify-center gap-1 flex-shrink-0 transition-all duration-200 relative px-4"
+                style={{ color: isActive ? '#ff5c00' : 'rgba(148,163,184,0.8)' }}
+              >
+                {isActive && (
+                  <div
+                    className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b-full"
+                    style={{ width: '32px', height: '3px', background: '#ff5c00' }}
+                  />
+                )}
+                <t.icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                <span
+                  className="text-[9px] font-bold tracking-tight uppercase whitespace-nowrap"
+                  style={{ color: isActive ? '#ff5c00' : 'rgba(148,163,184,0.7)' }}
+                >
+                  {t.label}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </nav>
     </div>

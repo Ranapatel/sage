@@ -10,7 +10,6 @@ import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import { tripAPI } from '@/lib/api'
 import { trackEvent } from '@/lib/analytics'
-<<<<<<< HEAD
 import LegalModal from '@/components/ui/LegalModal'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { 
@@ -29,8 +28,6 @@ import {
   ArrowRight,
   Search
 } from 'lucide-react'
-=======
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
 
 const POPULAR_DESTINATIONS = [
   { name: 'Bali, Indonesia', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80', tag: 'Tropical' },
@@ -135,30 +132,18 @@ export default function Home() {
     e.preventDefault()
     if (!form.from || !form.to || !form.startDate) return
     setLoading(true)
-<<<<<<< HEAD
-
     trackEvent('plan_trip_click', { source: 'hero_form' })
-
-=======
-    
-    trackEvent('plan_trip_click', { source: 'hero_form' })
-    
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
     // Store in session and navigate
     sessionStorage.setItem('tripContext', JSON.stringify(form))
     setTimeout(() => router.push('/plan'), 800)
   }
 
-<<<<<<< HEAD
   const [initialized, setInitialized] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const isFormInView = useInView(formRef, { amount: 0.1 })
   const showStickySearch = !isFormInView && !isDesktop && initialized
 
-  // Auto-detect location
-=======
-  // Clear old sessions on mount
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
+  // Auto-detect location and Clear old sessions on mount
   useEffect(() => {
     // Clear old trip so it doesn't auto-search on /plan if they navigated back to home
     sessionStorage.removeItem('tripContext')
@@ -251,11 +236,7 @@ export default function Home() {
           ) : (
             <>
               <Link href="/auth" className="hidden sm:flex btn-outline text-sm py-2 px-4 items-center justify-center">Sign In</Link>
-<<<<<<< HEAD
               <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex btn-primary whitespace-nowrap flex-shrink-0 text-sm py-2 px-5 items-center justify-center gap-2">Plan Trip <ArrowRight size={14} /></Link>
-=======
-              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="btn-primary whitespace-nowrap flex-shrink-0 text-xs sm:text-sm py-1.5 px-3 sm:py-2 sm:px-5 flex items-center justify-center">Plan Trip →</Link>
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
             </>
           )}
           {/* Mobile Menu Toggle */}
@@ -295,8 +276,6 @@ export default function Home() {
                   <X size={28} />
                 </button>
               </div>
-<<<<<<< HEAD
-
               {/* Links */}
               <div className="flex flex-col gap-2">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl transition-colors">Home</Link>
@@ -319,19 +298,6 @@ export default function Home() {
           </>
         )}
       </AnimatePresence>
-=======
-              <Link href="/plan" onClick={() => setMobileMenuOpen(false)} className="btn-primary w-full py-3 flex items-center justify-center">Dashboard</Link>
-              <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="btn-outline text-red-400 border-red-500/30 w-full py-3">Logout</button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="btn-outline w-full py-3 flex items-center justify-center">Sign In</Link>
-              <Link href="/plan" onClick={() => { setMobileMenuOpen(false); trackEvent('plan_trip_click', { source: 'mobile_nav' }) }} className="btn-primary w-full py-3 flex items-center justify-center">Plan Trip →</Link>
-            </div>
-          )}
-        </div>
-      )}
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
 
       {/* HERO */}
       <section className="relative min-h-[95vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-hidden bg-white md:bg-[#0F172A]">
@@ -689,18 +655,11 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-<<<<<<< HEAD
       <section className="py-32 px-6">
         <div className="max-w-4xl mx-auto text-center bg-blue-600 rounded-[40px] p-16 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
           <h2 className="section-title mb-6 text-white font-bold text-4xl">Ready to Travel <span className="text-orange-300">Smarter?</span></h2>
           <p className="text-blue-100 mb-10 text-lg opacity-90">Join thousands using TripSage for AI-powered travel planning</p>
-=======
-      <section className="py-24 px-6">
-        <div className="max-w-3xl mx-auto text-center glass rounded-3xl p-12">
-          <h2 className="section-title mb-4">Ready to Travel <span className="gradient-text">Smarter?</span></h2>
-          <p className="text-[var(--text-secondary)] mb-8">Join thousands using TripSage for AI-powered travel planning</p>
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
           <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'cta_section' })} className="btn-primary text-base py-4 px-10 inline-block">
             Start Planning Free →
           </Link>

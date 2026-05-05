@@ -50,56 +50,67 @@ function rapidHeaders(host) {
 
 // ─── Mock Data (Realistic INR prices) ────────────────────────────────────────
 
-// ─── Airline Data with correct logos ─────────────────────────────────────────
+// ─── Airline Data with verified logo CDN URLs ─────────────────────────────────
 const AIRLINES = [
   {
-    name: 'IndiGo',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/IndiGo_Airlines_logo.svg/200px-IndiGo_Airlines_logo.svg.png',
+    name: 'IndiGo', iata: '6E',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/6E.png',
     image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80',
     color: '#1a1abb'
   },
   {
-    name: 'Air India',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Air_India_Logo.svg/200px-Air_India_Logo.svg.png',
+    name: 'Air India', iata: 'AI',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/AI.png',
     image: 'https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=600&q=80',
     color: '#c8102e'
   },
   {
-    name: 'SpiceJet',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/3/3e/SpiceJet_logo.svg/200px-SpiceJet_logo.svg.png',
+    name: 'SpiceJet', iata: 'SG',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/SG.png',
     image: 'https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=600&q=80',
     color: '#e8312f'
   },
   {
-    name: 'Akasa Air',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Akasa_Air_logo.svg/200px-Akasa_Air_logo.svg.png',
+    name: 'Akasa Air', iata: 'QP',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/QP.png',
     image: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&q=80',
     color: '#ff6900'
   },
   {
-    name: 'Vistara',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/16/Vistara_Logo.png/200px-Vistara_Logo.png',
+    name: 'Air Asia India', iata: 'I5',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/FD.png',
     image: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80',
-    color: '#6e2d8a'
+    color: '#e31837'
   },
-  // International carriers
   {
-    name: 'Emirates',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Emirates_logo.svg/200px-Emirates_logo.svg.png',
+    name: 'Emirates', iata: 'EK',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/EK.png',
     image: 'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=600&q=80',
     color: '#c8102e'
   },
   {
-    name: 'Qatar Airways',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Qatar_Airways_Logo.svg/200px-Qatar_Airways_Logo.svg.png',
+    name: 'Qatar Airways', iata: 'QR',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/QR.png',
     image: 'https://images.unsplash.com/photo-1503146695848-73da81c33c3a?w=600&q=80',
     color: '#5c0632'
   },
   {
-    name: 'Singapore Airlines',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/6b/Singapore_Airlines_Logo_2.svg/200px-Singapore_Airlines_Logo_2.svg.png',
+    name: 'Singapore Airlines', iata: 'SQ',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/SQ.png',
     image: 'https://images.unsplash.com/photo-1457296898342-cdd24585d095?w=600&q=80',
     color: '#001489'
+  },
+  {
+    name: 'Thai Airways', iata: 'TG',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/TG.png',
+    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80',
+    color: '#4b0082'
+  },
+  {
+    name: 'Malaysia Airlines', iata: 'MH',
+    logo: 'https://www.gstatic.com/flights/airline_logos/70px/MH.png',
+    image: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&q=80',
+    color: '#003087'
   },
 ]
 
@@ -126,10 +137,10 @@ function seededRandom(seed) {
 }
 
 function generateMockFlights(from, to, date, budget, aiFlights = null) {
-  // Use a stable seed (city names only, not date) so prices don't change randomly
+  // Use a stable seed including date so prices change for different dates
   const stableFrom = (from || 'any').split(',')[0].toLowerCase().trim()
   const stableTo = (to || 'any').split(',')[0].toLowerCase().trim()
-  const seed = `${stableFrom}-${stableTo}`
+  const seed = `${stableFrom}-${stableTo}-${date}`
 
   // If AI provided prices, use them as the base
   if (aiFlights && aiFlights.length > 0) {
@@ -181,7 +192,7 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
       duration: `${durHr}h ${durMin}m`,
       departure: `${String(depHour).padStart(2, '0')}:${String(Math.floor(r * 60)).padStart(2, '0')}`,
       arrival: `${String((depHour + durHr) % 24).padStart(2, '0')}:${String(durMin).padStart(2, '0')}`,
-      image: FLIGHT_IMAGES[i % FLIGHT_IMAGES.length],
+      image: airline.image || `https://source.unsplash.com/600x400/?airplane,${encodeURIComponent((to || '').split(',')[0])}`,
       logo: airline.logo,
       bookingLink: flightBookingLink(from, to, date),
       score: parseFloat((0.5 + seededRandom(seed + i + 's') * 0.5).toFixed(2)),
@@ -197,8 +208,8 @@ const HOTEL_SUFFIXES = ['Hotel', 'Resort', 'Inn', 'Suites', 'Palace', 'Retreat',
 const AMENITIES_POOL = ['WiFi', 'Pool', 'Spa', 'Gym', 'Restaurant', 'Room Service', 'Parking', 'Breakfast']
 
 function generateMockHotels(destination, checkin, checkout, members, budget) {
-  // Use stable seed (destination only) so hotel prices don't change on every search
-  const seed = (destination || 'dest').split(',')[0].toLowerCase().trim()
+  // Use stable seed including date so hotel prices change for different dates
+  const seed = (destination || 'dest').split(',')[0].toLowerCase().trim() + '-' + (checkin || '')
   const destLabel = (destination || 'destination').split(',')[0]
   // Realistic per-night prices: ₹800–₹6,000
   const maxPerNight = budget ? Math.min(budget * 0.35, 7000) : 5500
@@ -217,7 +228,7 @@ function generateMockHotels(destination, checkin, checkout, members, budget) {
       name: `${prefix} ${destLabel} ${suffix}`,
       price: Math.max(price, 700),
       rating: parseFloat((3.5 + seededRandom(seed + i + 'r') * 1.5).toFixed(1)),
-      image: HOTEL_IMAGES[i % HOTEL_IMAGES.length],
+      image: `https://source.unsplash.com/600x400/?hotel,${encodeURIComponent(destLabel)},luxury`,
       location: `${destLabel} City Centre`,
       bookingLink: hotelBookingLink(destination, checkin, checkout, members),
       score: parseFloat((0.5 + seededRandom(seed + i + 's') * 0.5).toFixed(2)),
@@ -254,10 +265,12 @@ async function resolveAirport(query) {
 
 // ─── Flight Search ────────────────────────────────────────────────────────────
 
-async function searchFlights({ from, to, date, returnDate, travelers = 1, budget }) {
-  const cacheKey = generateCacheKey('flights_v3', { from, to, date, travelers, budget })
-  const cached = await cacheGet(cacheKey)
-  if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+async function searchFlights({ from, to, date, returnDate, travelers = 1, budget, noCache = false }) {
+  const cacheKey = generateCacheKey('flights_v3', { from, to, date, travelers })
+  if (!noCache) {
+    const cached = await cacheGet(cacheKey)
+    if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+  }
 
   if (RAPIDAPI_KEY) {
     try {
@@ -374,10 +387,12 @@ function normalizeSkyscannerFlights(rawData, from, to, date) {
 
 // ─── Hotel Search ─────────────────────────────────────────────────────────────
 
-async function searchHotels({ destination, checkin, checkout, members = 2, budget }) {
-  const cacheKey = generateCacheKey('hotels_v3', { destination, checkin, checkout, members, budget })
-  const cached = await cacheGet(cacheKey)
-  if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+async function searchHotels({ destination, checkin, checkout, members = 2, budget, noCache = false }) {
+  const cacheKey = generateCacheKey('hotels_v3', { destination, checkin, checkout, members })
+  if (!noCache) {
+    const cached = await cacheGet(cacheKey)
+    if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+  }
 
   if (RAPIDAPI_KEY) {
     try {
@@ -496,7 +511,25 @@ const BUS_OPERATORS = [
 ]
 
 function generateMockBuses(from, to, date, budget) {
-  const seed = `${(from || 'a').split(',')[0]}-${(to || 'b').split(',')[0]}`.toLowerCase().trim()
+  const stableFrom = (from || 'a').split(',')[0].toLowerCase().trim()
+  const stableTo = (to || 'b').split(',')[0].toLowerCase().trim()
+  const seed = `${stableFrom}-${stableTo}-${date}`
+  
+  // Basic heuristic: if it's likely an international flight route, no buses
+  const isDomesticIndia = ['delhi','mumbai','bangalore','hyderabad','chennai','kolkata','pune','goa',
+     'jaipur','ahmedabad','kochi','agra','varanasi','rishikesh','manali','shimla','chandigarh']
+     .some(c => stableFrom.includes(c)) && 
+     ['delhi','mumbai','bangalore','hyderabad','chennai','kolkata','pune','goa',
+     'jaipur','ahmedabad','kochi','agra','varanasi','rishikesh','manali','shimla','chandigarh']
+     .some(c => stableTo.includes(c));
+     
+  // If not domestic India and the strings don't seem like they are close, skip buses
+  if (!isDomesticIndia && !((from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india'))) {
+    // If it's something like London to Paris, buses might exist, but let's be conservative
+    if (stableFrom !== stableTo && !stableFrom.includes('london') && !stableTo.includes('paris')) {
+        return []; // No buses available
+    }
+  }
   const basePrice = Math.max(500, Math.round((seededRandom(seed) * 1500 + 400) / 100) * 100)
   
   return BUS_OPERATORS.map((op, i) => {

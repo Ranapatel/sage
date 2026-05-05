@@ -19,11 +19,14 @@ const CATEGORY_ICONS: Record<string, string> = {
 interface Props {
   itinerary: any[]
   loading: boolean
+  destination?: string
 }
 
-function ItineraryView({ itinerary, loading }: Props) {
+function ItineraryView({ itinerary, loading, destination = '' }: Props) {
   const isMobile = useIsMobile()
   const [activeDay, setActiveDay] = useState(0)
+  // Clean destination city name for image queries
+  const destCity = destination.split(',')[0].trim()
 
   if (loading) {
     return (
@@ -105,62 +108,86 @@ function ItineraryView({ itinerary, loading }: Props) {
                 : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`
 
               return (
-              <div key={i} className="relative flex gap-4 pl-14">
+              <div key={i} className="relative flex gap-3 pl-10 sm:pl-14">
                 {/* Timeline dot */}
-                <div className="absolute left-4 top-4 w-4 h-4 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
+                <div className="absolute left-3 sm:left-4 top-4 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
 
-                <div className="card p-4 flex-1 hover:border-[var(--primary)] transition-colors cursor-pointer">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 flex-1">
-                      <span className="text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || '📍'}</span>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-[var(--text-primary)] text-sm">{place.name}</h3>
-                        <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">{place.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className={`badge ${CATEGORY_COLORS[place.category] || 'badge-green'} text-[0.65rem]`}>
-                            {place.category}
-                          </span>
-                          {hasCoords ? (
-                            <span className="text-xs text-[var(--text-muted)]">
-                              📍 {lat!.toFixed(3)}, {lng!.toFixed(3)}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-yellow-500">📍 Coordinates loading...</span>
-                          )}
-                        </div>
+                <div className="card p-3 sm:p-4 flex-1 min-w-0 hover:border-[var(--primary)] hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden">
+                  <div className="flex items-start gap-2 min-w-0">
+                    <span className="text-xl sm:text-2xl flex-shrink-0 mt-0.5">{CATEGORY_ICONS[place.category] || '📍'}</span>
+                    <div className="flex-1 min-w-0">
+                      {/* Name + time in same row */}
+                      <div className="flex items-start justify-between gap-2 min-w-0">
+                        <h3 className="font-bold text-[var(--text-primary)] text-sm leading-tight break-words flex-1 min-w-0">
+                          {place.name}
+                        </h3>
+                        <span className="font-mono text-xs font-bold text-[var(--primary)] flex-shrink-0 bg-[var(--primary)]/10 px-2 py-0.5 rounded-full">
+                          {place.time}
+                        </span>
                       </div>
-                    </div>
-
-                    <div className="text-right flex-shrink-0">
-                      <div className="font-mono text-sm font-bold text-[var(--primary)]">{place.time}</div>
-                      <a
-                        href={mapsHref}
-                        target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors mt-1 block"
-                      >
-                        Open Maps →
-                      </a>
+                      <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed line-clamp-2">{place.description}</p>
+                      {/* Badge + maps link inline */}
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <span className={`badge ${CATEGORY_COLORS[place.category] || 'badge-green'} text-[0.6rem]`}>
+                          {place.category}
+                        </span>
+                        <a
+                          href={mapsHref}
+                          target="_blank" rel="noopener noreferrer"
+                          className="text-[0.65rem] text-[var(--primary)] hover:underline"
+                        >
+                          📍 Open Maps →
+                        </a>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Image Gallery */}
-                  <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
+                  {/* Image Gallery — curated images by category */}
+                  <div className="mt-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
                     <div className="flex gap-2 min-w-max">
-                      {!place.images ? (
-                        /* Placeholders while loading */
-                        <>
-                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
-                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
-                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
-                        </>
-                      ) : place.images.length > 0 ? (
-                        /* Real images */
-                        place.images.map((img: string, idx: number) => (
-                          <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)]">
-                            <img src={getOptimizedImageUrl(img, isMobile)} alt={`${place.name} ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" decoding="async" />
+                      {(() => {
+                        // Use place name + destination for real contextual images
+                        // Unsplash's /s/photos/ endpoint is a stable redirect that works without API key
+                        const placeSlug = encodeURIComponent(`${place.name} ${destCity}`.toLowerCase())
+                        const catSlug   = encodeURIComponent(`${destCity} ${place.category || 'travel'}`.toLowerCase())
+                        const imgUrls = [
+                          `https://images.unsplash.com/search/photos?query=${placeSlug}&w=400&q=75&auto=format&fit=crop`,
+                          `https://images.unsplash.com/search/photos?query=${catSlug}&w=400&q=75&auto=format&fit=crop`,
+                        ]
+                        // Deterministic category fallback pool
+                        const CATEGORY_IMAGES: Record<string, string[]> = {
+                          nature:    ['1476514525535-07fb3b4ed5f1','1501854140801-50d01698950b','1469474968028-56623f02e42e','1441974231531-c6227db76b6e'],
+                          beach:     ['1507525428034-b723cf961d3e','1519046904884-53103b34b206','1471922694854-ff1b63b20054','1505118380757-91f5f5632de0'],
+                          culture:   ['1539037116277-4db20889f2d4','1523906834658-6e24ef2386f9','1529260830199-42c24126f198','1558618666-fcd25c85cd64'],
+                          dining:    ['1504674900247-0877df9cc836','1414235077428-338989a2e8c0','1482049016688-2d3e1b311543','1466637574441-749b8f19452f'],
+                          transport: ['1436491865332-7a61a109cc05','1556388158-158ea5ccacbd','1474302770737-173ee21bab63','1464037866556-6812c9d1c72e'],
+                          explore:   ['1501504905252-473c47e087f8','1469854523086-cc02fe5d8800','1513635269975-59663e0ac1ad','1533929736458-ca588d08c8be'],
+                          shopping:  ['1441986300917-64674bd600d8','1555529669-e69e7aa0ba9a','1483985988355-763728e1f8e9','1472851294608-062f824d29cc'],
+                          activity:  ['1506929562872-bb421503ef21','1499856871958-5b9627545d1a','1508672019048-58f3a73a47cc','1461896836373-425058792621'],
+                          accommodation: ['1566073771259-6a8506099945','1551882547-ff40c0d51928','1520250497591-112f2f40a3f4','1582719478250-c89cae4dc85b'],
+                          default:   ['1476514525535-07fb3b4ed5f1','1501504905252-473c47e087f8','1469854523086-cc02fe5d8800','1506929562872-bb421503ef21'],
+                        }
+                        const cat = (place.category || 'default').toLowerCase()
+                        const pool = CATEGORY_IMAGES[cat] || CATEGORY_IMAGES.default
+                        const hash = place.name.split('').reduce((a: number, b: string) => a + b.charCodeAt(0), 0)
+                        return imgUrls.map((src, idx) => (
+                          <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group border border-[var(--border)] bg-slate-800">
+                            <img
+                              src={src}
+                              alt={`${place.name} ${idx + 1}`}
+                              className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 ease-out"
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => {
+                                // Fall back to curated photo ID
+                                const fallbackId = pool[(hash + idx) % pool.length]
+                                e.currentTarget.src = `https://images.unsplash.com/photo-${fallbackId}?auto=format&fit=crop&w=400&q=75`
+                                e.currentTarget.onerror = null
+                              }}
+                            />
                           </div>
                         ))
-                      ) : null}
+                      })()}
                     </div>
                   </div>
                 </div>

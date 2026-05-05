@@ -31,12 +31,13 @@ router.post('/', searchValidation, async (req, res) => {
 
   const requestId = uuidv4()
   const timestamp = new Date().toISOString()
+  const noCache = req.headers['x-no-cache'] === '1'
 
   try {
     // Execute all searches in parallel (3-5 sec timeout)
     const [flightResult, hotelResult, busResult, carResult, weatherResult] = await Promise.allSettled([
-      searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
-      searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget }),
+      searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget, noCache }),
+      searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget, noCache }),
       searchBuses({ from, to, date: startDate, budget }),
       searchCars({ destination: to, date: startDate, budget }),
       getWeather(to),

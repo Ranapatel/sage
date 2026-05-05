@@ -170,7 +170,7 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
       )}
       
       {isOpen && state.status !== 'idle' && (
-        <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-xl border border-white/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden animate-fade-in">
+        <div className="absolute left-0 z-[100] min-w-[280px] mt-2 bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden animate-fade-in">
           
           {state.status === 'loading' && (
             <div className="px-4 py-3 text-sm text-slate-500 text-center flex items-center justify-center gap-2">

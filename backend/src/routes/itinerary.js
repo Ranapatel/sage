@@ -26,11 +26,14 @@ router.post('/generate', itineraryValidation, async (req, res) => {
   const { destination, days, budget, style, members = 2, preferences = [], startDate } = req.body
   const requestId = uuidv4()
 
-  // Check cache first
-  const cacheKey = generateCacheKey('itinerary', { destination, days, budget, style })
-  const cached = await cacheGet(cacheKey)
-  if (cached) {
-    return res.json({ ...cached, meta: { ...cached.meta, requestId, cache: true } })
+  // Check cache first — skip cache if client requests fresh data
+  const noCache = req.headers['x-no-cache'] === '1' || req.query.noCache === '1'
+  const cacheKey = generateCacheKey('itinerary', { destination, days, budget, style, startDate })
+  if (!noCache) {
+    const cached = await cacheGet(cacheKey)
+    if (cached) {
+      return res.json({ ...cached, meta: { ...cached.meta, requestId, cache: true } })
+    }
   }
 
   try {

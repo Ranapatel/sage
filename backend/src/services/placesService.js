@@ -117,24 +117,42 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
   const hasGoogle = process.env.GOOGLE_PLACES_API_KEY &&
     process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key'
 
-  console.log(`[Places] Geocoding ${total} places for "${destination}" via ${hasGoogle ? 'Google' : 'Nominatim'}...`)
-
-  const enriched = []
-  for (const day of itinerary) {
-    const enrichedPlaces = []
-    for (const place of day.places) {
-      const geo = await geocodePlace(place.name, destination)
-      enrichedPlaces.push(geo ? {
+  if (!hasGoogle) {
+    console.log(`[Places] Skipping geocoding for ${total} places (Google API key missing) to speed up response.`)
+    return itinerary.map(day => ({
+      ...day,
+      places: day.places.map(place => ({
         ...place,
-        coordinates: [geo.lat, geo.lng],
-        placeId: geo.placeId,
-        formattedAddress: geo.formattedAddress,
-        googleMapsUrl: geo.googleMapsUrl,
-        coordSource: geo.source,
-      } : { ...place, coordSource: 'ai_estimated' })
-    }
-    enriched.push({ ...day, places: enrichedPlaces })
+        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ', ' + destination)}`,
+        coordSource: 'ai_estimated'
+      }))
+    }))
   }
+
+  console.log(`[Places] Geocoding ${total} places for "${destination}" via Google...`)
+
+  const enriched = await Promise.all(
+    itinerary.map(async (day) => {
+      const enrichedPlaces = await Promise.all(
+        day.places.map(async (place) => {
+          const geo = await geocodePlace(place.name, destination)
+          return geo ? {
+            ...place,
+            coordinates: [geo.lat, geo.lng],
+            placeId: geo.placeId,
+            formattedAddress: geo.formattedAddress,
+            googleMapsUrl: geo.googleMapsUrl,
+            coordSource: geo.source,
+          } : {
+            ...place,
+            googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ', ' + destination)}`,
+            coordSource: 'ai_estimated'
+          }
+        })
+      )
+      return { ...day, places: enrichedPlaces }
+    })
+  )
 
   const real = enriched.flatMap(d => d.places).filter(p => p.coordSource !== 'ai_estimated').length
   console.log(`[Places] ✅ ${real}/${total} places geocoded`)
