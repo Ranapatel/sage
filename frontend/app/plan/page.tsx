@@ -119,6 +119,13 @@ export default function PlanPage() {
     setLoading(true)
     setAiThinking(true)
     setError(null)
+    
+    // Clear previous results
+    setTransport([])
+    setHotels([])
+    setBuses([])
+    setCars([])
+    setItinerary([])
 
     setTrip({
       startLocation: p.from,
@@ -134,61 +141,51 @@ export default function PlanPage() {
     })
 
     try {
-      // Parallel API calls
-      const [searchRes, weatherRes] = await Promise.allSettled([
-        tripAPI.search(p),
-        tripAPI.getWeather(p.to),
-      ])
-
-      if (searchRes.status === 'fulfilled' && searchRes.value?.data) {
-        const d = searchRes.value.data
-        if (d.transport) setTransport(d.transport)
-        if (d.hotels) setHotels(d.hotels)
-        if (d.buses) setBuses(d.buses)
-        if (d.cars) setCars(d.cars)
-        toast.success(`Found ${d.transport?.length || 0} flights and ${d.hotels?.length || 0} hotels!`)
-      }
-
-      if (weatherRes.status === 'fulfilled' && weatherRes.value?.data) {
-        setWeather(weatherRes.value.data)
-      }
-
-      // Generate itinerary
-      const days = p.endDate ? getDaysBetween(p.startDate, p.endDate) : 3
-      const itiRes = await tripAPI.generateItinerary({
+      // 1. Fire progressive WebSocket stream for trips
+      emit('GENERATE_TRIP_STREAM', {
         destination: p.to,
-        days: days,
-        budget: parseInt(p.budget) || 2000,
-        style: p.style || 'adventure',
-        preferences: userProfile.preferences,
-        members: parseInt(p.travelers) || 2,
+        from: p.from,
         startDate: p.startDate,
-      })
-      if (itiRes?.data?.itinerary) {
-        setItinerary(itiRes.data.itinerary)
-        trackEvent('trip_generated', { destination: p.to, days: days, style: p.style })
-      }
+        endDate: p.endDate,
+        budget: p.budget,
+        travelers: p.travelers,
+        style: p.style,
+        preferences: userProfile.preferences
+      });
 
-      // Emit socket event for real-time updates
+      // Emit socket event for real-time updates (price/weather alerts)
       emit('SUBSCRIBE_UPDATES', { destination: p.to, sessionId: sessionStorage.getItem('sessionId') })
+
+      // 2. Fetch weather asynchronously in parallel
+      tripAPI.getWeather(p.to)
+        .then(res => {
+          if (res?.data) setWeather(res.data)
+        })
+        .catch(err => console.warn('[Weather] failed:', err.message));
 
       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: '✅ Trip Ready',
-        message: `Your ${p.to} trip plan is ready!`,
+        title: '🔄 Generating Trip',
+        message: `Building your ${p.to} trip plan progressively...`,
         timestamp: new Date().toISOString(),
         read: false,
       })
 
     } catch (err: any) {
       setError(err.message)
-      toast.error(err.message || 'Search failed')
-    } finally {
+      toast.error(err.message || 'Stream initiation failed')
       setLoading(false)
       setAiThinking(false)
     }
   }
+
+  // Listen to complete event to turn off local aiThinking
+  useEffect(() => {
+    if (!loading && aiThinking) {
+      setAiThinking(false)
+    }
+  }, [loading, aiThinking])
 
 
 
@@ -404,11 +401,11 @@ export default function PlanPage() {
               ))}
             </div>
             <div>
-              <p className="text-sm font-semibold text-[var(--primary)]">Groq AI Engine processing...</p>
-              <p className="text-xs text-[var(--text-muted)]">Searching flights, hotels, generating itinerary in parallel</p>
+              <p className="text-sm font-semibold text-[var(--primary)]">Fetching real-time data...</p>
+              <p className="text-xs text-[var(--text-muted)]">Calling flight API · hotel API · weather · AI ranking</p>
             </div>
             <div className="ml-auto font-mono text-xs text-[var(--text-muted)]">
-              LLaMA3-70B · Real-time
+              Skyscanner · Booking.com · Open-Meteo
             </div>
           </div>
         </div>

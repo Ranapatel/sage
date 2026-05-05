@@ -1,73 +1,85 @@
 'use client'
 
-import { useState } from 'react'
-import BusCard from './BusCard'
 import { useTripStore } from '@/store/tripStore'
+import { trackEvent } from '@/lib/analytics'
 
 export default function BusesTab() {
-  const { buses, loading } = useTripStore()
-  const [sortBy, setSortBy] = useState('cheapest')
+  const { buses, loading, tripContext } = useTripStore()
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="h-32 bg-[var(--border)] rounded-xl animate-pulse"></div>
+      <div className="space-y-3">
+        {[1, 2].map(i => (
+          <div key={i} className="h-32 bg-[var(--border)] rounded-xl animate-pulse" />
         ))}
       </div>
     )
   }
 
-  if (!buses || buses.length === 0) {
+  // ── Affiliate redirect card (no real search API available) ────────────────
+  const affiliateEntry = buses?.find((b: any) => b.source === 'affiliate_redirect')
+  if (affiliateEntry || !buses || buses.length === 0) {
+    const from = tripContext?.startLocation || ''
+    const to   = tripContext?.destination   || ''
+    const redirectUrl = affiliateEntry?.bookingLink ||
+      `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage`
+
     return (
-      <div className="text-center py-12 text-[var(--text-muted)]">
-        <div className="text-4xl mb-4">🚌</div>
-        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">No buses available right now</h3>
-        <p>Try adjusting your search criteria or dates.</p>
-      </div>
-    )
-  }
+      <div className="space-y-4 animate-fade-in">
+        {/* Info banner */}
+        <div className="glass rounded-xl p-4 border border-[var(--border)] flex items-start gap-3">
+          <span className="text-2xl">ℹ️</span>
+          <div>
+            <p className="font-semibold text-sm text-[var(--text-primary)]">Real-time bus search</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              Live bus schedules and seat availability are fetched directly from redBus — India's largest bus booking platform.
+              Click below to search in real-time.
+            </p>
+          </div>
+        </div>
 
-  let displayedBuses = [...buses]
+        {/* redBus CTA card */}
+        <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all">
+          <div className="relative h-32 overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80"
+              alt="Buses"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2">
+              <div className="text-white font-bold text-lg">🚌 Search Buses</div>
+              <div className="text-white/70 text-sm mt-1">
+                {from && to ? `${from.split(',')[0]} → ${to.split(',')[0]}` : 'Enter your route to search'}
+              </div>
+            </div>
+            <div className="absolute top-3 right-3">
+              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg">
+                redBus
+              </span>
+            </div>
+          </div>
 
-  if (sortBy === 'cheapest') {
-    displayedBuses.sort((a, b) => a.price - b.price)
-  } else if (sortBy === 'fastest') {
-    // Basic duration sort (assumes format "Xh Ym")
-    displayedBuses.sort((a, b) => {
-      const aMin = parseInt(a.duration.split('h')[0] || '0') * 60 + parseInt(a.duration.split(' ')[1]?.replace('m', '') || '0')
-      const bMin = parseInt(b.duration.split('h')[0] || '0') * 60 + parseInt(b.duration.split(' ')[1]?.replace('m', '') || '0')
-      return aMin - bMin
-    })
-  }
-
-  return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-elevated)] p-3 rounded-xl border border-[var(--border)]">
-        <div className="flex gap-2">
-           <span className="text-sm text-[var(--text-muted)] font-medium self-center mr-2">Sort by:</span>
-           <button 
-             onClick={() => setSortBy('cheapest')}
-             className={`px-3 py-1 text-xs rounded-full transition-colors ${sortBy === 'cheapest' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--border)]'}`}
-           >
-             Cheapest First
-           </button>
-           <button 
-             onClick={() => setSortBy('fastest')}
-             className={`px-3 py-1 text-xs rounded-full transition-colors ${sortBy === 'fastest' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--border)]'}`}
-           >
-             Fastest Route
-           </button>
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-muted)]">
+              <span className="badge badge-green">Real-time seats</span>
+              <span className="badge badge-amber">Live prices</span>
+              <span className="badge badge-green">Instant booking</span>
+            </div>
+            <a
+              href={redirectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('booking_click', { type: 'bus', name: 'redBus', source: 'affiliate_redirect' })}
+              className="w-full text-center block py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-red-600 to-red-500 text-white hover:opacity-90 transition-opacity shadow-md"
+            >
+              Search Live Bus Tickets on redBus →
+            </a>
+          </div>
         </div>
       </div>
+    )
+  }
 
-      {/* List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {displayedBuses.map((bus, idx) => (
-          <BusCard key={bus.id || idx} item={bus} />
-        ))}
-      </div>
-    </div>
-  )
+  return null
 }

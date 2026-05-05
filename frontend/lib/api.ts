@@ -1,18 +1,47 @@
-import axios from 'axios'
+import axios, { type AxiosInstance } from 'axios'
 
-const API = axios.create({
+// ─── Shared response shape from TripSage backend ─────────────────────────────
+
+export interface ApiResponse<T = any> {
+  success: boolean
+  message: string
+  data: T
+  meta?: Record<string, any>
+  error?: string | null
+}
+
+export interface SearchData {
+  transport: any[]
+  hotels:    any[]
+  buses:     any[]
+  cars:      any[]
+  weather:   any
+  itinerary: any[]
+  exploration: any[]
+}
+
+export interface ItineraryData {
+  itinerary: any[]
+  totalEstimatedCost?: number
+  tips?: string[]
+}
+
+// ─── Axios instance ──────────────────────────────────────────────────────────
+
+// The response interceptor unwraps res.data, so all methods resolve to ApiResponse<T>.
+// We cast the axios instance to reflect this so callers get correct types.
+const _API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
-});
+})
 
 // Request interceptor — inject session + auth token
-API.interceptors.request.use((config) => {
+_API.interceptors.request.use((config) => {
   if (typeof sessionStorage !== 'undefined') {
     const sessionId = sessionStorage.getItem('sessionId')
     if (sessionId) config.headers['x-session-id'] = sessionId
   }
-  // Inject auth token from persisted store if not already set
   if (!config.headers['Authorization'] && typeof localStorage !== 'undefined') {
     try {
       const raw = localStorage.getItem('tripsage-auth')
@@ -26,8 +55,8 @@ API.interceptors.request.use((config) => {
   return config
 })
 
-// Response interceptor
-API.interceptors.response.use(
+// Response interceptor — unwraps res.data so callers receive the API body directly
+_API.interceptors.response.use(
   (res) => res.data,
   (err) => {
     const msg = err.response?.data?.message || err.message || 'Something went wrong'
@@ -35,61 +64,71 @@ API.interceptors.response.use(
   }
 )
 
+// Cast to any so we can re-declare with correct return types below
+const API = _API as any
+
+// ─── Trip API ────────────────────────────────────────────────────────────────
+
 export const tripAPI = {
-  // Search all travel data in parallel
   search: (params: {
-    from: string; to: string; startDate: string; endDate?: string;
+    from: string; to: string; startDate: string; endDate?: string
     budget?: number; travelers?: number; style?: string
-  }) => API.post('/api/search', params),
+  }): Promise<ApiResponse<SearchData>> =>
+    API.post('/api/search', params),
 
-  // Autocomplete
-  getAutocomplete: (query: string) => API.get(`/api/places/autocomplete?query=${encodeURIComponent(query)}`),
+  getAutocomplete: (query: string): Promise<ApiResponse<any[]>> =>
+    API.get(`/api/places/autocomplete?query=${encodeURIComponent(query)}`),
 
-  // IP Geo Location
-  getIpLocation: () => API.get('/api/places/ip-location'),
+  getIpLocation: (): Promise<ApiResponse<any>> =>
+    API.get('/api/places/ip-location'),
 
-  // AI Itinerary generation
   generateItinerary: (params: {
-    destination: string; days: number; budget: number;
+    destination: string; days: number; budget: number
     style: string; preferences: string[]; members: number; startDate?: string
-  }) => API.post('/api/itinerary/generate', params),
+  }): Promise<ApiResponse<ItineraryData>> =>
+    API.post('/api/itinerary/generate', params),
 
-  // Budget Optimizer
   optimizeBudget: (params: {
-    destination: string; days: number; budget: number;
+    destination: string; days: number; budget: number
     style: string; preferences: string[]; members: number
-  }) => API.post('/api/itinerary/optimize-budget', params),
+  }): Promise<ApiResponse<string>> =>
+    API.post('/api/itinerary/optimize-budget', params),
 
-  // Weather
-  getWeather: (destination: string) => API.get(`/api/weather/${encodeURIComponent(destination)}`),
+  getWeather: (destination: string): Promise<ApiResponse<any>> =>
+    API.get(`/api/weather/${encodeURIComponent(destination)}`),
 
-  // Booking
-  initBooking: (data: { type: 'flight' | 'hotel'; itemId: string; userDetails: any }) =>
+  initBooking: (data: { type: 'flight' | 'hotel'; itemId: string; userDetails: any }): Promise<ApiResponse<any>> =>
     API.post('/api/booking/init', data),
 
-  confirmBooking: (bookingId: string) => API.post(`/api/booking/${bookingId}/confirm`),
+  confirmBooking: (bookingId: string): Promise<ApiResponse<any>> =>
+    API.post(`/api/booking/${bookingId}/confirm`),
 
-  // Exploration
-  getActivities: (destination: string, category?: string) =>
+  getActivities: (destination: string, category?: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/activities/${encodeURIComponent(destination)}`, { params: { category } }),
 
-  getRestaurants: (destination: string) =>
+  getRestaurants: (destination: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/restaurants/${encodeURIComponent(destination)}`),
 
-  // Notifications
-  getNotifications: (sessionId: string) => API.get(`/api/notifications/${sessionId}`),
+  getNotifications: (sessionId: string): Promise<ApiResponse<any[]>> =>
+    API.get(`/api/notifications/${sessionId}`),
 
-  // Profile
-  saveProfile: (profile: any) => API.post('/api/profile', profile),
+  saveProfile: (profile: any): Promise<ApiResponse<any>> =>
+    API.post('/api/profile', profile),
 }
+
+// ─── Auth API ─────────────────────────────────────────────────────────────────
 
 export const authAPI = {
-  signup: (data: { name: string; email: string; password: string; currency: string; country: string }) =>
+  signup: (data: { name: string; email: string; password: string; currency: string; country: string }): Promise<ApiResponse<any>> =>
     API.post('/api/auth/signup', data),
-  login: (email: string, password: string) => API.post('/api/auth/login', { email, password }),
-  logout: () => API.post('/api/auth/logout'),
-  me: () => API.get('/api/auth/me'),
-  updateProfile: (data: any) => API.patch('/api/auth/profile', data),
+  login: (email: string, password: string): Promise<ApiResponse<any>> =>
+    API.post('/api/auth/login', { email, password }),
+  logout: (): Promise<ApiResponse<any>> =>
+    API.post('/api/auth/logout'),
+  me: (): Promise<ApiResponse<any>> =>
+    API.get('/api/auth/me'),
+  updateProfile: (data: any): Promise<ApiResponse<any>> =>
+    API.patch('/api/auth/profile', data),
 }
 
-export default API
+export default _API

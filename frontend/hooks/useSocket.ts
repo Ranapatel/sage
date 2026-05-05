@@ -9,7 +9,7 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000'
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null)
-  const { setConnected, setTransport, setHotels, setWeather, addNotification, setLoading } = useTripStore()
+  const { setConnected, setTransport, setHotels, setBuses, setCars, setItinerary, setWeather, addNotification, setLoading } = useTripStore()
 
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000', {
@@ -68,6 +68,35 @@ export function useSocket() {
       if (data.transport) setTransport(data.transport)
       if (data.hotels) setHotels(data.hotels)
       setLoading(false)
+    })
+
+    // Progressive trip generation stream
+    socket.on('TRIP_STAGE', (payload: any) => {
+      const { stage, data, status, message } = payload
+      
+      if (stage === 'analysis') {
+        toast.success(`Analyzing request for ${data.userType} trip...`, { id: 'stream-analysis' })
+      } else if (stage === 'hotels') {
+        setHotels(data || [])
+        toast.success(`Found ${data?.length || 0} hotels`, { id: 'stream-hotels' })
+      } else if (stage === 'transport') {
+        if (data.flights) setTransport(data.flights)
+        if (data.buses) setBuses(data.buses)
+        if (data.cars) setCars(data.cars)
+      } else if (stage === 'activities') {
+        toast.success(`Found ${data?.length || 0} activities`, { id: 'stream-activities' })
+      } else if (stage === 'itinerary') {
+        setItinerary(data || [])
+        toast.success(`Generated itinerary for ${data?.length || 0} days`, { id: 'stream-itinerary' })
+      } else if (stage === 'booking') {
+        toast.success(`Booking links ready!`, { id: 'stream-booking' })
+      } else if (stage === 'complete') {
+        setLoading(false)
+        toast.success('Trip generation complete! 🎉', { id: 'stream-complete' })
+      } else if (stage === 'error') {
+        setLoading(false)
+        toast.error(`Error: ${message}`)
+      }
     })
 
     // Booking status updates

@@ -1,4 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
+const { searchHotels, searchFlights, searchBuses, searchCars, flightBookingLink, hotelBookingLink } = require('./travelService')
+const { generateItinerary, getRecommendations } = require('./aiService')
+const { enrichItineraryWithRealCoords } = require('./placesService')
 
 const sessions = new Map()
 const subscriptions = new Map()
@@ -37,6 +40,107 @@ module.exports = function setupSocket(io) {
     socket.on('SEARCH_REQUEST', async (data) => {
       socket.emit('SEARCH_START', { timestamp: new Date().toISOString() })
       // Search results would come from the search service
+    })
+
+    // Handle progressive trip generation streaming
+    socket.on('GENERATE_TRIP_STREAM', async (data) => {
+      try {
+        const { destination, from, startDate, endDate, budget = 2000, travelers = 2, style = 'adventure', preferences = [] } = data;
+        
+        // Use realistic dates if missing
+        const checkin = startDate || new Date().toISOString().split('T')[0];
+        const checkout = endDate || new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
+        const days = Math.max(1, Math.ceil((new Date(checkout) - new Date(checkin)) / 86400000));
+
+        // 1. INITIATE ALL FETCHES IN PARALLEL
+        const hotelPromise = searchHotels({ destination, checkin, checkout, members: travelers, budget });
+        const actPromise = getRecommendations({ destination, category: 'activities', budget, style });
+        const flightPromise = searchFlights({ from, to: destination, date: checkin, returnDate: checkout, travelers, budget });
+        const busPromise = searchBuses({ from, to: destination, date: checkin, budget });
+        const carPromise = searchCars({ destination, date: checkin, budget });
+        
+        // Start itinerary in parallel too
+        const itineraryPromise = generateItinerary({ destination, days, budget, style, preferences, members: travelers, startDate: checkin })
+          .then(async itinRes => {
+            if (itinRes.data?.itinerary) {
+              return await enrichItineraryWithRealCoords(itinRes.data.itinerary, destination);
+            }
+            return [];
+          })
+          .catch(err => {
+            console.error('[Socket] Itinerary error:', err.message);
+            return [];
+          });
+
+        // Timeout helper to ensure < 3s per block (total < 5s as they run in parallel)
+        const withTimeout = (promise, ms = 3000) => {
+          let timer;
+          return Promise.race([
+            promise,
+            new Promise((resolve) => timer = setTimeout(() => resolve({ data: [] }), ms))
+          ]).finally(() => clearTimeout(timer));
+        };
+
+        // Stage 1: analysis (emit immediately)
+        socket.emit('TRIP_STAGE', { 
+          stage: 'analysis', 
+          data: { 
+            userType: style, 
+            preferences: preferences.length > 0 ? preferences : [style, 'budget:' + budget] 
+          } 
+        });
+
+        // STRICT EMIT ORDER:
+        // 1. Hotels
+        const hotelRes = await withTimeout(hotelPromise, 3000).catch(() => ({ data: [] }));
+        socket.emit('TRIP_STAGE', { 
+          stage: 'hotels', 
+          data: hotelRes.data || [] 
+        });
+
+        // 2. Activities
+        const actRes = await withTimeout(actPromise, 3000).catch(() => ({ data: [] }));
+        socket.emit('TRIP_STAGE', { 
+          stage: 'activities', 
+          data: actRes.data || [] 
+        });
+
+        // 3. Flights (Transport)
+        const flightRes = await withTimeout(flightPromise, 3000).catch(() => ({ data: [] }));
+        const busRes = await busPromise.catch(() => ({ data: [] }));
+        const carRes = await carPromise.catch(() => ({ data: [] }));
+        
+        socket.emit('TRIP_STAGE', {
+          stage: 'transport',
+          data: {
+            flights: flightRes.data || [],
+            buses: busRes.data || [],
+            cars: carRes.data || []
+          }
+        });
+
+        // 4. Itinerary
+        const enrichedItinerary = await withTimeout(itineraryPromise, 4500).catch(() => []);
+        socket.emit('TRIP_STAGE', { 
+          stage: 'itinerary', 
+          data: Array.isArray(enrichedItinerary) ? enrichedItinerary : (enrichedItinerary.data || [])
+        });
+
+        // Stage 5: booking (deep links)
+        const fLink = flightBookingLink(from, destination, checkin);
+        const hLink = hotelBookingLink(destination, checkin, checkout, travelers);
+        socket.emit('TRIP_STAGE', { 
+          stage: 'booking', 
+          data: { flightLink: fLink, hotelLink: hLink } 
+        });
+
+        // Final emit
+        socket.emit('TRIP_STAGE', { stage: 'complete', status: true });
+
+      } catch (err) {
+        console.error('[Socket] Stream error:', err.message);
+        socket.emit('TRIP_STAGE', { stage: 'error', message: err.message });
+      }
     })
 
     // User location update for location-based notifications

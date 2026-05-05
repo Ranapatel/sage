@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { body, query, validationResult } = require('express-validator')
 const { generateItinerary, optimizeBudget } = require('../services/aiService')
+// Note: rankResults is used in search.js — not needed here
 const { enrichItineraryWithRealCoords, searchPlace } = require('../services/placesService')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 const { v4: uuidv4 } = require('uuid')

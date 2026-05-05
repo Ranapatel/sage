@@ -111,6 +111,7 @@ const notificationsRouter = require('./routes/notifications')
 const profileRouter = require('./routes/profile')
 const authRouter = require('./routes/auth')
 const placesRouter = require('./routes/places')
+const citiesRouter = require('./routes/cities')
 
 app.use('/api/auth', authRouter)
 app.use('/api/search', searchRouter)
@@ -121,6 +122,7 @@ app.use('/api/explore', exploreRouter)
 app.use('/api/notifications', notificationsRouter)
 app.use('/api/profile', profileRouter)
 app.use('/api/places', placesRouter)
+app.use('/api/cities', citiesRouter)
 
 // Health check
 app.get('/health', (req, res) => {

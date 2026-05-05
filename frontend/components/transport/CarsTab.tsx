@@ -1,59 +1,79 @@
 'use client'
 
-import { useState } from 'react'
-import CarCard from './CarCard'
 import { useTripStore } from '@/store/tripStore'
+import { trackEvent } from '@/lib/analytics'
 
 export default function CarsTab() {
-  const { cars, loading } = useTripStore()
-  const [sortBy, setSortBy] = useState('cheapest')
+  const { cars, loading, tripContext } = useTripStore()
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="h-32 bg-[var(--border)] rounded-xl animate-pulse"></div>
+      <div className="space-y-3">
+        {[1, 2].map(i => (
+          <div key={i} className="h-32 bg-[var(--border)] rounded-xl animate-pulse" />
         ))}
       </div>
     )
   }
 
-  if (!cars || cars.length === 0) {
-    return (
-      <div className="text-center py-12 text-[var(--text-muted)]">
-        <div className="text-4xl mb-4">🚕</div>
-        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">No cars available right now</h3>
-        <p>Try adjusting your search criteria or dates.</p>
-      </div>
-    )
-  }
-
-  let displayedCars = [...cars]
-
-  if (sortBy === 'cheapest') {
-    displayedCars.sort((a, b) => a.price - b.price)
-  }
+  // ── Affiliate redirect card (no real search API available) ────────────────
+  const affiliateEntry = cars?.find((c: any) => c.source === 'affiliate_redirect')
+  const destination    = tripContext?.destination || ''
+  const redirectUrl    = affiliateEntry?.bookingLink ||
+    `https://naiawork.com/g/wqjhitsyjqbd777ee50d5ea594bb46/?dest=${encodeURIComponent(destination)}&source=tripsage`
 
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-elevated)] p-3 rounded-xl border border-[var(--border)]">
-        <div className="flex gap-2">
-           <span className="text-sm text-[var(--text-muted)] font-medium self-center mr-2">Sort by:</span>
-           <button 
-             onClick={() => setSortBy('cheapest')}
-             className={`px-3 py-1 text-xs rounded-full transition-colors ${sortBy === 'cheapest' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--border)]'}`}
-           >
-             Cheapest First
-           </button>
+      {/* Info banner */}
+      <div className="glass rounded-xl p-4 border border-[var(--border)] flex items-start gap-3">
+        <span className="text-2xl">ℹ️</span>
+        <div>
+          <p className="font-semibold text-sm text-[var(--text-primary)]">Real-time car rental search</p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            Live car rental availability, pricing and free cancellation options are fetched directly from DiscoverCars —
+            a trusted car rental aggregator. Click below to search in real-time.
+          </p>
         </div>
       </div>
 
-      {/* List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {displayedCars.map((car, idx) => (
-          <CarCard key={car.id || idx} item={car} />
-        ))}
+      {/* DiscoverCars CTA card */}
+      <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all">
+        <div className="relative h-32 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80"
+            alt="Rental Car"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2">
+            <div className="text-white font-bold text-lg">🚗 Search Rental Cars</div>
+            <div className="text-white/70 text-sm mt-1">
+              {destination ? `In ${destination.split(',')[0]}` : 'Enter your destination to search'}
+            </div>
+          </div>
+          <div className="absolute top-3 right-3">
+            <span className="bg-[#16a085] text-white text-xs font-bold px-2 py-1 rounded-lg">
+              DiscoverCars
+            </span>
+          </div>
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-muted)]">
+            <span className="badge badge-green">Free Cancellation</span>
+            <span className="badge badge-amber">Live Availability</span>
+            <span className="badge badge-green">No Hidden Fees</span>
+          </div>
+          <a
+            href={redirectUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('booking_click', { type: 'car', name: 'DiscoverCars', source: 'affiliate_redirect' })}
+            className="w-full text-center block py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[#16a085] to-[#1abc9c] text-white hover:opacity-90 transition-opacity shadow-md"
+          >
+            Search Live Car Rentals on DiscoverCars →
+          </a>
+        </div>
       </div>
     </div>
   )

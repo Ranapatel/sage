@@ -5,12 +5,7 @@ import React, { useState, useEffect, useRef } from 'react'
 export type Location = {
   id: string
   name: string
-  city: string
-  country: string
-  latitude: number
-  longitude: number
-  iataCode?: string
-  type: 'city' | 'airport'
+  type: 'city'
 }
 
 type AutoCompleteState =
@@ -51,12 +46,18 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const isSelectingRef = useRef(false)
+
   useEffect(() => {
     const trimmed = query.trim()
-    if (trimmed === value) return // Ignore if it's just the selected value
     if (trimmed.length < 2) {
       setState({ status: 'idle' })
       setIsOpen(false)
+      return
+    }
+
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
       return
     }
 
@@ -85,32 +86,25 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
 
     try {
       const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const res = await fetch(`${baseURL}/api/places/autocomplete?query=${encodeURIComponent(searchTerm)}`, {
+      const res = await fetch(`${baseURL}/api/cities?q=${encodeURIComponent(searchTerm)}`, {
         signal: abortControllerRef.current.signal
       })
       
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}))
-        throw new Error(errData.error || 'API error')
+        throw new Error('API error')
       }
       
-      const resData = await res.json()
-      const results = resData.data || []
+      const results = await res.json()
       
-      if (results.length === 0) {
+      if (!Array.isArray(results) || results.length === 0) {
         setState({ status: 'empty' })
         cache[searchTerm.toLowerCase()] = []
         return
       }
 
       const locations: Location[] = results.map((r: any) => ({
-        id: r.id?.toString() ?? Math.random().toString(36).slice(2),
-        name: r.city || r.name || '',
-        city: r.city || r.name || '',
-        country: r.country || '',
-        latitude: r.latitude ?? 0,
-        longitude: r.longitude ?? 0,
-        iataCode: r.iataCode,
+        id: r.place_id || Math.random().toString(36).slice(2),
+        name: r.name || '',
         type: 'city' as const,
       }))
 
@@ -123,10 +117,9 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
   }
 
   const handleSelect = (loc: Location) => {
-    const parts = [loc.city, loc.country].filter(Boolean)
-    const displayValue = parts.join(', ')
-    setQuery(displayValue)
-    onChange(displayValue)
+    isSelectingRef.current = true
+    setQuery(loc.name)
+    onChange(loc.name)
     setState({ status: 'idle' })
     setIsOpen(false)
   }
@@ -155,12 +148,19 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
         </div>
       )}
       
-      {isOpen && state.status !== 'idle' && state.status !== 'loading' && (
+      {isOpen && state.status !== 'idle' && (
         <div className="absolute z-50 w-full mt-1 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden glass">
+          
+          {state.status === 'loading' && (
+            <div className="px-4 py-3 text-sm text-[var(--text-muted)] text-center flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin inline-block"></span>
+              Searching...
+            </div>
+          )}
           
           {state.status === 'empty' && (
             <div className="px-4 py-3 text-sm text-[var(--text-muted)] text-center">
-              No locations found
+              No results found
             </div>
           )}
 
@@ -178,7 +178,7 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
             >
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-[var(--text-primary)] group-hover:text-white">
-                  📍 {loc.city}{loc.country ? `, ${loc.country}` : ''}{loc.iataCode ? ` (${loc.iataCode})` : ''}
+                  📍 {loc.name}
                 </span>
               </div>
               <span className="text-[0.65rem] px-2 py-0.5 rounded-md bg-[var(--bg-dark)] text-[var(--text-muted)] group-hover:bg-white/20 group-hover:text-white uppercase tracking-wider">
