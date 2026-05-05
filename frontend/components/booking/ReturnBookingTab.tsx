@@ -5,6 +5,7 @@ import { useTripStore, type TransportOption } from '@/store/tripStore'
 import { affiliateLinks } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -231,6 +232,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
 
                 <div className="flex items-center gap-3">
                   <a href={item.bookingLink} target="_blank" rel="noopener noreferrer"
+                    onClick={() => trackEvent('booking_click', { type: 'return_flight', name: item.name, price: item.price })}
                     className="btn-primary text-sm py-2 px-4 flex-1 text-center">
                     Book Now →
                   </a>
@@ -261,6 +263,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
               <p className="text-green-400 font-bold text-lg">✅ Return Journey Confirmed!</p>
               <p className="text-[var(--text-muted)] text-sm mt-1">{bookingStatus.selectedReturn?.name}</p>
               <a href={bookingStatus.selectedReturn?.bookingLink} target="_blank" rel="noopener noreferrer"
+                onClick={() => trackEvent('booking_click', { type: 'return_flight', name: bookingStatus.selectedReturn?.name, price: bookingStatus.selectedReturn?.price })}
                 className="text-xs text-[var(--primary)] hover:underline mt-2 block">View booking details →</a>
             </div>
           )}

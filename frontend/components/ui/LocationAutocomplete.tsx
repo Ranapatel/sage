@@ -156,36 +156,40 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
       )}
       
       {isOpen && state.status !== 'idle' && state.status !== 'loading' && (
-        <div className="absolute z-50 w-full mt-1 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden glass">
+        <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-xl border border-white/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden animate-fade-in">
           
           {state.status === 'empty' && (
-            <div className="px-4 py-3 text-sm text-[var(--text-muted)] text-center">
+            <div className="px-4 py-4 text-sm text-slate-500 text-center">
               No locations found
             </div>
           )}
 
           {state.status === 'error' && (
-            <div className="px-4 py-3 text-sm text-red-400 text-center">
+            <div className="px-4 py-4 text-sm text-red-500 text-center">
               {state.message}
             </div>
           )}
 
-          {state.status === 'success' && state.data.map((loc) => (
-            <div
-              key={loc.id}
-              className="px-4 py-2 hover:bg-[var(--primary)] hover:text-white cursor-pointer transition-colors group flex items-center justify-between"
-              onClick={() => handleSelect(loc)}
-            >
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-[var(--text-primary)] group-hover:text-white">
-                  📍 {loc.city}{loc.country ? `, ${loc.country}` : ''}{loc.iataCode ? ` (${loc.iataCode})` : ''}
-                </span>
-              </div>
-              <span className="text-[0.65rem] px-2 py-0.5 rounded-md bg-[var(--bg-dark)] text-[var(--text-muted)] group-hover:bg-white/20 group-hover:text-white uppercase tracking-wider">
-                city
-              </span>
+          {state.status === 'success' && (
+            <div className="max-h-[300px] overflow-y-auto">
+              {state.data.map((loc) => (
+                <div
+                  key={loc.id}
+                  className="px-5 py-3 hover:bg-blue-50 cursor-pointer transition-colors group flex items-center justify-between border-b border-gray-50 last:border-0"
+                  onClick={() => handleSelect(loc)}
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-900">
+                      📍 {loc.city}{loc.country ? `, ${loc.country}` : ''}{loc.iataCode ? ` (${loc.iataCode})` : ''}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-gray-100 text-slate-500 uppercase tracking-widest group-hover:bg-blue-100 group-hover:text-blue-600">
+                    City
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

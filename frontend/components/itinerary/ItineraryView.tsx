@@ -1,6 +1,7 @@
 'use client'
-
-import { useState } from 'react'
+import React, { memo, useState } from 'react'
+import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import TripActions from '../actions/TripActions'
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -20,7 +21,8 @@ interface Props {
   loading: boolean
 }
 
-export default function ItineraryView({ itinerary, loading }: Props) {
+function ItineraryView({ itinerary, loading }: Props) {
+  const isMobile = useIsMobile()
   const [activeDay, setActiveDay] = useState(0)
 
   if (loading) {
@@ -128,7 +130,13 @@ export default function ItineraryView({ itinerary, loading }: Props) {
 
                   {place.image && (
                     <div className="mt-3 h-24 rounded-lg overflow-hidden">
-                      <img src={place.image} alt={place.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={getOptimizedImageUrl(place.image, isMobile)} 
+                        alt={place.name} 
+                        className="w-full h-full object-cover" 
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                   )}
                 </div>
@@ -149,3 +157,4 @@ export default function ItineraryView({ itinerary, loading }: Props) {
     </div>
   )
 }
+export default memo(ItineraryView)

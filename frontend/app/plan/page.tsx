@@ -1,47 +1,66 @@
 'use client'
 
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect, lazy, Suspense, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useTripStore, type HotelOption, type TransportOption, type TripRecord } from '@/store/tripStore'
 import { useSocket } from '@/hooks/useSocket'
 import { tripAPI } from '@/lib/api'
-import { affiliateLinks, formatCurrency, formatDate, getDaysBetween } from '@/lib/utils'
+import { formatDate, getDaysBetween } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
-import { SYMBOLS, formatPrice, ALL_CURRENCIES } from '@/lib/currency'
+import { SYMBOLS } from '@/lib/currency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Home, Plane, Bus, Car, Hotel, MapPin, TrendingUp, RefreshCw, 
+  Compass, Map, ClipboardList, Search, Plus, 
+  Check, LogOut, Menu, X, Bell, History
+} from 'lucide-react'
 
-// Sub-components
-import TransportCard from '@/components/transport/TransportCard'
-import HotelCard from '@/components/hotel/HotelCard'
-import ItineraryView from '@/components/itinerary/ItineraryView'
-import WeatherWidget from '@/components/weather/WeatherWidget'
-import NotificationsPanel from '@/components/notifications/NotificationsPanel'
-import ExploreSection from '@/components/explore/ExploreSection'
-import MapView from '@/components/map/MapView'
-import BookingStatus from '@/components/booking/BookingStatus'
-import ReturnBookingTab from '@/components/booking/ReturnBookingTab'
-import FeedbackModal from '@/components/feedback/FeedbackModal'
-import TripHistoryTab from '@/components/history/TripHistoryTab'
-import TripActions from '@/components/actions/TripActions'
-import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
-import BudgetOptimizerTab from '@/components/optimizer/BudgetOptimizerTab'
-import BusesTab from '@/components/transport/BusesTab'
-import CarsTab from '@/components/transport/CarsTab'
+// Lazy load components
+const TransportCard = lazy(() => import('@/components/transport/TransportCard'))
+const HotelCard = lazy(() => import('@/components/hotel/HotelCard'))
+const ItineraryView = lazy(() => import('@/components/itinerary/ItineraryView'))
+const WeatherWidget = lazy(() => import('@/components/weather/WeatherWidget'))
+const NotificationsPanel = lazy(() => import('@/components/notifications/NotificationsPanel'))
+const ExploreSection = lazy(() => import('@/components/explore/ExploreSection'))
+const MapView = lazy(() => import('@/components/map/MapView'))
+const BookingStatus = lazy(() => import('@/components/booking/BookingStatus'))
+const ReturnBookingTab = lazy(() => import('@/components/booking/ReturnBookingTab'))
+const FeedbackModal = lazy(() => import('@/components/feedback/FeedbackModal'))
+const TripHistoryTab = lazy(() => import('@/components/history/TripHistoryTab'))
+const TripActions = lazy(() => import('@/components/actions/TripActions'))
+const LocationAutocomplete = lazy(() => import('@/components/ui/LocationAutocomplete'))
+const BudgetOptimizerTab = lazy(() => import('@/components/optimizer/BudgetOptimizerTab'))
+const BusesTab = lazy(() => import('@/components/transport/BusesTab'))
+const CarsTab = lazy(() => import('@/components/transport/CarsTab'))
+const CurrencySelector = lazy(() => import('@/components/ui/CurrencySelector'))
+const OverviewTab = lazy(() => import('@/components/plan/OverviewTab'))
+const TransportTab = lazy(() => import('@/components/plan/TransportTab'))
+const HotelsTab = lazy(() => import('@/components/plan/HotelsTab'))
+
+// Helper for loading state
+const TabLoader = () => (
+  <div className="flex flex-col items-center justify-center py-20 space-y-4">
+    <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
+    <p className="text-[var(--text-muted)] animate-pulse">Loading module...</p>
+  </div>
+)
 
 const TABS = [
-  { id: 'overview', label: 'Overview', icon: '🏠' },
-  { id: 'transport', label: 'Flights', icon: '✈️' },
-  { id: 'buses', label: 'Buses', icon: '🚌' },
-  { id: 'cars', label: 'Cabs', icon: '🚕' },
-  { id: 'hotels', label: 'Hotels', icon: '🏨' },
-  { id: 'itinerary', label: 'Itinerary', icon: '📅' },
-  { id: 'optimizer', label: 'Optimizer', icon: '💰' },
-  { id: 'return', label: 'Return', icon: '🔄' },
-  { id: 'explore', label: 'Explore', icon: '🌍' },
-  { id: 'map', label: 'Map', icon: '🗺️' },
-  { id: 'bookings', label: 'Bookings', icon: '📋' },
-  { id: 'history', label: 'History', icon: '📁' },
+  { id: 'overview', label: 'Overview', icon: Home },
+  { id: 'transport', label: 'Flights', icon: Plane },
+  { id: 'buses', label: 'Buses', icon: Bus },
+  { id: 'cars', label: 'Cabs', icon: Car },
+  { id: 'hotels', label: 'Hotels', icon: Hotel },
+  { id: 'itinerary', label: 'Itinerary', icon: MapPin },
+  { id: 'optimizer', label: 'Optimizer', icon: TrendingUp },
+  { id: 'return', label: 'Return', icon: RefreshCw },
+  { id: 'explore', label: 'Explore', icon: Compass },
+  { id: 'map', label: 'Map', icon: Map },
+  { id: 'bookings', label: 'Bookings', icon: ClipboardList },
+  { id: 'history', label: 'History', icon: History },
 ]
 
 export default function PlanPage() {
@@ -53,7 +72,7 @@ export default function PlanPage() {
     tripStatus, feedbackStatus, tripHistory,
     setTrip, setProfile, setTransport, setHotels, setBuses, setCars, setItinerary,
     setWeather, setLoading, setError, addNotification,
-    completeTrip, startNewTrip, setItinerary: restoreItinerary,
+    completeTrip, startNewTrip,
   } = useTripStore()
   const { user, isLoggedIn, logout, updateCurrency } = useAuthStore()
 
@@ -69,6 +88,14 @@ export default function PlanPage() {
   const [searchForm, setSearchForm] = useState({
     from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure'
   })
+
+  // Tab cache to prevent re-renders and make switching instant
+  const [tabCache, setTabCache] = useState<Record<string, boolean>>({ overview: true })
+
+  useEffect(() => {
+    setTabCache(prev => ({ ...prev, [activeTab]: true }))
+  }, [activeTab])
+
 
   // Load from session on mount
   useEffect(() => {
@@ -165,6 +192,7 @@ export default function PlanPage() {
       })
       if (itiRes?.data?.itinerary) {
         setItinerary(itiRes.data.itinerary)
+        trackEvent('trip_generated', { destination: p.to, days: days, style: p.style })
       }
 
       // Emit socket event for real-time updates
@@ -233,22 +261,18 @@ export default function PlanPage() {
             className="relative p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
             onClick={() => setShowNotifs(!showNotifs)}
           >
-            <span className="text-lg">🔔</span>
+            <Bell size={20} className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" />
             {unreadCount > 0 && (
               <span className="notif-badge">{unreadCount}</span>
             )}
           </button>
 
           {/* Currency selector */}
-          <select
+          <CurrencySelector
             value={currency}
-            onChange={e => updateCurrency(e.target.value as any)}
-            className="glass border border-[var(--border)] rounded-lg text-xs px-2 py-1.5 text-[var(--text-primary)] font-mono cursor-pointer hidden sm:block"
-          >
-            {ALL_CURRENCIES.map(c => (
-              <option key={c} value={c}>{SYMBOLS[c]} {c}</option>
-            ))}
-          </select>
+            onChange={val => updateCurrency(val as any)}
+            className="hidden sm:block min-w-[140px]"
+          />
 
           {tripStatus === 'planning' || tripStatus === 'active' ? (
             <button
@@ -256,14 +280,14 @@ export default function PlanPage() {
               disabled={itinerary.length === 0}
               className="btn-outline py-2 px-3 text-xs border-green-500/50 text-green-400 hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed hidden sm:block"
             >
-              ✅ Complete
+              <Check size={14} /> Complete
             </button>
           ) : (
             <button
               onClick={() => { startNewTrip(); setActiveTab('overview') }}
               className="btn-outline py-2 px-3 text-xs border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10 hidden sm:block"
             >
-              ➕ New Trip
+              <Plus size={14} /> New Trip
             </button>
           )}
 
@@ -281,7 +305,7 @@ export default function PlanPage() {
                 className="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors hidden md:block"
                 title="Logout"
               >
-                ↩
+                <LogOut size={16} />
               </button>
             </div>
           ) : (
@@ -295,11 +319,11 @@ export default function PlanPage() {
             className="btn-primary p-2 sm:py-2 sm:px-3 text-sm flex items-center justify-center"
             disabled={loading || !searchForm.from || !searchForm.to}
           >
-            {loading ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : '🔄'}
+            {loading ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : <RefreshCw size={18} />}
           </button>
           
           <button className="sm:hidden p-2 text-[var(--text-primary)] text-xl" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? '✖' : '☰'}
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </nav>
@@ -309,15 +333,11 @@ export default function PlanPage() {
         <div className="sm:hidden fixed inset-0 top-[60px] bg-[var(--bg-dark)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[var(--text-primary)]">Currency</span>
-            <select
+            <CurrencySelector
               value={currency}
-              onChange={e => updateCurrency(e.target.value as any)}
-              className="glass border border-[var(--border)] rounded-lg text-xs px-2 py-1.5 text-[var(--text-primary)] font-mono cursor-pointer"
-            >
-              {ALL_CURRENCIES.map(c => (
-                <option key={c} value={c}>{SYMBOLS[c]} {c}</option>
-              ))}
-            </select>
+              onChange={val => updateCurrency(val as any)}
+              className="min-w-[140px]"
+            />
           </div>
           
           {tripStatus === 'planning' || tripStatus === 'active' ? (
@@ -326,14 +346,14 @@ export default function PlanPage() {
               disabled={itinerary.length === 0}
               className="btn-outline w-full py-3 text-sm border-green-500/50 text-green-400"
             >
-              ✅ Complete Trip
+              <Check size={16} /> Complete Trip
             </button>
           ) : (
             <button
               onClick={() => { startNewTrip(); setActiveTab('overview'); setMobileMenuOpen(false); }}
               className="btn-outline w-full py-3 text-sm border-[var(--primary)] text-[var(--primary)]"
             >
-              ➕ New Trip
+              <Plus size={16} /> New Trip
             </button>
           )}
 
@@ -366,17 +386,17 @@ export default function PlanPage() {
       <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
         <div className="glass rounded-xl p-3 sm:p-4 w-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
-            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." value={searchForm.from}
+            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
               onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
-            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full" placeholder="To..." value={searchForm.to}
+            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
               onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full" type="date" value={searchForm.startDate}
+            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
               onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full" type="date" value={searchForm.endDate}
+            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
               onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
+            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
               onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
-            <select className="input-field text-[13px] sm:text-sm w-full bg-[var(--bg-card)]" value={searchForm.travelers}
+            <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.travelers}
               onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
               {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
             </select>
@@ -385,7 +405,7 @@ export default function PlanPage() {
               className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
               disabled={loading}
             >
-              {loading ? '...' : '🔍 Search'}
+              {loading ? '...' : <><Search size={16} /> Search</>}
             </button>
           </div>
         </div>
@@ -425,7 +445,8 @@ export default function PlanPage() {
                   : 'glass text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {t.icon} {t.label}
+              <t.icon size={18} className={`${activeTab === t.id ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--accent)]'} transition-colors`} />
+              {t.label}
               {t.id === 'transport' && transport.length > 0 && (
                 <span className="badge badge-green text-[0.6rem] py-0 px-1">{transport.length}</span>
               )}
@@ -444,312 +465,141 @@ export default function PlanPage() {
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="px-4 py-6 max-w-7xl mx-auto animate-fade-in">
-        {activeTab === 'overview' && (
-          <OverviewTab
-            transport={transport} hotels={hotels}
-            weather={weather} itinerary={itinerary}
-            bookingStatus={bookingStatus}
-            destination={tripContext.destination}
-            loading={loading}
-            onTabChange={setActiveTab}
-            tripStatus={tripStatus}
-            tripHistory={tripHistory}
-            onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
-            onNewTrip={() => { startNewTrip(); setActiveTab('overview') }}
-          />
-        )}
-        {activeTab === 'transport' && <TransportTab transport={transport} loading={loading} tripContext={tripContext} searchForm={searchForm} />}
-        {activeTab === 'buses' && <BusesTab />}
-        {activeTab === 'cars' && <CarsTab />}
-        {activeTab === 'hotels' && <HotelsTab hotels={hotels} loading={loading} tripContext={tripContext} searchForm={searchForm} />}
-        {activeTab === 'itinerary' && <ItineraryView itinerary={itinerary} loading={loading} />}
-        {activeTab === 'optimizer' && <BudgetOptimizerTab />}
-        {activeTab === 'return' && <ReturnBookingTab tripContext={tripContext} />}
-        {activeTab === 'explore' && <ExploreSection destination={tripContext.destination} />}
-        {activeTab === 'map' && <MapView itinerary={itinerary} />}
-        {activeTab === 'bookings' && <BookingStatus />}
-        {activeTab === 'history' && (
-          <TripHistoryTab
-            onPlanSimilar={(record) => {
-              setSearchForm({ from: record.startLocation, to: record.destination, startDate: record.dates.start, endDate: record.dates.end, budget: String(record.budget), travelers: String(record.members), style: record.style })
-              startNewTrip()
-              setActiveTab('overview')
-              toast.success(`Planning a similar trip to ${record.destination}!`)
-            }}
-            onReopenItinerary={(record) => {
-              restoreItinerary(record.itinerary)
-              setActiveTab('itinerary')
-              toast.success('Itinerary restored!')
-            }}
-          />
-        )}
+      <main className="px-4 py-6 max-w-7xl mx-auto animate-fade-in pb-24 md:pb-6">
+        <Suspense fallback={<TabLoader />}>
+          <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
+            <OverviewTab
+              transport={transport} hotels={hotels}
+              weather={weather} itinerary={itinerary}
+              bookingStatus={bookingStatus}
+              destination={tripContext.destination}
+              loading={loading}
+              onTabChange={setActiveTab}
+              tripStatus={tripStatus}
+              tripHistory={tripHistory}
+              onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
+              onNewTrip={() => { startNewTrip(); setActiveTab('overview') }}
+            />
+          </div>
+          
+          {tabCache.transport && (
+            <div className={activeTab === 'transport' ? 'block' : 'hidden'}>
+              <TransportTab transport={transport} loading={loading} tripContext={tripContext} searchForm={searchForm} />
+            </div>
+          )}
+          
+          {tabCache.buses && (
+            <div className={activeTab === 'buses' ? 'block' : 'hidden'}>
+              <BusesTab />
+            </div>
+          )}
+          
+          {tabCache.cars && (
+            <div className={activeTab === 'cars' ? 'block' : 'hidden'}>
+              <CarsTab />
+            </div>
+          )}
+          
+          {tabCache.hotels && (
+            <div className={activeTab === 'hotels' ? 'block' : 'hidden'}>
+              <HotelsTab hotels={hotels} loading={loading} tripContext={tripContext} searchForm={searchForm} />
+            </div>
+          )}
+          
+          {tabCache.itinerary && (
+            <div className={activeTab === 'itinerary' ? 'block' : 'hidden'}>
+              <ItineraryView itinerary={itinerary} loading={loading} />
+            </div>
+          )}
+          
+          {tabCache.optimizer && (
+            <div className={activeTab === 'optimizer' ? 'block' : 'hidden'}>
+              <BudgetOptimizerTab />
+            </div>
+          )}
+          
+          {tabCache.return && (
+            <div className={activeTab === 'return' ? 'block' : 'hidden'}>
+              <ReturnBookingTab tripContext={tripContext} />
+            </div>
+          )}
+          
+          {tabCache.explore && (
+            <div className={activeTab === 'explore' ? 'block' : 'hidden'}>
+              <ExploreSection destination={tripContext.destination} />
+            </div>
+          )}
+          
+          {tabCache.map && (
+            <div className={activeTab === 'map' ? 'block' : 'hidden'}>
+              <MapView itinerary={itinerary} />
+            </div>
+          )}
+          
+          {tabCache.bookings && (
+            <div className={activeTab === 'bookings' ? 'block' : 'hidden'}>
+              <BookingStatus />
+            </div>
+          )}
+          
+          {tabCache.history && (
+            <div className={activeTab === 'history' ? 'block' : 'hidden'}>
+              <TripHistoryTab
+                onPlanSimilar={(record) => {
+                  setSearchForm({ from: record.startLocation, to: record.destination, startDate: record.dates.start, endDate: record.dates.end, budget: String(record.budget), travelers: String(record.members), style: record.style })
+                  startNewTrip()
+                  setActiveTab('overview')
+                  toast.success(`Planning a similar trip to ${record.destination}!`)
+                }}
+                onReopenItinerary={(record) => {
+                  setItinerary(record.itinerary)
+                  setActiveTab('itinerary')
+                  toast.success('Itinerary restored!')
+                }}
+              />
+            </div>
+          )}
+        </Suspense>
       </main>
 
       {/* FEEDBACK MODAL */}
       {showFeedback && feedbackStatus === 'pending' && (
         <FeedbackModal onClose={() => setShowFeedback(false)} />
       )}
-    </div>
-  )
-}
 
-// Overview Tab
-function OverviewTab({ transport, hotels, weather, itinerary, bookingStatus, destination, loading, onTabChange, tripStatus, tripHistory, onCompleteTrip, onNewTrip }: any) {
-  const { user } = useAuthStore()
-  const currency = user?.currency ?? 'INR'
-  const STEPS = [
-    { label: 'Search', done: transport.length > 0 || hotels.length > 0 },
-    { label: 'Flight', done: bookingStatus.flightStatus === 'CONFIRMED' },
-    { label: 'Hotel', done: bookingStatus.hotelStatus === 'CONFIRMED' },
-    { label: 'Return', done: bookingStatus.returnStatus === 'CONFIRMED' },
-    { label: 'Itinerary', done: itinerary.length > 0 },
-  ]
-  const progress = Math.round((STEPS.filter(s => s.done).length / STEPS.length) * 100)
-
-  return (
-    <div className="space-y-6">
-      {/* Trip Progress Tracker */}
-      <div className="card p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-bold text-sm text-[var(--text-primary)]">
-            {tripStatus === 'completed' ? '✅ Trip Completed' : `🗺️ Trip Progress — ${progress}%`}
-          </h3>
-          <div className="flex items-center gap-2">
-            {tripStatus !== 'completed' ? (
-              <button onClick={onCompleteTrip} disabled={itinerary.length === 0}
-                className="text-xs px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                ✅ Complete Trip
-              </button>
-            ) : (
-              <button onClick={onNewTrip}
-                className="text-xs px-3 py-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/30 hover:bg-[var(--primary)]/20 transition-all">
-                ✈️ Start New Trip
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="progress-bar mb-3">
-          <div className="progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-        <div className="flex justify-between">
-          {STEPS.map((s, i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${s.done ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'}`}>
-                {s.done ? '✓' : i + 1}
-              </div>
-              <span className={`text-[0.6rem] ${s.done ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}`}>{s.label}</span>
-            </div>
+      {/* MOBILE BOTTOM NAV */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 z-[1000] shadow-[0_-8px_30px_rgba(0,0,0,0.05)]"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-center justify-around h-[64px]">
+          {[
+            { id: 'overview', label: 'Overview', icon: Home },
+            { id: 'transport', label: 'Flights', icon: Plane },
+            { id: 'hotels', label: 'Hotels', icon: Hotel },
+            { id: 'itinerary', label: 'Itinerary', icon: MapPin },
+            { id: 'bookings', label: 'Bookings', icon: ClipboardList },
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setActiveTab(t.id)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              className={`flex flex-col items-center justify-center gap-1.5 flex-1 h-full transition-all duration-300 relative ${
+                activeTab === t.id ? 'text-orange-500' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <t.icon size={22} strokeWidth={activeTab === t.id ? 2.5 : 2} />
+              <span className="text-[10px] font-bold tracking-tight uppercase">{t.label}</span>
+              {activeTab === t.id && (
+                <motion.div 
+                  layoutId="activeTabUnderline"
+                  className="absolute top-0 w-8 h-1 bg-orange-500 rounded-b-full"
+                />
+              )}
+            </button>
           ))}
         </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'View Transport', icon: '✈️', tab: 'transport', count: transport.length, color: 'text-blue-400' },
-          { label: 'Return Flight', icon: '🔄', tab: 'return', count: bookingStatus.returnStatus === 'CONFIRMED' ? 1 : 0, color: 'text-[var(--primary)]' },
-          { label: 'Trip History', icon: '📁', tab: 'history', count: tripHistory?.length || 0, color: 'text-purple-400' },
-        ].map(a => (
-          <button key={a.tab} onClick={() => onTabChange(a.tab)}
-            className="card p-4 text-center hover:border-[var(--border-bright)] transition-all">
-            <div className="text-2xl mb-1">{a.icon}</div>
-            <div className={`text-lg font-bold font-mono ${a.color}`}>{a.count}</div>
-            <div className="text-[0.65rem] text-[var(--text-muted)] mt-0.5">{a.label}</div>
-          </button>
-        ))}
-      </div>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Best Flight', value: transport[0] ? formatPrice(transport[0].price, currency) : '--', icon: '✈️', color: 'text-blue-400' },
-          { label: 'Best Hotel', value: hotels[0] ? `${formatPrice(hotels[0].price, currency)}/night` : '--', icon: '🏨', color: 'text-green-400' },
-          { label: 'Weather', value: weather ? `${weather.temperature}°C` : '--', icon: '🌤️', color: 'text-yellow-400' },
-          { label: 'Days Planned', value: itinerary.length || 0, icon: '📅', color: 'text-purple-400' },
-        ].map((s, i) => (
-          <div key={i} className="card p-4">
-            <div className="text-2xl mb-2">{s.icon}</div>
-            <div className={`text-xl font-bold font-mono ${s.color}`}>{s.value}</div>
-            <div className="text-xs text-[var(--text-muted)] mt-1">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main content */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-[var(--text-primary)]">Top Flights</h3>
-            <button onClick={() => onTabChange('transport')} className="text-xs text-[var(--primary)] hover:underline">View all →</button>
-          </div>
-          {loading ? <SkeletonCards /> : transport.slice(0, 2).map((t: TransportOption) => <TransportCard key={t.id} item={t} />)}
-
-          <div className="flex items-center justify-between mt-4">
-            <h3 className="font-bold text-[var(--text-primary)]">Top Hotels</h3>
-            <button onClick={() => onTabChange('hotels')} className="text-xs text-[var(--primary)] hover:underline">View all →</button>
-          </div>
-          {loading ? <SkeletonCards /> : hotels.slice(0, 2).map((h: HotelOption) => <HotelCard key={h.id} item={h} />)}
-
-          {/* Return journey visibility */}
-          <div className="card p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🔄</span>
-              <div>
-                <p className="font-semibold text-sm text-[var(--text-primary)]">Return Journey</p>
-                <p className="text-xs text-[var(--text-muted)]">
-                  {bookingStatus.returnStatus === 'CONFIRMED'
-                    ? `✅ ${bookingStatus.selectedReturn?.name}`
-                    : bookingStatus.returnStatus === 'SELECTED'
-                    ? '⏳ Selected — confirm to book'
-                    : 'Not yet booked'}
-                </p>
-              </div>
-            </div>
-            <button onClick={() => onTabChange('return')}
-              className={`text-xs py-1.5 px-3 rounded-lg transition-all ${bookingStatus.returnStatus === 'CONFIRMED' ? 'badge-green' : 'btn-outline'}`}>
-              {bookingStatus.returnStatus === 'CONFIRMED' ? 'View' : 'Book Return →'}
-            </button>
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-4">
-          {weather && <WeatherWidget weather={weather} destination={destination} />}
-
-          {/* Quick itinerary preview */}
-          {itinerary.length > 0 && (
-            <div className="card p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-sm text-[var(--text-primary)]">📅 Day 1 Preview</h3>
-                <button onClick={() => onTabChange('itinerary')} className="text-xs text-[var(--primary)]">Full plan →</button>
-              </div>
-              <div className="space-y-2">
-                {itinerary[0]?.places.map((p: any, i: number) => (
-                  <div key={i} className="flex items-start gap-3 text-sm">
-                    <span className="font-mono text-xs text-[var(--text-muted)] mt-0.5 w-12">{p.time}</span>
-                    <div>
-                      <div className="font-medium text-[var(--text-primary)] text-xs">{p.name}</div>
-                      <div className="text-[var(--text-muted)] text-xs">{p.category}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Booking tracker */}
-          <div className="card p-4">
-            <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3">📋 Booking Status</h3>
-            {[
-              { label: 'Flight', status: bookingStatus.flightStatus },
-              { label: 'Hotel', status: bookingStatus.hotelStatus },
-              { label: 'Return', status: bookingStatus.returnStatus },
-            ].map(b => (
-              <div key={b.label} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
-                <span className="text-sm text-[var(--text-secondary)]">{b.label}</span>
-                <span className={`badge text-[0.7rem] ${b.status === 'CONFIRMED' ? 'badge-green' : b.status === 'PENDING' ? 'badge-amber' : 'badge-red'}`}>{b.status}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Recent trip history */}
-          {tripHistory?.length > 0 && (
-            <div className="card p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-sm text-[var(--text-primary)]">📁 Past Trips</h3>
-                <button onClick={() => onTabChange('history')} className="text-xs text-[var(--primary)]">View all →</button>
-              </div>
-              <div className="space-y-2">
-                {tripHistory.slice(0, 3).map((t: any) => (
-                  <div key={t.tripId} className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--border)] last:border-0">
-                    <div>
-                      <p className="font-semibold text-[var(--text-primary)]">{t.destination}</p>
-                      <p className="text-[var(--text-muted)]">{t.dates.start || 'No date'}</p>
-                    </div>
-                    {t.rating && <span className="text-yellow-400">{'★'.repeat(t.rating)}</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Transport Tab
-function TransportTab({ transport, loading, tripContext, searchForm }: any) {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">✈️ Flight Options</h2>
-        <div className="flex items-center gap-2">
-          <span className="live-dot"></span>
-          <span className="text-xs font-mono text-[var(--text-muted)]">Live prices</span>
-        </div>
-      </div>
-
-      {loading ? <SkeletonCards count={3} /> : (
-        transport.length > 0 ? (
-          <div className="space-y-4">
-            {transport.map((t: any) => <TransportCard key={t.id} item={t} showDetail />)}
-          </div>
-        ) : (
-          <EmptyState icon="✈️" title="No flights found" desc="Try adjusting your search criteria" />
-        )
-      )}
-    </div>
-  )
-}
-
-// Hotels Tab
-function HotelsTab({ hotels, loading, tripContext, searchForm }: any) {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">🏨 Hotel Options</h2>
-        <div className="flex items-center gap-2">
-          <span className="live-dot"></span>
-          <span className="text-xs font-mono text-[var(--text-muted)]">Live availability</span>
-        </div>
-      </div>
-
-      {loading ? <SkeletonCards count={3} /> : (
-        hotels.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {hotels.map((h: any) => <HotelCard key={h.id} item={h} showDetail />)}
-          </div>
-        ) : (
-          <EmptyState icon="🏨" title="No hotels found" desc="Try adjusting your dates or budget" />
-        )
-      )}
-    </div>
-  )
-}
-
-// Utility components
-function SkeletonCards({ count = 2 }: { count?: number }) {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="card p-4 space-y-3">
-          <div className="shimmer h-4 w-1/3 rounded"></div>
-          <div className="shimmer h-3 w-2/3 rounded"></div>
-          <div className="shimmer h-3 w-1/2 rounded"></div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <div className="card p-12 text-center">
-      <div className="text-5xl mb-4">{icon}</div>
-      <h3 className="font-bold text-[var(--text-primary)] mb-2">{title}</h3>
-      <p className="text-[var(--text-muted)] text-sm">{desc}</p>
+      </nav>
     </div>
   )
 }
@@ -758,9 +608,10 @@ function LoadingSkeleton() {
   return (
     <div className="min-h-screen bg-grid flex items-center justify-center">
       <div className="text-center">
-        <div className="text-4xl mb-4 animate-bounce">🌍</div>
+        <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin-slow mb-4 mx-auto"></div>
         <p className="text-[var(--primary)] font-mono">Initializing TripSage...</p>
       </div>
     </div>
   )
 }
+

@@ -1,17 +1,22 @@
 'use client'
+import React, { memo } from 'react'
 
 import { useTripStore } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { useUrgency } from '@/hooks/useUrgency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
+import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface Props {
   item: any
   showDetail?: boolean
 }
 
-export default function HotelCard({ item, showDetail }: Props) {
+function HotelCard({ item, showDetail }: Props) {
+  const isMobile = useIsMobile()
   const { setBookingStatus, addNotification } = useTripStore()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
@@ -47,7 +52,13 @@ export default function HotelCard({ item, showDetail }: Props) {
 
       {/* Hero image */}
       <div className="relative h-48 overflow-hidden">
-        <img src={item.image} alt={item.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+        <img 
+          src={getOptimizedImageUrl(item.image, isMobile)} 
+          alt={item.name} 
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+          loading="lazy"
+          decoding="async"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
         {/* Discount badge */}
@@ -131,6 +142,7 @@ export default function HotelCard({ item, showDetail }: Props) {
             href={item.bookingLink}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackEvent('booking_click', { type: 'hotel', name: item.name, price: item.price })}
             className="flex-1 text-center py-3 px-4 rounded-xl font-black text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
           >
             Book Now — Save {discount}% →
@@ -143,3 +155,4 @@ export default function HotelCard({ item, showDetail }: Props) {
     </div>
   )
 }
+export default memo(HotelCard)

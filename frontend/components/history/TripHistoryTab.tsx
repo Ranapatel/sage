@@ -1,5 +1,6 @@
 'use client'
 
+import React, { memo } from 'react'
 import { useTripStore, type TripRecord } from '@/store/tripStore'
 import { formatDate } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
@@ -11,7 +12,7 @@ interface Props {
   onReopenItinerary?: (record: TripRecord) => void
 }
 
-export default function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
+function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
   const { tripHistory } = useTripStore()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
@@ -165,3 +166,5 @@ export default function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Pro
     </div>
   )
 }
+
+export default memo(TripHistoryTab)

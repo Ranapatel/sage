@@ -2,12 +2,15 @@
 
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
+import { trackEvent } from '@/lib/analytics'
+
+import React, { memo } from 'react'
 
 interface Props {
   item: any
 }
 
-export default function CarCard({ item }: Props) {
+function CarCard({ item }: Props) {
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
   const displayPrice = formatPrice(item.price, currency)
@@ -15,6 +18,7 @@ export default function CarCard({ item }: Props) {
   const handleBook = () => {
     // Analytics tracking event
     console.log('Event Tracked: car_affiliate_click', { provider: item.name, price: item.price, url: item.bookingLink })
+    trackEvent('booking_click', { type: 'car', name: item.name, price: item.price })
   }
 
   return (
@@ -69,3 +73,5 @@ export default function CarCard({ item }: Props) {
     </div>
   )
 }
+
+export default memo(CarCard)

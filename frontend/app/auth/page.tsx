@@ -6,7 +6,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAuthStore } from '@/store/authStore'
 import { SYMBOLS } from '@/lib/currency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
+import CurrencySelector from '@/components/ui/CurrencySelector'
+import LegalModal from '@/components/ui/LegalModal'
+import { Key, Rocket, Eye, EyeOff, Target, ArrowRight, Lock, User, Mail, ShieldCheck } from 'lucide-react'
 
 const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED'] as const
 const COUNTRIES = ['India', 'United States', 'United Kingdom', 'UAE', 'Germany', 'France', 'Singapore', 'Australia', 'Japan']
@@ -21,6 +25,7 @@ export default function AuthPage() {
     name: '', email: '', password: '',
     currency: 'INR', country: 'India',
   })
+  const [activeLegal, setActiveLegal] = useState<{ title: string; content: React.ReactNode } | null>(null)
 
   useEffect(() => { if (isLoggedIn) router.push('/plan') }, [isLoggedIn])
   useEffect(() => { if (error) { toast.error(error); clearError() } }, [error])
@@ -34,12 +39,13 @@ export default function AuthPage() {
     try {
       if (mode === 'login') {
         await login(form.email, form.password)
-        toast.success('Welcome back! 🎉')
+        toast.success('Welcome back!')
       } else {
         if (!form.name.trim()) { toast.error('Name is required'); return }
         if (!agreeTerms) { toast.error('You must agree to the Terms & Conditions'); return }
         await signup({ name: form.name, email: form.email, password: form.password, currency: form.currency, country: form.country })
-        toast.success(`Welcome to TripSage, ${form.name}! ✈️`)
+        trackEvent('signup', { method: 'email' })
+        toast.success(`Welcome to TripSage, ${form.name}!`)
       }
       router.push('/plan')
     } catch { /* error handled by store + toast */ }
@@ -75,7 +81,10 @@ export default function AuthPage() {
                     ? 'text-[var(--primary)] border-b-2 border-[var(--primary)] bg-[var(--primary)]/5'
                     : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                 }`}>
-                {m === 'login' ? '🔑 Sign In' : '🚀 Create Account'}
+                <div className="flex items-center justify-center gap-2">
+                  {m === 'login' ? <Lock size={16} /> : <Rocket size={16} />}
+                  {m === 'login' ? 'Sign In' : 'Create Account'}
+                </div>
               </button>
             ))}
           </div>
@@ -104,7 +113,7 @@ export default function AuthPage() {
                   value={form.password} onChange={e => set('password', e.target.value)} />
                 <button type="button" onClick={() => setShowPass(p => !p)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg">
-                  {showPass ? '🙈' : '👁️'}
+                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -114,11 +123,7 @@ export default function AuthPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1.5 block">Currency</label>
-                    <select className="input-field" value={form.currency} onChange={e => set('currency', e.target.value)}>
-                      {CURRENCIES.map(c => (
-                        <option key={c} value={c}>{SYMBOLS[c]} {c}</option>
-                      ))}
-                    </select>
+                    <CurrencySelector value={form.currency} onChange={val => set('currency', val)} />
                   </div>
                   <div>
                     <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1.5 block">Country</label>
@@ -150,9 +155,15 @@ export default function AuthPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {mode === 'login' ? 'Signing in...' : 'Creating account...'}
+                  {mode === 'login' ? <Lock size={16} /> : <Rocket size={16} />}
+                  {mode === 'login' ? 'Sign In' : 'Create Account'}
                 </span>
-              ) : mode === 'login' ? '🔑 Sign In' : '🚀 Create Account'}
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  {mode === 'login' ? <Lock size={16} /> : <Rocket size={16} />}
+                  {mode === 'login' ? 'Sign In' : 'Create Account'}
+                </div>
+              )}
             </button>
 
             {mode === 'login' && (
@@ -160,7 +171,7 @@ export default function AuthPage() {
                 Don't have an account?{' '}
                 <button type="button" onClick={() => setMode('signup')}
                   className="text-[var(--primary)] hover:underline font-semibold">
-                  Create one free →
+                  Create one free <ArrowRight size={14} className="inline ml-1" />
                 </button>
               </p>
             )}
@@ -169,7 +180,7 @@ export default function AuthPage() {
                 Already have an account?{' '}
                 <button type="button" onClick={() => setMode('login')}
                   className="text-[var(--primary)] hover:underline font-semibold">
-                  Sign in →
+                  Sign in <ArrowRight size={14} className="inline ml-1" />
                 </button>
               </p>
             )}
@@ -178,7 +189,9 @@ export default function AuthPage() {
           {/* Demo credentials */}
           <div className="px-6 pb-6">
             <div className="glass rounded-xl p-3 text-center">
-              <p className="text-xs text-[var(--text-muted)] mb-2">🎯 Try the demo — no signup needed</p>
+              <p className="text-xs text-[var(--text-muted)] mb-2 flex items-center justify-center gap-2">
+                <Target size={14} /> Try the demo — no signup needed
+              </p>
               <button
                 onClick={() => { set('email', 'demo@tripsage.ai'); set('password', 'demo123456'); setMode('login') }}
                 className="text-xs text-[var(--primary)] hover:underline font-mono"
@@ -191,9 +204,42 @@ export default function AuthPage() {
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-6">
           By signing up you agree to our{' '}
-          <Link href="/terms-and-conditions" className="text-[var(--primary)] cursor-pointer hover:underline">Terms & Conditions</Link>
+          <button 
+            onClick={() => setActiveLegal({
+              title: "Terms & Conditions",
+              content: (
+                <div className="space-y-4">
+                  <p><strong>Effective Date:</strong> 01 April 2026</p>
+                  <p>Welcome to TripSage. By accessing or using this platform, you agree to comply with these Terms & Conditions.</p>
+                  <p><strong>Service:</strong> TripSage provides AI-powered travel planning, personalized recommendations, and third-party booking links.</p>
+                  <div>
+                    <p><strong>User Responsibilities:</strong></p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>Provide accurate and truthful information when using the platform</li>
+                      <li>Do not misuse the platform for any illegal or unauthorized activity</li>
+                      <li>Do not attempt to reverse engineer or harm the platform in any way</li>
+                    </ul>
+                  </div>
+                  <p><strong>Third-Party Services:</strong> We are not responsible for bookings, pricing, availability, or services provided by third parties.</p>
+                  <p><strong>Liability:</strong> TripSage is not liable for any travel disruptions, losses, damages, or errors arising from use of this platform.</p>
+                  <p><strong>Governing Law:</strong> Governed by Indian law under the jurisdiction of Andhra Pradesh.</p>
+                  <p><strong>Contact:</strong> <a href="mailto:rana@tripsage.in" className="text-[var(--primary)] hover:underline inline-block cursor-pointer relative z-10">rana@tripsage.in</a></p>
+                </div>
+              )
+            })} 
+            className="text-[var(--primary)] cursor-pointer hover:underline font-semibold"
+          >
+            Terms & Conditions
+          </button>
         </p>
       </div>
+
+      <LegalModal 
+        isOpen={!!activeLegal} 
+        onClose={() => setActiveLegal(null)}
+        title={activeLegal?.title || ''}
+        content={activeLegal?.content}
+      />
     </div>
   )
 }

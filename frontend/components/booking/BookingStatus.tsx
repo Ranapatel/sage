@@ -6,6 +6,7 @@ import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 import { useState } from 'react'
+import { trackEvent } from '@/lib/analytics'
 
 const STATUS_STEPS = ['INIT', 'SELECTED', 'PENDING', 'CONFIRMED']
 
@@ -144,6 +145,7 @@ export default function BookingStatus() {
               <a
                 href={process.env.NEXT_PUBLIC_AFFILIATE_FLIGHTS || bookingStatus.selectedFlight?.bookingLink}
                 target="_blank" rel="noopener noreferrer"
+                onClick={() => trackEvent('booking_click', { type: 'flight', name: bookingStatus.selectedFlight?.name, price: bookingStatus.selectedFlight?.price })}
                 className="text-xs text-[var(--primary)] hover:underline mt-1 block"
               >
                 View booking details →
@@ -215,6 +217,7 @@ export default function BookingStatus() {
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
               <p className="text-green-400 font-bold">✅ Hotel Confirmed!</p>
               <a href={bookingStatus.selectedHotel?.bookingLink} target="_blank" rel="noopener noreferrer"
+                onClick={() => trackEvent('booking_click', { type: 'hotel', name: bookingStatus.selectedHotel?.name, price: bookingStatus.selectedHotel?.price })}
                 className="text-xs text-[var(--primary)] hover:underline mt-1 block">
                 View booking details →
               </a>

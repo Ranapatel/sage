@@ -1,11 +1,13 @@
 'use client'
-
-import { useState, useEffect } from 'react'
+import React, { memo, useState, useEffect } from 'react'
+import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { tripAPI } from '@/lib/api'
 import { affiliateLinks } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { useUrgency } from '@/hooks/useUrgency'
+import { trackEvent } from '@/lib/analytics'
 
 interface Props {
   destination: string
@@ -34,13 +36,20 @@ const CATEGORIES = ['All', 'Adventure', 'Culture', 'Food', 'Water', 'Nature', 'N
 
 // ─── Sub-components (hooks must be at component level) ─────────────────────
 
-function ActivityCard({ a, destination, currency }: { a: any; destination: string; currency: string }) {
+const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: string; currency: string }) => {
+  const isMobile = useIsMobile()
   const { discount, urgency, flightScarcity: spotsMsg, countdownLabel } = useUrgency(a.id)
   const origPrice = Math.round(a.price * (100 / (100 - discount)) / 100) * 100
   return (
     <div className="card overflow-hidden group border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300">
       <div className="relative h-40 overflow-hidden">
-        <img src={a.image} alt={a.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <img 
+          src={getOptimizedImageUrl(a.image, isMobile)} 
+          alt={a.name} 
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+          loading="lazy"
+          decoding="async"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         <div className="absolute top-2 left-2">
           <span className="bg-green-500 text-white text-[0.6rem] font-black px-1.5 py-0.5 rounded">{discount}% OFF</span>
@@ -67,15 +76,17 @@ function ActivityCard({ a, destination, currency }: { a: any; destination: strin
         </div>
         <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
         <a href={affiliateLinks.activity(destination || a.name)} target="_blank" rel="noopener noreferrer"
+          onClick={() => trackEvent('booking_click', { type: 'activity', name: a.name, price: a.price })}
           className="block w-full text-center py-2 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity">
           Book Now — Save {discount}% →
         </a>
       </div>
     </div>
   )
-}
+})
 
-function CarCard({ car, destination, currency }: { car: any; destination: string; currency: string }) {
+const CarCard = memo(({ car, destination, currency }: { car: any; destination: string; currency: string }) => {
+  const isMobile = useIsMobile()
   const { discount, urgency, carScarcity, countdownLabel } = useUrgency(car.id)
   const origPrice = Math.round(car.price * (100 / (100 - discount)) / 100) * 100
   const savings = formatPrice(origPrice - car.price, currency)
@@ -86,7 +97,13 @@ function CarCard({ car, destination, currency }: { car: any; destination: string
         <span className="text-red-400 text-[0.65rem] font-semibold animate-pulse">{carScarcity}</span>
       </div>
       <div className="relative h-36 overflow-hidden">
-        <img src={car.image} alt={car.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+        <img 
+          src={getOptimizedImageUrl(car.image, isMobile)} 
+          alt={car.name} 
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+          loading="lazy"
+          decoding="async"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute top-2 left-2">
           <span className="bg-green-500 text-white text-[0.65rem] font-black px-2 py-0.5 rounded">{discount}% OFF</span>
@@ -109,15 +126,17 @@ function CarCard({ car, destination, currency }: { car: any; destination: string
         </div>
         <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
         <a href={affiliateLinks.car(destination)} target="_blank" rel="noopener noreferrer"
+          onClick={() => trackEvent('booking_click', { type: 'car_rental', name: car.name, price: car.price })}
           className="block w-full text-center py-2.5 px-3 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity">
           Book Car — {discount}% OFF →
         </a>
       </div>
     </div>
   )
-}
+})
 
-export default function ExploreSection({ destination }: Props) {
+function ExploreSection({ destination }: Props) {
+  const isMobile = useIsMobile()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
   const [activeCategory, setActiveCategory] = useState('All')
@@ -198,7 +217,13 @@ export default function ExploreSection({ destination }: Props) {
               <a key={r.id} href={affiliateLinks.restaurant(destination ? `${r.name} near ${destination}` : r.name)} target="_blank" rel="noopener noreferrer" 
                  className="card overflow-hidden group border border-[var(--border)] hover:border-[var(--primary)] transition-all block">
                 <div className="relative h-40 overflow-hidden">
-                  <img src={r.image} alt={r.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img 
+                    src={getOptimizedImageUrl(r.image, isMobile)} 
+                    alt={r.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute top-2 right-2">
                     <span className="badge badge-green text-[0.65rem]">{r.priceRange}</span>
@@ -234,3 +259,5 @@ export default function ExploreSection({ destination }: Props) {
     </div>
   )
 }
+
+export default memo(ExploreSection)

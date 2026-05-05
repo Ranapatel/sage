@@ -1,17 +1,22 @@
 'use client'
+import React, { memo } from 'react'
 
 import { useTripStore } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { useUrgency } from '@/hooks/useUrgency'
+import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
+import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface Props {
   item: any
   showDetail?: boolean
 }
 
-export default function TransportCard({ item, showDetail }: Props) {
+function TransportCard({ item, showDetail }: Props) {
+  const isMobile = useIsMobile()
   const { setBookingStatus, addNotification } = useTripStore()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
@@ -43,9 +48,11 @@ export default function TransportCard({ item, showDetail }: Props) {
       {item.image && (
         <div className="relative h-28 overflow-hidden">
           <img
-            src={item.image}
+            src={getOptimizedImageUrl(item.image, isMobile)}
             alt={item.name}
             className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
             onError={(e: any) => { e.target.style.display = 'none' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
@@ -57,6 +64,8 @@ export default function TransportCard({ item, showDetail }: Props) {
                 src={item.logo}
                 alt={item.name}
                 className="w-full h-full object-contain"
+                loading="lazy"
+                decoding="async"
                 onError={(e: any) => { e.target.src = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=56&q=80' }}
               />
             </div>
@@ -146,6 +155,7 @@ export default function TransportCard({ item, showDetail }: Props) {
               href={item.bookingLink}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })}
               className="flex-1 text-center py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
             >
               Book Now — Save {discount}% →
@@ -159,4 +169,6 @@ export default function TransportCard({ item, showDetail }: Props) {
     </div>
   )
 }
+
+export default memo(TransportCard)
 

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, memo } from 'react'
 import CarCard from './CarCard'
 import { useTripStore } from '@/store/tripStore'
 
-export default function CarsTab() {
+function CarsTab() {
   const { cars, loading } = useTripStore()
   const [sortBy, setSortBy] = useState('cheapest')
 
@@ -58,3 +58,5 @@ export default function CarsTab() {
     </div>
   )
 }
+
+export default memo(CarsTab)

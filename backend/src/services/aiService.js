@@ -9,7 +9,8 @@ const MODEL = 'llama-3.3-70b-versatile'
 async function generateItinerary({ destination, days, budget, style, preferences, members, startDate }) {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    throw new Error('GROQ_API_KEY is not configured')
+    console.warn('[TripSage] ⚠️  GROQ_API_KEY missing — generating mock itinerary');
+    return { success: true, data: getMockItinerary({ destination, days, budget, members, startDate }) };
   }
 
   const systemPrompt = `You are TripSage — a real-time AI travel optimizer.
@@ -206,7 +207,7 @@ IMPORTANT: All prices must be in Indian Rupees (₹). Do NOT use the $ symbol or
   }
 }
 
-module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices }
+
 
 /**
  * AI-powered realistic flight price estimation using Groq
@@ -265,4 +266,59 @@ Rules:
     return null
   }
 }
+
+/**
+ * Generates a high-quality mock itinerary for DEMO mode
+ */
+function getMockItinerary({ destination, days, budget, members, startDate }) {
+  const start = startDate ? new Date(startDate) : new Date();
+  const itinerary = [];
+
+  const activityTemplates = [
+    { name: "City Exploration", category: "culture", desc: "Walking tour of the historic city center and main landmarks." },
+    { name: "Local Cuisine Tour", category: "dining", desc: "Savoring authentic flavors at highly-rated local eateries." },
+    { name: "Museum Visit", category: "culture", desc: "Discovering art and history at the city's premier museum." },
+    { name: "Nature Park Hike", category: "nature", desc: "Enjoying the fresh air and scenic views in a lush green park." },
+    { name: "Shopping Spree", category: "shopping", desc: "Exploring local markets and boutiques for unique finds." },
+    { name: "Sunset Viewpoint", category: "activity", desc: "Perfect spot for panoramic photos as the day ends." }
+  ];
+
+  for (let i = 1; i <= days; i++) {
+    const currentDate = new Date(start);
+    currentDate.setDate(start.getDate() + i - 1);
+    
+    const places = [];
+    const numPlaces = Math.floor(Math.random() * 2) + 2; // 2-3 places per day
+    
+    for (let j = 0; j < numPlaces; j++) {
+      const template = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
+      places.push({
+        name: `${template.name} in ${destination}`,
+        time: j === 0 ? "10:00" : j === 1 ? "14:00" : "18:00",
+        category: template.category,
+        coordinates: [20.0 + Math.random(), 70.0 + Math.random()],
+        description: template.desc,
+        estimatedCost: Math.floor((budget / (days * (numPlaces || 1))) * 0.8)
+      });
+    }
+
+    itinerary.push({
+      day: i,
+      date: currentDate.toISOString().split('T')[0],
+      places
+    });
+  }
+
+  return {
+    itinerary,
+    totalEstimatedCost: Math.floor(budget * 0.9),
+    tips: [
+      "Book local transport in advance for better rates.",
+      "Try street food for an authentic experience.",
+      "Carry a power bank for long exploration days."
+    ]
+  };
+}
+
+module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices }
 
