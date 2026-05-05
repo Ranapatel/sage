@@ -1,13 +1,5 @@
 require('dotenv').config()
 
-process.on('uncaughtException', (err) => {
-  console.error('[TripSage] 💥 Uncaught Exception:', err)
-})
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[TripSage] 💥 Unhandled Rejection at:', promise, 'reason:', reason)
-})
-
 // Increase default EventEmitter limit (prevents TLSSocket warning from concurrent axios requests)
 require('events').EventEmitter.defaultMaxListeners = 30
 
@@ -17,8 +9,11 @@ const { Server } = require('socket.io')
 const cors = require('cors')
 const helmet = require('helmet')
 const compression = require('compression')
-const morgan = require('morgan')
-const rateLimit = require('express-rate-limit')
+
+// Production-grade middleware
+const { logger, requestLogger } = require('./middleware/logger')
+const { notFoundHandler, globalErrorHandler } = require('./middleware/errorHandler')
+const { apiLimiter, searchLimiter, aiLimiter, cityLimiter } = require('./middleware/rateLimiter')
 
 // Validate required env vars
 const REQUIRED_ENV = [
@@ -81,25 +76,8 @@ app.use(cors({
   credentials: true,
 }))
 app.use(express.json({ limit: '10kb' }))
-app.use(morgan('dev'))
-
-// Request logger (verbose in dev, minimal in production)
-app.use((req, res, next) => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`[DEBUG] ${req.method} ${req.url}`);
-  }
-  next();
-});
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
-  max: 100,
-  message: { error: 'Too many requests, please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-})
-app.use('/api/', limiter)
+// Structured request logger (replaces morgan)
+app.use(requestLogger)
 
 // Routes
 const searchRouter = require('./routes/search')
@@ -114,15 +92,15 @@ const placesRouter = require('./routes/places')
 const citiesRouter = require('./routes/cities')
 
 app.use('/api/auth', authRouter)
-app.use('/api/search', searchRouter)
-app.use('/api/itinerary', itineraryRouter)
-app.use('/api/weather', weatherRouter)
-app.use('/api/booking', bookingRouter)
-app.use('/api/explore', exploreRouter)
-app.use('/api/notifications', notificationsRouter)
-app.use('/api/profile', profileRouter)
-app.use('/api/places', placesRouter)
-app.use('/api/cities', citiesRouter)
+app.use('/api/search',        searchLimiter, searchRouter)
+app.use('/api/itinerary',     aiLimiter, itineraryRouter)
+app.use('/api/weather',       apiLimiter, weatherRouter)
+app.use('/api/booking',       apiLimiter, bookingRouter)
+app.use('/api/explore',       apiLimiter, exploreRouter)
+app.use('/api/notifications', apiLimiter, notificationsRouter)
+app.use('/api/profile',       apiLimiter, profileRouter)
+app.use('/api/places',        apiLimiter, placesRouter)
+app.use('/api/cities',        cityLimiter, citiesRouter)
 
 // Health check
 app.get('/health', (req, res) => {
@@ -155,25 +133,9 @@ app.get('/', (req, res) => {
   })
 })
 
-// 404 handler — includes path so remote logs show exactly what's missing
-app.use((req, res) => {
-  console.warn(`[TripSage] 404 — ${req.method} ${req.originalUrl}`)
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
-    attempted: `${req.method} ${req.originalUrl}`,
-    hint: 'Check /health for available routes'
-  })
-})
-
-// Error handler - NEVER expose stack traces
-app.use((err, req, res, next) => {
-  console.error('[TripSage Error]', err.message)
-  res.status(err.status || 500).json({
-    success: false,
-    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-  })
-})
+// 404 + global error handlers (must be after all routes)
+app.use(notFoundHandler)
+app.use(globalErrorHandler)
 
 // Socket.IO real-time engine
 require('./services/socketService')(io)
@@ -197,17 +159,13 @@ let PORT = parseInt(process.env.PORT || '5000', 10);
 function startServer(port) {
   server.listen(port, () => {
     console.log(`[TripSage] 🚀 Server running on port ${port}`);
-    if (port !== parseInt(process.env.PORT || '5000', 10)) {
-      console.warn(`[TripSage] ⚠️  Original port was busy — using port ${port} instead. Update PORT in .env if needed.`);
-    }
   });
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      console.warn(`[TripSage] ⚠️  Port ${port} is in use. Trying port ${port + 1}...`);
-      server.removeAllListeners('error');
-      server.close();
-      startServer(port + 1);
+      console.error(`\n[TripSage] 💥 ERROR: Port ${port} is already in use!`);
+      console.error(`Please kill the process using port ${port} or restart your terminal.`);
+      process.exit(1);
     } else {
       console.error('[TripSage] 💥 Server error:', err.message);
       process.exit(1);
@@ -215,7 +173,15 @@ function startServer(port) {
   });
 }
 
-startServer(PORT);
+startServer(PORT)
+
+// Process-level crash guards (last resort)
+process.on('uncaughtException', (err) => {
+  logger.error('uncaughtException — server kept alive', { msg: err.message, stack: err.stack })
+})
+process.on('unhandledRejection', (reason) => {
+  logger.error('unhandledRejection — server kept alive', { reason: String(reason) })
+})
 
 // Graceful shutdown
 function shutdown(signal) {

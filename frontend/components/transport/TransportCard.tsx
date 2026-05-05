@@ -69,12 +69,15 @@ export default function TransportCard({ item, showDetail }: Props) {
               <div className="text-white font-bold text-sm leading-tight">
                 {item.name?.split('—')[0]?.trim()}
               </div>
-              {(item.departure || item.arrival || item.duration) && (
-                <div className="text-white/70 text-xs">
-                  {[item.departure, item.arrival].filter(Boolean).join(' → ')}
-                  {item.duration && ` · ${item.duration}`}
-                </div>
-              )}
+              <div className="text-white/70 text-xs mt-0.5">
+                {item.location && <div className="font-semibold">{item.location}</div>}
+                {(item.departure || item.arrival || item.duration) && (
+                  <div className="mt-0.5">
+                    {[item.departure, item.arrival].filter(Boolean).join(' → ')}
+                    {item.duration && ` · ${item.duration}`}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

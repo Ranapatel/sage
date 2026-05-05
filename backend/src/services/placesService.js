@@ -123,6 +123,17 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
   for (const day of itinerary) {
     const enrichedPlaces = []
     for (const place of day.places) {
+      if (place.lat != null && place.lng != null && !isNaN(place.lat) && !isNaN(place.lng)) {
+        enrichedPlaces.push({
+          ...place,
+          coordinates: [place.lat, place.lng],
+          coordSource: 'ai_generated',
+          formattedAddress: place.address || '',
+          googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + destination)}`
+        })
+        continue;
+      }
+      
       const geo = await geocodePlace(place.name, destination)
       enrichedPlaces.push(geo ? {
         ...place,
@@ -145,4 +156,63 @@ async function searchPlace(query, city = '') {
   return geocodePlace(query, city)
 }
 
-module.exports = { geocodePlace, enrichItineraryWithRealCoords, searchPlace }
+// ── Image Fetching via Unsplash ───────────────────────────────────────────────
+async function fetchPlaceImages(placeName, city, retry = 1) {
+  const query = `${placeName} ${city}`.trim()
+  const cacheKey = `images:${city.toLowerCase()}:${placeName.toLowerCase()}`
+  
+  try {
+    const cached = await cacheGet(cacheKey)
+    if (cached) return cached
+  } catch (err) {}
+
+  try {
+    const key = process.env.UNSPLASH_ACCESS_KEY
+    if (!key) throw new Error('No Unsplash Key')
+    
+    // Paralleling doesn't block the Node event loop, but we still respect timeouts
+    const res = await axios.get('https://api.unsplash.com/search/photos', {
+      params: { query, per_page: 5, orientation: 'landscape' },
+      headers: { Authorization: `Client-ID ${key}` },
+      timeout: 2000
+    })
+    
+    const results = res.data?.results || []
+    let images = results.map(r => r.urls?.regular).filter(Boolean)
+    
+    // Deduplicate and ensure 2-4 images
+    images = [...new Set(images)].slice(0, 4)
+    
+    if (images.length === 0) throw new Error('No images found')
+    
+    // Ensure at least 2 images as requested
+    if (images.length === 1) {
+      images.push(`https://source.unsplash.com/featured/?${encodeURIComponent(city)},travel`)
+    }
+    
+    try {
+      await cacheSet(cacheKey, images, 86400)
+    } catch (err) {}
+    
+    return images
+  } catch (err) {
+    if (retry > 0) return fetchPlaceImages(placeName, city, 0)
+    return [`https://source.unsplash.com/featured/?${encodeURIComponent(city)},travel`]
+  }
+}
+
+async function enrichItineraryWithImages(itinerary, destination) {
+  const allPlaces = itinerary.flatMap(day => day.places)
+  
+  // Fetch all images simultaneously via Promise.all
+  await Promise.all(
+    allPlaces.map(async (place) => {
+      const images = await fetchPlaceImages(place.name, destination)
+      place.images = images
+    })
+  )
+  
+  return itinerary
+}
+
+module.exports = { geocodePlace, enrichItineraryWithRealCoords, searchPlace, enrichItineraryWithImages }

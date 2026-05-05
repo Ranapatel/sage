@@ -97,10 +97,8 @@ export default function PlanPage() {
           members: parseInt(ctx.travelers) || 2,
           travelStyle: ctx.style || 'adventure',
         })
-        // Auto search if destination set
-        if (ctx.from && ctx.to) {
-          setTimeout(() => runSearch(ctx), 500)
-        }
+        // Load values into form but do NOT auto-search. Let the user click search manually.
+        // This prevents the app from automatically searching old trips like Hyderabad on every refresh.
       } catch (e) {}
     }
     setInitialized(true)
@@ -401,8 +399,8 @@ export default function PlanPage() {
               ))}
             </div>
             <div>
-              <p className="text-sm font-semibold text-[var(--primary)]">Fetching real-time data...</p>
-              <p className="text-xs text-[var(--text-muted)]">Calling flight API · hotel API · weather · AI ranking</p>
+              <p className="text-sm font-semibold text-[var(--primary)]">Analyzing user data & fetching real-time info...</p>
+              <p className="text-xs text-[var(--text-muted)]">Estimated time: ~15 seconds · Calling flight API · hotel API · weather · AI ranking</p>
             </div>
             <div className="ml-auto font-mono text-xs text-[var(--text-muted)]">
               Skyscanner · Booking.com · Open-Meteo
@@ -466,7 +464,7 @@ export default function PlanPage() {
         {activeTab === 'optimizer' && <BudgetOptimizerTab />}
         {activeTab === 'return' && <ReturnBookingTab tripContext={tripContext} />}
         {activeTab === 'explore' && <ExploreSection destination={tripContext.destination} />}
-        {activeTab === 'map' && <MapView itinerary={itinerary} />}
+        {activeTab === 'map' && <MapView itinerary={itinerary} hotels={hotels} tripContext={tripContext} />}
         {activeTab === 'bookings' && <BookingStatus />}
         {activeTab === 'history' && (
           <TripHistoryTab

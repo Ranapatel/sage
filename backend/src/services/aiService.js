@@ -48,15 +48,31 @@ async function groqComplete({ messages, maxTokens = 3000, temperature = 0.3 }) {
 // ─── 1. Itinerary Generation ──────────────────────────────────────────────────
 
 async function generateItinerary({ destination, days, budget, style, preferences, members, startDate }) {
-  const systemPrompt = `You are TripSage — an AI travel planner.
-Your task: Generate a detailed day-by-day travel itinerary.
+  const systemPrompt = `You are TripSage — an AI travel planning engine integrated with a mapping system.
 CRITICAL RULES:
-- Return ONLY valid JSON, no markdown, no explanation
-- Only include real, verifiable places that exist in ${destination}
+- Return ONLY valid JSON, no markdown, no explanations, no code fences
+- Only include real, well-known, verifiable places that exist in ${destination}
 - Do NOT invent prices, hotel names, or flight times
 - Optimize for: budget, traveler style, group size
-- Include realistic GPS coordinates for each place
-- Times must be logical and sequential`
+- Include ACCURATE real-world GPS coordinates for EVERY place (no random values)
+- Times must be logical and sequential (09:00 → 11:00 → 13:00 etc.)
+- Normalize city name (e.g. "Vizag" → "Visakhapatnam")
+
+MANDATORY RULES:
+1. Each day must contain 3–6 places.
+2. Each place MUST include valid lat and lng, and correct visiting order.
+3. Assign colors per day: Day 1 → blue, Day 2 → green, Day 3 → red, Day 4 → purple, Day 5+ → orange.
+4. Route path: Include at least 2–5 coordinate points connecting places in "route.path".
+5. Ensure locations are geographically logical (no long unrealistic jumps).
+
+MAP COMPATIBILITY GOAL:
+Your JSON must allow frontend to instantly render markers (no geocoding needed), color markers per day, label markers (day-order format like "1-1", "1-2"), draw polylines using "route.path", and auto-fit map bounds using all coordinates.
+
+FAIL-SAFE RULES:
+- If exact coordinates are unknown → estimate realistically.
+- Do NOT skip coordinates or lat/lng.
+- Do NOT return empty arrays or duplicate IDs.
+- Do NOT generate fictional places.`
 
   const userPrompt = `Generate a ${days}-day itinerary for ${destination}.
 Starting date: ${startDate || 'unspecified'} (use YYYY-MM-DD for each "date" field).
@@ -64,22 +80,38 @@ Budget: ₹${budget} total for ${members} people (INR)
 Style: ${style}
 Preferences: ${preferences?.join(', ') || 'general sightseeing'}
 
-Return JSON in this exact schema:
+STRICT OUTPUT FORMAT — production map-ready JSON:
 {
+  "city": "${destination}",
+  "state": "",
+  "country": "India",
+  "coordinates": { "lat": 0.0, "lng": 0.0 },
   "itinerary": [
     {
       "day": 1,
-      "date": "",
+      "date": "YYYY-MM-DD",
+      "color": "blue",
       "places": [
         {
           "name": "Place Name",
+          "address": "Full street address",
+          "lat": 17.71,
+          "lng": 83.32,
+          "day": 1,
+          "order": 1,
+          "label": "1-1",
           "time": "09:00",
+          "type": "beach|temple|museum|park|viewpoint|market|restaurant|activity",
           "category": "culture|nature|dining|activity|transport|shopping|accommodation",
-          "coordinates": [latitude, longitude],
           "description": "Brief description under 100 chars",
           "estimatedCost": 200
         }
-      ]
+      ],
+      "route": {
+        "distance_km": 12,
+        "estimated_time": "30 mins",
+        "path": [[17.71, 83.32], [17.72, 83.33], [17.73, 83.34]]
+      }
     }
   ],
   "totalEstimatedCost": 5000,
@@ -92,7 +124,7 @@ Return JSON in this exact schema:
         { role: 'system', content: systemPrompt },
         { role: 'user',   content: userPrompt },
       ],
-      maxTokens:   3000,
+      maxTokens:   3500,
       temperature: 0.3,
     })
 
@@ -100,11 +132,40 @@ Return JSON in this exact schema:
     if (!jsonMatch) throw new Error('No JSON found in AI response')
 
     const parsed = JSON.parse(jsonMatch[0])
-    if (!parsed.itinerary || !Array.isArray(parsed.itinerary)) {
+
+    // Support both old format (parsed.itinerary) and fallback
+    const rawItinerary = parsed.itinerary || parsed.days || []
+    if (!Array.isArray(rawItinerary) || rawItinerary.length === 0) {
       throw new Error('Invalid itinerary format from AI')
     }
 
-    return { success: true, data: parsed }
+    // Normalise each place: ensure both coordinates[] and flat lat/lng exist
+    const normalised = rawItinerary.map((day, dayIdx) => ({
+      ...day,
+      day: day.day || dayIdx + 1,
+      places: (day.places || []).map((p, placeIdx) => {
+        // Resolve lat/lng from wherever they may be
+        const lat = p.lat != null ? p.lat : (Array.isArray(p.coordinates) ? p.coordinates[0] : null)
+        const lng = p.lng != null ? p.lng : (Array.isArray(p.coordinates) ? p.coordinates[1] : null)
+        return {
+          ...p,
+          day:   day.day || dayIdx + 1,
+          order: p.order != null ? p.order : placeIdx + 1,
+          lat,
+          lng,
+          // Keep array format for map backward-compat
+          coordinates: (lat !== null && lng !== null) ? [lat, lng] : [],
+        }
+      }),
+    }))
+
+    return {
+      success: true,
+      data: {
+        ...parsed,
+        itinerary: normalised,
+      },
+    }
   } catch (err) {
     console.error('[Groq AI] Itinerary error:', err.response?.data?.error?.message || err.message)
     throw new Error('Failed to generate itinerary: ' + (err.response?.data?.error?.message || err.message))

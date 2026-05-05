@@ -54,8 +54,13 @@ export default function Home() {
     setTimeout(() => router.push('/plan'), 800)
   }
 
-  // Auto-detect location
+  // Clear old sessions on mount
   useEffect(() => {
+    // Clear old trip so it doesn't auto-search on /plan if they navigated back to home
+    sessionStorage.removeItem('tripContext')
+
+    // Disabled auto-detect location as it was automatically typing the user's IP city (e.g. Hyderabad)
+    /*
     if (!form.from) {
       tripAPI.getIpLocation().then((res: any) => {
         if (res.success && res.data) {
@@ -68,6 +73,7 @@ export default function Home() {
         }
       }).catch(() => {})
     }
+    */
   }, [])
 
   return (
