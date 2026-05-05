@@ -45,7 +45,7 @@ export default function AuthPage() {
         if (!agreeTerms) { toast.error('You must agree to the Terms & Conditions'); return }
         await signup({ name: form.name, email: form.email, password: form.password, currency: form.currency, country: form.country })
         trackEvent('signup', { method: 'email' })
-        toast.success(`Welcome to TripSage, ${form.name}!`)
+        toast.success(`Welcome to TripSage, ${form.name}! ✈️`)
       }
       router.push('/plan')
     } catch { /* error handled by store + toast */ }

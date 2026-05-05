@@ -93,7 +93,18 @@ function ItineraryView({ itinerary, loading }: Props) {
         <div className="relative">
           <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-[var(--border)]"></div>
           <div className="space-y-4">
-            {currentDay.places.map((place: any, i: number) => (
+            {currentDay.places.map((place: any, i: number) => {
+              const hasCoords = Array.isArray(place.coordinates)
+                && place.coordinates.length === 2
+                && !isNaN(Number(place.coordinates[0]))
+                && !isNaN(Number(place.coordinates[1]))
+              const lat = hasCoords ? Number(place.coordinates[0]) : null
+              const lng = hasCoords ? Number(place.coordinates[1]) : null
+              const mapsHref = hasCoords
+                ? `https://maps.google.com/?q=${lat},${lng}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`
+
+              return (
               <div key={i} className="relative flex gap-4 pl-14">
                 {/* Timeline dot */}
                 <div className="absolute left-4 top-4 w-4 h-4 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
@@ -109,9 +120,13 @@ function ItineraryView({ itinerary, loading }: Props) {
                           <span className={`badge ${CATEGORY_COLORS[place.category] || 'badge-green'} text-[0.65rem]`}>
                             {place.category}
                           </span>
-                          <span className="text-xs text-[var(--text-muted)]">
-                            📍 {place.coordinates[0].toFixed(3)}, {place.coordinates[1].toFixed(3)}
-                          </span>
+                          {hasCoords ? (
+                            <span className="text-xs text-[var(--text-muted)]">
+                              📍 {lat!.toFixed(3)}, {lng!.toFixed(3)}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-yellow-500">📍 Coordinates loading...</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -119,7 +134,7 @@ function ItineraryView({ itinerary, loading }: Props) {
                     <div className="text-right flex-shrink-0">
                       <div className="font-mono text-sm font-bold text-[var(--primary)]">{place.time}</div>
                       <a
-                        href={`https://maps.google.com/?q=${place.coordinates[0]},${place.coordinates[1]}`}
+                        href={mapsHref}
                         target="_blank" rel="noopener noreferrer"
                         className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors mt-1 block"
                       >
@@ -128,20 +143,30 @@ function ItineraryView({ itinerary, loading }: Props) {
                     </div>
                   </div>
 
-                  {place.image && (
-                    <div className="mt-3 h-24 rounded-lg overflow-hidden">
-                      <img 
-                        src={getOptimizedImageUrl(place.image, isMobile)} 
-                        alt={place.name} 
-                        className="w-full h-full object-cover" 
-                        loading="lazy"
-                        decoding="async"
-                      />
+                  {/* Image Gallery */}
+                  <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
+                    <div className="flex gap-2 min-w-max">
+                      {!place.images ? (
+                        /* Placeholders while loading */
+                        <>
+                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
+                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
+                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
+                        </>
+                      ) : place.images.length > 0 ? (
+                        /* Real images */
+                        place.images.map((img: string, idx: number) => (
+                          <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)]">
+                            <img src={getOptimizedImageUrl(img, isMobile)} alt={`${place.name} ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" decoding="async" />
+                          </div>
+                        ))
+                      ) : null}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

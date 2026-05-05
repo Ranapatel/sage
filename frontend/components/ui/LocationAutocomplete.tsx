@@ -1,16 +1,12 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { tripAPI } from '@/lib/api'
 
 export type Location = {
   id: string
   name: string
-  city: string
-  country: string
-  latitude: number
-  longitude: number
-  iataCode?: string
-  type: 'city' | 'airport'
+  type: 'city'
 }
 
 type AutoCompleteState =
@@ -51,12 +47,18 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const isSelectingRef = useRef(false)
+
   useEffect(() => {
     const trimmed = query.trim()
-    if (trimmed === value) return // Ignore if it's just the selected value
     if (trimmed.length < 2) {
       setState({ status: 'idle' })
       setIsOpen(false)
+      return
+    }
+
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
       return
     }
 
@@ -84,49 +86,61 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
     setIsOpen(true)
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const res = await fetch(`${baseURL}/api/places/autocomplete?query=${encodeURIComponent(searchTerm)}`, {
-        signal: abortControllerRef.current.signal
-      })
+      const res = await tripAPI.getAutocomplete(searchTerm)
       
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}))
-        throw new Error(errData.error || 'API error')
-      }
+      const results = res.data
+      console.log('LocationAutocomplete API results:', results);
       
-      const resData = await res.json()
-      const results = resData.data || []
-      
-      if (results.length === 0) {
+      if (!Array.isArray(results) || results.length === 0) {
+        console.log('LocationAutocomplete API returned empty');
         setState({ status: 'empty' })
         cache[searchTerm.toLowerCase()] = []
         return
       }
 
-      const locations: Location[] = results.map((r: any) => ({
-        id: r.id?.toString() ?? Math.random().toString(36).slice(2),
-        name: r.city || r.name || '',
-        city: r.city || r.name || '',
-        country: r.country || '',
-        latitude: r.latitude ?? 0,
-        longitude: r.longitude ?? 0,
-        iataCode: r.iataCode,
-        type: 'city' as const,
-      }))
+      const locations: Location[] = results.map((r: any) => {
+        let displayName = '';
+        if (typeof r === 'string') {
+          displayName = r;
+        } else if (r.city && r.country) {
+          displayName = `${r.city}${r.state && r.state !== r.city ? `, ${r.state}` : ''}, ${r.country}`;
+        } else if (r.name && r.country) {
+          displayName = `${r.name}${r.state && r.state !== r.name ? `, ${r.state}` : ''}, ${r.country}`;
+        } else if (r.description) {
+          displayName = r.description;
+        } else if (r.displayName) {
+          const parts = r.displayName.split(',');
+          // If the raw display name is very long, try to just take the first and last parts (Name, ..., Country)
+          if (parts.length > 3) {
+            displayName = `${parts[0].trim()}, ${parts[parts.length - 1].trim()}`;
+          } else {
+            displayName = r.displayName;
+          }
+        } else {
+          displayName = r.city || r.name || r.formatted_address || (Object.values(r).find(v => typeof v === 'string') as string) || 'Unknown Location';
+        }
+
+        return {
+          id: r.id || r.place_id || Math.random().toString(36).slice(2),
+          name: displayName,
+          type: 'city' as const,
+        }
+      })
 
       cache[searchTerm.toLowerCase()] = locations
+      console.log('Setting status to success, locations:', locations);
       setState({ status: 'success', data: locations })
     } catch (err: any) {
+      console.error('LocationAutocomplete API error:', err);
       if (err.name === 'AbortError') return // Ignore aborted fetch errors
       setState({ status: 'error', message: 'Unable to fetch suggestions' })
     }
   }
 
   const handleSelect = (loc: Location) => {
-    const parts = [loc.city, loc.country].filter(Boolean)
-    const displayValue = parts.join(', ')
-    setQuery(displayValue)
-    onChange(displayValue)
+    isSelectingRef.current = true
+    setQuery(loc.name)
+    onChange(loc.name)
     setState({ status: 'idle' })
     setIsOpen(false)
   }
@@ -155,8 +169,15 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
         </div>
       )}
       
-      {isOpen && state.status !== 'idle' && state.status !== 'loading' && (
+      {isOpen && state.status !== 'idle' && (
         <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-xl border border-white/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden animate-fade-in">
+          
+          {state.status === 'loading' && (
+            <div className="px-4 py-3 text-sm text-slate-500 text-center flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin inline-block"></span>
+              Searching...
+            </div>
+          )}
           
           {state.status === 'empty' && (
             <div className="px-4 py-4 text-sm text-slate-500 text-center">
@@ -175,15 +196,16 @@ export default function LocationAutocomplete({ value, onChange, placeholder = 'S
               {state.data.map((loc) => (
                 <div
                   key={loc.id}
-                  className="px-5 py-3 hover:bg-blue-50 cursor-pointer transition-colors group flex items-center justify-between border-b border-gray-50 last:border-0"
+                  className="px-5 py-3 hover:bg-orange-50 cursor-pointer transition-colors group flex items-center justify-between border-b border-gray-50 last:border-0"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSelect(loc)}
                 >
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-slate-900">
-                      📍 {loc.city}{loc.country ? `, ${loc.country}` : ''}{loc.iataCode ? ` (${loc.iataCode})` : ''}
+                    <span className="text-sm font-semibold text-slate-900 group-hover:text-orange-600 transition-colors">
+                      📍 {loc.name}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-gray-100 text-slate-500 uppercase tracking-widest group-hover:bg-blue-100 group-hover:text-blue-600">
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-gray-100 text-slate-500 uppercase tracking-widest group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
                     City
                   </span>
                 </div>

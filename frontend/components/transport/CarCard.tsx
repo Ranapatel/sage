@@ -3,7 +3,6 @@
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { trackEvent } from '@/lib/analytics'
-
 import React, { memo } from 'react'
 
 interface Props {
