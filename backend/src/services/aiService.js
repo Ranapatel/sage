@@ -81,8 +81,16 @@ Return JSON in this exact schema:
 
     return { success: true, data: parsed }
   } catch (err) {
-    console.error('[Groq AI] Error:', err.response?.data?.error?.message || err.message)
-    throw new Error('Failed to generate real AI itinerary: ' + (err.response?.data?.error?.message || err.message))
+    const errorMsg = err.response?.data?.error?.message || err.message
+    console.error('[Groq AI] Error:', errorMsg)
+    
+    // Fallback to mock itinerary on rate limit to prevent 500 errors
+    if (err.response?.status === 429 || errorMsg.toLowerCase().includes('rate limit')) {
+      console.warn('[TripSage] ⚠️ Rate limit hit — falling back to mock itinerary')
+      return { success: true, data: getMockItinerary({ destination, days, budget, members, startDate }), mockFallback: true }
+    }
+    
+    throw new Error('Failed to generate real AI itinerary: ' + errorMsg)
   }
 }
 
@@ -243,7 +251,7 @@ Rules:
 
   try {
     const response = await axios.post(GROQ_API_URL, {
-      model: MODEL,
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 600,
       temperature: 0.1,
@@ -320,5 +328,65 @@ function getMockItinerary({ destination, days, budget, members, startDate }) {
   };
 }
 
-module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices }
+/**
+ * AI-powered realistic bus price estimation using Groq
+ * Uses the lighter llama-3.1-8b-instant model to conserve token quota
+ */
+async function estimateBusPrices({ from, to, date, budget }) {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) return null
+
+  const prompt = `You are an Indian bus travel pricing expert. Estimate realistic bus ticket prices in INR for this route.
+
+Route: ${from} → ${to}
+Date: ${date || 'next month'}
+Budget hint: ₹${budget || 'any'}
+
+Return ONLY this JSON (no explanation, no markdown):
+{
+  "buses": [
+    { "operator": "IntrCity SmartBus", "busType": "AC Sleeper (2+1)", "price": 1200, "departure": "21:00", "duration": "10h 30m", "stops": 1 },
+    { "operator": "VRL Travels", "busType": "AC Semi Sleeper (2+2)", "price": 900, "departure": "20:00", "duration": "11h 00m", "stops": 2 },
+    { "operator": "Orange Tours", "busType": "Scania Multi-Axle", "price": 1500, "departure": "22:30", "duration": "9h 45m", "stops": 0 },
+    { "operator": "SRS Travels", "busType": "Non-AC Sleeper (2+1)", "price": 600, "departure": "18:00", "duration": "13h 00m", "stops": 3 },
+    { "operator": "Zingbus", "busType": "Volvo Multi-Axle I-Shift", "price": 1100, "departure": "23:00", "duration": "10h 00m", "stops": 1 }
+  ],
+  "distanceKm": 580,
+  "routeNote": "overnight route via NH48"
+}
+
+Rules:
+- All prices in INR
+- Realistic for Indian bus market (₹300–₹3,500 typical range)
+- If route is very long (>800km) or crosses water/mountains, prices may be higher
+- If route seems international/impossible by bus, return empty buses array
+- Use operators that actually serve this region`
+
+  try {
+    const response = await axios.post(GROQ_API_URL, {
+      model: 'llama-3.1-8b-instant',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 500,
+      temperature: 0.1,
+    }, {
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      timeout: 8000,
+    })
+
+    const content = response.data.choices[0]?.message?.content
+    const jsonMatch = content?.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return null
+
+    const parsed = JSON.parse(jsonMatch[0])
+    if (!Array.isArray(parsed?.buses)) return null
+
+    console.log(`[Groq] ✅ AI estimated ${parsed.buses.length} bus prices for ${from} → ${to}`)
+    return { buses: parsed.buses, distanceKm: parsed.distanceKm, routeNote: parsed.routeNote }
+  } catch (err) {
+    console.warn('[Groq] Bus price estimation failed:', err.response?.data?.error?.message || err.message)
+    return null
+  }
+}
+
+module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices, estimateBusPrices }
 

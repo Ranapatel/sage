@@ -65,6 +65,8 @@ router.post('/generate', itineraryValidation, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to generate itinerary. Please try again.',
+      debug: err.message,
+      stack: err.stack,
       meta: { timestamp: new Date().toISOString(), requestId },
     })
   }

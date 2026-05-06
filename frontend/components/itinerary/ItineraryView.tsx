@@ -146,14 +146,6 @@ function ItineraryView({ itinerary, loading, destination = '' }: Props) {
                   <div className="mt-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
                     <div className="flex gap-2 min-w-max">
                       {(() => {
-                        // Use place name + destination for real contextual images
-                        // Unsplash's /s/photos/ endpoint is a stable redirect that works without API key
-                        const placeSlug = encodeURIComponent(`${place.name} ${destCity}`.toLowerCase())
-                        const catSlug   = encodeURIComponent(`${destCity} ${place.category || 'travel'}`.toLowerCase())
-                        const imgUrls = [
-                          `https://images.unsplash.com/search/photos?query=${placeSlug}&w=400&q=75&auto=format&fit=crop`,
-                          `https://images.unsplash.com/search/photos?query=${catSlug}&w=400&q=75&auto=format&fit=crop`,
-                        ]
                         // Deterministic category fallback pool
                         const CATEGORY_IMAGES: Record<string, string[]> = {
                           nature:    ['1476514525535-07fb3b4ed5f1','1501854140801-50d01698950b','1469474968028-56623f02e42e','1441974231531-c6227db76b6e'],
@@ -170,7 +162,16 @@ function ItineraryView({ itinerary, loading, destination = '' }: Props) {
                         const cat = (place.category || 'default').toLowerCase()
                         const pool = CATEGORY_IMAGES[cat] || CATEGORY_IMAGES.default
                         const hash = place.name.split('').reduce((a: number, b: string) => a + b.charCodeAt(0), 0)
-                        return imgUrls.map((src, idx) => (
+                        
+                        // Use real images from backend if available, else fallback to 2 generated placeholder URLs to trigger onError
+                        const imgUrls = place.images?.length > 0 
+                          ? place.images.map((url: string) => getOptimizedImageUrl(url, isMobile))
+                          : [
+                              `https://images.unsplash.com/photo-${pool[hash % pool.length]}?auto=format&fit=crop&w=400&q=75`,
+                              `https://images.unsplash.com/photo-${pool[(hash + 1) % pool.length]}?auto=format&fit=crop&w=400&q=75`
+                            ]
+
+                        return imgUrls.map((src: string, idx: number) => (
                           <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group border border-[var(--border)] bg-slate-800">
                             <img
                               src={src}

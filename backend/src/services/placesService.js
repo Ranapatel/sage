@@ -96,6 +96,7 @@ async function googleGeocode(placeName, cityContext = '') {
       formattedAddress: top.formatted_address,
       googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${top.place_id}`,
       source: 'google_places',
+      googlePhotos: top.photos ? top.photos.map(p => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${p.photo_reference}&key=${key}`) : []
     }
     memCache.set(cacheKey, result)
     return result
@@ -111,42 +112,70 @@ async function geocodePlace(placeName, cityContext = '') {
   return nominatimGeocode(placeName, cityContext)
 }
 
+async function getUnsplashImage(placeName, destination) {
+  const key = process.env.UNSPLASH_ACCESS_KEY
+  if (!key) return null
+
+  const cacheKey = `unsplash|${placeName}|${destination}`.toLowerCase()
+  if (memCache.has(cacheKey)) return memCache.get(cacheKey)
+
+  try {
+    const rKey = generateCacheKey('unsplash', { place: placeName, dest: destination })
+    const cached = await cacheGet(rKey)
+    if (cached) { memCache.set(cacheKey, cached); return cached }
+  } catch { /* ignore */ }
+
+  try {
+    const q = encodeURIComponent(`${placeName} ${destination}`)
+    const res = await axios.get(`https://api.unsplash.com/search/photos?query=${q}&per_page=3&client_id=${key}`, { timeout: 5000 })
+    if (res.data?.results?.length > 0) {
+      const urls = res.data.results.map(img => img.urls.regular)
+      memCache.set(cacheKey, urls)
+      try {
+        const rKey = generateCacheKey('unsplash', { place: placeName, dest: destination })
+        await cacheSet(rKey, urls, 86400 * 7)
+      } catch { /* ignore */ }
+      return urls
+    }
+  } catch (err) {
+    console.warn(`[Unsplash] Failed for "${placeName}": ${err.message}`)
+  }
+  return null
+}
+
 async function enrichItineraryWithRealCoords(itinerary, destination) {
   const allPlaces = itinerary.flatMap(d => d.places)
   const total = allPlaces.length
   const hasGoogle = process.env.GOOGLE_PLACES_API_KEY &&
     process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key'
 
-  if (!hasGoogle) {
-    console.log(`[Places] Skipping geocoding for ${total} places (Google API key missing) to speed up response.`)
-    return itinerary.map(day => ({
-      ...day,
-      places: day.places.map(place => ({
-        ...place,
-        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ', ' + destination)}`,
-        coordSource: 'ai_estimated'
-      }))
-    }))
-  }
-
-  console.log(`[Places] Geocoding ${total} places for "${destination}" via Google...`)
+  console.log(`[Places] Enriching ${total} places for "${destination}"...`)
 
   const enriched = await Promise.all(
     itinerary.map(async (day) => {
       const enrichedPlaces = await Promise.all(
         day.places.map(async (place) => {
-          const geo = await geocodePlace(place.name, destination)
-          return geo ? {
+          let geo = null
+          if (hasGoogle) {
+            geo = await geocodePlace(place.name, destination)
+          }
+          const images = await getUnsplashImage(place.name, destination)
+          const combinedImages = []
+          if (geo && geo.googlePhotos && geo.googlePhotos.length > 0) {
+            combinedImages.push(...geo.googlePhotos)
+          }
+          if (images && images.length > 0) {
+            combinedImages.push(...images)
+          }
+
+          return {
             ...place,
-            coordinates: [geo.lat, geo.lng],
-            placeId: geo.placeId,
-            formattedAddress: geo.formattedAddress,
-            googleMapsUrl: geo.googleMapsUrl,
-            coordSource: geo.source,
-          } : {
-            ...place,
-            googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ', ' + destination)}`,
-            coordSource: 'ai_estimated'
+            coordinates: geo ? [geo.lat, geo.lng] : place.coordinates,
+            placeId: geo?.placeId,
+            formattedAddress: geo?.formattedAddress,
+            googleMapsUrl: geo?.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ', ' + destination)}`,
+            coordSource: geo?.source || 'ai_estimated',
+            images: combinedImages,
           }
         })
       )
@@ -154,8 +183,9 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
     })
   )
 
-  const real = enriched.flatMap(d => d.places).filter(p => p.coordSource !== 'ai_estimated').length
-  console.log(`[Places] ✅ ${real}/${total} places geocoded`)
+  const realGeo = enriched.flatMap(d => d.places).filter(p => p.coordSource !== 'ai_estimated').length
+  const realImg = enriched.flatMap(d => d.places).filter(p => p.images && p.images.length > 0).length
+  console.log(`[Places] ✅ ${realGeo}/${total} geocoded | ${realImg}/${total} images fetched`)
   return enriched
 }
 

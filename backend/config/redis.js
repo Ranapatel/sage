@@ -65,10 +65,12 @@ async function cacheDel(key) {
   } catch (err) {}
 }
 
+const crypto = require('crypto');
+
 // Generate cache key from query + context
 function generateCacheKey(prefix, params) {
   const str = JSON.stringify(params, Object.keys(params).sort());
-  const hash = Buffer.from(str).toString('base64').slice(0, 32);
+  const hash = crypto.createHash('sha256').update(str).digest('hex');
   return `tripsage:${prefix}:${hash}`;
 }
 

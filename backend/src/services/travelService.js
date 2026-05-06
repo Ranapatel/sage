@@ -1,6 +1,6 @@
 const axios = require('axios')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
-const { estimateFlightPrices } = require('./aiService')
+const { estimateFlightPrices, estimateBusPrices } = require('./aiService')
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY
 const RAPIDAPI_HOSTS = {
@@ -151,7 +151,7 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
         type: 'flight',
         name: `${af.airline} — ${(from || '').split(',')[0]} → ${(to || '').split(',')[0]}`,
         price: Math.max(1000, af.price),
-        rating: parseFloat((3.8 + seededRandom(seed + i + 'r') * 1.2).toFixed(1)),
+        rating: parseFloat((3.8 + seededRandom(`${i}r|${seed}`) * 1.2).toFixed(1)),
         duration: af.duration || '2h 30m',
         departure: af.departure || '08:00',
         arrival: af.arrival || '10:30',
@@ -159,7 +159,7 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
         logo: airline.logo,
         airlineColor: airline.color || '#00c27c',
         bookingLink: flightBookingLink(from, to, date),
-        score: parseFloat((0.6 + seededRandom(seed + i + 's') * 0.4).toFixed(2)),
+        score: parseFloat((0.6 + seededRandom(`${i}s|${seed}`) * 0.4).toFixed(2)),
         liveStatus: i === 0 ? 'On Time' : 'Available',
         offers: i === 0 ? ['AI Estimated Price', 'Best Deal'] : [],
         source: 'ai-estimated',
@@ -178,24 +178,24 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
   const basePrice = Math.max(priceMin, Math.round((seededRandom(seed) * priceRange + priceMin) / 100) * 100)
 
   return AIRLINES.map((airline, i) => {
-    const r = seededRandom(seed + i)
+    const r = seededRandom(`${i}|${seed}`)
     const price = Math.min(basePrice + Math.round((r * 4000 - 500) / 100) * 100, maxPrice)
     const depHour = 5 + Math.floor(r * 15)
-    const durHr = isInternational ? 4 + Math.floor(seededRandom(seed + i + 'dur') * 8) : 1 + Math.floor(seededRandom(seed + i + 'dur') * 4)
-    const durMin = Math.floor(seededRandom(seed + i + 'min') * 60)
+    const durHr = isInternational ? 4 + Math.floor(seededRandom(`${i}dur|${seed}`) * 8) : 1 + Math.floor(seededRandom(`${i}dur|${seed}`) * 4)
+    const durMin = Math.floor(seededRandom(`${i}min|${seed}`) * 60)
     return {
       id: `fl_mock_${i}`,
       type: 'flight',
       name: `${airline.name} — ${(from || '').split(',')[0]} → ${(to || '').split(',')[0]}`,
       price: Math.max(price, priceMin),
-      rating: parseFloat((3.5 + seededRandom(seed + i + 'r') * 1.5).toFixed(1)),
-      duration: `${durHr}h ${durMin}m`,
+      rating: parseFloat((3.5 + seededRandom(`${i}r|${seed}`) * 1.5).toFixed(1)),
+      duration: `${durHr}h ${String(durMin).padStart(2,'0')}m`,
       departure: `${String(depHour).padStart(2, '0')}:${String(Math.floor(r * 60)).padStart(2, '0')}`,
       arrival: `${String((depHour + durHr) % 24).padStart(2, '0')}:${String(durMin).padStart(2, '0')}`,
       image: airline.image || `https://source.unsplash.com/600x400/?airplane,${encodeURIComponent((to || '').split(',')[0])}`,
       logo: airline.logo,
       bookingLink: flightBookingLink(from, to, date),
-      score: parseFloat((0.5 + seededRandom(seed + i + 's') * 0.5).toFixed(2)),
+      score: parseFloat((0.5 + seededRandom(`${i}s|${seed}`) * 0.5).toFixed(2)),
       liveStatus: i === 0 ? 'On Time' : 'Available',
       offers: i === 0 ? ['Best Price', 'Free Meal'] : [],
       source: 'estimated',
@@ -207,31 +207,55 @@ const HOTEL_PREFIXES = ['The Grand', 'Royal', 'Paradise', 'Comfort', 'Heritage',
 const HOTEL_SUFFIXES = ['Hotel', 'Resort', 'Inn', 'Suites', 'Palace', 'Retreat', 'Lodge', 'Residency']
 const AMENITIES_POOL = ['WiFi', 'Pool', 'Spa', 'Gym', 'Restaurant', 'Room Service', 'Parking', 'Breakfast']
 
-function generateMockHotels(destination, checkin, checkout, members, budget) {
+async function getUnsplashHotelImages(destination) {
+  const key = process.env.UNSPLASH_ACCESS_KEY
+  if (!key) return null
+  try {
+    const destLabel = (destination || '').split(',')[0].trim()
+    const q = encodeURIComponent(`Hotel ${destLabel}`)
+    const res = await axios.get(`https://api.unsplash.com/search/photos?query=${q}&per_page=6&client_id=${key}`, { timeout: 5000 })
+    if (res.data?.results?.length > 0) {
+      return res.data.results.map(img => img.urls.regular)
+    }
+  } catch (e) {
+    console.warn('[Hotels/Unsplash] Failed:', e.message)
+  }
+  return null
+}
+
+async function generateMockHotels(destination, checkin, checkout, members, budget) {
   // Use stable seed including date so hotel prices change for different dates
   const seed = (destination || 'dest').split(',')[0].toLowerCase().trim() + '-' + (checkin || '')
   const destLabel = (destination || 'destination').split(',')[0]
   // Realistic per-night prices: ₹800–₹6,000
   const maxPerNight = budget ? Math.min(budget * 0.35, 7000) : 5500
   const basePrice = Math.max(700, Math.round((seededRandom(seed) * 2500 + 800) / 100) * 100)
+  
+  const realImages = await getUnsplashHotelImages(destination)
 
   return Array.from({ length: 6 }, (_, i) => {
-    const r = seededRandom(seed + i)
+    const r = seededRandom(`${i}|${seed}`)
     const prefix = HOTEL_PREFIXES[Math.floor(r * HOTEL_PREFIXES.length)]
-    const suffix = HOTEL_SUFFIXES[Math.floor(seededRandom(seed + i + 'sfx') * HOTEL_SUFFIXES.length)]
-    const price = Math.min(basePrice + Math.round((seededRandom(seed + i + 'p') * 3500) / 100) * 100, maxPerNight)
-    const amenStart = Math.floor(seededRandom(seed + i + 'as') * 4)
+    const suffix = HOTEL_SUFFIXES[Math.floor(seededRandom(`${i}sfx|${seed}`) * HOTEL_SUFFIXES.length)]
+    const price = Math.min(basePrice + Math.round((seededRandom(`${i}p|${seed}`) * 3500) / 100) * 100, maxPerNight)
+    const amenStart = Math.floor(seededRandom(`${i}as|${seed}`) * (AMENITIES_POOL.length - 3))
     const amenities = AMENITIES_POOL.slice(amenStart, amenStart + 4)
+    
+    // Fallback to distinct curated images to ensure variety if API fails
+    const imgUrl = realImages && realImages[i % realImages.length] 
+      ? realImages[i % realImages.length] 
+      : HOTEL_IMAGES[i % HOTEL_IMAGES.length]
+
     return {
       id: `ht_mock_${i}`,
       type: 'hotel',
       name: `${prefix} ${destLabel} ${suffix}`,
       price: Math.max(price, 700),
-      rating: parseFloat((3.5 + seededRandom(seed + i + 'r') * 1.5).toFixed(1)),
-      image: `https://source.unsplash.com/600x400/?hotel,${encodeURIComponent(destLabel)},luxury`,
+      rating: parseFloat((3.5 + seededRandom(`${i}r|${seed}`) * 1.5).toFixed(1)),
+      image: imgUrl,
       location: `${destLabel} City Centre`,
       bookingLink: hotelBookingLink(destination, checkin, checkout, members),
-      score: parseFloat((0.5 + seededRandom(seed + i + 's') * 0.5).toFixed(2)),
+      score: parseFloat((0.5 + seededRandom(`${i}s|${seed}`) * 0.5).toFixed(2)),
       liveStatus: i < 2 ? '2 rooms left' : 'Available',
       amenities,
       offers: i === 0 ? ['Free Cancellation', 'Breakfast Included'] : [],
@@ -449,7 +473,7 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
 
   // Always fall back to smart mock data
   console.log(`[Hotels] Using estimated data for ${destination}`)
-  const mocks = generateMockHotels(destination, checkin, checkout, members, budget)
+  const mocks = await generateMockHotels(destination, checkin, checkout, members, budget)
   const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
   await cacheSet(cacheKey, result)
   return result
@@ -510,69 +534,124 @@ const BUS_OPERATORS = [
   { name: 'Orange Tours', rating: 4.1, type: 'Scania Multi-Axle', color: '#e67e22' },
 ]
 
-function generateMockBuses(from, to, date, budget) {
+function generateMockBuses(from, to, date, budget, aiBuses = null) {
   const stableFrom = (from || 'a').split(',')[0].toLowerCase().trim()
   const stableTo = (to || 'b').split(',')[0].toLowerCase().trim()
   const seed = `${stableFrom}-${stableTo}-${date}`
-  
-  // Basic heuristic: if it's likely an international flight route, no buses
+
+  // If AI provided estimates, use them directly
+  if (aiBuses && aiBuses.length > 0) {
+    const affiliateUrl = `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage&medium=web&campaign_id=bus_tab`
+    return aiBuses.map((ab, i) => {
+      const op = BUS_OPERATORS.find(o => o.name.toLowerCase().includes(ab.operator.toLowerCase().split(' ')[0])) || BUS_OPERATORS[i % BUS_OPERATORS.length]
+      // Parse duration string like "10h 30m" into arrival
+      const depParts = (ab.departure || '20:00').split(':')
+      const depHour = parseInt(depParts[0]) || 20
+      const depMin = parseInt(depParts[1]) || 0
+      const durMatch = (ab.duration || '10h 0m').match(/(\d+)h\s*(\d*)m?/)
+      const durHr = durMatch ? parseInt(durMatch[1]) : 10
+      const durMin2 = durMatch ? parseInt(durMatch[2] || '0') : 0
+      const arrHour = (depHour + durHr + Math.floor((depMin + durMin2) / 60)) % 24
+      const arrMin = (depMin + durMin2) % 60
+      return {
+        id: `bs_ai_${i}`,
+        type: 'bus',
+        name: ab.operator,
+        busType: ab.busType || op.type,
+        price: Math.max(ab.price, 200),
+        rating: parseFloat((op.rating - 0.3 + seededRandom(`${i}r|${seed}`) * 0.6).toFixed(1)),
+        duration: ab.duration || '10h 0m',
+        departure: ab.departure || '20:00',
+        arrival: `${String(arrHour).padStart(2, '0')}:${String(arrMin).padStart(2, '0')}`,
+        image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80',
+        logo: '',
+        color: op.color,
+        bookingLink: affiliateUrl,
+        score: parseFloat((0.55 + seededRandom(`${i}s|${seed}`) * 0.45).toFixed(2)),
+        liveStatus: i === 0 ? 'Filling Fast' : 'Available',
+        offers: i === 1 ? ['Early Bird Deal'] : [],
+        stops: ab.stops || 0,
+        source: 'ai-estimated',
+      }
+    }).sort((a, b) => a.price - b.price)
+  }
+
+  // ── Seeded fallback (no AI) ────────────────────────────────────────────────
   const isDomesticIndia = ['delhi','mumbai','bangalore','hyderabad','chennai','kolkata','pune','goa',
      'jaipur','ahmedabad','kochi','agra','varanasi','rishikesh','manali','shimla','chandigarh']
-     .some(c => stableFrom.includes(c)) && 
+     .some(c => stableFrom.includes(c)) &&
      ['delhi','mumbai','bangalore','hyderabad','chennai','kolkata','pune','goa',
      'jaipur','ahmedabad','kochi','agra','varanasi','rishikesh','manali','shimla','chandigarh']
-     .some(c => stableTo.includes(c));
-     
-  // If not domestic India and the strings don't seem like they are close, skip buses
-  if (!isDomesticIndia && !((from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india'))) {
-    // If it's something like London to Paris, buses might exist, but let's be conservative
-    if (stableFrom !== stableTo && !stableFrom.includes('london') && !stableTo.includes('paris')) {
-        return []; // No buses available
-    }
-  }
-  const basePrice = Math.max(500, Math.round((seededRandom(seed) * 1500 + 400) / 100) * 100)
-  
-  return BUS_OPERATORS.map((op, i) => {
-    const r = seededRandom(seed + i)
-    const price = Math.max(basePrice + Math.round((r * 1000 - 200) / 100) * 100, 300)
-    const depHour = 18 + Math.floor(r * 5) // Night buses mostly
-    const durHr = 6 + Math.floor(seededRandom(seed + i + 'dur') * 8)
-    const durMin = Math.floor(seededRandom(seed + i + 'min') * 60)
-    
-    // Affiliate link format for Redbus with tracking parameters
-    const affiliateUrl = `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage&medium=web&campaign_id=bus_tab`
+     .some(c => stableTo.includes(c))
 
+  if (!isDomesticIndia && !((from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india'))) {
+    return []
+  }
+
+  const basePrice = Math.max(400, Math.round((seededRandom(seed) * 1500 + 350) / 100) * 100)
+  const affiliateUrl = `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage&medium=web&campaign_id=bus_tab`
+
+  return BUS_OPERATORS.map((op, i) => {
+    const r = seededRandom(`${i}|${seed}`)
+    const price = Math.max(basePrice + Math.round((r * 900 - 150) / 100) * 100, 250)
+    const depHour = 17 + Math.floor(r * 6) // Night buses mostly
+    const depMin = Math.floor(seededRandom(`${i}dm|${seed}`) * 60)
+    const durHr = 6 + Math.floor(seededRandom(`${i}dur|${seed}`) * 8)
+    const durMin = Math.floor(seededRandom(`${i}min|${seed}`) * 60)
+    const arrHour = (depHour + durHr + Math.floor((depMin + durMin) / 60)) % 24
+    const arrMin = (depMin + durMin) % 60
     return {
       id: `bs_mock_${i}`,
       type: 'bus',
       name: op.name,
       busType: op.type,
-      price: price,
-      rating: parseFloat((op.rating - 0.5 + seededRandom(seed + i + 'r')).toFixed(1)),
-      duration: `${durHr}h ${durMin}m`,
-      departure: `${String(depHour % 24).padStart(2, '0')}:${String(Math.floor(r * 60)).padStart(2, '0')}`,
-      arrival: `${String((depHour + durHr) % 24).padStart(2, '0')}:${String(durMin).padStart(2, '0')}`,
+      price,
+      rating: parseFloat((op.rating - 0.3 + seededRandom(`${i}r|${seed}`) * 0.6).toFixed(1)),
+      duration: `${durHr}h ${String(durMin).padStart(2,'0')}m`,
+      departure: `${String(depHour % 24).padStart(2, '0')}:${String(depMin).padStart(2,'0')}`,
+      arrival: `${String(arrHour).padStart(2, '0')}:${String(arrMin).padStart(2, '0')}`,
       image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80',
       logo: '',
       color: op.color,
       bookingLink: affiliateUrl,
-      score: parseFloat((0.6 + seededRandom(seed + i + 's') * 0.4).toFixed(2)),
+      score: parseFloat((0.55 + seededRandom(`${i}s|${seed}`) * 0.45).toFixed(2)),
       liveStatus: i === 0 ? 'Filling Fast' : 'Available',
       offers: i === 1 ? ['Early Bird Deal'] : [],
+      stops: Math.floor(seededRandom(`${i}st|${seed}`) * 3),
       source: 'estimated',
     }
   }).sort((a, b) => a.price - b.price)
 }
 
-async function searchBuses({ from, to, date, budget }) {
-  const cacheKey = generateCacheKey('buses_v1', { from, to, date, budget })
-  const cached = await cacheGet(cacheKey)
-  if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+async function searchBuses({ from, to, date, budget, noCache = false }) {
+  const cacheKey = generateCacheKey('buses_v2', { from, to, date })
+  if (!noCache) {
+    const cached = await cacheGet(cacheKey)
+    if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
+  }
 
-  console.log(`[Buses] Using estimated data for ${from} → ${to}`)
+  // Try AI-estimated prices first (route-specific, realistic)
+  try {
+    const aiResult = await estimateBusPrices({ from, to, date, budget })
+    if (aiResult && aiResult.buses && aiResult.buses.length > 0) {
+      const buses = generateMockBuses(from, to, date, budget, aiResult.buses)
+      const result = {
+        success: true,
+        data: buses,
+        meta: { cache: false, source: 'ai-estimated', routeNote: aiResult.routeNote, distanceKm: aiResult.distanceKm },
+      }
+      await cacheSet(cacheKey, result, 3600) // cache 1 hour
+      return result
+    }
+  } catch (err) {
+    console.warn('[Buses] AI estimation failed:', err.message)
+  }
+
+  // Seeded fallback
+  console.log(`[Buses] Using seeded fallback for ${from} → ${to}`)
   const mocks = generateMockBuses(from, to, date, budget)
   const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
-  await cacheSet(cacheKey, result)
+  await cacheSet(cacheKey, result, 900)
   return result
 }
 
