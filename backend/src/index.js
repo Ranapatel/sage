@@ -22,7 +22,7 @@ const rateLimit = require('express-rate-limit')
 
 // Validate required env vars
 const REQUIRED_ENV = [
-  'GROQ_API_KEY', 'REDIS_URL', 'DB_URL',
+  'GROQ_API_KEY', 'UPSTASH_REDIS_REST_URL', 'DB_URL',
   'RAPIDAPI_KEY',
 ]
 const missing = REQUIRED_ENV.filter(k => !process.env[k])
@@ -136,7 +136,7 @@ app.get('/health', (req, res) => {
     ],
     services: {
       groq: !!process.env.GROQ_API_KEY,
-      redis: !!process.env.REDIS_URL,
+      redis: !!process.env.UPSTASH_REDIS_REST_URL,
       db: !!process.env.DB_URL,
       rapidapi: !!process.env.RAPIDAPI_KEY,
     }

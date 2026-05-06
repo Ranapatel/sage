@@ -10,6 +10,7 @@
     "restart": "npx kill-port 4000 && nodemon src/index.js"
   },
   "dependencies": {
+    "@upstash/redis": "^1.38.0",
     "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.76.1",
