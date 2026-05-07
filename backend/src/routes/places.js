@@ -2,13 +2,17 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 
-const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY
+// Google Places is served via google-map-places.p.rapidapi.com (RAPIDAPI_KEY)
+const GROQ_API_KEY = process.env.GROQ_API_KEY
+const RAPIDAPI_HOST_PLACES = process.env.RAPIDAPI_HOST_PLACES || 'google-map-places.p.rapidapi.com'
 
 /**
  * GET /api/places/autocomplete?query=goa
  *
- * Uses Nominatim (OpenStreetMap) — 100% free, no subscription needed.
- * Falls back to Google Geocoding if GOOGLE_PLACES_API_KEY is set.
+ * Three-tier autocomplete (ordered by reliability):
+ *   1. RapidAPI Google Places Autocomplete — fastest, native partial matching
+ *   2. Groq AI — fallback: intent-aware partial matching ("mum"→Mumbai)
+ *   3. Nominatim (OpenStreetMap) — free fallback, works for complete names
  */
 router.get('/autocomplete', async (req, res) => {
   const { query } = req.query
@@ -16,20 +20,127 @@ router.get('/autocomplete', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Query must be at least 2 characters' })
   }
 
-  // ── Try Nominatim first (always free, always works) ──
+  // ── 1. RapidAPI Google Places Autocomplete (Fastest, built for this) ──────
+  const rapidApiKey = process.env.RAPIDAPI_KEY
+  if (rapidApiKey) {
+    try {
+      const gRes = await axios.get(`https://${RAPIDAPI_HOST_PLACES}/maps/api/place/autocomplete/json`, {
+        params: {
+          input: query,
+          types: '(cities)',
+          language: 'en',
+        },
+        headers: {
+          'x-rapidapi-host': RAPIDAPI_HOST_PLACES,
+          'x-rapidapi-key': rapidApiKey
+        },
+        timeout: 6000,
+      })
+
+      const predictions = gRes.data?.predictions || []
+      const seen = new Set()
+      const locations = predictions
+        .slice(0, 7)
+        .map((p, i) => {
+          const mainText = p.structured_formatting?.main_text || p.description.split(',')[0]
+          const parts = p.description.split(',')
+          const country = parts[parts.length - 1]?.trim() || ''
+          const state = parts.length > 2 ? parts[parts.length - 2]?.trim() : ''
+          const key = `${mainText.toLowerCase()}-${country.toLowerCase()}`
+          if (seen.has(key)) return null
+          seen.add(key)
+          return {
+            id: p.place_id || `gp_${i}`,
+            name: mainText,
+            city: mainText,
+            country,
+            state,
+            displayName: p.description,
+          }
+        })
+        .filter(Boolean)
+
+      if (locations.length > 0) {
+        return res.json({ success: true, data: locations, source: 'rapidapi_google_places' })
+      }
+    } catch (err) {
+      console.error('[Places] RapidAPI Google Places error:', err.message)
+    }
+  }
+
+  // ── 2. Groq AI (Fallback — best for partial/intent-based queries) ─────────
+  if (GROQ_API_KEY) {
+    try {
+      const groqRes = await axios.post(
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a precise city autocomplete API. Rules: (1) Return ONLY real cities, towns, or administrative regions — NO airports, landmarks, parks, theme parks, or fictional places. (2) Only include a city in a country if it genuinely exists there. (3) Return a raw JSON array with no explanation, markdown, or code fences.',
+            },
+            {
+              role: 'user',
+              content: `List up to 7 real cities or regions whose name starts with or closely matches "${query}". Prioritize the most globally popular travel destinations first. Return a JSON array: [{"id":"1","name":"City Name","city":"City Name","country":"Country Name","state":"State or Region"}]. No airports, no landmarks, no made-up locations.`,
+            },
+          ],
+          temperature: 0.1,
+          max_tokens: 500,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${GROQ_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 8000,
+        }
+      )
+
+      const content = groqRes.data?.choices?.[0]?.message?.content || ''
+      const jsonMatch = content.match(/\[[\s\S]*?\]/)
+      if (jsonMatch) {
+        const raw = JSON.parse(jsonMatch[0])
+        if (Array.isArray(raw) && raw.length > 0) {
+          // Deduplicate by city+country and assign stable IDs
+          const seen = new Set()
+          const aiLocations = raw
+            .filter((item) => {
+              const key = `${(item.name || item.city || '').toLowerCase()}-${(item.country || '').toLowerCase()}`
+              if (!key || seen.has(key)) return false
+              seen.add(key)
+              return true
+            })
+            .slice(0, 7)
+            .map((item, i) => ({
+              id: item.id || `ai_${i}`,
+              name: item.name || item.city || '',
+              city: item.city || item.name || '',
+              country: item.country || '',
+              state: item.state || '',
+            }))
+          if (aiLocations.length > 0) {
+            return res.json({ success: true, data: aiLocations, source: 'ai' })
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[Places] Groq AI error:', err.message)
+    }
+  }
+
+
+  // ── 3. Nominatim / OpenStreetMap (free, no key) ───────────────────────────
   try {
     const response = await axios.get('https://nominatim.openstreetmap.org/search', {
       params: {
         q: query,
         format: 'json',
         addressdetails: 1,
-        limit: 8,
-        featuretype: 'city',
-        // Prefer cities / populated places
+        limit: 10,
         extratags: 1,
       },
       headers: {
-        // Nominatim requires a User-Agent
         'User-Agent': 'TripSage/2.0 (travel planning app)',
         'Accept-Language': 'en',
       },
@@ -37,36 +148,30 @@ router.get('/autocomplete', async (req, res) => {
     })
 
     const raw = response.data || []
-
-    // Filter to only city / town / village level results and deduplicate
     const seen = new Set()
     const locations = raw
-      .filter((r) => {
-        const t = r.type || r.class || ''
-        return (
-          ['city', 'town', 'village', 'hamlet', 'suburb', 'administrative', 'municipality'].includes(t) ||
-          r.class === 'place' ||
-          r.class === 'boundary'
-        )
-      })
       .map((r) => {
         const addr = r.address || {}
+        // Prefer the most specific name; fall back to state for destinations like Goa, Kerala
         const cityName =
           addr.city ||
           addr.town ||
           addr.village ||
           addr.municipality ||
           addr.county ||
+          addr.state ||
           r.name ||
           r.display_name.split(',')[0]
         const country = addr.country || ''
         const state = addr.state || ''
+        if (!cityName) return null
         const key = `${cityName.toLowerCase()}-${country.toLowerCase()}`
         return { r, cityName, country, state, key }
       })
-      .filter(({ key }) => {
-        if (seen.has(key)) return false
-        seen.add(key)
+      .filter((item) => {
+        if (!item) return false
+        if (seen.has(item.key)) return false
+        seen.add(item.key)
         return true
       })
       .slice(0, 7)
@@ -84,55 +189,11 @@ router.get('/autocomplete', async (req, res) => {
     if (locations.length > 0) {
       return res.json({ success: true, data: locations, source: 'nominatim' })
     }
-
-    // If Nominatim returned nothing, fall through to Google fallback
   } catch (err) {
     console.error('[Places] Nominatim error:', err.message)
   }
 
-  // ── Google Geocoding fallback (if key is set) ──
-  if (GOOGLE_PLACES_API_KEY) {
-    try {
-      const gRes = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-        params: {
-          address: query,
-          key: GOOGLE_PLACES_API_KEY,
-          result_type: 'locality|administrative_area_level_1',
-        },
-        timeout: 6000,
-      })
-
-      const results = gRes.data?.results || []
-      const seen = new Set()
-      const locations = results
-        .slice(0, 7)
-        .map((r, i) => {
-          const addr = r.address_components || []
-          const cityComp = addr.find((a) => a.types.includes('locality'))
-          const countryComp = addr.find((a) => a.types.includes('country'))
-          const cityName = cityComp?.long_name || r.formatted_address.split(',')[0]
-          const country = countryComp?.long_name || ''
-          const key = `${cityName.toLowerCase()}-${country.toLowerCase()}`
-          if (seen.has(key)) return null
-          seen.add(key)
-          return {
-            id: r.place_id || `g_${i}`,
-            name: cityName,
-            city: cityName,
-            country,
-            latitude: r.geometry.location.lat,
-            longitude: r.geometry.location.lng,
-          }
-        })
-        .filter(Boolean)
-
-      return res.json({ success: true, data: locations, source: 'google' })
-    } catch (err) {
-      console.error('[Places] Google geocode fallback error:', err.message)
-    }
-  }
-
-  return res.status(500).json({ success: false, error: 'Unable to fetch suggestions' })
+  return res.status(500).json({ success: false, error: 'Unable to fetch location suggestions' })
 })
 
 /**

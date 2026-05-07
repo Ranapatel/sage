@@ -133,8 +133,8 @@ export default function Home() {
     if (!form.from || !form.to || !form.startDate) return
     setLoading(true)
     trackEvent('plan_trip_click', { source: 'hero_form' })
-    // Store in session and navigate
-    sessionStorage.setItem('tripContext', JSON.stringify(form))
+    // Store in session (with autoSearch flag so /plan auto-fires the search immediately)
+    sessionStorage.setItem('tripContext', JSON.stringify({ ...form, autoSearch: true }))
     setTimeout(() => router.push('/plan'), 800)
   }
 

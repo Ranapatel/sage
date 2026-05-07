@@ -103,7 +103,7 @@ export default function PlanPage() {
     if (saved) {
       try {
         const ctx = JSON.parse(saved)
-        setSearchForm({
+        const params = {
           from: ctx.from || '',
           to: ctx.to || '',
           startDate: ctx.startDate || '',
@@ -111,7 +111,8 @@ export default function PlanPage() {
           budget: ctx.budget || '2000',
           travelers: ctx.travelers || '2',
           style: ctx.style || 'adventure',
-        })
+        }
+        setSearchForm(params)
         setTrip({
           startLocation: ctx.from || '',
           destination: ctx.to || '',
@@ -123,11 +124,25 @@ export default function PlanPage() {
           members: parseInt(ctx.travelers) || 2,
           travelStyle: ctx.style || 'adventure',
         })
-        // Load values into form but do NOT auto-search. Let the user click search manually.
-        // This prevents the app from automatically searching old trips like Hyderabad on every refresh.
+
+        // If the user just came from the home form, auto-fire the search
+        if (ctx.autoSearch && ctx.from && ctx.to) {
+          // Remove the flag so refreshing /plan doesn't re-trigger
+          sessionStorage.setItem('tripContext', JSON.stringify({ ...ctx, autoSearch: false }))
+          runSearch({
+            from: ctx.from,
+            to: ctx.to,
+            startDate: ctx.startDate || '',
+            endDate: ctx.endDate || '',
+            budget: parseInt(ctx.budget) || 2000,
+            travelers: parseInt(ctx.travelers) || 2,
+            style: ctx.style || 'adventure',
+          }, true)
+        }
       } catch (e) {}
     }
     setInitialized(true)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleNewTrip = () => {

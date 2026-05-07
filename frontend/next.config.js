@@ -5,7 +5,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
-      { protocol: 'https', hostname: 'maps.googleapis.com' },
+      { protocol: 'https', hostname: 'google-map-places.p.rapidapi.com' },
       { protocol: 'https', hostname: '*.booking.com' },
       { protocol: 'https', hostname: '*.expedia.com' },
     ],

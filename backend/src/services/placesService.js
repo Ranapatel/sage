@@ -1,6 +1,8 @@
 const axios = require('axios')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 
+const RAPIDAPI_HOST_PLACES = process.env.RAPIDAPI_HOST_PLACES || 'google-map-places.p.rapidapi.com'
+
 // ── In-memory cache (fast path, resets on restart) ──────────────────────────
 const memCache = new Map()
 
@@ -73,19 +75,23 @@ async function nominatimGeocode(placeName, cityContext = '') {
   }
 }
 
-// ── Geocode via Google Places ────────────────────────────────────────────────
+// ── Geocode via Google Places (RapidAPI) ────────────────────────────────────────────────
 async function googleGeocode(placeName, cityContext = '') {
-  const key = process.env.GOOGLE_PLACES_API_KEY
-  if (!key || key === 'your_google_places_key') return null
+  const rapidApiKey = process.env.RAPIDAPI_KEY
+  if (!rapidApiKey) return null
 
   const cacheKey = `goog|${placeName}|${cityContext}`.toLowerCase()
   if (memCache.has(cacheKey)) return memCache.get(cacheKey)
 
   const query = cityContext ? `${placeName}, ${cityContext}` : placeName
   try {
-    const res = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
-      params: { query, key },
-      timeout: 5000,
+    const res = await axios.get(`https://${RAPIDAPI_HOST_PLACES}/maps/api/place/textsearch/json`, {
+      params: { query, language: 'en' },
+      headers: {
+        'x-rapidapi-host': RAPIDAPI_HOST_PLACES,
+        'x-rapidapi-key': rapidApiKey
+      },
+      timeout: 8000,
     })
     const top = res.data?.results?.[0]
     if (!top) return null
@@ -96,12 +102,15 @@ async function googleGeocode(placeName, cityContext = '') {
       formattedAddress: top.formatted_address,
       googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${top.place_id}`,
       source: 'google_places',
-      googlePhotos: top.photos ? top.photos.map(p => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${p.photo_reference}&key=${key}`) : []
+      // Photos are tricky via RapidAPI since they require an extra hit to get the real image URL,
+      // but we still get Unsplash images natively as primary. We'll skip the direct Google Photo proxy
+      // since Unsplash provides much better quality images anyway.
+      googlePhotos: [] 
     }
     memCache.set(cacheKey, result)
     return result
   } catch (err) {
-    console.warn(`[Places/Google] Failed for "${placeName}": ${err.message}`)
+    console.warn(`[Places/RapidAPI Google] Failed for "${placeName}": ${err.message}`)
     return null
   }
 }
@@ -146,8 +155,7 @@ async function getUnsplashImage(placeName, destination) {
 async function enrichItineraryWithRealCoords(itinerary, destination) {
   const allPlaces = itinerary.flatMap(d => d.places)
   const total = allPlaces.length
-  const hasGoogle = process.env.GOOGLE_PLACES_API_KEY &&
-    process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key'
+  const hasGoogle = !!process.env.RAPIDAPI_KEY
 
   console.log(`[Places] Enriching ${total} places for "${destination}"...`)
 

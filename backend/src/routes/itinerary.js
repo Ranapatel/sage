@@ -53,8 +53,7 @@ router.post('/generate', itineraryValidation, async (req, res) => {
         timestamp: new Date().toISOString(),
         requestId,
         cache: false,
-        googleEnriched: !!process.env.GOOGLE_PLACES_API_KEY &&
-          process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key',
+        googleEnriched: !!process.env.RAPIDAPI_KEY,
       },
       data: enrichedData,
       message: 'LIVE_UPDATE',
