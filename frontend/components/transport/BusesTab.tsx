@@ -21,7 +21,7 @@ function BusesTab() {
   const affiliateEntry = buses?.find((b: any) => b.source === 'affiliate_redirect')
   if (affiliateEntry || !buses || buses.length === 0) {
     const from = tripContext?.startLocation || ''
-    const to   = tripContext?.destination   || ''
+    const to = tripContext?.destination || ''
     const redirectUrl = affiliateEntry?.bookingLink ||
       `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage`
 
