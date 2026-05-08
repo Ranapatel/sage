@@ -1,21 +1,11 @@
 'use client'
 
-<<<<<<< HEAD
-import React, { useState, memo } from 'react'
-import BusCard from './BusCard'
-=======
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
+import React, { memo } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import { trackEvent } from '@/lib/analytics'
 
-<<<<<<< HEAD
 function BusesTab() {
-  const { buses, loading } = useTripStore()
-  const [sortBy, setSortBy] = useState('cheapest')
-=======
-export default function BusesTab() {
   const { buses, loading, tripContext } = useTripStore()
->>>>>>> ba25af62c6b48a8c3f92a3d5b2766be814262d52
 
   if (loading) {
     return (
