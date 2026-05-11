@@ -1,14 +1,14 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tripsage.ai' // Replace with your actual domain
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tripsage.in'
 
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/'],
+      disallow: ['/api/', '/admin/'],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: 'https://tripsage.in/sitemap.xml',
   }
 }

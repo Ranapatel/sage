@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useTripStore, type TransportOption } from '@/store/tripStore'
 import { affiliateLinks } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
@@ -196,7 +197,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
               }`}>
                 <div className="flex items-start gap-4">
                   <div className="relative w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <Image src={item.image} alt={item.name} fill className="object-cover" sizes="80px" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>
                   <div className="flex-1 min-w-0">

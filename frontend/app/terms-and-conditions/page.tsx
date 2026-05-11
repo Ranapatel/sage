@@ -13,7 +13,7 @@ export default function TermsAndConditions() {
       <nav className="glass-dark sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png"
+            src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
             alt="TripSage"
             width={40}
             height={40}

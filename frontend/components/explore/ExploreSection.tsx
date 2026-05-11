@@ -1,5 +1,6 @@
 'use client'
 import React, { memo, useState, useEffect } from 'react'
+import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { tripAPI } from '@/lib/api'
@@ -43,12 +44,12 @@ const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: 
   return (
     <div className="card overflow-hidden group border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300">
       <div className="relative h-40 overflow-hidden">
-        <img 
+        <Image 
           src={getOptimizedImageUrl(a.image, isMobile)} 
           alt={a.name} 
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-          loading="lazy"
-          decoding="async"
+          fill
+          className="object-cover group-hover:scale-110 transition-transform duration-500" 
+          sizes="(max-width: 768px) 100vw, 300px"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         <div className="absolute top-2 left-2">
@@ -97,12 +98,12 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
         <span className="text-red-400 text-[0.65rem] font-semibold animate-pulse">{carScarcity}</span>
       </div>
       <div className="relative h-36 overflow-hidden">
-        <img 
+        <Image 
           src={getOptimizedImageUrl(car.image, isMobile)} 
           alt={car.name} 
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-          loading="lazy"
-          decoding="async"
+          fill
+          className="object-cover hover:scale-105 transition-transform duration-500" 
+          sizes="(max-width: 768px) 100vw, 300px"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute top-2 left-2">
@@ -217,12 +218,12 @@ function ExploreSection({ destination }: Props) {
               <a key={r.id} href={affiliateLinks.restaurant(destination ? `${r.name} near ${destination}` : r.name)} target="_blank" rel="noopener noreferrer" 
                  className="card overflow-hidden group border border-[var(--border)] hover:border-[var(--primary)] transition-all block">
                 <div className="relative h-40 overflow-hidden">
-                  <img 
+                  <Image 
                     src={getOptimizedImageUrl(r.image, isMobile)} 
                     alt={r.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    loading="lazy"
-                    decoding="async"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                    sizes="(max-width: 768px) 100vw, 300px"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute top-2 right-2">

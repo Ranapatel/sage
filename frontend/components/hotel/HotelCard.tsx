@@ -2,6 +2,7 @@
 import React, { memo } from 'react'
 
 import { useTripStore } from '@/store/tripStore'
+import Image from 'next/image'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 
@@ -55,15 +56,12 @@ function HotelCard({ item, showDetail }: Props) {
 
       {/* Hero image */}
       <div className="relative h-48 overflow-hidden">
-        <img 
+        <Image 
           src={getOptimizedImageUrl(item.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', isMobile)} 
-          alt={item.name} 
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-          loading="lazy"
-          decoding="async"
-          onError={(e: any) => {
-            e.target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'
-          }}
+          alt={`Stay at ${item.name} - ${item.location}`} 
+          fill
+          className="object-cover hover:scale-105 transition-transform duration-500" 
+          sizes="(max-width: 768px) 100vw, 400px"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 

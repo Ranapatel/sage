@@ -5,25 +5,86 @@ import { Toaster } from 'react-hot-toast'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tripsage.in'),
   title: {
     default: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     template: '%s | TripSage AI Travel OS'
   },
   description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
-  keywords: 'AI trip planner India, travel planner app, cheapest flights India, itinerary planner AI, TripSage, smart travel',
+  keywords: ['AI trip planner India', 'travel planner app', 'cheapest flights India', 'itinerary planner AI', 'TripSage', 'smart travel', 'AI travel agent', 'holiday planner'],
+  authors: [{ name: 'TripSage Team' }],
+  creator: 'TripSage',
+  publisher: 'TripSage',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
-    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png'],
+    url: 'https://tripsage.in',
+    siteName: 'TripSage',
+    images: [
+      {
+        url: 'https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png',
+        width: 1200,
+        height: 630,
+        alt: 'TripSage - AI Trip Planner',
+      },
+    ],
+    locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
-    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png'],
-  }
+    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png'],
+    creator: '@tripsage',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
+
+const softwareSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "TripSage",
+  "operatingSystem": "Any",
+  "applicationCategory": "TravelApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "12400"
+  }
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "url": "https://tripsage.in",
+  "name": "TripSage",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://tripsage.in/plan?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -40,9 +101,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" href="https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png" />
+        <link rel="icon" href="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png" />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <GoogleAnalytics />
         <Script
           id="perf-opt"

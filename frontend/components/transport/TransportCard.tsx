@@ -50,13 +50,12 @@ function TransportCard({ item, showDetail }: Props) {
       {/* Flight image banner */}
       {item.image && (
         <div className="relative h-28 overflow-hidden">
-          <img
+          <Image
             src={getOptimizedImageUrl(item.image, isMobile)}
-            alt={item.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"
-            onError={(e: any) => { e.target.style.display = 'none' }}
+            alt={`Flight from ${item.departure || 'origin'} to ${item.arrival || 'destination'}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 500px"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
 
@@ -64,13 +63,12 @@ function TransportCard({ item, showDetail }: Props) {
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-3">
             {item.logo && (
               <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-lg flex-shrink-0">
-                <img
+                <Image
                   src={item.logo}
-                  alt={item.name}
-                  className="w-full h-full object-contain"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e: any) => { e.target.style.display = 'none' }}
+                  alt={`${item.name} logo`}
+                  width={56}
+                  height={56}
+                  className="object-contain"
                 />
               </div>
             )}

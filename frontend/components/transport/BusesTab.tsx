@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react'
 import { useTripStore } from '@/store/tripStore'
+import Image from 'next/image'
 import { trackEvent } from '@/lib/analytics'
 
 function BusesTab() {
@@ -42,10 +43,12 @@ function BusesTab() {
         {/* redBus CTA card */}
         <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all">
           <div className="relative h-32 overflow-hidden">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80"
-              alt="Buses"
-              className="w-full h-full object-cover"
+              alt="Search Live Bus Tickets on TripSage"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 800px"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
             <div className="absolute left-4 top-1/2 -translate-y-1/2">

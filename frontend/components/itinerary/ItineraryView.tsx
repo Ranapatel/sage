@@ -1,5 +1,6 @@
 'use client'
 import React, { memo, useState } from 'react'
+import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import TripActions from '../actions/TripActions'
@@ -157,7 +158,13 @@ function ItineraryView({ itinerary, loading }: Props) {
                         /* Real images */
                         place.images.map((img: string, idx: number) => (
                           <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)]">
-                            <img src={getOptimizedImageUrl(img, isMobile)} alt={`${place.name} ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" decoding="async" />
+                            <Image 
+                              src={getOptimizedImageUrl(img, isMobile)} 
+                              alt={`${place.name} view ${idx + 1}`} 
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                              sizes="160px"
+                            />
                           </div>
                         ))
                       ) : null}
