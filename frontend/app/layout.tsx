@@ -112,31 +112,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png" />
       </head>
       <body>
-<<<<<<< HEAD
+        {/* JSON-LD structured data for SEO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-=======
-        {/* Google Analytics — afterInteractive: never runs on server, no hydration mismatch */}
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-2F49Z4DK2H"
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-<<<<<<< HEAD
+
+        {/* Google Analytics — component handles afterInteractive loading */}
         <GoogleAnalytics />
-=======
+
         {/*
-          * Slow-connection detection — moved to afterInteractive so it only
-          * runs client-side. Using beforeInteractive was causing the script to
-          * add 'slow-connection' class to <html> before hydration, producing
-          * the "Extra attributes from the server: class" hydration warning.
+          * Slow-connection detection — afterInteractive so it only runs client-side.
+          * Adds 'slow-connection' class to <html> to disable animations on 2G/3G.
           */}
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
         <Script
           id="perf-opt"
           strategy="afterInteractive"

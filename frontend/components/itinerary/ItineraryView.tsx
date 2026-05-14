@@ -1,11 +1,7 @@
-'use client'
-<<<<<<< HEAD
+﻿'use client'
 import React, { memo, useState } from 'react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
-=======
-import React, { memo, useState, useEffect } from 'react'
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -16,9 +12,9 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  transport: '🚀', explore: '🗺️', dining: '🍽️',
-  culture: '🏛️', nature: '🌿', activity: '⚡',
-  shopping: '🛍️', accommodation: '🏨',
+  transport: 'ðŸš€', explore: 'ðŸ—ºï¸', dining: 'ðŸ½ï¸',
+  culture: 'ðŸ›ï¸', nature: 'ðŸŒ¿', activity: 'âš¡',
+  shopping: 'ðŸ›ï¸', accommodation: 'ðŸ¨',
 }
 
 // Unsplash search terms per category for varied images
@@ -217,7 +213,7 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
   if (itinerary.length === 0) {
     return (
       <div className="card p-12 text-center">
-        <div className="text-5xl mb-4">📅</div>
+        <div className="text-5xl mb-4">ðŸ“…</div>
         <h3 className="font-bold text-[var(--text-primary)] mb-2">No itinerary yet</h3>
         <p className="text-[var(--text-muted)] text-sm">Search for a destination to generate your AI itinerary</p>
       </div>
@@ -229,14 +225,14 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="section-title text-xl">📅 Smart Itinerary</h2>
+        <h2 className="section-title text-xl">ðŸ“… Smart Itinerary</h2>
         <div className="flex items-center gap-2">
           <span className="badge badge-green text-xs">AI Generated</span>
           <span className="badge badge-amber text-xs">{itinerary.length} Days</span>
         </div>
       </div>
 
-      {/* Day selector — horizontally scrollable */}
+      {/* Day selector â€” horizontally scrollable */}
       <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
         {itinerary.map((day, i) => (
           <button
@@ -263,7 +259,6 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
         <div className="relative">
           <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-[var(--border)]"></div>
           <div className="space-y-4">
-<<<<<<< HEAD
             {currentDay.places.map((place: any, i: number) => {
               const hasCoords = Array.isArray(place.coordinates)
                 && place.coordinates.length === 2
@@ -277,17 +272,13 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
 
               return (
               <div key={i} className="relative flex gap-4 pl-14">
-=======
-            {currentDay.places.map((place: any, i: number) => (
-              <div key={i} className="relative flex gap-3 pl-12">
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
                 {/* Timeline dot */}
                 <div className="absolute left-3.5 top-4 w-3.5 h-3.5 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
 
                 <div className="card p-3 sm:p-4 flex-1 hover:border-[var(--primary)] transition-colors">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                      <span className="text-xl sm:text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || '📍'}</span>
+                      <span className="text-xl sm:text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || 'ðŸ“'}</span>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-[var(--text-primary)] text-sm leading-tight">{place.name}</h3>
                         <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed line-clamp-2">{place.description}</p>
@@ -295,36 +286,24 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                           <span className={`badge ${CATEGORY_COLORS[place.category] || 'badge-green'} text-[0.6rem]`}>
                             {place.category}
                           </span>
-<<<<<<< HEAD
                           {hasCoords ? (
                             <span className="text-xs text-[var(--text-muted)]">
-                              📍 {lat!.toFixed(3)}, {lng!.toFixed(3)}
+                              ðŸ“ {lat!.toFixed(3)}, {lng!.toFixed(3)}
                             </span>
                           ) : (
-                            <span className="text-xs text-yellow-500">📍 Coordinates loading...</span>
-=======
-                          {place.coordinates && (
-                            <a
-                              href={`https://maps.google.com/?q=${place.coordinates[0]},${place.coordinates[1]}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="text-[0.6rem] text-[var(--primary)] hover:underline flex items-center gap-0.5"
-                            >
-                              📍 Maps
-                            </a>
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
+                            <span className="text-xs text-yellow-500">ðŸ“ Coordinates loading...</span>
                           )}
                         </div>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <div className="font-mono text-sm font-bold text-[var(--primary)]">{place.time}</div>
-<<<<<<< HEAD
                       <a
                         href={mapsHref}
                         target="_blank" rel="noopener noreferrer"
                         className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors mt-1 block"
                       >
-                        Open Maps →
+                        Open Maps â†’
                       </a>
                     </div>
                   </div>
@@ -355,13 +334,6 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                       ) : null}
                     </div>
                   </div>
-=======
-                    </div>
-                  </div>
-
-                  {/* Real-time image carousel — 3 to 5 place-specific photos */}
-                  <PlaceImageCarousel place={place} destination={destination} />
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
                 </div>
               </div>
               )
