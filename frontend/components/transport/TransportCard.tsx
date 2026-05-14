@@ -1,5 +1,6 @@
 'use client'
 import React, { memo } from 'react'
+import Image from 'next/image'
 
 import { useTripStore } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
