@@ -88,7 +88,15 @@ const websiteSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    /*
+     * suppressHydrationWarning is required here because the perf-opt script
+     * (afterInteractive — runs only on the client) may add 'slow-connection' to
+     * <html> before React reconciles. Without this flag React will warn about
+     * "Extra attributes from the server: class". The attribute is intentional
+     * and safe — suppressHydrationWarning silences the warning without
+     * disabling hydration for child nodes.
+     */
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -104,6 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png" />
       </head>
       <body>
+        {/* JSON-LD structured data for SEO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
@@ -112,18 +121,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+
+        {/* Google Analytics — component handles afterInteractive loading */}
         <GoogleAnalytics />
+
+        {/*
+          * Slow-connection detection — afterInteractive so it only runs client-side.
+          * Adds 'slow-connection' class to <html> to disable animations on 2G/3G.
+          */}
         <Script
           id="perf-opt"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              if ('connection' in navigator) {
-                const conn = navigator.connection;
-                if (conn.saveData || /2g|3g/.test(conn.effectiveType)) {
-                  document.documentElement.classList.add('slow-connection');
+              try {
+                if ('connection' in navigator) {
+                  var conn = navigator.connection;
+                  if (conn && (conn.saveData || /2g|3g/.test(conn.effectiveType || ''))) {
+                    document.documentElement.classList.add('slow-connection');
+                  }
                 }
-              }
+              } catch(e) {}
             `,
           }}
         />

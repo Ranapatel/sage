@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useTripStore, type TransportOption } from '@/store/tripStore'
-import { affiliateLinks } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { trackEvent } from '@/lib/analytics'
@@ -13,38 +12,46 @@ interface Props {
   tripContext: any
 }
 
-function generateReturnOptions(from: string, to: string, endDate: string, budget: number): TransportOption[] {
-  const base = Math.round(budget * 0.2)
+// Kiwi affiliate deep-link for specific route
+function kiwiLink(from: string, to: string, date: string): string {
+  const f = from.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-')
+  const t = to.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-')
+  const d = (date || '').substring(0, 10) // yyyy-mm-dd
+  return d
+    ? `https://www.kiwi.com/en/search/results/${encodeURIComponent(f)}/${encodeURIComponent(t)}/${d}?source=tripsage`
+    : `https://kiwi.tpx.lv/8RD9ggTo`
+}
+
+// Realistic domestic India return flight prices
+function generateReturnOptions(from: string, to: string, endDate: string, _budget: number): TransportOption[] {
+  const link = kiwiLink(to, from, endDate)
   return [
     {
       id: 'rt1', type: 'flight',
       name: `IndiGo ${to.split(',')[0]} → ${from.split(',')[0]}`,
-      price: base, rating: 4.3, duration: '5h 30m',
-      departure: '07:00', arrival: '12:30',
+      price: 1499, rating: 4.3, duration: '2h 15m',
+      departure: '07:00', arrival: '09:15',
       image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80',
-      bookingLink: affiliateLinks.flight(to, from, endDate.replace(/-/g, '') || ''),
-      score: 0.84, liveStatus: 'On Time',
+      bookingLink: link, score: 0.87, liveStatus: 'On Time',
       offers: ['Best value return', 'Free check-in baggage'],
     },
     {
       id: 'rt2', type: 'flight',
-      name: `Air Asia ${to.split(',')[0]} → ${from.split(',')[0]}`,
-      price: Math.round(base * 0.85), rating: 3.9, duration: '6h 00m',
-      departure: '14:00', arrival: '20:00',
+      name: `Air India ${to.split(',')[0]} → ${from.split(',')[0]}`,
+      price: 2299, rating: 4.1, duration: '2h 30m',
+      departure: '11:30', arrival: '14:00',
       image: 'https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=400&q=80',
-      bookingLink: affiliateLinks.flight(to, from, endDate.replace(/-/g, '') || ''),
-      score: 0.74, liveStatus: 'On Time',
-      offers: ['Early bird discount'],
+      bookingLink: link, score: 0.78, liveStatus: 'On Time',
+      offers: ['Complimentary meal', 'Extra legroom'],
     },
     {
       id: 'rt3', type: 'flight',
-      name: `Emirates ${to.split(',')[0]} → ${from.split(',')[0]}`,
-      price: Math.round(base * 1.3), rating: 4.7, duration: '4h 45m',
-      departure: '22:00', arrival: '02:45+1',
-      image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80',
-      bookingLink: affiliateLinks.flight(to, from, endDate.replace(/-/g, '') || ''),
-      score: 0.91, liveStatus: 'On Time',
-      offers: ['Premium class upgrade available', 'Lounge access'],
+      name: `Vistara ${to.split(',')[0]} → ${from.split(',')[0]}`,
+      price: 3499, rating: 4.7, duration: '2h 05m',
+      departure: '18:45', arrival: '20:50',
+      image: 'https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=400&q=80',
+      bookingLink: link, score: 0.91, liveStatus: 'On Time',
+      offers: ['Premium economy', 'Lounge access', 'Priority boarding'],
     },
   ]
 }

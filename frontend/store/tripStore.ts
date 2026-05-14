@@ -176,7 +176,7 @@ interface TripStore {
 
 const initialProfile: UserProfile = {
   budget: 2000,
-  currency: 'USD',
+  currency: 'INR',
   travelStyle: 'adventure',
   groupType: 'couple',
   preferences: [],

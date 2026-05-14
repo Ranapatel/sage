@@ -17,7 +17,8 @@ export default function BudgetOptimizerTab() {
     setLoading(true)
     setError(null)
     try {
-      const res = await tripAPI.optimizeBudget({
+      // Interceptor already unwraps res.data — result is the server payload directly
+      const res: any = await tripAPI.optimizeBudget({
         destination: tripContext.destination,
         days: tripContext.endDate && tripContext.startDate 
           ? Math.ceil((new Date(tripContext.endDate).getTime() - new Date(tripContext.startDate).getTime()) / (1000 * 3600 * 24)) || 3
@@ -27,7 +28,8 @@ export default function BudgetOptimizerTab() {
         preferences: userProfile?.preferences || [],
         members: userProfile?.members || 2
       })
-      setData(res.data)
+      // Server returns { optimization: "..." } — the interceptor strips the axios wrapper
+      setData(res?.optimization ?? res?.data?.optimization ?? res?.data ?? res)
     } catch (err: any) {
       setError(err.message || 'Failed to optimize budget')
     } finally {

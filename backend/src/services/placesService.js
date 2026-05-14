@@ -73,19 +73,25 @@ async function nominatimGeocode(placeName, cityContext = '') {
   }
 }
 
-// ── Geocode via Google Places ────────────────────────────────────────────────
+// ── Geocode via RapidAPI Google Places ───────────────────────────────────────
 async function googleGeocode(placeName, cityContext = '') {
-  const key = process.env.GOOGLE_PLACES_API_KEY
-  if (!key || key === 'your_google_places_key') return null
+  const rapidKey = process.env.RAPIDAPI_KEY
+  const host = process.env.RAPIDAPI_HOST_PLACES || 'google-map-places.p.rapidapi.com'
+  
+  if (!rapidKey || rapidKey === 'your_rapidapi_key') return null
 
   const cacheKey = `goog|${placeName}|${cityContext}`.toLowerCase()
   if (memCache.has(cacheKey)) return memCache.get(cacheKey)
 
   const query = cityContext ? `${placeName}, ${cityContext}` : placeName
   try {
-    const res = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
-      params: { query, key },
-      timeout: 5000,
+    const res = await axios.get(`https://${host}/maps/api/place/textsearch/json`, {
+      params: { query },
+      headers: {
+        'x-rapidapi-key': rapidKey,
+        'x-rapidapi-host': host
+      },
+      timeout: 7000,
     })
     const top = res.data?.results?.[0]
     if (!top) return null
@@ -95,12 +101,12 @@ async function googleGeocode(placeName, cityContext = '') {
       placeId: top.place_id,
       formattedAddress: top.formatted_address,
       googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${top.place_id}`,
-      source: 'google_places',
+      source: 'google_places_rapid',
     }
     memCache.set(cacheKey, result)
     return result
   } catch (err) {
-    console.warn(`[Places/Google] Failed for "${placeName}": ${err.message}`)
+    console.warn(`[Places/Rapid] Failed for "${placeName}": ${err.message}`)
     return null
   }
 }

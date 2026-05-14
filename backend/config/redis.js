@@ -1,125 +1,89 @@
-const Redis = require('ioredis');
+/**
+ * Cache layer — Upstash Redis REST API (HTTPS, works on free tier)
+ * No TCP connection. Uses UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN.
+ * Falls back to no-op (never crashes) if credentials are absent.
+ */
 
-let client = null;
-let isConnected = false;
+const axios = require('axios')
+
+const REST_URL   = (process.env.UPSTASH_REDIS_REST_URL   || '').replace(/\/$/, '')
+const REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN  || ''
+
+const CACHE_TTL = 15 * 60   // 15 minutes
+let isConnected = false
+
+// Shared axios instance with auth header pre-set
+const upstash = axios.create({
+  baseURL: REST_URL,
+  timeout: 5000,
+  headers: { Authorization: `Bearer ${REST_TOKEN}` },
+})
 
 async function connectRedis() {
-  // Support both REDIS_URL and individual REDIS_HOST/PORT/PASSWORD env variables
-  let url = process.env.REDIS_URL;
-
-  if (!url) {
-    const host = process.env.REDIS_HOST;
-    const port = process.env.REDIS_PORT || 6379;
-    const password = process.env.REDIS_PASSWORD;
-
-    if (host) {
-      url = password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
-    }
-  }
-
-  if (!url) {
-    console.warn('[TripSage] ⚠️ REDIS_URL (or REDIS_HOST) not set. Skipping Redis connection.');
-    return null;
+  if (!REST_URL || !REST_TOKEN) {
+    console.warn('[TripSage] ⚠️  UPSTASH_REDIS_REST_URL / TOKEN not set — cache disabled.')
+    return null
   }
 
   try {
-    // Validate Redis host, port, and password from environment variables
-    const parsedUrl = new URL(url);
-    if (!parsedUrl.hostname || !parsedUrl.port) {
-      console.warn('[TripSage] ⚠️ Invalid Redis URL structure (missing host or port). Skipping Redis connection.');
-      return null;
+    // Upstash REST uses GET /ping (returns {"result":"PONG"})
+    const { data } = await upstash.get('/ping')
+    if (data?.result === 'PONG') {
+      isConnected = true
+      console.log('[TripSage] ✅ Upstash Redis connected (REST API)')
+      return { type: 'upstash-rest' }
     }
+    console.warn('[TripSage] ⚠️  Upstash ping returned unexpected payload:', JSON.stringify(data), '— cache disabled.')
   } catch (err) {
-    console.warn('[TripSage] ⚠️ Invalid REDIS_URL format. Skipping Redis connection.');
-    return null;
+    const reason = err.response?.status
+      ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}`
+      : err.message
+    console.warn(`[TripSage] ⚠️  Upstash Redis unreachable (${reason}) — cache disabled.`)
   }
 
-  client = new Redis(url, {
-    connectTimeout: 10000,
-    maxRetriesPerRequest: null,
-    lazyConnect: true,
-    retryStrategy(times) {
-      // Exponential backoff
-      if (times > 5) {
-        console.warn('[TripSage] ⚠️ Redis failed to connect after 5 attempts. Giving up and proceeding without cache.');
-        return null; // Stop retrying
-      }
-      const delay = Math.min(times * 100, 3000);
-      return delay;
-    }
-  });
-
-  let lastError = '';
-  client.on('error', (err) => {
-    const errMsg = err.message || err.code || String(err);
-    if (errMsg !== lastError) {
-      console.warn(`[Redis] Error: ${errMsg}`);
-      lastError = errMsg;
-    }
-    isConnected = false;
-  });
-
-  client.on('connect', () => {
-    lastError = '';
-    console.log('[Redis] Connected');
-  });
-
-  client.on('ready', () => {
-    isConnected = true;
-  });
-
-  client.on('close', () => {
-    isConnected = false;
-  });
-
-  client.on('reconnecting', () => {
-    console.log('[Redis] Reconnecting...');
-    isConnected = false;
-  });
-
-  try {
-    await client.connect();
-  } catch (err) {
-    console.warn(`[TripSage] ⚠️ Initial Redis connection failed: ${err.message}. App will continue without caching.`);
-    isConnected = false; // Ensure fallback logic triggers
-  }
-
-  return client;
+  isConnected = false
+  return null
 }
 
-const CACHE_TTL = 15 * 60; // 15 minutes
-
 async function cacheGet(key) {
-  if (!client || !isConnected) return null;
+  if (!isConnected) return null
   try {
-    const val = await client.get(key);
-    return val ? JSON.parse(val) : null;
-  } catch (err) {
-    return null;
+    const { data } = await upstash.get(`/get/${encodeURIComponent(key)}`)
+    const val = data?.result
+    return val ? JSON.parse(val) : null
+  } catch {
+    return null
   }
 }
 
 async function cacheSet(key, value, ttl = CACHE_TTL) {
-  if (!client || !isConnected) return;
+  if (!isConnected) return
   try {
-    await client.setex(key, ttl, JSON.stringify(value));
+    // Upstash REST: POST /set/<key>/<value>?ex=<ttl>
+    await upstash.post(
+      `/set/${encodeURIComponent(key)}/${encodeURIComponent(JSON.stringify(value))}`,
+      null,
+      { params: { ex: ttl } }
+    )
   } catch (err) {
-    console.warn('[TripSage] Cache set error:', err.message);
+    // Silent — cache failure must never break the response
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[TripSage] Cache set error:', err.message)
+    }
   }
 }
 
 async function cacheDel(key) {
-  if (!client || !isConnected) return;
+  if (!isConnected) return
   try {
-    await client.del(key);
-  } catch (err) {}
+    await upstash.post(`/del/${encodeURIComponent(key)}`)
+  } catch { /* silent */ }
 }
 
-// Generate cache key from query + context
 function generateCacheKey(prefix, params) {
-  const str = JSON.stringify(params, Object.keys(params).sort());
-  const hash = Buffer.from(str).toString('base64').slice(0, 32);
-  return `tripsage:${prefix}:${hash}`;
+  const sorted = JSON.stringify(params, Object.keys(params).sort())
+  const hash   = Buffer.from(sorted).toString('base64url').slice(0, 32)
+  return `ts:${prefix}:${hash}`
 }
 
-module.exports = { connectRedis, cacheGet, cacheSet, cacheDel, generateCacheKey };
+module.exports = { connectRedis, cacheGet, cacheSet, cacheDel, generateCacheKey }

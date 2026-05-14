@@ -1,13 +1,13 @@
 'use client'
 
-import React, { memo } from 'react'
+import React, { memo, lazy, Suspense } from 'react'
 import { Plane, Hotel, Sun, Calendar, History, RefreshCw, Check, ClipboardList } from 'lucide-react'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
-import WeatherWidget from '../weather/WeatherWidget'
-import TripActions from '../actions/TripActions'
+
+const WeatherWidget = lazy(() => import('../weather/WeatherWidget'))
 
 interface Props {
   transport: any[]
@@ -190,7 +190,9 @@ function OverviewTab({
         {/* Sidebar */}
         <div className="space-y-4">
           {weather && (
-            <WeatherWidget weather={weather} destination={destination} />
+            <Suspense fallback={<div className="card p-4 h-48 animate-pulse" />}>
+              <WeatherWidget weather={weather} destination={destination} />
+            </Suspense>
           )}
 
           {/* Quick itinerary preview */}

@@ -9,6 +9,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'maps.googleapis.com' },
       { protocol: 'https', hostname: '*.booking.com' },
       { protocol: 'https', hostname: '*.expedia.com' },
+      { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: '*.agoda.com' },
+      { protocol: 'https', hostname: 'agoda.com' },
+      { protocol: 'https', hostname: '*.staticflickr.com' },
     ],
   },
   async redirects() {
@@ -59,31 +63,21 @@ const nextConfig = {
     NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000',
   },
   reactStrictMode: false,
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          reactVendor: {
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react-vendor',
-            priority: 40,
-          },
-          lucideVendor: {
-            test: /[\\/]node_modules[\\/](lucide-react)[\\/]/,
-            name: 'lucide-vendor',
-            priority: 30,
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            priority: 20,
-            reuseExistingChunk: true,
-          },
-        },
-      };
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // Fix Windows NTFS pack.gz rename race condition (ENOENT error in dev)
+      config.cache = { type: 'memory' }
+
+      // Use named (path-based) IDs so chunk IDs are stable across dev server
+      // restarts — prevents the "options.factory is undefined" error that occurs
+      // when the browser has a stale numeric chunk ID from a previous session.
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'named',
+        chunkIds: 'named',
+      }
     }
-    return config;
+    return config
   },
 }
 

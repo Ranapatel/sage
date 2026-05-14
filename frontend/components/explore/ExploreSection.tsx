@@ -76,11 +76,6 @@ const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: 
           <span className="text-orange-400 text-[0.65rem] font-semibold mb-0.5">🔥 {urgency}</span>
         </div>
         <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
-        <a href={affiliateLinks.activity(destination || a.name)} target="_blank" rel="noopener noreferrer"
-          onClick={() => trackEvent('booking_click', { type: 'activity', name: a.name, price: a.price })}
-          className="block w-full text-center py-2 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity">
-          Book Now — Save {discount}% →
-        </a>
       </div>
     </div>
   )
@@ -126,11 +121,6 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
           <div className="mb-0.5 text-green-400 text-xs font-semibold">Save {savings}!</div>
         </div>
         <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
-        <a href={affiliateLinks.car(destination)} target="_blank" rel="noopener noreferrer"
-          onClick={() => trackEvent('booking_click', { type: 'car_rental', name: car.name, price: car.price })}
-          className="block w-full text-center py-2.5 px-3 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity">
-          Book Car — {discount}% OFF →
-        </a>
       </div>
     </div>
   )
@@ -150,7 +140,9 @@ function ExploreSection({ destination }: Props) {
     if (!destination) return
     setLoading(true)
     tripAPI.getActivities(destination).then((res: any) => {
-      if (res?.data?.activities?.length > 0) setActivities(res.data.activities)
+      // Interceptor already unwraps res.data — access fields directly
+      const acts = res?.activities ?? res?.data?.activities
+      if (acts?.length > 0) setActivities(acts)
     }).catch(() => {}).finally(() => setLoading(false))
   }, [destination])
 
@@ -196,7 +188,7 @@ function ExploreSection({ destination }: Props) {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {filteredActivities.map(a => (
               <ActivityCard key={a.id} a={a} destination={destination} currency={currency} />
             ))}

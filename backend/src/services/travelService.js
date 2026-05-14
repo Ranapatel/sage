@@ -4,8 +4,8 @@ const { estimateFlightPrices } = require('./aiService')
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY
 const RAPIDAPI_HOSTS = {
-  flights: 'sky-scrapper.p.rapidapi.com',
-  hotels: 'booking-com15.p.rapidapi.com',
+  flights: process.env.RAPIDAPI_HOST_FLIGHTS || 'sky-scrapper.p.rapidapi.com',
+  hotels: process.env.RAPIDAPI_HOST_HOTELS || 'booking-com15.p.rapidapi.com',
 }
 
 // ─── Booking Links ────────────────────────────────────────────────────────────
