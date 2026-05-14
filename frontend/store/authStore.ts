@@ -41,9 +41,8 @@ export const useAuthStore = create<AuthStore>()(
       signup: async (data) => {
         set({ loading: true, error: null })
         try {
-          const res: any = await API.post('/api/auth/signup', data)
-          const { token, user } = res.data
-          // Attach token to all future requests
+          // Interceptor already returns res.data — destructure directly
+          const { token, user }: any = await API.post('/api/auth/signup', data)
           API.defaults.headers.common['Authorization'] = `Bearer ${token}`
           set({ token, user, isLoggedIn: true, loading: false })
         } catch (err: any) {
@@ -55,8 +54,7 @@ export const useAuthStore = create<AuthStore>()(
       login: async (email, password) => {
         set({ loading: true, error: null })
         try {
-          const res: any = await API.post('/api/auth/login', { email, password })
-          const { token, user } = res.data
+          const { token, user }: any = await API.post('/api/auth/login', { email, password })
           API.defaults.headers.common['Authorization'] = `Bearer ${token}`
           set({ token, user, isLoggedIn: true, loading: false })
         } catch (err: any) {
@@ -86,7 +84,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ loading: true, error: null })
         try {
           const res: any = await API.patch('/api/auth/profile', data)
-          const updated = res.data?.user ?? { ...get().user, ...data }
+          const updated = res?.user ?? { ...get().user, ...data }
           set({ user: updated, loading: false })
         } catch (err: any) {
           set({ error: err.message, loading: false })
@@ -101,7 +99,7 @@ export const useAuthStore = create<AuthStore>()(
         API.defaults.headers.common['Authorization'] = `Bearer ${token}`
         try {
           const res: any = await API.get('/api/auth/me')
-          set({ user: res.data?.user, isLoggedIn: true })
+          set({ user: res?.user, isLoggedIn: true })
         } catch {
           // Token expired or invalid — logout
           get().logout()

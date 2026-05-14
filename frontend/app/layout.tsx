@@ -88,7 +88,15 @@ const websiteSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    /*
+     * suppressHydrationWarning is required here because the perf-opt script
+     * (afterInteractive — runs only on the client) may add 'slow-connection' to
+     * <html> before React reconciles. Without this flag React will warn about
+     * "Extra attributes from the server: class". The attribute is intentional
+     * and safe — suppressHydrationWarning silences the warning without
+     * disabling hydration for child nodes.
+     */
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -104,26 +112,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png" />
       </head>
       <body>
+<<<<<<< HEAD
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+=======
+        {/* Google Analytics — afterInteractive: never runs on server, no hydration mismatch */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-2F49Z4DK2H"
+>>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+<<<<<<< HEAD
         <GoogleAnalytics />
+=======
+        {/*
+          * Slow-connection detection — moved to afterInteractive so it only
+          * runs client-side. Using beforeInteractive was causing the script to
+          * add 'slow-connection' class to <html> before hydration, producing
+          * the "Extra attributes from the server: class" hydration warning.
+          */}
+>>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
         <Script
           id="perf-opt"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              if ('connection' in navigator) {
-                const conn = navigator.connection;
-                if (conn.saveData || /2g|3g/.test(conn.effectiveType)) {
-                  document.documentElement.classList.add('slow-connection');
+              try {
+                if ('connection' in navigator) {
+                  var conn = navigator.connection;
+                  if (conn && (conn.saveData || /2g|3g/.test(conn.effectiveType || ''))) {
+                    document.documentElement.classList.add('slow-connection');
+                  }
                 }
-              }
+              } catch(e) {}
             `,
           }}
         />

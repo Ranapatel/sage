@@ -3,6 +3,7 @@ const router = express.Router()
 const { body, validationResult } = require('express-validator')
 const { searchFlights, searchHotels, searchBuses, searchCars } = require('../services/travelService')
 const { getWeather } = require('../services/weatherService')
+const { enrichHotelsWithImages, enrichFlightsWithImages } = require('../services/imageService')
 const { v4: uuidv4 } = require('uuid')
 
 // Input validation
@@ -51,10 +52,16 @@ router.post('/', searchValidation, async (req, res) => {
     const flightSource = flightResult.status === 'fulfilled' ? flightResult.value.meta?.source : 'error'
     const hotelSource = hotelResult.status === 'fulfilled' ? hotelResult.value.meta?.source : 'error'
 
+    // Enrich with real Unsplash images (non-blocking — falls back silently)
+    const [enrichedHotels, enrichedFlights] = await Promise.all([
+      enrichHotelsWithImages(hotels, to).catch(() => hotels),
+      enrichFlightsWithImages(transport, to).catch(() => transport),
+    ])
+
     res.json({
       success: true,
       meta: { timestamp, requestId, cache: false, flightSource, hotelSource },
-      data: { transport, hotels, buses, cars, weather },
+      data: { transport: enrichedFlights, hotels: enrichedHotels, buses, cars, weather },
       message: 'LIVE_UPDATE',
       error: null,
     })

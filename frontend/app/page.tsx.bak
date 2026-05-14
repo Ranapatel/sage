@@ -1,25 +1,10 @@
-import type { Metadata } from 'next'
-import HomeClient from './HomeClient'
+'use client'
 
-<<<<<<< HEAD
-export const metadata: Metadata = {
-  title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-  description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
-  keywords: ['AI trip planner India', 'travel planner app', 'cheapest flights India', 'itinerary planner AI', 'TripSage', 'smart travel'],
-  alternates: {
-    canonical: 'https://tripsage.in',
-  },
-}
-
-export default function HomePage() {
-  return <HomeClient />
-=======
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
-import { useRef } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import { tripAPI } from '@/lib/api'
@@ -146,11 +131,9 @@ export default function Home() {
     e.preventDefault()
     if (!form.from || !form.to || !form.startDate) return
     setLoading(true)
-
     trackEvent('plan_trip_click', { source: 'hero_form' })
-
-    // Store in session and navigate
-    sessionStorage.setItem('tripContext', JSON.stringify(form))
+    // Store in session (with autoSearch flag so /plan auto-fires the search immediately)
+    sessionStorage.setItem('tripContext', JSON.stringify({ ...form, autoSearch: true }))
     setTimeout(() => router.push('/plan'), 800)
   }
 
@@ -159,8 +142,13 @@ export default function Home() {
   const isFormInView = useInView(formRef, { amount: 0.1 })
   const showStickySearch = !isFormInView && !isDesktop && initialized
 
-  // Auto-detect location
+  // Auto-detect location and Clear old sessions on mount
   useEffect(() => {
+    // Clear old trip so it doesn't auto-search on /plan if they navigated back to home
+    sessionStorage.removeItem('tripContext')
+
+    // Disabled auto-detect location as it was automatically typing the user's IP city (e.g. Hyderabad)
+    /*
     if (!form.from) {
       tripAPI.getIpLocation().then((res: any) => {
         if (res.success && res.data) {
@@ -173,6 +161,7 @@ export default function Home() {
         }
       }).catch(() => { })
     }
+    */
   }, [])
 
   useEffect(() => {
@@ -286,7 +275,6 @@ export default function Home() {
                   <X size={28} />
                 </button>
               </div>
-
               {/* Links */}
               <div className="flex flex-col gap-2">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl transition-colors">Home</Link>
@@ -346,7 +334,7 @@ export default function Home() {
           {/* Status badge */}
           <motion.div 
             className="inline-flex items-center gap-2 bg-blue-50/90 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-blue-600 mb-8 border border-blue-100 shadow-sm"
-            initial={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
           >
@@ -356,7 +344,7 @@ export default function Home() {
 
           <motion.h1 
             className="section-title text-[clamp(2.5rem,7vw,5rem)] mb-8 font-extrabold tracking-tight text-slate-900 md:text-white leading-[1.1] md:drop-shadow-lg"
-            initial={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
@@ -367,7 +355,7 @@ export default function Home() {
 
           <motion.p 
             className="text-slate-600 md:text-slate-100 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium md:drop-shadow-md"
-            initial={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
@@ -380,7 +368,7 @@ export default function Home() {
             ref={formRef}
             onSubmit={handleSubmit} 
             className="bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-3xl rounded-[40px] px-4 py-8 md:p-12 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.18)] border border-white/60 max-w-5xl mx-auto text-left relative overflow-hidden w-full"
-            initial={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
@@ -512,7 +500,7 @@ export default function Home() {
           {/* Feature Badges below form */}
           <motion.div 
             className="flex flex-wrap items-center justify-center gap-12 mt-16"
-            initial={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
@@ -936,5 +924,4 @@ export default function Home() {
       </AnimatePresence>
     </div>
   )
->>>>>>> 1f08c79 (fix: improve landing page UI and integrate backend functionality)
 }
