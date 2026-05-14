@@ -1,5 +1,5 @@
-﻿'use client'
-import React, { memo, useState } from 'react'
+'use client'
+import React, { memo, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
@@ -190,6 +190,7 @@ interface Props {
 
 function ItineraryView({ itinerary, loading, destination }: Props) {
   const [activeDay, setActiveDay] = useState(0)
+  const isMobile = useIsMobile()
 
   if (loading) {
     return (
