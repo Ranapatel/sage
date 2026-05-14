@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
-import { useRef, useEffect as useLayoutEffect } from 'react'
+import { useRef } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import { tripAPI } from '@/lib/api'
@@ -305,7 +305,7 @@ export default function HomeClient() {
           {/* Status badge */}
           <motion.div 
             className="inline-flex items-center gap-2 bg-blue-50/90 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-blue-600 mb-8 border border-blue-100 shadow-sm"
-            initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 1, scale: 1 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
           >
@@ -315,7 +315,7 @@ export default function HomeClient() {
 
           <motion.h1 
             className="section-title text-[clamp(2.5rem,7vw,5rem)] mb-8 font-extrabold tracking-tight text-slate-900 md:text-white leading-[1.1] md:drop-shadow-lg"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
@@ -326,7 +326,7 @@ export default function HomeClient() {
 
           <motion.p 
             className="text-slate-600 md:text-slate-100 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium md:drop-shadow-md"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
@@ -339,7 +339,7 @@ export default function HomeClient() {
             ref={formRef}
             onSubmit={handleSubmit} 
             className="bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-3xl rounded-[40px] px-4 py-8 md:p-12 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.18)] border border-white/60 max-w-5xl mx-auto text-left relative overflow-hidden w-full"
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
@@ -471,7 +471,7 @@ export default function HomeClient() {
           {/* Feature Badges below form */}
           <motion.div 
             className="flex flex-wrap items-center justify-center gap-12 mt-16"
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >

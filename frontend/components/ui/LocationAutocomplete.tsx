@@ -1,7 +1,9 @@
-﻿'use client'
+'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { tripAPI } from '@/lib/api'
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type Location = {
   id: string
@@ -23,8 +25,10 @@ interface LocationAutocompleteProps {
   className?: string
 }
 
-// Session-level cache to avoid refetching same queries
-const cache: Record<string, Location[]> = {}
+// ── Session-level cache — avoids redundant network requests ───────────────────
+const queryCache = new Map<string, Location[]>()
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function LocationAutocomplete({
   value,
@@ -35,39 +39,41 @@ export default function LocationAutocomplete({
   const [query, setQuery] = useState(value)
   const [state, setState] = useState<AutoCompleteState>({ status: 'idle' })
   const [isOpen, setIsOpen] = useState(false)
-  const [selected, setSelected] = useState(false) // flag: user picked a suggestion
+
+  // Tracks whether the last input change was a user selecting a suggestion
+  // (prevents re-triggering a search after selection)
+  const isSelectingRef = useRef(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
-  // Sync external value changes (e.g. auto-detect)
+  // ── Sync external value changes (e.g. auto-detect location) ─────────────────
   useEffect(() => {
     setQuery(value)
   }, [value])
 
-  // Close on outside click
+  // ── Close dropdown on outside click ─────────────────────────────────────────
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setIsOpen(false)
       }
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const isSelectingRef = useRef(false)
-
+  // ── Debounced search trigger ─────────────────────────────────────────────────
   useEffect(() => {
-    if (selected) { setSelected(false); return }
+    // Skip search if user just selected from dropdown
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
+      return
+    }
+
     const trimmed = query.trim()
     if (trimmed.length < 2) {
       setState({ status: 'idle' })
       setIsOpen(false)
-      return
-    }
-
-    if (isSelectingRef.current) {
-      isSelectingRef.current = false
       return
     }
 
@@ -76,23 +82,25 @@ export default function LocationAutocomplete({
     }, 300)
 
     return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
-  const fetchSuggestions = async (searchTerm: string) => {
-    if (cache[searchTerm.toLowerCase()]) {
-      const data = cache[searchTerm.toLowerCase()]
-      setState({ status: data.length > 0 ? 'success' : 'empty', data })
+  // ── Fetch suggestions from backend ──────────────────────────────────────────
+  const fetchSuggestions = useCallback(async (searchTerm: string) => {
+    // Serve from cache when available
+    const cacheKey = searchTerm.toLowerCase()
+    if (queryCache.has(cacheKey)) {
+      const cached = queryCache.get(cacheKey)!
+      setState(
+        cached.length > 0
+          ? { status: 'success', data: cached }
+          : { status: 'empty' }
+      )
       setIsOpen(true)
       return
     }
 
-    const timer = setTimeout(() => fetchSuggestions(trimmed), 250)
-    return () => clearTimeout(timer)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
-
-  const fetchSuggestions = async (searchTerm: string) => {
-    // Abort any in-flight request
+    // Cancel any in-flight request
     abortRef.current?.abort()
     abortRef.current = new AbortController()
 
@@ -101,55 +109,59 @@ export default function LocationAutocomplete({
 
     try {
       const res = await tripAPI.getAutocomplete(searchTerm)
-      
-      const results = res.data
-      console.log('LocationAutocomplete API results:', results);
-      
+      const results = res?.data
+
       if (!Array.isArray(results) || results.length === 0) {
-        console.log('LocationAutocomplete API returned empty');
+        queryCache.set(cacheKey, [])
         setState({ status: 'empty' })
-        cache[searchTerm.toLowerCase()] = []
         return
       }
 
       const locations: Location[] = results.map((r: any) => {
-        let displayName = '';
+        let displayName = ''
+
         if (typeof r === 'string') {
-          displayName = r;
+          displayName = r
         } else if (r.city && r.country) {
-          displayName = `${r.city}${r.state && r.state !== r.city ? `, ${r.state}` : ''}, ${r.country}`;
+          const stateStr = r.state && r.state !== r.city ? `, ${r.state}` : ''
+          displayName = `${r.city}${stateStr}, ${r.country}`
         } else if (r.name && r.country) {
-          displayName = `${r.name}${r.state && r.state !== r.name ? `, ${r.state}` : ''}, ${r.country}`;
-        } else if (r.description) {
-          displayName = r.description;
+          const stateStr = r.state && r.state !== r.name ? `, ${r.state}` : ''
+          displayName = `${r.name}${stateStr}, ${r.country}`
         } else if (r.displayName) {
-          const parts = r.displayName.split(',');
-          // If the raw display name is very long, try to just take the first and last parts (Name, ..., Country)
-          if (parts.length > 3) {
-            displayName = `${parts[0].trim()}, ${parts[parts.length - 1].trim()}`;
-          } else {
-            displayName = r.displayName;
-          }
+          const parts: string[] = r.displayName.split(',')
+          displayName =
+            parts.length > 3
+              ? `${parts[0].trim()}, ${parts[parts.length - 1].trim()}`
+              : r.displayName
+        } else if (r.description) {
+          displayName = r.description
         } else {
-          displayName = r.city || r.name || r.formatted_address || (Object.values(r).find(v => typeof v === 'string') as string) || 'Unknown Location';
+          displayName =
+            r.city ||
+            r.name ||
+            r.formatted_address ||
+            (Object.values(r).find((v) => typeof v === 'string') as string) ||
+            'Unknown Location'
         }
 
         return {
-          id: r.id || r.place_id || Math.random().toString(36).slice(2),
+          id: r.id ?? r.place_id ?? Math.random().toString(36).slice(2),
           name: displayName,
           type: 'city' as const,
         }
       })
 
-      cache[searchTerm.toLowerCase()] = locations
-      console.log('Setting status to success, locations:', locations);
+      queryCache.set(cacheKey, locations)
       setState({ status: 'success', data: locations })
     } catch (err: any) {
-      console.error('LocationAutocomplete API error:', err);
-      if (err.name === 'AbortError') return // Ignore aborted fetch errors
-      setState({ status: 'error', message: 'Unable to fetch suggestions' })
+      if (err?.name === 'AbortError') return // Silently ignore cancelled requests
+      console.error('[LocationAutocomplete] fetch error:', err?.message)
+      setState({ status: 'error', message: 'Unable to fetch suggestions. Try again.' })
     }
-  }
+  }, [])
+
+  // ── Handlers ─────────────────────────────────────────────────────────────────
 
   const handleSelect = (loc: Location) => {
     isSelectingRef.current = true
@@ -165,8 +177,21 @@ export default function LocationAutocomplete({
     onChange(val)
   }
 
+  const handleFocus = () => {
+    if (
+      state.status === 'success' ||
+      state.status === 'empty' ||
+      state.status === 'error'
+    ) {
+      setIsOpen(true)
+    }
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
     <div className="relative" ref={wrapperRef}>
+      {/* Text input */}
       <input
         type="text"
         className={className}
@@ -175,58 +200,94 @@ export default function LocationAutocomplete({
         autoComplete="off"
         spellCheck={false}
         onChange={handleInputChange}
-        onFocus={() => {
-          if (state.status === 'success' || state.status === 'empty' || state.status === 'error') {
-            setIsOpen(true)
-          }
-        }}
+        onFocus={handleFocus}
+        aria-autocomplete="list"
+        aria-expanded={isOpen}
+        role="combobox"
       />
 
-      {/* Spinner inside input */}
+      {/* Loading spinner inside input */}
       {state.status === 'loading' && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <span className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin inline-block" />
+          <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin inline-block" />
         </div>
       )}
-      
+
+      {/* Dropdown */}
       {isOpen && state.status !== 'idle' && (
-        <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-xl border border-white/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden animate-fade-in">
-          
+        <div
+          role="listbox"
+          className="absolute z-50 w-full mt-2 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden border"
+          style={{
+            background: 'rgba(15,23,42,0.97)',
+            backdropFilter: 'blur(20px)',
+            borderColor: 'rgba(255,255,255,0.12)',
+          }}
+        >
+          {/* Searching state */}
           {state.status === 'loading' && (
-            <div className="px-4 py-3 text-sm text-slate-500 text-center flex items-center justify-center gap-2">
-              <span className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin inline-block"></span>
-              Searching...
-            </div>
-          )}
-          
-          {state.status === 'empty' && (
-            <div className="px-4 py-5 text-sm text-center" style={{ color: 'var(--text-muted)' }}>
-              <div className="text-2xl mb-1">ðŸ”</div>
-              No locations found for &ldquo;{query}&rdquo;
+            <div className="px-4 py-4 text-sm text-center flex items-center justify-center gap-2" style={{ color: '#94a3b8' }}>
+              <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin inline-block" />
+              Searching cities...
             </div>
           )}
 
+          {/* No results */}
+          {state.status === 'empty' && (
+            <div className="px-4 py-5 text-sm text-center" style={{ color: '#94a3b8' }}>
+              <div className="text-2xl mb-1">📍</div>
+              No cities found for &ldquo;{query}&rdquo;
+            </div>
+          )}
+
+          {/* Error */}
           {state.status === 'error' && (
-            <div className="px-4 py-4 text-sm text-center text-red-400">
+            <div className="px-4 py-4 text-sm text-center" style={{ color: '#f87171' }}>
               {state.message}
             </div>
           )}
 
+          {/* Results list */}
           {state.status === 'success' && (
-            <div className="max-h-[300px] overflow-y-auto">
+            <div className="max-h-[300px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+              <div
+                className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest"
+                style={{ color: '#64748b' }}
+              >
+                Suggested Destinations
+              </div>
               {state.data.map((loc) => (
                 <div
                   key={loc.id}
-                  className="px-5 py-3 hover:bg-orange-50 cursor-pointer transition-colors group flex items-center justify-between border-b border-gray-50 last:border-0"
-                  onMouseDown={(e) => e.preventDefault()}
+                  role="option"
+                  aria-selected={false}
+                  className="px-5 py-3 cursor-pointer transition-colors group flex items-center justify-between"
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+                  onMouseDown={(e) => e.preventDefault()} // prevents input blur before click
                   onClick={() => handleSelect(loc)}
+                  onMouseEnter={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                  }}
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-slate-900 group-hover:text-orange-600 transition-colors">
-                      ðŸ“ {loc.name}
+                  <div className="flex items-center gap-3">
+                    <span style={{ fontSize: '1rem' }}>📍</span>
+                    <span
+                      className="text-sm font-semibold"
+                      style={{ color: '#f1f5f9' }}
+                    >
+                      {loc.name}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-gray-100 text-slate-500 uppercase tracking-widest group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
+                  <span
+                    className="text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-widest"
+                    style={{
+                      background: 'rgba(59,130,246,0.15)',
+                      color: '#60a5fa',
+                    }}
+                  >
                     City
                   </span>
                 </div>
