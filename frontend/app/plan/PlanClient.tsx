@@ -378,33 +378,35 @@ export default function PlanClient() {
       )}
 
       {/* SEARCH BAR */}
-      <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
-        <div className="glass rounded-xl p-3 sm:p-4 w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
-            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
-              onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
-            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
-              onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
-              onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
-              onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
-              onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
-            <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.travelers}
-              onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
-              {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
-            </select>
-            <button
-              onClick={() => runSearch()}
-              className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
-              disabled={loading}
-            >
-              {loading ? '...' : <><Search size={16} /> Search</>}
-            </button>
+      {activeTab === 'overview' && (
+        <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
+          <div className="glass rounded-xl p-3 sm:p-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
+              <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
+                onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
+              <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
+                onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
+              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
+                onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
+              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
+                onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
+              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
+                onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
+              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.travelers}
+                onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
+                {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
+              </select>
+              <button
+                onClick={() => runSearch()}
+                className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
+                disabled={loading}
+              >
+                {loading ? '...' : <><Search size={16} /> Search</>}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* AI THINKING */}
       {aiThinking && (
