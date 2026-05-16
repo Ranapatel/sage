@@ -134,7 +134,11 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
     <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
       <div className="flex gap-2 min-w-max">
         {images.map((img: string, idx: number) => (
-          <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)] bg-slate-100">
+          <div 
+            key={idx} 
+            className="rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)] bg-slate-100"
+            style={{ width: '160px', height: '112px' }}
+          >
             <Image 
               src={getOptimizedImageUrl(img, isMobile)} 
               alt={`${place.name} view ${idx + 1}`} 
