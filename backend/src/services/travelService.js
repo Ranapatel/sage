@@ -54,50 +54,50 @@ function rapidHeaders(host) {
 const AIRLINES = [
   {
     name: 'IndiGo',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/IndiGo_Airlines_logo.svg/200px-IndiGo_Airlines_logo.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/6E.png',
     image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80',
     color: '#1a1abb'
   },
   {
     name: 'Air India',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Air_India_Logo.svg/200px-Air_India_Logo.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/AI.png',
     image: 'https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=600&q=80',
     color: '#c8102e'
   },
   {
     name: 'SpiceJet',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/3/3e/SpiceJet_logo.svg/200px-SpiceJet_logo.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/SG.png',
     image: 'https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=600&q=80',
     color: '#e8312f'
   },
   {
     name: 'Akasa Air',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Akasa_Air_logo.svg/200px-Akasa_Air_logo.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/QP.png',
     image: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&q=80',
     color: '#ff6900'
   },
   {
     name: 'Vistara',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/16/Vistara_Logo.png/200px-Vistara_Logo.png',
+    logo: 'https://images.kiwi.com/airlines/64/UK.png',
     image: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80',
     color: '#6e2d8a'
   },
   // International carriers
   {
     name: 'Emirates',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Emirates_logo.svg/200px-Emirates_logo.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/EK.png',
     image: 'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=600&q=80',
     color: '#c8102e'
   },
   {
     name: 'Qatar Airways',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Qatar_Airways_Logo.svg/200px-Qatar_Airways_Logo.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/QR.png',
     image: 'https://images.unsplash.com/photo-1503146695848-73da81c33c3a?w=600&q=80',
     color: '#5c0632'
   },
   {
     name: 'Singapore Airlines',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/6b/Singapore_Airlines_Logo_2.svg/200px-Singapore_Airlines_Logo_2.svg.png',
+    logo: 'https://images.kiwi.com/airlines/64/SQ.png',
     image: 'https://images.unsplash.com/photo-1457296898342-cdd24585d095?w=600&q=80',
     color: '#001489'
   },
@@ -113,7 +113,7 @@ const FLIGHT_IMAGES = [
 
 const HOTEL_IMAGES = [
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
-  'https://images.unsplash.com/photo-1551882547-ff40c0d51928?w=600&q=80',
+  'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
   'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
   'https://images.unsplash.com/photo-1455587734955-081b22074882?w=600&q=80',
   'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80',
@@ -233,21 +233,22 @@ function generateMockHotels(destination, checkin, checkout, members, budget) {
 
 async function resolveAirport(query) {
   try {
-    const res = await axios.get(`https://${RAPIDAPI_HOSTS.flights}/api/v1/flights/searchAirport`, {
-      params: { query, locale: 'en-US' },
-      headers: rapidHeaders(RAPIDAPI_HOSTS.flights),
+    // We use flights-sky for airport resolution as it efficiently returns IATA codes for free
+    // which the Kiwi API requires.
+    const res = await axios.get(`https://flights-sky.p.rapidapi.com/web/flights/auto-complete`, {
+      params: { query },
+      headers: rapidHeaders('flights-sky.p.rapidapi.com'),
       timeout: 6000,
     })
     const data = res.data?.data || []
     if (data.length > 0) {
-      const first = data[0]
       return {
-        skyId: first.skyId || first.navigation?.relevantFlightParams?.skyId,
-        entityId: first.entityId || first.navigation?.relevantFlightParams?.entityId,
+        iata: data[0].PlaceId || data[0].IataCode || null,
+        name: data[0].PlaceName
       }
     }
   } catch (err) {
-    console.warn(`[Skyscanner] Airport resolve failed for "${query}":`, err.response?.status || err.message)
+    console.warn(`[Flights] Airport resolve failed for "${query}":`, err.response?.status || err.message)
   }
   return null
 }
@@ -255,47 +256,51 @@ async function resolveAirport(query) {
 // ─── Flight Search ────────────────────────────────────────────────────────────
 
 async function searchFlights({ from, to, date, returnDate, travelers = 1, budget }) {
-  const cacheKey = generateCacheKey('flights_v3', { from, to, date, travelers, budget })
+  const cacheKey = generateCacheKey('flights_v4', { from, to, date, travelers, budget })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
   if (RAPIDAPI_KEY) {
     try {
       const [origin, dest] = await Promise.all([resolveAirport(from), resolveAirport(to)])
-      if (origin && dest) {
-        const response = await axios.get(`https://${RAPIDAPI_HOSTS.flights}/api/v1/flights/searchFlights`, {
-          params: {
-            originSkyId: origin.skyId,
-            originEntityId: origin.entityId,
-            destinationSkyId: dest.skyId,
-            destinationEntityId: dest.entityId,
-            date: date || new Date().toISOString().split('T')[0],
-            cabinClass: 'economy',
-            adults: String(travelers),
-            sortBy: 'price',
-            currency: 'INR',
-            market: 'en-IN',
-            countryCode: 'IN',
-          },
+      if (origin?.iata && dest?.iata) {
+        const isRoundTrip = !!returnDate;
+        const endpoint = isRoundTrip ? '/round-trip' : '/one-way';
+        const params = {
+          origin: origin.iata,
+          destination: dest.iata,
+          adults: String(travelers),
+          currency: 'INR',
+        };
+        
+        if (isRoundTrip) {
+          params.departDate = date || new Date().toISOString().split('T')[0];
+          params.returnDate = returnDate;
+        } else {
+          params.date = date || new Date().toISOString().split('T')[0];
+        }
+
+        const response = await axios.get(`https://${RAPIDAPI_HOSTS.flights}${endpoint}`, {
+          params,
           headers: rapidHeaders(RAPIDAPI_HOSTS.flights),
           timeout: 10000,
         })
 
-        let liveFlights = normalizeSkyscannerFlights(response.data, from, to, date)
+        let liveFlights = normalizeKiwiFlights(response.data, from, to, date)
         if (budget && liveFlights.length > 0) {
           const filtered = liveFlights.filter(f => f.price <= budget * 0.6)
           liveFlights = filtered.length > 0 ? filtered : liveFlights.slice(0, 3) // show cheapest 3 if all over budget
         }
 
         if (liveFlights.length > 0) {
-          console.log(`[Skyscanner] ✅ ${liveFlights.length} live flights`)
+          console.log(`[Flights] ✅ ${liveFlights.length} live flights (Kiwi)`)
           const result = { success: true, data: liveFlights, meta: { cache: false, source: 'live' } }
           await cacheSet(cacheKey, result)
           return result
         }
       }
     } catch (err) {
-      console.warn('[Skyscanner] Live search failed:', err.response?.status || err.message)
+      console.warn('[Flights] Live search failed:', err.response?.status || err.message)
     }
   }
 
@@ -320,46 +325,48 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
   return result
 }
 
-function normalizeSkyscannerFlights(rawData, from, to, date) {
-  const itineraries =
-    rawData?.data?.itineraries ||
-    rawData?.itineraries ||
-    rawData?.data?.flights ||
-    []
+function normalizeKiwiFlights(rawData, from, to, date) {
+  const itineraries = rawData?.itineraries || [];
 
   return itineraries
     .map((item, i) => {
-      const rawPrice = item.price?.raw || item.price?.amount
-      if (!rawPrice) return null
+      const rawPrice = item.price?.amount;
+      if (!rawPrice) return null;
 
-      let price = typeof rawPrice === 'number' ? rawPrice : parseFloat(rawPrice)
+      let price = typeof rawPrice === 'number' ? rawPrice : parseFloat(rawPrice);
 
       // Smart paise/paisa detection for INR:
-      // Economy one-way flights rarely exceed ₹1,20,000. Anything above is likely paise.
-      if (price > 120000) price = Math.round(price / 100)
-      // Still unreasonably high? Cap it.
-      if (price > 120000) price = Math.round(price / 10)
-      // Minimum sanity check
-      if (price < 500) price = price * 100 // was in USD cents maybe
+      // Economy flights rarely exceed ₹1,20,000. Anything above is likely paise.
+      if (price > 120000) price = Math.round(price / 100);
+      // Hard cap at ₹1,20,000 for economy
+      price = Math.min(price, 120000);
 
-      // Hard cap at ₹1,20,000 for economy one-way
-      price = Math.min(price, 120000)
+      const sector = item.sector || item.sectors?.[0] || {};
+      const leg = sector.sectorSegments?.[0]?.segment || {};
+      const carrier = leg.carrier || {};
+      
+      const durationSeconds = leg.duration || sector.duration || 0;
+      const durationMinutes = Math.floor(durationSeconds / 60);
 
-      const leg = item.legs?.[0] || {}
-      const carrier = leg.carriers?.marketing?.[0] || leg.carriers?.[0] || {}
+      // Airline logos mapping
+      let logoUrl = FLIGHT_IMAGES[0];
+      if (carrier.code) {
+         logoUrl = `https://images.kiwi.com/airlines/64/${carrier.code}.png`;
+      }
+
       return {
         id: item.id || `fl_live_${i}`,
         type: 'flight',
         name: carrier.name || `Flight ${from.split(',')[0]} → ${to.split(',')[0]}`,
         price,
-        rating: 4.0,
-        duration: leg.durationInMinutes
-          ? `${Math.floor(leg.durationInMinutes / 60)}h ${leg.durationInMinutes % 60}m`
+        rating: parseFloat((4.0 + Math.random() * 0.9).toFixed(1)), // fake rating as kiwi doesn't provide
+        duration: durationMinutes > 0
+          ? `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`
           : 'N/A',
-        departure: leg.departure?.split('T')[1]?.substring(0, 5) || '--:--',
-        arrival: leg.arrival?.split('T')[1]?.substring(0, 5) || '--:--',
-        image: carrier.logoUrl || FLIGHT_IMAGES[0],
-        logo: carrier.logoUrl,
+        departure: leg.source?.localTime?.split('T')[1]?.substring(0, 5) || '--:--',
+        arrival: leg.destination?.localTime?.split('T')[1]?.substring(0, 5) || '--:--',
+        image: logoUrl,
+        logo: logoUrl,
         bookingLink: flightBookingLink(from, to, date),
         score: Math.max(0, 1 - price / 120000),
         liveStatus: 'Live',
@@ -375,7 +382,7 @@ function normalizeSkyscannerFlights(rawData, from, to, date) {
 // ─── Hotel Search ─────────────────────────────────────────────────────────────
 
 async function searchHotels({ destination, checkin, checkout, members = 2, budget }) {
-  const cacheKey = generateCacheKey('hotels_v3', { destination, checkin, checkout, members, budget })
+  const cacheKey = generateCacheKey('hotels_v4', { destination, checkin, checkout, members, budget })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -532,7 +539,7 @@ function generateMockBuses(from, to, date, budget) {
 }
 
 async function searchBuses({ from, to, date, budget }) {
-  const cacheKey = generateCacheKey('buses_v1', { from, to, date, budget })
+  const cacheKey = generateCacheKey('buses_v2', { from, to, date, budget })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -585,7 +592,7 @@ function generateMockCars(destination, date, budget) {
 }
 
 async function searchCars({ destination, date, budget }) {
-  const cacheKey = generateCacheKey('cars_v1', { destination, date, budget })
+  const cacheKey = generateCacheKey('cars_v2', { destination, date, budget })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 

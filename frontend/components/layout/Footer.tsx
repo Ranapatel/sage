@@ -47,12 +47,12 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-start justify-between gap-12 mb-16">
           <div className="max-w-sm">
             <div className="flex items-center gap-3 mb-6">
-              <Image
+              <img
                 src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
                 alt="TripSage"
                 width={40}
                 height={40}
-                className="rounded-xl"
+                className="rounded-xl w-[40px] h-[40px] object-contain"
               />
               <span className="font-display text-2xl font-bold text-white">TripSage</span>
             </div>

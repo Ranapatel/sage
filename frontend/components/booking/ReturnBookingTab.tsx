@@ -31,7 +31,7 @@ function generateReturnOptions(from: string, to: string, endDate: string, _budge
       name: `IndiGo ${to.split(',')[0]} → ${from.split(',')[0]}`,
       price: 1499, rating: 4.3, duration: '2h 15m',
       departure: '07:00', arrival: '09:15',
-      image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80',
+      image: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=400&q=80',
       bookingLink: link, score: 0.87, liveStatus: 'On Time',
       offers: ['Best value return', 'Free check-in baggage'],
     },

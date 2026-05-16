@@ -12,9 +12,9 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  transport: 'ðŸš€', explore: 'ðŸ—ºï¸', dining: 'ðŸ½ï¸',
-  culture: 'ðŸ›ï¸', nature: 'ðŸŒ¿', activity: 'âš¡',
-  shopping: 'ðŸ›ï¸', accommodation: 'ðŸ¨',
+  transport: '🚀', explore: '🗺️', dining: '🍽️',
+  culture: '🏛️', nature: '🌿', activity: '⚡',
+  shopping: '🛍️', accommodation: '🏨',
 }
 
 // Unsplash search terms per category for varied images
@@ -62,7 +62,7 @@ async function fetchPlaceImages(placeName: string, category: string, destination
   // Curated fallbacks by category
   const fallbacks: Record<string, string[]> = {
     transport: [
-      'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80',
+      'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&q=80',
       'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&q=80',
       'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80',
     ],
@@ -83,7 +83,7 @@ async function fetchPlaceImages(placeName: string, category: string, destination
     ],
     accommodation: [
       'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
-      'https://images.unsplash.com/photo-1551882547-ff40c0d51928?w=600&q=80',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
       'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
     ],
     activity: [
@@ -102,85 +102,54 @@ async function fetchPlaceImages(placeName: string, category: string, destination
   return result
 }
 
-// Image carousel for a place
-const PlaceImageCarousel = memo(({ place, destination }: { place: any; destination?: string }) => {
-  const [images, setImages] = useState<string[]>([])
-  const [current, setCurrent] = useState(0)
-  const [loaded, setLoaded] = useState(false)
+// Horizontal Image Gallery for a place
+const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; destination?: string; isMobile: boolean }) => {
+  const [images, setImages] = useState<string[] | null>(null)
 
   useEffect(() => {
-    // Use provided image first, then fetch more with destination context
     const initial = place.image ? [place.image] : []
-    setImages(initial)
     fetchPlaceImages(place.name, place.category, destination).then(imgs => {
-      // Deduplicate, filter out the generic fallback if we have real images
       const merged = [...new Set([...initial, ...imgs])].filter(Boolean).slice(0, 5)
       setImages(merged.length > 0 ? merged : initial)
-      setLoaded(true)
+    }).catch(() => {
+      setImages(initial)
     })
   }, [place.name, place.category, place.image, destination])
 
-  if (images.length === 0) return null
+  if (!images) {
+    return (
+      <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
+        <div className="flex gap-2 min-w-max">
+          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
+          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
+          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (images.length === 0) return null;
 
   return (
-    <div className="mt-3 relative rounded-xl overflow-hidden group/carousel" style={{ height: '140px' }}>
-      {/* Images */}
-      <div className="w-full h-full">
-        <img
-          src={images[current]}
-          alt={`${place.name} - photo ${current + 1}`}
-          className="w-full h-full object-cover transition-opacity duration-300"
-          loading="lazy"
-          decoding="async"
-          onError={(e) => {
-            const t = e.target as HTMLImageElement
-            t.src = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80'
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-      </div>
-
-      {/* Arrows (only if multiple images) */}
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={() => setCurrent(p => (p - 1 + images.length) % images.length)}
-            className="absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10"
-          >
-            <ChevronLeft size={14} />
-          </button>
-          <button
-            onClick={() => setCurrent(p => (p + 1) % images.length)}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10"
-          >
-            <ChevronRight size={14} />
-          </button>
-        </>
-      )}
-
-      {/* Dot indicators */}
-      {images.length > 1 && (
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`rounded-full transition-all duration-200 ${i === current ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`}
+    <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
+      <div className="flex gap-2 min-w-max">
+        {images.map((img: string, idx: number) => (
+          <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)] bg-slate-100">
+            <Image 
+              src={getOptimizedImageUrl(img, isMobile)} 
+              alt={`${place.name} view ${idx + 1}`} 
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-500" 
+              sizes="160px"
+              unoptimized={img.includes('unsplash.com')}
             />
-          ))}
-        </div>
-      )}
-
-      {/* Image count badge */}
-      {loaded && images.length > 1 && (
-        <div className="absolute top-2 right-2 bg-black/50 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">
-          {current + 1}/{images.length}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 })
-PlaceImageCarousel.displayName = 'PlaceImageCarousel'
+PlaceGallery.displayName = 'PlaceGallery'
 
 interface Props {
   itinerary: any[]
@@ -214,7 +183,7 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
   if (itinerary.length === 0) {
     return (
       <div className="card p-12 text-center">
-        <div className="text-5xl mb-4">ðŸ“…</div>
+        <div className="text-5xl mb-4">📅</div>
         <h3 className="font-bold text-[var(--text-primary)] mb-2">No itinerary yet</h3>
         <p className="text-[var(--text-muted)] text-sm">Search for a destination to generate your AI itinerary</p>
       </div>
@@ -226,14 +195,14 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="section-title text-xl">ðŸ“… Smart Itinerary</h2>
+        <h2 className="section-title text-xl">📅 Smart Itinerary</h2>
         <div className="flex items-center gap-2">
           <span className="badge badge-green text-xs">AI Generated</span>
           <span className="badge badge-amber text-xs">{itinerary.length} Days</span>
         </div>
       </div>
 
-      {/* Day selector â€” horizontally scrollable */}
+      {/* Day selector — horizontally scrollable */}
       <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
         {itinerary.map((day, i) => (
           <button
@@ -255,10 +224,9 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
         ))}
       </div>
 
-      {/* Timeline */}
-      {currentDay && (
-        <div className="relative">
-          <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-[var(--border)]"></div>
+      {/* Timeline of places for the active day */}
+      <div className="relative">
+          <div className="absolute left-3 sm:left-5 top-0 bottom-0 w-0.5 bg-[var(--border)]"></div>
           <div className="space-y-4">
             {currentDay.places.map((place: any, i: number) => {
               const hasCoords = Array.isArray(place.coordinates)
@@ -272,14 +240,14 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                 : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`
 
               return (
-              <div key={i} className="relative flex gap-4 pl-14">
+              <div key={i} className="relative flex gap-3 sm:gap-4 pl-9 sm:pl-14">
                 {/* Timeline dot */}
-                <div className="absolute left-3.5 top-4 w-3.5 h-3.5 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
+                <div className="absolute left-[5px] sm:left-3.5 top-4 w-3.5 h-3.5 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
 
-                <div className="card p-3 sm:p-4 flex-1 hover:border-[var(--primary)] transition-colors">
+                <div className="card p-3 sm:p-4 flex-1 hover:border-[var(--primary)] transition-colors min-w-0 overflow-hidden">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                      <span className="text-xl sm:text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || 'ðŸ“'}</span>
+                      <span className="text-xl sm:text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || '📍'}</span>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-[var(--text-primary)] text-sm leading-tight">{place.name}</h3>
                         <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed line-clamp-2">{place.description}</p>
@@ -289,10 +257,10 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                           </span>
                           {hasCoords ? (
                             <span className="text-xs text-[var(--text-muted)]">
-                              ðŸ“ {lat!.toFixed(3)}, {lng!.toFixed(3)}
+                              📍 {lat!.toFixed(3)}, {lng!.toFixed(3)}
                             </span>
                           ) : (
-                            <span className="text-xs text-yellow-500">ðŸ“ Coordinates loading...</span>
+                            <span className="text-xs text-yellow-500">📍 Coordinates loading...</span>
                           )}
                         </div>
                       </div>
@@ -304,44 +272,19 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                         target="_blank" rel="noopener noreferrer"
                         className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors mt-1 block"
                       >
-                        Open Maps â†’
+                        Open Maps →
                       </a>
                     </div>
                   </div>
 
                   {/* Image Gallery */}
-                  <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
-                    <div className="flex gap-2 min-w-max">
-                      {!place.images ? (
-                        /* Placeholders while loading */
-                        <>
-                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
-                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
-                          <div className="shimmer h-28 w-40 rounded-lg snap-start"></div>
-                        </>
-                      ) : place.images.length > 0 ? (
-                        /* Real images */
-                        place.images.map((img: string, idx: number) => (
-                          <div key={idx} className="h-28 w-40 rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)]">
-                            <Image 
-                              src={getOptimizedImageUrl(img, isMobile)} 
-                              alt={`${place.name} view ${idx + 1}`} 
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                              sizes="160px"
-                            />
-                          </div>
-                        ))
-                      ) : null}
-                    </div>
-                  </div>
+                  <PlaceGallery place={place} destination={destination} isMobile={isMobile} />
                 </div>
               </div>
               )
             })}
           </div>
         </div>
-      )}
     </div>
   )
 }

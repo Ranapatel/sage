@@ -17,12 +17,12 @@ export default function Navbar() {
       <nav className="glass sticky top-0 z-[100] px-3 sm:px-6 py-4 flex items-center justify-between border-b border-gray-100/50 shadow-sm bg-white/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3">
-            <Image
+            <img
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
               alt="TripSage"
               width={38}
               height={38}
-              className="rounded-xl shadow-sm"
+              className="rounded-xl shadow-sm w-[38px] h-[38px] object-contain"
             />
             <span className="font-display text-xl font-extrabold text-slate-900 tracking-tight hidden md:block">TripSage</span>
           </Link>

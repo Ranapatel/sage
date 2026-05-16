@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
-import GoogleAnalytics from '@/components/GoogleAnalytics'
+// GoogleAnalytics from @next/third-parties omitted — it emits a spurious preload hint.
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tripsage.in'),
@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
+  },
+  icons: {
+    icon: 'https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png',
   },
   openGraph: {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
@@ -96,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
      * and safe — suppressHydrationWarning silences the warning without
      * disabling hydration for child nodes.
      */
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -109,7 +112,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" href="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png" />
       </head>
       <body>
         {/* JSON-LD structured data for SEO */}
@@ -122,8 +124,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
 
-        {/* Google Analytics — component handles afterInteractive loading */}
-        <GoogleAnalytics />
+        {/* Google Analytics — two Script tags avoids the spurious preload warning
+            that @next/third-parties/GoogleAnalytics emits internally. */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-2F49Z4DK2H"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-2F49Z4DK2H', { send_page_view: true });
+          `}
+        </Script>
+
+        {/* Temporary Debug Logging for API URLs */}
+        <Script id="debug-env" strategy="afterInteractive">
+          {`
+            console.log('[DEBUG] NEXT_PUBLIC_API_URL:', '${process.env.NEXT_PUBLIC_API_URL}');
+            console.log('[DEBUG] NEXT_PUBLIC_SOCKET_URL:', '${process.env.NEXT_PUBLIC_SOCKET_URL}');
+          `}
+        </Script>
 
         {/*
           * Slow-connection detection — afterInteractive so it only runs client-side.

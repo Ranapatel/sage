@@ -37,7 +37,7 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt: 'Beyond the Taj Mahal and Goa, discover the untouched beauty of India’s most underrated travel destinations.',
     category: 'Destinations',
     date: 'May 12, 2026',
-    image: 'https://images.unsplash.com/photo-1524491991212-330a8a58d6eb?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80',
     author: 'Rana Patel',
     content: `
       <p>India is a land of endless surprises. While the Golden Triangle remains a classic, the real magic often lies off the beaten path. If you're looking for more inspiration, read our guide on <a href="/best-beaches-in-india">India's Best Beaches</a>.</p>
@@ -60,7 +60,7 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt: 'Smart tips and tricks to save money on flights, hotels, and experiences without sacrificing quality.',
     category: 'Travel Tips',
     date: 'May 14, 2026',
-    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109c0f2?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
     author: 'Travel Guru',
     content: `
       <p>Traveling doesn't have to break the bank. With a few strategic moves, you can see the world on a fraction of the cost. For example, our <a href="/budget-bali-trip">Budget Bali Guide</a> shows how to live like royalty on a backpacker budget.</p>

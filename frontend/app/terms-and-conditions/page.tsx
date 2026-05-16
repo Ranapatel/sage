@@ -12,13 +12,12 @@ export default function TermsAndConditions() {
     <div className="min-h-screen bg-grid flex flex-col">
       <nav className="glass-dark sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <Image
+          <img
             src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
             alt="TripSage"
             width={40}
             height={40}
-            className="rounded-xl"
-            unoptimized
+            className="rounded-xl w-[40px] h-[40px] object-contain"
           />
           <span className="font-display text-xl font-bold gradient-text-green">TripSage</span>
         </Link>

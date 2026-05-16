@@ -63,9 +63,9 @@ export default function AuthClient() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex flex-col items-center gap-3">
-            <Image
+            <img
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={64} height={64} className="rounded-2xl" />
+              alt="TripSage" width={64} height={64} className="rounded-2xl w-[64px] h-[64px] object-contain" />
             <h1 className="text-2xl font-bold text-[var(--primary)]">TripSage</h1>
             <p className="text-[var(--text-muted)] text-sm">AI-Powered Travel OS</p>
           </Link>

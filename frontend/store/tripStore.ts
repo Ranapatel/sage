@@ -300,7 +300,7 @@ export const useTripStore = create<TripStore>()(
           activeTab: 'overview',
           notifications: [],
         })
-        sessionStorage.removeItem('tripContext')
+        if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('tripContext')
       },
 
       addTripToHistory: (record) => set((s) => ({
