@@ -6,14 +6,19 @@ import { useTripStore } from '@/store/tripStore'
 import toast from 'react-hot-toast'
 
 const getSocketUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL
+
   if (typeof window !== 'undefined') {
     const { hostname, protocol } = window.location
-    // If accessing via local network IP, point socket to the same IP on port 5000
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.includes('.' + 'vercel.app')) {
+    // Detect if hostname is a local IPv4 address (e.g., 192.168.x.x) for local network testing
+    const isIpAddress = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname)
+    
+    if (isIpAddress && hostname !== '127.0.0.1') {
       return `${protocol}//${hostname}:5000`
     }
   }
-  return process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
+  
+  return envUrl || 'http://localhost:5000'
 }
 
 export function useSocket() {
