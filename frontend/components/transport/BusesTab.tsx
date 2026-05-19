@@ -18,74 +18,70 @@ function BusesTab() {
     )
   }
 
-  // ── Affiliate redirect card (no real search API available) ────────────────
-  const affiliateEntry = buses?.find((b: any) => b.source === 'affiliate_redirect')
-  if (affiliateEntry || !buses || buses.length === 0) {
-    const from = tripContext?.startLocation || ''
-    const to = tripContext?.destination || ''
-    const redirectUrl = affiliateEntry?.bookingLink ||
-      `https://www.redbus.in/search?fromCityName=${encodeURIComponent(from)}&toCityName=${encodeURIComponent(to)}&source=tripsage`
+  if (!buses || buses.length === 0) return null
 
-    return (
-      <div className="space-y-4 animate-fade-in">
-        {/* Info banner */}
-        <div className="glass rounded-xl p-4 border border-[var(--border)] flex items-start gap-3">
- <span className="text-2xl">️</span>
-          <div>
-            <p className="font-semibold text-sm text-[var(--text-primary)]">Real-time bus search</p>
-            <p className="text-xs text-[var(--text-muted)] mt-1">
-              Live bus schedules and seat availability are fetched directly from redBus — India's largest bus booking platform.
-              Click below to search in real-time.
-            </p>
-          </div>
-        </div>
-
-        {/* redBus CTA card */}
-        <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all">
-          <div className="relative h-32 overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80"
-              alt="Search Live Bus Tickets on TripSage"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 800px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-            <div className="absolute left-4 top-1/2 -translate-y-1/2">
- <div className="text-white font-bold text-lg">Search Buses</div>
-              <div className="text-white/70 text-sm mt-1">
-                {from && to ? `${from.split(',')[0]} → ${to.split(',')[0]}` : 'Enter your route to search'}
+  return (
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">Available Buses</h3>
+        <span className="text-sm font-semibold text-[var(--text-muted)]">{buses.length} options</span>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {buses.map((bus: any) => (
+          <div key={bus.id} className="card p-4 hover:shadow-lg transition-all border border-[var(--border)] hover:border-[var(--primary)] flex flex-col h-full">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h4 className="font-bold text-[var(--text-primary)]">{bus.name}</h4>
+                <p className="text-xs text-[var(--text-muted)]">{bus.type || bus.busType}</p>
+              </div>
+              <div className="text-right">
+                <div className="font-extrabold text-lg text-[var(--text-primary)]">
+                  {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(bus.price)}
+                </div>
+                {bus.liveStatus && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    bus.liveStatus.toLowerCase().includes('filling') 
+                      ? 'bg-amber-100 text-amber-700' 
+                      : 'bg-green-100 text-green-700'
+                  }`}>
+                    {bus.liveStatus}
+                  </span>
+                )}
               </div>
             </div>
-            <div className="absolute top-3 right-3">
-              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg">
-                redBus
-              </span>
+            
+            <div className="flex items-center justify-between mb-6 bg-slate-50/50 p-3 rounded-lg flex-1">
+              <div className="text-center">
+                <div className="font-bold text-[var(--text-primary)]">{bus.departure}</div>
+                <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Depart</div>
+              </div>
+              <div className="flex-1 flex items-center justify-center relative px-2">
+                <div className="h-px bg-slate-300 w-full"></div>
+                <div className="absolute bg-white px-2 text-xs font-semibold text-slate-400">{bus.duration}</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-[var(--text-primary)]">{bus.arrival}</div>
+                <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Arrive</div>
+              </div>
+            </div>
+            
+            <div className="mt-auto pt-4 border-t border-[var(--border)]">
+              <a
+                href={bus.bookingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent('booking_click', { type: 'bus', operator: bus.name })}
+                className="w-full text-center block py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-red-600 to-red-500 text-white hover:opacity-90 transition-opacity shadow-md"
+              >
+                Book on redBus →
+              </a>
             </div>
           </div>
-
-          <div className="p-4">
-            <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-muted)]">
-              <span className="badge badge-green">Real-time seats</span>
-              <span className="badge badge-amber">Live prices</span>
-              <span className="badge badge-green">Instant booking</span>
-            </div>
-            <a
-              href={redirectUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackEvent('booking_click', { type: 'bus', name: 'redBus', source: 'affiliate_redirect' })}
-              className="w-full text-center block py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-red-600 to-red-500 text-white hover:opacity-90 transition-opacity shadow-md"
-            >
-              Search Live Bus Tickets on redBus →
-            </a>
-          </div>
-        </div>
+        ))}
       </div>
-    )
-  }
-
-  return null
+    </div>
+  )
 }
 
 export default memo(BusesTab)

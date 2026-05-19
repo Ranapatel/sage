@@ -182,6 +182,7 @@ export default function HomeClient() {
                 src={getOptimizedImageUrl(HERO_IMAGES[currentImage], false)} 
                 alt="Travel Hero" 
                 fill 
+                sizes="100vw"
                 className="object-cover object-center"
                 priority
                 loading="eager"
@@ -499,15 +500,9 @@ export default function HomeClient() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-<<<<<<< HEAD
               { title: 'AI Trip Planner India', desc: 'The definitive guide to planning your Indian holiday with AI.', link: '/seo/ai-trip-planner-india', img: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=400&q=80' },
               { title: 'Budget Bali Trip', desc: 'How to plan a budget-friendly trip to Bali from India.', link: '/seo/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
               { title: 'Solo Travel Guide', desc: 'Expert tips for exploring India safely and confidently.', link: '/seo/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80' }
-=======
-              { title: 'AI Trip Planner India', desc: 'The definitive guide to planning your Indian holiday with AI.', link: '/ai-trip-planner-india', img: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=400&q=80' },
-              { title: 'Budget Bali Hacks', desc: 'How to see the best of Bali without breaking the bank.', link: '/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
-              { title: 'Solo Travel Guide', desc: 'Expert tips for exploring India safely and confidently.', link: '/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80' }
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
             ].map((g, i) => (
               <Link key={i} href={g.link} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 flex flex-col">
                 <div className="relative h-48">

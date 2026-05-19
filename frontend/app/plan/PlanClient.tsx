@@ -74,7 +74,7 @@ export default function PlanClient() {
     tripStatus, feedbackStatus, tripHistory,
     setTrip, setProfile, setTransport, setHotels, setBuses, setCars, setItinerary,
     setWeather, setLoading, setError, addNotification,
-    completeTrip, startNewTrip,
+    completeTrip, startNewTrip, reset
   } = useTripStore()
   const { user, isLoggedIn, logout, updateCurrency } = useAuthStore()
 
@@ -119,6 +119,9 @@ export default function PlanClient() {
 
   // Track the current search cache key so socket handlers can save to the right slot
   const activeCacheKeyRef = useRef<string>('')
+  
+  // Track active AbortController to cancel previous requests if a new search starts
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // Activate ALL data-bearing tabs at once so skeletons render simultaneously
   const activateAllTabs = useCallback(() => {
@@ -228,16 +231,21 @@ export default function PlanClient() {
 
     // ── CACHE MISS: fresh fetch needed ──
     activeCacheKeyRef.current = cacheKey
+    
+    // Abort any ongoing network requests for previous searches
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
+    const signal = abortController.signal
+    
+    // Fully reset all previous trip state (bookings, transport, itinerary, weather, etc.)
+    reset()
+    
     setLoading(true)
     setAiThinking(true)
     setError(null)
-    
-    // Clear previous results
-    setTransport([])
-    setHotels([])
-    setBuses([])
-    setCars([])
-    setItinerary([])
 
     // Activate ALL tabs simultaneously so every section shows loading skeletons at once
     activateAllTabs()
@@ -257,7 +265,7 @@ export default function PlanClient() {
 
     try {
       // Fire all data fetches in parallel via Promise.all with timeout + retry
-      const [searchResult, weatherResult] = await Promise.all([
+      const [searchResult, weatherResult, itineraryResult] = await Promise.all([
         // Main search: flights, hotels, buses, cars
         fetchWithRetry(
           () => tripAPI.search({
@@ -268,18 +276,45 @@ export default function PlanClient() {
             budget: p.budget,
             travelers: p.travelers,
             style: p.style,
-          }),
+          }, { signal }),
           { timeout: 10000, maxRetries: 2, label: 'Search' }
-        ),
+        ).catch(err => {
+          if (err.message?.includes('canceled') || err.name === 'AbortError') return null
+          throw err
+        }),
         // Weather fetched in parallel
         fetchWithRetry(
-          () => tripAPI.getWeather(p.to),
+          () => tripAPI.getWeather(p.to, { signal }),
           { timeout: 10000, maxRetries: 2, label: 'Weather' }
         ).catch(err => {
+          if (err.message?.includes('canceled') || err.name === 'AbortError') return null
           console.warn('[Weather] failed after retries:', err.message)
           return null
         }),
+        // Itinerary fetched in parallel
+        fetchWithRetry(
+          () => tripAPI.generateItinerary({
+            destination: p.to,
+            days: p.startDate && p.endDate ? Math.max(1, Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / (1000 * 3600 * 24))) : 3,
+            budget: p.budget,
+            style: p.style,
+            preferences: [],
+            members: p.travelers,
+            startDate: p.startDate
+          }, { signal }),
+          { timeout: 20000, maxRetries: 1, label: 'Itinerary' }
+        ).catch(err => {
+          if (err.message?.includes('canceled') || err.name === 'AbortError') return null
+          console.warn('[Itinerary] failed:', err.message)
+          return null
+        }),
       ])
+
+      // Prevent race conditions: if a newer search was initiated, discard these stale results
+      if (activeCacheKeyRef.current !== cacheKey) {
+        console.warn(`[PlanClient] Stale response discarded for: ${p.to}`)
+        return
+      }
 
       // Populate store with search results
       if (searchResult?.data) {
@@ -293,6 +328,11 @@ export default function PlanClient() {
       // Populate weather
       if (weatherResult?.data) {
         setWeather(weatherResult.data)
+      }
+
+      // Populate itinerary
+      if (itineraryResult?.data?.itinerary) {
+        setItinerary(itineraryResult.data.itinerary)
       }
 
       // Subscribe to real-time updates via WebSocket (price drops, alerts)
@@ -370,19 +410,11 @@ export default function PlanClient() {
     <div className="min-h-screen bg-grid">
       {/* TOP NAV */}
       <nav className="glass-dark sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
-<<<<<<< HEAD
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
-            <Image
-              src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={32} height={32} className="rounded-lg shrink-0"
-=======
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/')} className="flex items-center gap-2">
             <img
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
               alt="TripSage" width={32} height={32} className="rounded-lg w-[32px] h-[32px] object-contain"
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
             />
             <span className="font-bold text-[var(--primary)] text-lg hidden sm:block tracking-tight whitespace-nowrap">TripSage</span>
           </button>
@@ -431,24 +463,16 @@ export default function PlanClient() {
           </button>
 
           {/* Currency selector */}
-<<<<<<< HEAD
-          <CurrencySelector
-            value={currency}
-            onChange={val => {
-              updateCurrency(val as any)
-              setSearchForm(p => ({ ...p, currency: val }))
-            }}
-            className="hidden sm:block min-w-[140px]"
-          />
-=======
           <Suspense fallback={null}>
             <CurrencySelector
               value={currency}
-              onChange={val => updateCurrency(val as any)}
+              onChange={val => {
+                updateCurrency(val as any)
+                setSearchForm(p => ({ ...p, currency: val }))
+              }}
               className="hidden sm:block min-w-[140px]"
             />
           </Suspense>
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
 
           {tripStatus === 'planning' || tripStatus === 'active' ? (
             <button
@@ -509,24 +533,16 @@ export default function PlanClient() {
         <div className="sm:hidden fixed inset-0 top-[60px] bg-[var(--bg-dark)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[var(--text-primary)]">Currency</span>
-<<<<<<< HEAD
-            <CurrencySelector
-              value={currency}
-              onChange={val => {
-                updateCurrency(val as any)
-                setSearchForm(p => ({ ...p, currency: val }))
-              }}
-              className="min-w-[140px]"
-            />
-=======
             <Suspense fallback={null}>
               <CurrencySelector
                 value={currency}
-                onChange={val => updateCurrency(val as any)}
+                onChange={val => {
+                  updateCurrency(val as any)
+                  setSearchForm(p => ({ ...p, currency: val }))
+                }}
                 className="min-w-[140px]"
               />
             </Suspense>
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
           </div>
           
           {tripStatus === 'planning' || tripStatus === 'active' ? (
@@ -632,7 +648,7 @@ export default function PlanClient() {
       {/* TABS */}
       <div className="px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
         <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar w-full relative snap-x">
-          {TABS.map(t => (
+          {TABS.filter(t => t.id !== 'buses' || buses.length > 0).map(t => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
@@ -649,6 +665,9 @@ export default function PlanClient() {
               )}
               {t.id === 'hotels' && hotels.length > 0 && (
                 <span className="badge badge-green text-[0.6rem] py-0 px-1">{hotels.length}</span>
+              )}
+              {t.id === 'buses' && buses.length > 0 && (
+                <span className="badge badge-green text-[0.6rem] py-0 px-1">{buses.length}</span>
               )}
               {t.id === 'history' && tripHistory.length > 0 && (
                 <span className="badge badge-amber text-[0.6rem] py-0 px-1">{tripHistory.length}</span>

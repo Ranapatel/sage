@@ -5,14 +5,23 @@ import { io, Socket } from 'socket.io-client'
 import { useTripStore } from '@/store/tripStore'
 import toast from 'react-hot-toast'
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
+const getSocketUrl = () => {
+  if (typeof window !== 'undefined') {
+    const { hostname, protocol } = window.location
+    // If accessing via local network IP, point socket to the same IP on port 5000
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.includes('.' + 'vercel.app')) {
+      return `${protocol}//${hostname}:5000`
+    }
+  }
+  return process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
+}
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null)
   const { setConnected, setTransport, setHotels, setBuses, setCars, setItinerary, setWeather, addNotification, setLoading, setError } = useTripStore()
 
   useEffect(() => {
-    const socket = io(SOCKET_URL, {
+    const socket = io(getSocketUrl(), {
       transports: ['websocket', 'polling'],   // polling as fallback
       withCredentials: true,
       reconnection: true,

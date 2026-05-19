@@ -2,12 +2,8 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
-<<<<<<< HEAD
-import GoogleAnalytics from '@/components/GoogleAnalytics'
 import KeepAlive from '@/components/KeepAlive'
-=======
 // GoogleAnalytics from @next/third-parties omitted — it emits a spurious preload hint.
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tripsage.in'),

@@ -265,16 +265,12 @@ async function resolveAirport(query) {
 // ─── Flight Search ────────────────────────────────────────────────────────────
 
 async function searchFlights({ from, to, date, returnDate, travelers = 1, budget }) {
-<<<<<<< HEAD
-  const cacheKey = generateCacheKey('flights_v3', { from, to, date, travelers, budget })
+  const cacheKey = generateCacheKey('flights_v4', { from, to, date, travelers, budget })
   
   // Check node-cache first
   const localCached = localCache.get(cacheKey)
   if (localCached) return { ...localCached, meta: { ...localCached.meta, cache: true, type: 'local' } }
 
-=======
-  const cacheKey = generateCacheKey('flights_v4', { from, to, date, travelers, budget })
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -403,16 +399,12 @@ function normalizeKiwiFlights(rawData, from, to, date) {
 // ─── Hotel Search ─────────────────────────────────────────────────────────────
 
 async function searchHotels({ destination, checkin, checkout, members = 2, budget }) {
-<<<<<<< HEAD
-  const cacheKey = generateCacheKey('hotels_v3', { destination, checkin, checkout, members, budget })
+  const cacheKey = generateCacheKey('hotels_v4', { destination, checkin, checkout, members, budget })
   
   // Check node-cache first
   const localCached = localCache.get(cacheKey)
   if (localCached) return { ...localCached, meta: { ...localCached.meta, cache: true, type: 'local' } }
 
-=======
-  const cacheKey = generateCacheKey('hotels_v4', { destination, checkin, checkout, members, budget })
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -571,7 +563,15 @@ function generateMockBuses(from, to, date, budget) {
 }
 
 async function searchBuses({ from, to, date, budget }) {
-  const cacheKey = generateCacheKey('buses_v2', { from, to, date, budget })
+  // Only support Indian routes for the bus integration
+  const isSupported = (from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india')
+  
+  if (!isSupported) {
+    console.log(`[Buses] Route ${from} → ${to} not supported. Returning empty inventory.`)
+    return { success: true, data: [], meta: { cache: false, source: 'unsupported' } }
+  }
+
+  const cacheKey = generateCacheKey('buses_v3', { from, to, date, budget })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
