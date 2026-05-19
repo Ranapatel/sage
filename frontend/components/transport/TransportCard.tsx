@@ -41,6 +41,14 @@ function TransportCard({ item, showDetail }: Props) {
     toast.success('Flight selected! Complete booking →')
   }
 
+  const fallbackFlightImage = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80'
+  const initialBanner = React.useMemo(() => getOptimizedImageUrl(item.image || fallbackFlightImage, isMobile), [item.image, isMobile])
+  const [bannerSrc, setBannerSrc] = React.useState(initialBanner)
+
+  React.useEffect(() => {
+    setBannerSrc(initialBanner)
+  }, [initialBanner])
+
   // ── Source badge config ────────────────────────────────────────────────────
   const sourceBadge = (() => {
  if (item.source === 'live') return { label: 'Live Price', cls: 'bg-green-600/90' }
@@ -56,11 +64,17 @@ function TransportCard({ item, showDetail }: Props) {
       {item.image && (
         <div className="relative h-28 overflow-hidden">
           <Image
-            src={getOptimizedImageUrl(item.image, isMobile)}
+            src={bannerSrc}
             alt={`Flight from ${item.departure || 'origin'} to ${item.arrival || 'destination'}`}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 500px"
+            unoptimized={bannerSrc.includes('unsplash.com')}
+            onError={() => {
+              if (bannerSrc !== fallbackFlightImage) {
+                setBannerSrc(fallbackFlightImage)
+              }
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
 

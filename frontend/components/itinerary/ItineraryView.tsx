@@ -105,9 +105,11 @@ async function fetchPlaceImages(placeName: string, category: string, destination
 // Horizontal Image Gallery for a place
 const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; destination?: string; isMobile: boolean }) => {
   const [images, setImages] = useState<string[] | null>(null)
+  const [erroredIndices, setErroredIndices] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const initial = place.image ? [place.image] : []
+    setErroredIndices(new Set())
     fetchPlaceImages(place.name, place.category, destination).then(imgs => {
       const merged = [...new Set([...initial, ...imgs])].filter(Boolean).slice(0, 5)
       setImages(merged.length > 0 ? merged : initial)
@@ -133,22 +135,26 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
   return (
     <div className="mt-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scrollbar">
       <div className="flex gap-2 min-w-max">
-        {images.map((img: string, idx: number) => (
-          <div 
-            key={idx} 
-            className="rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)] bg-slate-100"
-            style={{ width: '160px', height: '112px' }}
-          >
-            <Image 
-              src={getOptimizedImageUrl(img, isMobile)} 
-              alt={`${place.name} view ${idx + 1}`} 
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500" 
-              sizes="160px"
-              unoptimized={img.includes('unsplash.com')}
-            />
-          </div>
-        ))}
+        {images.map((img: string, idx: number) => {
+          if (erroredIndices.has(idx)) return null
+          return (
+            <div 
+              key={idx} 
+              className="rounded-lg overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)] bg-slate-100"
+              style={{ width: '160px', height: '112px' }}
+            >
+              <Image 
+                src={getOptimizedImageUrl(img, isMobile)} 
+                alt={`${place.name} view ${idx + 1}`} 
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                sizes="160px"
+                unoptimized={img.includes('unsplash.com')}
+                onError={() => setErroredIndices(prev => new Set(prev).add(idx))}
+              />
+            </div>
+          )
+        })}
       </div>
     </div>
   )

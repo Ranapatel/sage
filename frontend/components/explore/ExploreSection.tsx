@@ -50,6 +50,7 @@ const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: 
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500" 
           sizes="(max-width: 768px) 100vw, 300px"
+          unoptimized={a.image.includes('unsplash.com')}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         <div className="absolute top-2 left-2">
@@ -99,6 +100,7 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
           fill
           className="object-cover hover:scale-105 transition-transform duration-500" 
           sizes="(max-width: 768px) 100vw, 300px"
+          unoptimized={car.image.includes('unsplash.com')}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute top-2 left-2">
@@ -216,6 +218,7 @@ function ExploreSection({ destination }: Props) {
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-500" 
                     sizes="(max-width: 768px) 100vw, 300px"
+                    unoptimized={r.image.includes('unsplash.com')}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute top-2 right-2">

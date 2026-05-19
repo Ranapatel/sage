@@ -372,9 +372,9 @@ export default function PlanClient() {
       <nav className="glass-dark sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
-            <Image
+            <img
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={32} height={32} className="rounded-lg shrink-0"
+              alt="TripSage" width={32} height={32} className="rounded-lg shrink-0 object-contain w-[32px] h-[32px]"
             />
             <span className="font-bold text-[var(--primary)] text-lg hidden sm:block tracking-tight whitespace-nowrap">TripSage</span>
           </button>

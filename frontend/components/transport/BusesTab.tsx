@@ -49,6 +49,7 @@ function BusesTab() {
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 800px"
+              unoptimized
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
             <div className="absolute left-4 top-1/2 -translate-y-1/2">

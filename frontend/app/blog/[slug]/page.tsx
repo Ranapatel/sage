@@ -56,6 +56,7 @@ export default function BlogPostPage({ params }: PageProps) {
                 fill 
                 className="object-cover"
                 priority
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
             </div>

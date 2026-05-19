@@ -43,6 +43,14 @@ function HotelCard({ item, showDetail }: Props) {
     toast.success('Hotel selected! Complete booking →')
   }
 
+  const fallbackHotelImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'
+  const initialImage = React.useMemo(() => getOptimizedImageUrl(item.image || fallbackHotelImage, isMobile), [item.image, isMobile])
+  const [imgSrc, setImgSrc] = React.useState(initialImage)
+
+  React.useEffect(() => {
+    setImgSrc(initialImage)
+  }, [initialImage])
+
   // ── Source badge config ────────────────────────────────────────────────────
   const sourceBadge = (() => {
  if (item.source === 'live') return { label: 'Live Price', cls: 'badge-green' }
@@ -57,11 +65,17 @@ function HotelCard({ item, showDetail }: Props) {
       {/* Hero image */}
       <div className="relative h-48 overflow-hidden">
         <Image 
-          src={getOptimizedImageUrl(item.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', isMobile)} 
+          src={imgSrc} 
           alt={`Stay at ${item.name} - ${item.location}`} 
           fill
           className="object-cover hover:scale-105 transition-transform duration-500" 
           sizes="(max-width: 768px) 100vw, 400px"
+          unoptimized={imgSrc.includes('unsplash.com')}
+          onError={() => {
+            if (imgSrc !== fallbackHotelImage) {
+              setImgSrc(fallbackHotelImage)
+            }
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 

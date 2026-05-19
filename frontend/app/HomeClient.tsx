@@ -187,6 +187,7 @@ export default function HomeClient() {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
+                unoptimized
               />
               {/* Dark Gradient Overlay */}
               <div className="absolute inset-0 bg-black/45" />
@@ -477,6 +478,7 @@ export default function HomeClient() {
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
                   sizes="(max-width: 768px) 280px, (max-width: 1200px) 33vw, 16vw"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -510,7 +512,7 @@ export default function HomeClient() {
             ].map((g, i) => (
               <Link key={i} href={g.link} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 flex flex-col">
                 <div className="relative h-48">
-                  <Image src={g.img} alt={g.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <Image src={g.img} alt={g.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized />
                 </div>
                 <div className="p-6">
                   <h3 className="font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{g.title}</h3>
