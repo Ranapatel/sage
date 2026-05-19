@@ -91,6 +91,10 @@ app.get('/', (req, res) => {
   res.json({ success: true, message: 'TripSage API v2.0', hint: 'Visit /health for system status.' })
 })
 
+app.get('/ping', (req, res) => {
+  res.status(200).json({ status: 'ok' })
+})
+
 // 404
 app.use((req, res) => {
   res.status(404).json({ success: false, error: 'Route not found', attempted: `${req.method} ${req.originalUrl}` })

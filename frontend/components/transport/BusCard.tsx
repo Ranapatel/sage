@@ -43,7 +43,7 @@ function BusCard({ item }: Props) {
             <div className="flex-1 flex flex-col items-center">
               <span className="text-[0.65rem]">{item.duration}</span>
               <div className="w-full h-px bg-[var(--border)] relative my-1">
-                <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--bg-card)] px-1 text-[10px]">🚌</div>
+ <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--bg-card)] px-1 text-[10px]"></div>
               </div>
             </div>
             <div className="flex flex-col text-right">
@@ -54,7 +54,7 @@ function BusCard({ item }: Props) {
           {item.offers?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
               {item.offers.map((o: string, i: number) => (
-                <span key={i} className="badge badge-amber text-[0.65rem]">🏷️ {o}</span>
+ <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
               ))}
             </div>
           )}

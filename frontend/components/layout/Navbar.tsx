@@ -53,7 +53,7 @@ export default function Navbar() {
             </div>
           ) : (
             <>
-              <Link href="/auth" className="hidden sm:flex border border-slate-200 text-sm py-2 px-4 items-center justify-center rounded-xl font-bold hover:bg-slate-50 transition-colors">Sign In</Link>
+              <Link href="/auth" className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center justify-center rounded-xl font-bold">Sign In</Link>
               <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-blue-600 text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:opacity-90 transition-opacity">Plan Trip <ArrowRight size={14} /></Link>
             </>
           )}

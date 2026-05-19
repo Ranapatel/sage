@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, lazy, Suspense, useCallback, useMemo } from 'react'
+import { useState, useEffect, lazy, Suspense, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useTripStore, type HotelOption, type TransportOption, type TripRecord } from '@/store/tripStore'
 import { useSocket } from '@/hooks/useSocket'
 import { tripAPI } from '@/lib/api'
+import { fetchWithRetry } from '@/lib/fetchWithRetry'
 import { formatDate, getDaysBetween } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { SYMBOLS, formatPrice, ALL_CURRENCIES } from '@/lib/currency'
@@ -13,9 +14,10 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Home, Plane, Bus, Car, Hotel, MapPin, TrendingUp, RefreshCw, 
+  Plane, Bus, Car, MapPin, TrendingUp, RefreshCw, 
   Compass, Map, ClipboardList, Search, Plus, 
-  Check, LogOut, Menu, X, Bell, History
+  Check, LogOut, Menu, X, Bell, History,
+  LayoutDashboard, Building2, Settings, User
 } from 'lucide-react'
 
 // Lazy load components
@@ -49,11 +51,11 @@ const TabLoader = () => (
 )
 
 const TABS = [
-  { id: 'overview', label: 'Overview', icon: Home },
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'transport', label: 'Flights', icon: Plane },
   { id: 'buses', label: 'Buses', icon: Bus },
   { id: 'cars', label: 'Cabs', icon: Car },
-  { id: 'hotels', label: 'Hotels', icon: Hotel },
+  { id: 'hotels', label: 'Hotels', icon: Building2 },
   { id: 'itinerary', label: 'Itinerary', icon: MapPin },
   { id: 'optimizer', label: 'Optimizer', icon: TrendingUp },
   { id: 'return', label: 'Return', icon: RefreshCw },
@@ -76,9 +78,6 @@ export default function PlanClient() {
   } = useTripStore()
   const { user, isLoggedIn, logout, updateCurrency } = useAuthStore()
 
-  // Active currency: user's saved currency or default INR
-  const currency = user?.currency ?? 'INR'
-
   const [activeTab, setActiveTab] = useState('overview')
   const [showNotifs, setShowNotifs] = useState(false)
   const [initialized, setInitialized] = useState(false)
@@ -86,8 +85,11 @@ export default function PlanClient() {
   const [showFeedback, setShowFeedback] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchForm, setSearchForm] = useState({
-    from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure'
+    from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure', currency: 'INR'
   })
+
+  // Active currency: user's saved currency, or form's selected currency, or default INR
+  const currency = user?.currency ?? searchForm.currency ?? 'INR'
 
   // Tab cache to prevent re-renders and make switching instant
   const [tabCache, setTabCache] = useState<Record<string, boolean>>({ overview: true })
@@ -95,6 +97,52 @@ export default function PlanClient() {
   useEffect(() => {
     setTabCache(prev => ({ ...prev, [activeTab]: true }))
   }, [activeTab])
+
+  // ── RESULT CACHE: keyed by search params so same query never re-fetches ──
+  const resultCacheRef = useRef<Record<string, {
+    transport: any[]; hotels: any[]; buses: any[]; cars: any[];
+    itinerary: any[]; weather: any;
+  }>>({})
+
+  // Generate a deterministic cache key from search parameters
+  const getCacheKey = useCallback((p: { from: string; to: string; startDate?: string; endDate?: string; budget?: number; travelers?: number; style?: string }) => {
+    return [
+      p.from?.toLowerCase().trim(),
+      p.to?.toLowerCase().trim(),
+      p.startDate || '',
+      p.endDate || '',
+      String(p.budget || ''),
+      String(p.travelers || ''),
+      p.style || '',
+    ].join('|')
+  }, [])
+
+  // Track the current search cache key so socket handlers can save to the right slot
+  const activeCacheKeyRef = useRef<string>('')
+
+  // Activate ALL data-bearing tabs at once so skeletons render simultaneously
+  const activateAllTabs = useCallback(() => {
+    setTabCache({
+      overview: true, transport: true, buses: true, cars: true,
+      hotels: true, itinerary: true, optimizer: true, return: true,
+      explore: true, map: true, bookings: true, history: true,
+    })
+  }, [])
+
+  // Save current store data into the result cache for the active key
+  const saveToCache = useCallback(() => {
+    const key = activeCacheKeyRef.current
+    if (!key) return
+    const state = useTripStore.getState()
+    resultCacheRef.current[key] = {
+      transport: state.transport,
+      hotels: state.hotels,
+      buses: state.buses,
+      cars: state.cars,
+      itinerary: state.itinerary,
+      weather: state.weather,
+    }
+  }, [])
 
 
   // Load from session on mount
@@ -111,6 +159,7 @@ export default function PlanClient() {
           budget: ctx.budget || '2000',
           travelers: ctx.travelers || '2',
           style: ctx.style || 'adventure',
+          currency: ctx.currency || 'INR',
         })
         setTrip({
           startLocation: ctx.from || '',
@@ -128,7 +177,7 @@ export default function PlanClient() {
       } catch (e) {}
     }
     setInitialized(true)
-  }, [])
+  }, [setTrip, setProfile])
 
   const runSearch = async (params?: any) => {
     const p = params || {
@@ -140,6 +189,45 @@ export default function PlanClient() {
     }
     if (!p.from || !p.to) return
 
+    // Dismiss any active inputs (closes mobile keyboard and dropdowns instantly)
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
+
+    const cacheKey = getCacheKey(p)
+
+    // ── CHECK CACHE: if we already fetched this exact query, restore instantly ──
+    const cached = resultCacheRef.current[cacheKey]
+    if (cached && (cached.transport.length > 0 || cached.hotels.length > 0 || cached.itinerary.length > 0)) {
+      // Restore all cached data without any loading state or API call
+      setTransport(cached.transport)
+      setHotels(cached.hotels)
+      setBuses(cached.buses)
+      setCars(cached.cars)
+      setItinerary(cached.itinerary)
+      if (cached.weather) setWeather(cached.weather)
+
+      setTrip({
+        startLocation: p.from,
+        destination: p.to,
+        startDate: p.startDate,
+        endDate: p.endDate,
+      })
+      setProfile({
+        budget: p.budget,
+        members: p.travelers,
+        travelStyle: p.style,
+      })
+
+      // Activate all tabs so cached results are instantly visible
+      activateAllTabs()
+      activeCacheKeyRef.current = cacheKey
+      toast.success('Loaded cached results instantly!', { id: 'cache-hit' })
+      return
+    }
+
+    // ── CACHE MISS: fresh fetch needed ──
+    activeCacheKeyRef.current = cacheKey
     setLoading(true)
     setAiThinking(true)
     setError(null)
@@ -150,6 +238,9 @@ export default function PlanClient() {
     setBuses([])
     setCars([])
     setItinerary([])
+
+    // Activate ALL tabs simultaneously so every section shows loading skeletons at once
+    activateAllTabs()
 
     setTrip({
       startLocation: p.from,
@@ -165,53 +256,111 @@ export default function PlanClient() {
     })
 
     try {
-      // 1. Fire progressive WebSocket stream for trips
-      emit('GENERATE_TRIP_STREAM', {
-        destination: p.to,
-        from: p.from,
-        startDate: p.startDate,
-        endDate: p.endDate,
-        budget: p.budget,
-        travelers: p.travelers,
-        style: p.style,
-        preferences: userProfile.preferences
-      });
+      // Fire all data fetches in parallel via Promise.all with timeout + retry
+      const [searchResult, weatherResult] = await Promise.all([
+        // Main search: flights, hotels, buses, cars
+        fetchWithRetry(
+          () => tripAPI.search({
+            from: p.from,
+            to: p.to,
+            startDate: p.startDate,
+            endDate: p.endDate,
+            budget: p.budget,
+            travelers: p.travelers,
+            style: p.style,
+          }),
+          { timeout: 10000, maxRetries: 2, label: 'Search' }
+        ),
+        // Weather fetched in parallel
+        fetchWithRetry(
+          () => tripAPI.getWeather(p.to),
+          { timeout: 10000, maxRetries: 2, label: 'Weather' }
+        ).catch(err => {
+          console.warn('[Weather] failed after retries:', err.message)
+          return null
+        }),
+      ])
 
-      // Emit socket event for real-time updates (price/weather alerts)
+      // Populate store with search results
+      if (searchResult?.data) {
+        const d = searchResult.data
+        if (d.transport) setTransport(d.transport)
+        if (d.hotels) setHotels(d.hotels)
+        if (d.buses) setBuses(d.buses)
+        if (d.cars) setCars(d.cars)
+      }
+
+      // Populate weather
+      if (weatherResult?.data) {
+        setWeather(weatherResult.data)
+      }
+
+      // Subscribe to real-time updates via WebSocket (price drops, alerts)
       emit('SUBSCRIBE_UPDATES', { destination: p.to, sessionId: sessionStorage.getItem('sessionId') })
-
-      // 2. Fetch weather asynchronously in parallel
-      tripAPI.getWeather(p.to)
-        .then(res => {
-          if (res?.data) setWeather(res.data)
-        })
-        .catch(err => console.warn('[Weather] failed:', err.message));
 
       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: '🔄 Generating Trip',
-        message: `Building your ${p.to} trip plan progressively...`,
+        title: 'Trip Ready',
+        message: `Your ${p.to} trip plan is ready!`,
         timestamp: new Date().toISOString(),
         read: false,
       })
 
+      setLoading(false)
+      setAiThinking(false)
+      // Save results to cache
+      saveToCache()
+      toast.success('Trip plan generated!', { id: 'search-done' })
+
     } catch (err: any) {
       setError(err.message)
-      toast.error(err.message || 'Stream initiation failed')
+      toast.error(err.message || 'Search failed after retries')
       setLoading(false)
       setAiThinking(false)
     }
   }
 
-  // Listen to complete event to turn off local aiThinking
+  // Listen to real-time socket data as supplementary updates
+  // (price drops, weather alerts — search results come from REST now)
   useEffect(() => {
     if (!loading && aiThinking) {
       setAiThinking(false)
     }
   }, [loading, aiThinking])
 
+  const handleNewTripClick = useCallback(() => {
+    // 1. Clear searchForm state to empty placeholders in React state
+    setSearchForm({
+      from: '',
+      to: '',
+      startDate: '',
+      endDate: '',
+      budget: '',
+      travelers: '2',
+      style: 'adventure',
+      currency: currency
+    })
 
+    // 2. Clear all store values via store action
+    startNewTrip()
+
+    // 3. Clear resultCacheRef cache completely to prevent previous search data from loading
+    resultCacheRef.current = {}
+
+    // 4. Force tabCache to reset to only 'overview' so nothing is pre-rendered or cached
+    setTabCache({ overview: true })
+
+    // 5. Navigate to overview tab instantly
+    setActiveTab('overview')
+
+    // 6. Clear session and local storage keys for tripContext and tripsage-store
+    sessionStorage.removeItem('tripContext')
+    localStorage.removeItem('tripsage-store')
+
+    // Show instant feedback
+    toast.success('Ready to plan your new trip!')
+  }, [startNewTrip, currency])
 
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -221,23 +370,23 @@ export default function PlanClient() {
     <div className="min-h-screen bg-grid">
       {/* TOP NAV */}
       <nav className="glass-dark sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
             <Image
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={32} height={32} className="rounded-lg"
+              alt="TripSage" width={32} height={32} className="rounded-lg shrink-0"
             />
-            <span className="font-bold text-[var(--primary)] hidden sm:block">TripSage</span>
+            <span className="font-bold text-[var(--primary)] text-lg hidden sm:block tracking-tight whitespace-nowrap">TripSage</span>
           </button>
-          <div className="flex items-center gap-2 text-xs font-mono">
-            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[var(--primary)] animate-pulse' : 'bg-red-500'}`}></span>
-            <span className="text-[var(--text-muted)]">{isConnected ? 'LIVE' : 'OFFLINE'}</span>
+          <div className="hidden sm:flex shrink-0 items-center gap-1.5 px-2 py-1 rounded-md border border-slate-200/60 bg-white/50 shadow-sm backdrop-blur-sm">
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+            <span className="text-[10px] font-bold tracking-wider text-slate-500 whitespace-nowrap">{isConnected ? 'LIVE' : 'OFFLINE'}</span>
           </div>
         </div>
 
         {/* Trip info pill */}
         {tripContext.destination && (
-          <div className="glass px-4 py-1.5 rounded-full text-sm hidden md:flex items-center gap-3">
+          <div className="glass px-4 py-1.5 rounded-full text-sm hidden lg:flex items-center gap-3">
             <span className="text-[var(--text-muted)]">{tripContext.startLocation}</span>
             <span className="text-[var(--primary)]">→</span>
             <span className="font-semibold text-[var(--text-primary)]">{tripContext.destination}</span>
@@ -247,7 +396,7 @@ export default function PlanClient() {
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Download + Share */}
           <TripActions />
 
@@ -256,16 +405,28 @@ export default function PlanClient() {
             className="relative p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
             onClick={() => setShowNotifs(!showNotifs)}
           >
-            <Bell size={20} className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" />
+            <Bell size={18} className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" />
             {unreadCount > 0 && (
               <span className="notif-badge">{unreadCount}</span>
             )}
           </button>
 
+          {/* Settings */}
+          <button
+            className="p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
+            onClick={() => toast.success('Settings opened')}
+            title="Settings"
+          >
+            <Settings size={18} className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" />
+          </button>
+
           {/* Currency selector */}
           <CurrencySelector
             value={currency}
-            onChange={val => updateCurrency(val as any)}
+            onChange={val => {
+              updateCurrency(val as any)
+              setSearchForm(p => ({ ...p, currency: val }))
+            }}
             className="hidden sm:block min-w-[140px]"
           />
 
@@ -279,7 +440,7 @@ export default function PlanClient() {
             </button>
           ) : (
             <button
-              onClick={() => { startNewTrip(); setActiveTab('overview') }}
+              onClick={handleNewTripClick}
               className="btn-outline py-2 px-3 text-xs border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10 hidden sm:block"
             >
               <Plus size={14} /> New Trip
@@ -289,8 +450,8 @@ export default function PlanClient() {
           {/* User avatar / login */}
           {isLoggedIn && user ? (
             <div className="hidden sm:flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                {user.name?.charAt(0).toUpperCase()}
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white flex-shrink-0">
+                <User size={16} className="text-white hover:brightness-125 transition-all" />
               </div>
               <span className="text-xs font-semibold text-[var(--text-primary)] hidden md:block max-w-[80px] truncate">
                 {user.name}
@@ -304,8 +465,8 @@ export default function PlanClient() {
               </button>
             </div>
           ) : (
-            <button onClick={() => router.push('/auth')} className="btn-primary py-2 px-4 text-sm hidden sm:block">
-              Sign In
+            <button onClick={() => router.push('/auth')} className="btn-primary py-2 px-3 text-sm hidden sm:flex items-center gap-1.5 whitespace-nowrap">
+              <User size={16} /> Sign In
             </button>
           )}
 
@@ -330,7 +491,10 @@ export default function PlanClient() {
             <span className="text-sm font-semibold text-[var(--text-primary)]">Currency</span>
             <CurrencySelector
               value={currency}
-              onChange={val => updateCurrency(val as any)}
+              onChange={val => {
+                updateCurrency(val as any)
+                setSearchForm(p => ({ ...p, currency: val }))
+              }}
               className="min-w-[140px]"
             />
           </div>
@@ -345,7 +509,7 @@ export default function PlanClient() {
             </button>
           ) : (
             <button
-              onClick={() => { startNewTrip(); setActiveTab('overview'); setMobileMenuOpen(false); }}
+              onClick={() => { handleNewTripClick(); setMobileMenuOpen(false); }}
               className="btn-outline w-full py-3 text-sm border-[var(--primary)] text-[var(--primary)]"
             >
               <Plus size={16} /> New Trip
@@ -473,7 +637,7 @@ export default function PlanClient() {
               tripStatus={tripStatus}
               tripHistory={tripHistory}
               onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
-              onNewTrip={() => { startNewTrip(); setActiveTab('overview') }}
+              onNewTrip={handleNewTripClick}
             />
           </div>
           
@@ -541,7 +705,16 @@ export default function PlanClient() {
             <div className={activeTab === 'history' ? 'block' : 'hidden'}>
               <TripHistoryTab
                 onPlanSimilar={(record) => {
-                  setSearchForm({ from: record.startLocation, to: record.destination, startDate: record.dates.start, endDate: record.dates.end, budget: String(record.budget), travelers: String(record.members), style: record.style })
+                  setSearchForm({
+                    from: record.startLocation,
+                    to: record.destination,
+                    startDate: record.dates.start,
+                    endDate: record.dates.end,
+                    budget: String(record.budget),
+                    travelers: String(record.members),
+                    style: record.style,
+                    currency: currency
+                  })
                   startNewTrip()
                   setActiveTab('overview')
                   toast.success(`Planning a similar trip to ${record.destination}!`)
@@ -567,9 +740,9 @@ export default function PlanClient() {
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex items-center justify-around h-[64px]">
           {[
-            { id: 'overview', label: 'Overview', icon: Home },
+            { id: 'overview', label: 'Overview', icon: LayoutDashboard },
             { id: 'transport', label: 'Flights', icon: Plane },
-            { id: 'hotels', label: 'Hotels', icon: Hotel },
+            { id: 'hotels', label: 'Hotels', icon: Building2 },
             { id: 'itinerary', label: 'Itinerary', icon: MapPin },
             { id: 'bookings', label: 'Bookings', icon: ClipboardList },
           ].map(t => (

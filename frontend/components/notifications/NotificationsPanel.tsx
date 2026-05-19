@@ -7,7 +7,7 @@ interface Props {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  info: '💬', alert: '⚠️', deal: '💰', weather: '🌦️'
+ info: '', alert: '️', deal: '', weather: '️'
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -24,20 +24,20 @@ export default function NotificationsPanel({ onClose }: Props) {
     <div className="glass-dark rounded-2xl border border-[var(--border)] shadow-2xl overflow-hidden w-80">
       <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
         <div>
-          <h3 className="font-bold text-sm text-[var(--text-primary)]">🔔 Notifications</h3>
+ <h3 className="font-bold text-sm text-[var(--text-primary)]">Notifications</h3>
           {unread.length > 0 && (
             <p className="text-xs text-[var(--text-muted)]">{unread.length} unread</p>
           )}
         </div>
         <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-lg">
-          ✕
+ 
         </button>
       </div>
 
       <div className="max-h-96 overflow-y-auto">
         {notifications.length === 0 ? (
           <div className="p-6 text-center">
-            <div className="text-3xl mb-2">🔕</div>
+ <div className="text-3xl mb-2"></div>
             <p className="text-[var(--text-muted)] text-sm">No notifications yet</p>
             <p className="text-[var(--text-muted)] text-xs mt-1">Updates will appear here in real-time</p>
           </div>

@@ -50,7 +50,7 @@ function TransportTab({ transport, loading, tripContext, searchForm }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">✈️ Flight Options</h2>
+ <h2 className="section-title text-xl">️ Flight Options</h2>
         <div className="flex items-center gap-2">
           <span className="live-dot"></span>
           <span className="text-xs font-mono text-[var(--text-muted)]">Live prices</span>
@@ -63,7 +63,7 @@ function TransportTab({ transport, loading, tripContext, searchForm }: Props) {
             {transport.map((t: any) => <TransportCard key={t.id} item={t} showDetail />)}
           </div>
         ) : (
-          <EmptyState icon="✈️" title="No flights found" desc="Try adjusting your search criteria" />
+ <EmptyState icon="️" title="No flights found" desc="Try adjusting your search criteria" />
         )
       )}
     </div>

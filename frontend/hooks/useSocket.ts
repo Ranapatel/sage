@@ -59,7 +59,7 @@ export function useSocket() {
       console.log('[TripSage] Socket disconnected:', reason)
       // If server forced disconnect, re-trigger connect
       if (reason === 'io server disconnect') {
-        toast('Disconnected by server — reconnecting...', { icon: '🔌', id: 'socket-dc' })
+ toast('Disconnected by server — reconnecting...', { icon: '', id: 'socket-dc' })
         socket.connect()
       }
     })
@@ -71,7 +71,7 @@ export function useSocket() {
           addNotification({
             id: Date.now().toString(),
             type: 'deal',
-            title: '✈️ Price Alert',
+ title: '️ Price Alert',
             message: `Flight price dropped to $${data.price}!`,
             timestamp: new Date().toISOString(),
             read: false,
@@ -88,7 +88,7 @@ export function useSocket() {
         addNotification({
           id: Date.now().toString(),
           type: 'weather',
-          title: '🌦️ Weather Update',
+ title: '️ Weather Update',
           message: data.message || `${data.condition} at ${data.destination}`,
           timestamp: new Date().toISOString(),
           read: false,
@@ -128,7 +128,7 @@ export function useSocket() {
           toast.success('Booking links ready!', { id: 'stream-booking' })
         } else if (stage === 'complete') {
           setLoading(false)
-          toast.success('Trip generation complete! 🎉', { id: 'stream-complete' })
+ toast.success('Trip generation complete!', { id: 'stream-complete' })
         } else if (stage === 'error') {
           setLoading(false)
           toast.error(message || 'Something went wrong — partial results shown', { id: 'stream-error' })
@@ -145,12 +145,12 @@ export function useSocket() {
         addNotification({
           id: Date.now().toString(),
           type: 'info',
-          title: '📋 Booking Update',
+ title: 'Booking Update',
           message: data.message,
           timestamp: new Date().toISOString(),
           read: false,
         })
-        if (data.status === 'CONFIRMED') toast.success('Booking confirmed! 🎉')
+ if (data.status === 'CONFIRMED') toast.success('Booking confirmed!')
       } catch (_) {}
     })
 
@@ -160,7 +160,7 @@ export function useSocket() {
         addNotification({
           id: Date.now().toString(),
           type: 'alert',
-          title: data.title || '📍 Alert',
+ title: data.title || 'Alert',
           message: data.message,
           timestamp: new Date().toISOString(),
           read: false,

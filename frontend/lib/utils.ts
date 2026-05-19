@@ -8,7 +8,7 @@ function cityName(str: string) {
 
 export const affiliateLinks = {
 
-  /** ✈️ Skyscanner — flight search deep-link */
+ /**️ Skyscanner — flight search deep-link */
   flight: (from: string, to: string, date: string) => {
     const f = encodeURIComponent(cityName(from).replace(/\s+/g, '-').toLowerCase())
     const t = encodeURIComponent(cityName(to).replace(/\s+/g, '-').toLowerCase())
@@ -19,7 +19,7 @@ export const affiliateLinks = {
     return `${base}?adults=1&cabinclass=economy&ref=home&rtn=0`
   },
 
-  /** 🏨 Agoda — hotel search deep-link with affiliate ID */
+ /** Agoda — hotel search deep-link with affiliate ID */
   hotel: (destination: string, checkin: string, checkout: string, members = 2) => {
     const dest = encodeURIComponent(cityName(destination))
     let url = `https://www.agoda.com/search?city=${dest}&adults=${members}&rooms=1&cid=1962536`
@@ -28,13 +28,13 @@ export const affiliateLinks = {
     return url
   },
 
-  /** ⚡ GetYourGuide — activities search with partner ID */
+ /** GetYourGuide — activities search with partner ID */
   activity: (destination: string) => {
     const dest = encodeURIComponent(cityName(destination))
     return `https://www.getyourguide.com/s/?q=${dest}&partner_id=Z3ATOYC&cmp=share_to_earn`
   },
 
-  /** 🚌 Redbus — bus search deep-link */
+ /** Redbus — bus search deep-link */
   bus: (from: string, to: string, date: string) => {
     const f = encodeURIComponent(cityName(from))
     const t = encodeURIComponent(cityName(to))
@@ -51,12 +51,12 @@ export const affiliateLinks = {
       : `https://www.redbus.in/`
   },
 
-  /** 🚗 Rental cars — User's specific affiliate link */
+ /** Rental cars — User's specific affiliate link */
   car: (destination?: string) => {
     return `https://naiawork.com/g/wqjhitsyjqbd777ee50d5ea594bb46/`
   },
 
-  /** 🍽️ Restaurants — Google Maps Search for restaurants */
+ /**️ Restaurants — Google Maps Search for restaurants */
   restaurant: (destination: string) => {
     const dest = encodeURIComponent(cityName(destination))
     return `https://www.google.com/maps/search/?api=1&query=restaurants+in+${dest}`
@@ -86,7 +86,7 @@ export function formatDuration(minutes: number): string {
 export function renderStars(rating: number): string {
   const full = Math.floor(rating)
   const half = rating % 1 >= 0.5 ? 1 : 0
-  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - half)
+ return ''.repeat(full) + (half ? '½' : '') + ''.repeat(5 - full - half)
 }
 
 export function formatDate(dateStr: string): string {

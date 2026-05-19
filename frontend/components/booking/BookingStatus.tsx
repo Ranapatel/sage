@@ -32,12 +32,12 @@ export default function BookingStatus() {
       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: '✅ Flight Confirmed',
+ title: 'Flight Confirmed',
         message: `${bookingStatus.selectedFlight?.name} booking confirmed!`,
         timestamp: new Date().toISOString(),
         read: false,
       })
-      toast.success('Flight booking confirmed! 🎉')
+ toast.success('Flight booking confirmed!')
     } catch {
       setBookingStatus({ flightStatus: 'SELECTED' })
       toast.error('Booking failed. Try again.')
@@ -59,12 +59,12 @@ export default function BookingStatus() {
       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: '✅ Hotel Confirmed',
+ title: 'Hotel Confirmed',
         message: `${bookingStatus.selectedHotel?.name} booking confirmed!`,
         timestamp: new Date().toISOString(),
         read: false,
       })
-      toast.success('Hotel booking confirmed! 🎉')
+ toast.success('Hotel booking confirmed!')
     } catch {
       setBookingStatus({ hotelStatus: 'SELECTED' })
       toast.error('Booking failed. Try again.')
@@ -75,14 +75,14 @@ export default function BookingStatus() {
 
   return (
     <div className="space-y-6">
-      <h2 className="section-title text-xl">📋 Booking Management</h2>
+ <h2 className="section-title text-xl">Booking Management</h2>
 
       {/* Booking state machines */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Flight booking */}
         <div className="card p-6">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">✈️</span>
+ <span className="text-3xl">️</span>
             <div>
               <h3 className="font-bold text-[var(--text-primary)]">Flight Booking</h3>
               <p className="text-xs text-[var(--text-muted)]">Status: <span className={`font-semibold ${bookingStatus.flightStatus === 'CONFIRMED' ? 'text-green-400' : 'text-yellow-400'}`}>{bookingStatus.flightStatus}</span></p>
@@ -97,7 +97,7 @@ export default function BookingStatus() {
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     i <= flightStep ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'
                   }`}>
-                    {i < flightStep ? '✓' : i + 1}
+ {i < flightStep ? '' : i + 1}
                   </div>
                   <span className="text-[0.6rem] text-[var(--text-muted)] mt-1 text-center">{step}</span>
                 </div>
@@ -114,9 +114,9 @@ export default function BookingStatus() {
               <p className="font-semibold text-sm text-[var(--text-primary)]">{bookingStatus.selectedFlight.name}</p>
               <p className="text-[var(--primary)] font-bold font-mono">{formatPrice(bookingStatus.selectedFlight.price, currency)} per person</p>
               <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-muted)]">
-                <span>🛫 {bookingStatus.selectedFlight.departure}</span>
-                <span>🛬 {bookingStatus.selectedFlight.arrival}</span>
-                <span>⏱ {bookingStatus.selectedFlight.duration}</span>
+ <span>{bookingStatus.selectedFlight.departure}</span>
+ <span>{bookingStatus.selectedFlight.arrival}</span>
+ <span>{bookingStatus.selectedFlight.duration}</span>
               </div>
             </div>
           ) : (
@@ -141,7 +141,7 @@ export default function BookingStatus() {
             </button>
           ) : (
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
-              <p className="text-green-400 font-bold">✅ Flight Confirmed!</p>
+ <p className="text-green-400 font-bold">Flight Confirmed!</p>
               <a
                 href={process.env.NEXT_PUBLIC_AFFILIATE_FLIGHTS || bookingStatus.selectedFlight?.bookingLink}
                 target="_blank" rel="noopener noreferrer"
@@ -157,7 +157,7 @@ export default function BookingStatus() {
         {/* Hotel booking */}
         <div className="card p-6">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">🏨</span>
+ <span className="text-3xl"></span>
             <div>
               <h3 className="font-bold text-[var(--text-primary)]">Hotel Booking</h3>
               <p className="text-xs text-[var(--text-muted)]">Status: <span className={`font-semibold ${bookingStatus.hotelStatus === 'CONFIRMED' ? 'text-green-400' : 'text-yellow-400'}`}>{bookingStatus.hotelStatus}</span></p>
@@ -172,7 +172,7 @@ export default function BookingStatus() {
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     i <= hotelStep ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'
                   }`}>
-                    {i < hotelStep ? '✓' : i + 1}
+ {i < hotelStep ? '' : i + 1}
                   </div>
                   <span className="text-[0.6rem] text-[var(--text-muted)] mt-1 text-center">{step}</span>
                 </div>
@@ -189,7 +189,7 @@ export default function BookingStatus() {
               <p className="font-semibold text-sm text-[var(--text-primary)]">{bookingStatus.selectedHotel.name}</p>
               <p className="text-[var(--primary)] font-bold font-mono">{formatPrice(bookingStatus.selectedHotel.price, currency)}/night</p>
               <div className="flex items-center gap-2 mt-2 text-xs">
-                <span className="text-yellow-400">{'★'.repeat(Math.floor(bookingStatus.selectedHotel.rating))}</span>
+ <span className="text-yellow-400">{''.repeat(Math.floor(bookingStatus.selectedHotel.rating))}</span>
                 <span className="text-[var(--text-muted)]">{bookingStatus.selectedHotel.location}</span>
               </div>
             </div>
@@ -215,7 +215,7 @@ export default function BookingStatus() {
             </button>
           ) : (
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
-              <p className="text-green-400 font-bold">✅ Hotel Confirmed!</p>
+ <p className="text-green-400 font-bold">Hotel Confirmed!</p>
               <a href={bookingStatus.selectedHotel?.bookingLink} target="_blank" rel="noopener noreferrer"
                 onClick={() => trackEvent('booking_click', { type: 'hotel', name: bookingStatus.selectedHotel?.name, price: bookingStatus.selectedHotel?.price })}
                 className="text-xs text-[var(--primary)] hover:underline mt-1 block">
@@ -228,7 +228,7 @@ export default function BookingStatus() {
 
       {/* Terms */}
       <div className="glass rounded-xl p-4 text-xs text-[var(--text-muted)] leading-relaxed">
-        <p className="font-semibold text-[var(--text-secondary)] mb-2">⚖️ Terms & Conditions</p>
+ <p className="font-semibold text-[var(--text-secondary)] mb-2">️ Terms & Conditions</p>
         <p>Prices and availability may change in real time. TripSage does NOT guarantee final booking price. 
         Bookings are handled by third-party providers. TripSage is NOT responsible for cancellations or delays. 
         Affiliate links may generate commission. Users must verify travel documents and regulations.</p>

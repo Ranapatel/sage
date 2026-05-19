@@ -54,7 +54,7 @@ export default function BudgetOptimizerTab() {
           {loading ? (
             <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> Running AI...</>
           ) : (
-            <>💰 Run Optimization</>
+ <>Run Optimization</>
           )}
         </button>
       </div>
@@ -67,7 +67,7 @@ export default function BudgetOptimizerTab() {
 
       {!data && !loading && !error && (
         <div className="glass p-12 rounded-2xl text-center border-dashed border-2 border-[var(--border)]">
-          <div className="text-4xl mb-4">🤖</div>
+ <div className="text-4xl mb-4"></div>
           <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Ready to optimize</h3>
           <p className="text-[var(--text-muted)] text-sm mb-6">
             Click the button above to generate 3 financially optimized plans for your trip to {tripContext?.destination || 'your destination'}.

@@ -50,7 +50,7 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">🏨 Hotel Options</h2>
+ <h2 className="section-title text-xl">Hotel Options</h2>
         <div className="flex items-center gap-2">
           <span className="live-dot"></span>
           <span className="text-xs font-mono text-[var(--text-muted)]">Live availability</span>
@@ -63,7 +63,7 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
             {hotels.map((h: any) => <HotelCard key={h.id} item={h} showDetail />)}
           </div>
         ) : (
-          <EmptyState icon="🏨" title="No hotels found" desc="Try adjusting your dates or budget" />
+ <EmptyState icon="" title="No hotels found" desc="Try adjusting your dates or budget" />
         )
       )}
     </div>

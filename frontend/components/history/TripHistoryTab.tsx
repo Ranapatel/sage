@@ -20,7 +20,7 @@ function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
   if (tripHistory.length === 0) {
     return (
       <div className="card p-16 text-center">
-        <div className="text-6xl mb-4">📁</div>
+ <div className="text-6xl mb-4"></div>
         <h3 className="font-bold text-xl text-[var(--text-primary)] mb-2">No Trip History Yet</h3>
         <p className="text-[var(--text-muted)] text-sm">Complete your first trip to see it here.</p>
         <p className="text-[var(--text-muted)] text-xs mt-2">Past trips are stored locally on this device.</p>
@@ -28,12 +28,12 @@ function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
     )
   }
 
-  const stars = (n?: number) => n ? '★'.repeat(n) + '☆'.repeat(5 - n) : '—'
+ const stars = (n?: number) => n ? ''.repeat(n) + ''.repeat(5 - n) : '—'
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">📁 Trip History</h2>
+ <h2 className="section-title text-xl">Trip History</h2>
         <span className="badge badge-green text-xs">{tripHistory.length} Trip{tripHistory.length !== 1 ? 's' : ''}</span>
       </div>
 
@@ -59,10 +59,10 @@ function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
-                    {trip.dates.start && <span>📅 {formatDate(trip.dates.start)}{trip.dates.end ? ` → ${formatDate(trip.dates.end)}` : ''}</span>}
-                    <span>👥 {trip.members} traveler{trip.members !== 1 ? 's' : ''}</span>
-                    <span>💰 {formatPrice(trip.budget, currency)} budget</span>
-                    <span>🎯 {trip.style}</span>
+ {trip.dates.start && <span>{formatDate(trip.dates.start)}{trip.dates.end ? ` → ${formatDate(trip.dates.end)}` : ''}</span>}
+ <span>{trip.members} traveler{trip.members !== 1 ? 's' : ''}</span>
+ <span>{formatPrice(trip.budget, currency)} budget</span>
+ <span>{trip.style}</span>
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
@@ -80,9 +80,9 @@ function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
               {/* Bookings summary */}
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {[
-                  { label: 'Flight', value: trip.bookings.transport?.name, icon: '✈️', price: trip.bookings.transport?.price },
-                  { label: 'Hotel', value: trip.bookings.hotel?.name, icon: '🏨', price: trip.bookings.hotel?.price },
-                  { label: 'Return', value: trip.bookings.returnTransport?.name, icon: '🔄', price: trip.bookings.returnTransport?.price },
+ { label: 'Flight', value: trip.bookings.transport?.name, icon: '️', price: trip.bookings.transport?.price },
+ { label: 'Hotel', value: trip.bookings.hotel?.name, icon: '', price: trip.bookings.hotel?.price },
+ { label: 'Return', value: trip.bookings.returnTransport?.name, icon: '', price: trip.bookings.returnTransport?.price },
                 ].map(b => (
                   <div key={b.label} className="glass rounded-lg p-3 text-center">
                     <div className="text-lg mb-1">{b.icon}</div>
@@ -145,14 +145,14 @@ function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
                     onClick={() => onReopenItinerary?.(trip)}
                     className="btn-outline text-xs py-2 px-4 flex-1"
                   >
-                    📅 Reopen Itinerary
+ Reopen Itinerary
                   </button>
                 )}
                 <button
                   onClick={() => onPlanSimilar?.(trip)}
                   className="btn-primary text-xs py-2 px-4 flex-1"
                 >
-                  ✈️ Plan Similar Trip
+ ️ Plan Similar Trip
                 </button>
               </div>
 

@@ -59,8 +59,8 @@ const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: 
           <span className="bg-red-500/90 text-white text-[0.6rem] font-bold px-1.5 py-0.5 rounded animate-pulse">{spotsMsg}</span>
         </div>
         <div className="absolute bottom-2 left-2 flex items-center gap-2">
-          <span className="text-white text-[0.65rem] font-mono">⏱ {a.duration}</span>
-          <span className="text-yellow-400 text-[0.65rem]">★ {a.rating}</span>
+ <span className="text-white text-[0.65rem] font-mono">{a.duration}</span>
+ <span className="text-yellow-400 text-[0.65rem]">{a.rating}</span>
         </div>
       </div>
       <div className="p-3 space-y-2">
@@ -73,9 +73,9 @@ const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: 
             <div className="text-[0.65rem] text-[var(--text-muted)] line-through">{formatPrice(origPrice, currency)}</div>
             <div className="text-lg font-black font-mono text-[var(--primary)] leading-tight">{formatPrice(a.price, currency)}</div>
           </div>
-          <span className="text-orange-400 text-[0.65rem] font-semibold mb-0.5">🔥 {urgency}</span>
+ <span className="text-orange-400 text-[0.65rem] font-semibold mb-0.5">{urgency}</span>
         </div>
-        <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
+ <div className="text-[0.6rem] text-orange-300 font-mono text-center">{countdownLabel} left at this price</div>
       </div>
     </div>
   )
@@ -89,7 +89,7 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
   return (
     <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300">
       <div className="flex items-center justify-between px-3 py-1.5 bg-gradient-to-r from-orange-500/20 to-red-500/10 border-b border-orange-500/20">
-        <span className="text-orange-400 text-[0.65rem] font-bold">🔥 {urgency}</span>
+ <span className="text-orange-400 text-[0.65rem] font-bold">{urgency}</span>
         <span className="text-red-400 text-[0.65rem] font-semibold animate-pulse">{carScarcity}</span>
       </div>
       <div className="relative h-36 overflow-hidden">
@@ -105,8 +105,8 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
           <span className="bg-green-500 text-white text-[0.65rem] font-black px-2 py-0.5 rounded">{discount}% OFF</span>
         </div>
         <div className="absolute bottom-2 left-2 flex gap-2">
-          <span className="text-white text-[0.65rem]">🚗 {car.type}</span>
-          <span className="text-white text-[0.65rem]">👥 {car.seats} seats</span>
+ <span className="text-white text-[0.65rem]">{car.type}</span>
+ <span className="text-white text-[0.65rem]">{car.seats} seats</span>
         </div>
       </div>
       <div className="p-3 space-y-2">
@@ -120,7 +120,7 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
           </div>
           <div className="mb-0.5 text-green-400 text-xs font-semibold">Save {savings}!</div>
         </div>
-        <div className="text-[0.6rem] text-orange-300 font-mono text-center">⏳ {countdownLabel} left at this price</div>
+ <div className="text-[0.6rem] text-orange-300 font-mono text-center">{countdownLabel} left at this price</div>
       </div>
     </div>
   )
@@ -154,7 +154,7 @@ function ExploreSection({ destination }: Props) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="section-title text-xl">🌍 Explore {destination || 'Destination'}</h2>
+ <h2 className="section-title text-xl">Explore {destination || 'Destination'}</h2>
         <a href={affiliateLinks.activity(destination || 'popular')} target="_blank" rel="noopener noreferrer"
           className="btn-outline text-xs py-1.5 px-3">
           All Activities →
@@ -168,7 +168,7 @@ function ExploreSection({ destination }: Props) {
             className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
               activeType === t ? 'bg-[var(--primary)] text-white' : 'glass text-[var(--text-secondary)]'
             }`}>
-            {t === 'activities' ? '⚡' : t === 'restaurants' ? '🍽️' : '🚗'} {t}
+ {t === 'activities' ? '' : t === 'restaurants' ? '️' : ''} {t}
           </button>
         ))}
       </div>
@@ -222,7 +222,7 @@ function ExploreSection({ destination }: Props) {
                     <span className="badge badge-green text-[0.65rem]">{r.priceRange}</span>
                   </div>
                   <div className="absolute bottom-2 left-2">
-                    <span className="text-yellow-400 text-xs">★ {r.rating}</span>
+ <span className="text-yellow-400 text-xs">{r.rating}</span>
                   </div>
                 </div>
                 <div className="p-3 space-y-1">

@@ -7,7 +7,7 @@ import Image from 'next/image'
 import toast from 'react-hot-toast'
 
 const FAQS = [
-  { q: 'How does TripSage generate itineraries?', a: 'TripSage uses Groq\'s LLaMA3-70B model to analyze your budget, travel style, group type, and preferences to generate personalized day-by-day itineraries in real-time.' },
+  { q: 'How does TripSage generate itineraries?', a: 'TripSage uses an advanced AI planner to analyze your budget, travel style, group type, and preferences to generate personalized day-by-day itineraries in real-time.' },
   { q: 'Are the flight and hotel prices real?', a: 'Yes! Prices are fetched in real-time from travel APIs via RapidAPI. However, prices can change frequently, so we recommend booking quickly when you find a good deal.' },
   { q: 'How does booking work?', a: 'TripSage uses affiliate deep links that redirect you to trusted third-party booking platforms like Booking.com, Skyscanner, and Viator. All bookings are completed on those platforms.' },
   { q: 'Is my data stored?', a: 'TripSage follows a minimal data storage policy. Your trip preferences are stored in your session for real-time optimization. We do not resell personal data.' },
@@ -20,11 +20,11 @@ const BOT_RESPONSES: Record<string, string> = {
   flight: "For flight issues, please share your booking reference and departure date. We'll check the latest status with our travel partners.",
   hotel: "For hotel queries, share your booking ID and check-in date. We'll coordinate directly with the property.",
   refund: "Refund requests are handled by the third-party provider you booked through (e.g. Booking.com, Skyscanner). We can help you find the right contact.",
-  itinerary: "AI itineraries can be regenerated anytime! Go to the Plan tab and click 🔄 Refresh. Need a custom change? Describe what you'd like.",
+ itinerary: "AI itineraries can be regenerated anytime! Go to the Plan tab and click Refresh. Need a custom change? Describe what you'd like.",
   cancel: "Cancellation policies depend on the booking platform. We recommend checking the booking confirmation email for your provider's policy.",
-  hi: "Hey there! 👋 I'm the TripSage support bot. Ask me anything about your trip, bookings, or the app!",
-  hello: "Hello! 👋 How can I assist your travel journey today?",
-  help: "I can help with: ✈️ Flights · 🏨 Hotels · 📅 Itineraries · 💰 Refunds · ❌ Cancellations · 🌦️ Weather. What do you need?",
+ hi: "Hey there! I'm the TripSage support bot. Ask me anything about your trip, bookings, or the app!",
+ hello: "Hello! How can I assist your travel journey today?",
+ help: "I can help with:️ Flights · Hotels · Itineraries · Refunds · Cancellations ·️ Weather. What do you need?",
 }
 
 function getBotReply(msg: string): string {
@@ -50,7 +50,7 @@ export default function SupportClient() {
   const [showEmergency, setShowEmergency] = useState(false)
   const [chatInput, setChatInput] = useState('')
   const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([
-    { role: 'bot', text: "Hi! 👋 I'm the TripSage support bot. Ask me anything about flights, hotels, or your itinerary!", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+ { role: 'bot', text: "Hi! I'm the TripSage support bot. Ask me anything about flights, hotels, or your itinerary!", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
   ])
   const [botTyping, setBotTyping] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -95,14 +95,14 @@ export default function SupportClient() {
           <span className="font-bold text-[var(--primary)]">TripSage</span>
         </Link>
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowChat(true)} className="btn-outline py-2 px-4 text-sm">💬 Live Chat</button>
+ <button onClick={() => setShowChat(true)} className="btn-outline py-2 px-4 text-sm">Live Chat</button>
           <Link href="/plan" className="btn-primary py-2 px-5 text-sm inline-block">Plan Trip →</Link>
         </div>
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 py-16">
         <div className="text-center mb-16">
-          <h1 className="section-title mb-3">📞 Support Center</h1>
+ <h1 className="section-title mb-3">Support Center</h1>
           <p className="section-subtitle">We're here to help you travel smarter</p>
         </div>
 
@@ -110,7 +110,7 @@ export default function SupportClient() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {/* Live Chat */}
           <div className="card p-6 text-center hover:scale-105 transition-transform">
-            <div className="text-4xl mb-3">💬</div>
+ <div className="text-4xl mb-3"></div>
             <h3 className="font-bold text-[var(--text-primary)] mb-1">Live Chat</h3>
             <p className="text-[var(--text-muted)] text-sm mb-2">Chat with our support bot in real-time</p>
             <div className="flex items-center justify-center gap-1 mb-4">
@@ -127,7 +127,7 @@ export default function SupportClient() {
 
           {/* Email Support */}
           <div className="card p-6 text-center hover:scale-105 transition-transform">
-            <div className="text-4xl mb-3">📧</div>
+ <div className="text-4xl mb-3"></div>
             <h3 className="font-bold text-[var(--text-primary)] mb-1">Email Support</h3>
             <p className="text-[var(--text-muted)] text-sm mb-1">rana@tripsage.in</p>
             <p className="text-[var(--text-muted)] text-xs mb-4">Reply within 24 hours</p>
@@ -142,7 +142,7 @@ export default function SupportClient() {
 
           {/* Emergency */}
           <div className="card p-6 text-center hover:scale-105 transition-transform">
-            <div className="text-4xl mb-3">🚨</div>
+ <div className="text-4xl mb-3"></div>
             <h3 className="font-bold text-[var(--text-primary)] mb-1">Emergency</h3>
             <p className="text-[var(--text-muted)] text-sm mb-1">24/7 travel emergency hotline</p>
             <p className="text-[var(--text-muted)] text-xs mb-4">For lost documents, medical, or safety issues</p>
@@ -207,7 +207,7 @@ export default function SupportClient() {
                 required value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
             </div>
             <button type="submit" className="btn-primary py-3 px-8" disabled={sending}>
-              {sending ? 'Opening email...' : '📧 Send Message →'}
+ {sending ? 'Opening email...' : 'Send Message →'}
             </button>
           </form>
         </div>
@@ -224,7 +224,7 @@ export default function SupportClient() {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]" style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))' }}>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-lg">🤖</div>
+ <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-lg"></div>
                 <div>
                   <p className="font-bold text-white text-sm">TripSage Support</p>
                   <div className="flex items-center gap-1">
@@ -233,7 +233,7 @@ export default function SupportClient() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setShowChat(false)} className="text-white/70 hover:text-white text-xl transition-colors">✕</button>
+ <button onClick={() => setShowChat(false)} className="text-white/70 hover:text-white text-xl transition-colors"></button>
             </div>
 
             {/* Messages */}
@@ -285,7 +285,7 @@ export default function SupportClient() {
                 disabled={!chatInput.trim()}
                 className="btn-primary py-2 px-4 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                ➤
+ 
               </button>
             </div>
           </div>
@@ -297,16 +297,16 @@ export default function SupportClient() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowEmergency(false)}>
           <div className="glass-dark rounded-2xl border border-red-500/30 shadow-2xl w-full max-w-md p-8 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="text-center mb-6">
-              <div className="text-5xl mb-3 animate-bounce">🚨</div>
+ <div className="text-5xl mb-3 animate-bounce"></div>
               <h2 className="font-bold text-xl text-red-400 mb-1">Emergency Support</h2>
               <p className="text-[var(--text-muted)] text-sm">Available 24/7 for urgent travel issues</p>
             </div>
 
             <div className="space-y-3 mb-6">
               {[
-                { label: 'Emergency Hotline', value: '+91-800-TRIPSAGE', icon: '📞', href: 'tel:+916301158175' },
-                { label: 'WhatsApp', value: '+91 6301158175', icon: '📱', href: 'https://wa.me/916301158175?text=Emergency%20Travel%20Support' },
-                { label: 'Email (Urgent)', value: 'rana@tripsage.in', icon: '📧', href: 'mailto:rana@tripsage.in?subject=URGENT: Travel Emergency' },
+ { label: 'Emergency Hotline', value: '+91-800-TRIPSAGE', icon: '', href: 'tel:+916301158175' },
+ { label: 'WhatsApp', value: '+91 6301158175', icon: '', href: 'https://wa.me/916301158175?text=Emergency%20Travel%20Support' },
+ { label: 'Email (Urgent)', value: 'rana@tripsage.in', icon: '', href: 'mailto:rana@tripsage.in?subject=URGENT: Travel Emergency' },
               ].map(c => (
                 <a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-4 glass rounded-xl p-4 hover:border-red-500/40 border border-[var(--border)] transition-all group">
@@ -321,7 +321,7 @@ export default function SupportClient() {
             </div>
 
             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-xs text-red-400 mb-4 leading-relaxed">
-              ⚠️ For medical emergencies, always call your local emergency services (112 in India) first.
+ ️ For medical emergencies, always call your local emergency services (112 in India) first.
             </div>
 
             <button onClick={() => setShowEmergency(false)} className="btn-outline w-full py-2.5 border-red-500/50 text-red-400 hover:bg-red-500/10">

@@ -30,7 +30,7 @@ function BusesTab() {
       <div className="space-y-4 animate-fade-in">
         {/* Info banner */}
         <div className="glass rounded-xl p-4 border border-[var(--border)] flex items-start gap-3">
-          <span className="text-2xl">ℹ️</span>
+ <span className="text-2xl">️</span>
           <div>
             <p className="font-semibold text-sm text-[var(--text-primary)]">Real-time bus search</p>
             <p className="text-xs text-[var(--text-muted)] mt-1">
@@ -52,7 +52,7 @@ function BusesTab() {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
             <div className="absolute left-4 top-1/2 -translate-y-1/2">
-              <div className="text-white font-bold text-lg">🚌 Search Buses</div>
+ <div className="text-white font-bold text-lg">Search Buses</div>
               <div className="text-white/70 text-sm mt-1">
                 {from && to ? `${from.split(',')[0]} → ${to.split(',')[0]}` : 'Enter your route to search'}
               </div>

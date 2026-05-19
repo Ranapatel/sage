@@ -31,7 +31,7 @@ function generateReturnOptions(from: string, to: string, endDate: string, _budge
       name: `IndiGo ${to.split(',')[0]} → ${from.split(',')[0]}`,
       price: 1499, rating: 4.3, duration: '2h 15m',
       departure: '07:00', arrival: '09:15',
-      image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80',
+      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
       bookingLink: link, score: 0.87, liveStatus: 'On Time',
       offers: ['Best value return', 'Free check-in baggage'],
     },
@@ -82,7 +82,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
     setGenerated(true)
     addNotification({
       id: Date.now().toString(), type: 'info',
-      title: '🔄 Return Options Ready',
+ title: 'Return Options Ready',
       message: `${opts.length} return flights found for ${tripContext.endDate}`,
       timestamp: new Date().toISOString(), read: false,
     })
@@ -93,7 +93,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
     setBookingStatus({ returnStatus: 'SELECTED', selectedReturn: item })
     addNotification({
       id: Date.now().toString(), type: 'info',
-      title: '✈️ Return Flight Selected',
+ title: '️ Return Flight Selected',
       message: `${item.name} — ${formatPrice(item.price, currency)}`,
       timestamp: new Date().toISOString(), read: false,
     })
@@ -108,11 +108,11 @@ export default function ReturnBookingTab({ tripContext }: Props) {
     setBookingStatus({ returnStatus: 'CONFIRMED' })
     addNotification({
       id: Date.now().toString(), type: 'info',
-      title: '✅ Return Flight Confirmed',
+ title: 'Return Flight Confirmed',
       message: `${bookingStatus.selectedReturn?.name} confirmed!`,
       timestamp: new Date().toISOString(), read: false,
     })
-    toast.success('Return flight confirmed! 🎉')
+ toast.success('Return flight confirmed!')
     setConfirming(false)
   }
 
@@ -124,7 +124,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="section-title text-xl">🔄 Return Journey</h2>
+ <h2 className="section-title text-xl">Return Journey</h2>
           <p className="text-[var(--text-muted)] text-sm mt-1">
             {tripContext.destination} → {tripContext.startLocation || 'Home'}
             {tripContext.endDate && ` · ${tripContext.endDate}`}
@@ -146,7 +146,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   i <= returnStep ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'
                 }`}>
-                  {i < returnStep ? '✓' : i + 1}
+ {i < returnStep ? '' : i + 1}
                 </div>
                 <span className="text-[0.6rem] text-[var(--text-muted)] mt-1 text-center">{step}</span>
               </div>
@@ -166,15 +166,15 @@ export default function ReturnBookingTab({ tripContext }: Props) {
             <div>
               <p className="font-semibold text-[var(--text-primary)]">{bookingStatus.selectedReturn.name}</p>
               <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
-                <span>🛫 {bookingStatus.selectedReturn.departure}</span>
-                <span>🛬 {bookingStatus.selectedReturn.arrival}</span>
-                <span>⏱ {bookingStatus.selectedReturn.duration}</span>
+ <span>{bookingStatus.selectedReturn.departure}</span>
+ <span>{bookingStatus.selectedReturn.arrival}</span>
+ <span>{bookingStatus.selectedReturn.duration}</span>
               </div>
             </div>
             <div className="text-right">
               <div className="text-xl font-bold font-mono text-[var(--primary)]">{formatPrice(bookingStatus.selectedReturn.price, currency)}</div>
               {bookingStatus.returnStatus === 'CONFIRMED'
-                ? <span className="badge badge-green text-[0.65rem]">✅ Confirmed</span>
+ ? <span className="badge badge-green text-[0.65rem]">Confirmed</span>
                 : <span className="badge badge-amber text-[0.65rem]">{bookingStatus.returnStatus}</span>
               }
             </div>
@@ -185,13 +185,13 @@ export default function ReturnBookingTab({ tripContext }: Props) {
       {/* Generate button */}
       {!generated ? (
         <div className="card p-10 text-center">
-          <div className="text-5xl mb-4">🔄</div>
+ <div className="text-5xl mb-4"></div>
           <h3 className="font-bold text-[var(--text-primary)] mb-2">Generate Return Options</h3>
           <p className="text-[var(--text-muted)] text-sm mb-6">
             Auto-suggest optimized return flights based on your trip end date
           </p>
           <button onClick={handleGenerate} className="btn-primary py-3 px-8">
-            🔍 Find Return Flights
+ Find Return Flights
           </button>
         </div>
       ) : (
@@ -212,9 +212,9 @@ export default function ReturnBookingTab({ tripContext }: Props) {
                       <div>
                         <h3 className="font-semibold text-[var(--text-primary)] text-sm">{item.name}</h3>
                         <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-muted)]">
-                          <span>⏱ {item.duration}</span>
-                          <span>🛫 {item.departure}</span>
-                          <span>🛬 {item.arrival}</span>
+ <span>{item.duration}</span>
+ <span>{item.departure}</span>
+ <span>{item.arrival}</span>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -224,7 +224,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
                     </div>
                     <div className="flex items-center gap-3 mt-2">
                       <span className={`badge ${item.liveStatus === 'On Time' ? 'badge-green' : 'badge-amber'} text-[0.7rem]`}>{item.liveStatus}</span>
-                      <span className="text-xs text-[var(--text-muted)]">⭐ {item.rating}</span>
+ <span className="text-xs text-[var(--text-muted)]">{item.rating}</span>
                       <span className={`text-xs font-mono font-bold ${scoreColor(item.score)}`}>Score: {(item.score * 100).toFixed(0)}%</span>
                     </div>
                   </div>
@@ -233,7 +233,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
                 {item.offers && item.offers.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {item.offers.map((o, i) => (
-                      <span key={i} className="badge badge-amber text-[0.65rem]">🏷️ {o}</span>
+ <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
                     ))}
                   </div>
                 )}
@@ -245,7 +245,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
                     Book Now →
                   </a>
                   <button onClick={() => handleSelect(item)} className="btn-outline text-sm py-2 px-4">
-                    {bookingStatus.selectedReturn?.id === item.id ? '✓ Selected' : 'Select'}
+ {bookingStatus.selectedReturn?.id === item.id ? 'Selected' : 'Select'}
                   </button>
                 </div>
               </div>
@@ -268,7 +268,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
             </button>
           ) : (
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
-              <p className="text-green-400 font-bold text-lg">✅ Return Journey Confirmed!</p>
+ <p className="text-green-400 font-bold text-lg">Return Journey Confirmed!</p>
               <p className="text-[var(--text-muted)] text-sm mt-1">{bookingStatus.selectedReturn?.name}</p>
               <a href={bookingStatus.selectedReturn?.bookingLink} target="_blank" rel="noopener noreferrer"
                 onClick={() => trackEvent('booking_click', { type: 'return_flight', name: bookingStatus.selectedReturn?.name, price: bookingStatus.selectedReturn?.price })}
@@ -278,7 +278,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
 
           <button onClick={() => { setGenerated(false); setReturnTransport([]) }}
             className="btn-outline w-full py-2 text-sm">
-            🔄 Search Again
+ Search Again
           </button>
         </>
       )}

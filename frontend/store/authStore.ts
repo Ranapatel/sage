@@ -70,7 +70,10 @@ export const useAuthStore = create<AuthStore>()(
 
       updateCurrency: async (currency) => {
         const { token, user } = get()
-        if (!user) return
+        if (!user) {
+          set({ user: { currency } as any })
+          return
+        }
         try {
           const res: any = await API.patch('/api/auth/profile', { currency })
           set({ user: { ...user, currency } })

@@ -108,11 +108,11 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
               <div style="font-weight:700;font-size:14px;color:#0f172a;margin-bottom:4px;">${place.name}</div>
               <div style="color:#64748b;font-size:12px;margin-bottom:6px;">Day ${day.dayNumber} · ${place.time}</div>
               <div style="display:inline-block;background:rgba(0,194,124,0.15);color:#00c27c;padding:2px 8px;border-radius:100px;font-size:11px;margin-bottom:6px;">${place.category}</div>
-              ${place.formattedAddress ? `<p style="color:#475569;font-size:11px;margin:4px 0;">📍 ${place.formattedAddress}</p>` : ''}
+ ${place.formattedAddress ? `<p style="color:#475569;font-size:11px;margin:4px 0;">${place.formattedAddress}</p>` : ''}
               <p style="color:#475569;font-size:12px;margin-top:4px;">${place.description || ''}</p>
               <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
-                <a href="${mapsUrl}" target="_blank" style="color:#00c27c;font-size:12px;text-decoration:none;">🗺️ Open in Google Maps →</a>
-                <span style="font-size:10px;color:${isGoogle ? '#22c55e' : '#94a3b8'};margin-left:auto;">${isGoogle ? '✅ Google' : '⚠️ AI estimate'}</span>
+ <a href="${mapsUrl}" target="_blank" style="color:#00c27c;font-size:12px;text-decoration:none;">️ Open in Google Maps →</a>
+ <span style="font-size:10px;color:${isGoogle ? '#22c55e' : '#94a3b8'};margin-left:auto;">${isGoogle ? 'Google' : '️ AI estimate'}</span>
               </div>
             </div>
           `)
@@ -136,7 +136,7 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
       ]
 
       if (destCoord) {
-        const marker = L.marker(destCoord.coordinates, { icon: createIcon('#3b82f6', true, '✈️') })
+ const marker = L.marker(destCoord.coordinates, { icon: createIcon('#3b82f6', true, '️') })
         marker.bindPopup(`
           <div style="font-family:'Space Grotesk',sans-serif;min-width:150px;">
             <div style="font-weight:700;font-size:14px;color:#0f172a;margin-bottom:4px;">Flight Destination</div>
@@ -148,7 +148,7 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
 
       hotelCoords.forEach((hotel: any) => {
         if (!hotel.coordinates) return
-        const marker = L.marker(hotel.coordinates, { icon: createIcon('#00c27c', true, '🏨') })
+ const marker = L.marker(hotel.coordinates, { icon: createIcon('#00c27c', true, '') })
         marker.bindPopup(`
           <div style="font-family:'Space Grotesk',sans-serif;min-width:150px;">
             <div style="font-weight:700;font-size:14px;color:#0f172a;margin-bottom:4px;">${hotel.name}</div>
@@ -175,7 +175,7 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
   if (itinerary.length === 0 && hotelCoords.length === 0 && !destCoord) {
     return (
       <div className="card p-12 text-center">
-        <div className="text-5xl mb-4">🗺️</div>
+ <div className="text-5xl mb-4">️</div>
         <h3 className="font-bold text-[var(--text-primary)] mb-2">Map Not Available</h3>
         <p className="text-[var(--text-muted)] text-sm">Generate an itinerary first to see your trip on the map</p>
       </div>
@@ -185,15 +185,15 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="section-title text-xl">🗺️ Journey Map</h2>
+ <h2 className="section-title text-xl">️ Journey Map</h2>
         <div className="flex items-center gap-4 text-xs flex-wrap">
           {stats.total > 0 && (
             <div className="glass px-3 py-1.5 rounded-full">
               {stats.google === stats.total
-                ? <span className="text-green-400 font-semibold">✅ {stats.google}/{stats.total} Google-verified</span>
+ ? <span className="text-green-400 font-semibold">{stats.google}/{stats.total} Google-verified</span>
                 : stats.google > 0
-                ? <span className="text-yellow-400 font-semibold">⚡ {stats.google}/{stats.total} Google-verified</span>
-                : <span className="text-[var(--text-muted)]">⚠️ AI-estimated (add GOOGLE_PLACES_API_KEY)</span>
+ ? <span className="text-yellow-400 font-semibold">{stats.google}/{stats.total} Google-verified</span>
+ : <span className="text-[var(--text-muted)]">️ AI-estimated (add GOOGLE_PLACES_API_KEY)</span>
               }
             </div>
           )}
@@ -229,7 +229,7 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
                       )}
                     </div>
                     <span title={isGoogle ? 'Google-verified' : 'AI-estimated'} className="text-sm">
-                      {isGoogle ? '✅' : '⚠️'}
+ {isGoogle ? '' : '️'}
                     </span>
                     <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
                       className="text-xs text-[var(--primary)] hover:underline flex-shrink-0">

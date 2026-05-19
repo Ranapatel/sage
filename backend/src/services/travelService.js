@@ -1,6 +1,10 @@
 const axios = require('axios')
+const NodeCache = require('node-cache')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 const { estimateFlightPrices } = require('./aiService')
+
+// Initialize node-cache with 5 minutes (300 seconds) standard TTL
+const localCache = new NodeCache({ stdTTL: 300, checkperiod: 60 })
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY
 const RAPIDAPI_HOSTS = {
@@ -121,8 +125,13 @@ const HOTEL_IMAGES = [
 
 function seededRandom(seed) {
   let h = 0
-  for (let i = 0; i < seed.length; i++) { h = ((h << 5) - h) + seed.charCodeAt(i); h |= 0 }
-  return Math.abs(h) / 2147483647
+  for (let i = 0; i < seed.length; i++) {
+    h = Math.imul(31, h) + seed.charCodeAt(i) | 0
+  }
+  // Bitwise mixing step (Mulberry32/Murmur-inspired) to distribute hash keys evenly
+  h = Math.imul(h ^ (h >>> 16), 2246822507)
+  h = Math.imul(h ^ (h >>> 13), 3266489909)
+  return (Math.abs(h ^ (h >>> 16)) % 1000000) / 1000000
 }
 
 function generateMockFlights(from, to, date, budget, aiFlights = null) {
@@ -256,6 +265,11 @@ async function resolveAirport(query) {
 
 async function searchFlights({ from, to, date, returnDate, travelers = 1, budget }) {
   const cacheKey = generateCacheKey('flights_v3', { from, to, date, travelers, budget })
+  
+  // Check node-cache first
+  const localCached = localCache.get(cacheKey)
+  if (localCached) return { ...localCached, meta: { ...localCached.meta, cache: true, type: 'local' } }
+
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -291,6 +305,7 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
           console.log(`[Skyscanner] ✅ ${liveFlights.length} live flights`)
           const result = { success: true, data: liveFlights, meta: { cache: false, source: 'live' } }
           await cacheSet(cacheKey, result)
+          localCache.set(cacheKey, result)
           return result
         }
       }
@@ -306,6 +321,7 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
       const mocks = generateMockFlights(from, to, date, budget, aiFlights)
       const result = { success: true, data: mocks, meta: { cache: false, source: 'ai-estimated' } }
       await cacheSet(cacheKey, result)
+      localCache.set(cacheKey, result)
       return result
     }
   } catch (err) {
@@ -317,6 +333,7 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
   const mocks = generateMockFlights(from, to, date, budget)
   const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
   await cacheSet(cacheKey, result)
+  localCache.set(cacheKey, result)
   return result
 }
 
@@ -376,6 +393,11 @@ function normalizeSkyscannerFlights(rawData, from, to, date) {
 
 async function searchHotels({ destination, checkin, checkout, members = 2, budget }) {
   const cacheKey = generateCacheKey('hotels_v3', { destination, checkin, checkout, members, budget })
+  
+  // Check node-cache first
+  const localCached = localCache.get(cacheKey)
+  if (localCached) return { ...localCached, meta: { ...localCached.meta, cache: true, type: 'local' } }
+
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -424,6 +446,7 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
           console.log(`[Hotels] ✅ ${liveHotels.length} live hotels`)
           const result = { success: true, data: liveHotels, meta: { cache: false, source: 'live' } }
           await cacheSet(cacheKey, result)
+          localCache.set(cacheKey, result)
           return result
         }
       }
@@ -437,6 +460,7 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
   const mocks = generateMockHotels(destination, checkin, checkout, members, budget)
   const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
   await cacheSet(cacheKey, result)
+  localCache.set(cacheKey, result)
   return result
 }
 

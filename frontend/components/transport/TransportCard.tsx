@@ -29,7 +29,7 @@ function TransportCard({ item, showDetail }: Props) {
     addNotification({
       id: Date.now().toString(),
       type: 'info',
-      title: '✈️ Flight Selected',
+ title: '️ Flight Selected',
       message: `${item.name}${displayPrice ? ` - ${displayPrice}` : ''}`,
       timestamp: new Date().toISOString(),
       read: false,
@@ -39,9 +39,9 @@ function TransportCard({ item, showDetail }: Props) {
 
   // ── Source badge config ────────────────────────────────────────────────────
   const sourceBadge = (() => {
-    if (item.source === 'live') return { label: '🔴 Live Price', cls: 'bg-green-600/90' }
-    if (item.source === 'affiliate_redirect') return { label: '🔗 Search Live', cls: 'bg-blue-600/90' }
-    if (item.source === 'api_error') return { label: '⚠️ API Error', cls: 'bg-red-600/90' }
+ if (item.source === 'live') return { label: 'Live Price', cls: 'bg-green-600/90' }
+ if (item.source === 'affiliate_redirect') return { label: 'Search Live', cls: 'bg-blue-600/90' }
+ if (item.source === 'api_error') return { label: '️ API Error', cls: 'bg-red-600/90' }
     return null
   })()
 
@@ -115,11 +115,11 @@ function TransportCard({ item, showDetail }: Props) {
               </span>
             )}
             {item.rating != null && (
-              <span className="text-xs text-[var(--text-muted)]">⭐ {item.rating}</span>
+ <span className="text-xs text-[var(--text-muted)]">{item.rating}</span>
             )}
             {item.stops != null && (
               <span className="text-xs text-[var(--text-muted)]">
-                {item.stops === 0 ? '✈️ Direct' : `${item.stops} stop${item.stops > 1 ? 's' : ''}`}
+ {item.stops === 0 ? '️ Direct' : `${item.stops} stop${item.stops > 1 ? 's' : ''}`}
               </span>
             )}
           </div>
@@ -143,7 +143,7 @@ function TransportCard({ item, showDetail }: Props) {
         {showDetail && item.offers?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {item.offers.map((o: string, i: number) => (
-              <span key={i} className="badge badge-amber text-[0.65rem]">🏷️ {o}</span>
+ <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
             ))}
           </div>
         )}

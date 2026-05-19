@@ -43,6 +43,7 @@ export default function LocationAutocomplete({
   // Tracks whether the last input change was a user selecting a suggestion
   // (prevents re-triggering a search after selection)
   const isSelectingRef = useRef(false)
+  const isFocusedRef = useRef(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
@@ -105,7 +106,7 @@ export default function LocationAutocomplete({
     abortRef.current = new AbortController()
 
     setState({ status: 'loading' })
-    setIsOpen(true)
+    if (isFocusedRef.current) setIsOpen(true)
 
     try {
       const res = await tripAPI.getAutocomplete(searchTerm)
@@ -154,6 +155,7 @@ export default function LocationAutocomplete({
 
       queryCache.set(cacheKey, locations)
       setState({ status: 'success', data: locations })
+      if (isFocusedRef.current) setIsOpen(true)
     } catch (err: any) {
       if (err?.name === 'AbortError') return // Silently ignore cancelled requests
       console.error('[LocationAutocomplete] fetch error:', err?.message)
@@ -178,6 +180,7 @@ export default function LocationAutocomplete({
   }
 
   const handleFocus = () => {
+    isFocusedRef.current = true
     if (
       state.status === 'success' ||
       state.status === 'empty' ||
@@ -185,6 +188,14 @@ export default function LocationAutocomplete({
     ) {
       setIsOpen(true)
     }
+  }
+
+  const handleBlur = () => {
+    isFocusedRef.current = false
+    // Delay closing slightly to allow click on dropdown items to register first
+    setTimeout(() => {
+      setIsOpen(false)
+    }, 200)
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -201,6 +212,7 @@ export default function LocationAutocomplete({
         spellCheck={false}
         onChange={handleInputChange}
         onFocus={handleFocus}
+        onBlur={handleBlur}
         aria-autocomplete="list"
         aria-expanded={isOpen}
         role="combobox"
@@ -235,7 +247,7 @@ export default function LocationAutocomplete({
           {/* No results */}
           {state.status === 'empty' && (
             <div className="px-4 py-5 text-sm text-center" style={{ color: '#94a3b8' }}>
-              <div className="text-2xl mb-1">📍</div>
+ <div className="text-2xl mb-1"></div>
               No cities found for &ldquo;{query}&rdquo;
             </div>
           )}
@@ -273,7 +285,7 @@ export default function LocationAutocomplete({
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <span style={{ fontSize: '1rem' }}>📍</span>
+ <span style={{ fontSize: '1rem' }}></span>
                     <span
                       className="text-sm font-semibold"
                       style={{ color: '#f1f5f9' }}

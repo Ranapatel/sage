@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/admin/'],
+      disallow: ['/api/', '/admin/', '/seo-dashboard/'],
     },
     sitemap: 'https://tripsage.in/sitemap.xml',
   }

@@ -3,6 +3,7 @@ import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import KeepAlive from '@/components/KeepAlive'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tripsage.in'),
@@ -145,6 +146,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+        {/* Keep backend awake */}
+        <KeepAlive />
+        
         {children}
         <Toaster
           position="top-right"

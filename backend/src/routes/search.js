@@ -5,6 +5,7 @@ const { searchFlights, searchHotels, searchBuses, searchCars } = require('../ser
 const { getWeather } = require('../services/weatherService')
 const { enrichHotelsWithImages, enrichFlightsWithImages } = require('../services/imageService')
 const { v4: uuidv4 } = require('uuid')
+const { fetchWithRetry } = require('../utils/fetchWithRetry')
 
 // Input validation
 const searchValidation = [
@@ -34,23 +35,38 @@ router.post('/', searchValidation, async (req, res) => {
   const timestamp = new Date().toISOString()
 
   try {
-    // Execute all searches in parallel (3-5 sec timeout)
-    const [flightResult, hotelResult, busResult, carResult, weatherResult] = await Promise.allSettled([
-      searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
-      searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget }),
-      searchBuses({ from, to, date: startDate, budget }),
-      searchCars({ destination: to, date: startDate, budget }),
-      getWeather(to),
+    // Execute all searches in parallel — each with 10s timeout and 2 retries
+    const [flightResult, hotelResult, busResult, carResult, weatherResult] = await Promise.all([
+      fetchWithRetry(
+        () => searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
+        { timeout: 10000, maxRetries: 2, label: 'Flights' }
+      ).catch(() => ({ data: [], meta: { source: 'error' } })),
+      fetchWithRetry(
+        () => searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget }),
+        { timeout: 10000, maxRetries: 2, label: 'Hotels' }
+      ).catch(() => ({ data: [], meta: { source: 'error' } })),
+      fetchWithRetry(
+        () => searchBuses({ from, to, date: startDate, budget }),
+        { timeout: 10000, maxRetries: 2, label: 'Buses' }
+      ).catch(() => ({ data: [] })),
+      fetchWithRetry(
+        () => searchCars({ destination: to, date: startDate, budget }),
+        { timeout: 10000, maxRetries: 2, label: 'Cars' }
+      ).catch(() => ({ data: [] })),
+      fetchWithRetry(
+        () => getWeather(to),
+        { timeout: 10000, maxRetries: 2, label: 'Weather' }
+      ).catch(() => ({ data: null })),
     ])
 
-    const transport = flightResult.status === 'fulfilled' ? flightResult.value.data : []
-    const hotels = hotelResult.status === 'fulfilled' ? hotelResult.value.data : []
-    const buses = busResult.status === 'fulfilled' ? busResult.value.data : []
-    const cars = carResult.status === 'fulfilled' ? carResult.value.data : []
-    const weather = weatherResult.status === 'fulfilled' ? weatherResult.value.data : null
+    const transport = flightResult.data || []
+    const hotels = hotelResult.data || []
+    const buses = busResult.data || []
+    const cars = carResult.data || []
+    const weather = weatherResult.data || null
 
-    const flightSource = flightResult.status === 'fulfilled' ? flightResult.value.meta?.source : 'error'
-    const hotelSource = hotelResult.status === 'fulfilled' ? hotelResult.value.meta?.source : 'error'
+    const flightSource = flightResult.meta?.source || 'error'
+    const hotelSource = hotelResult.meta?.source || 'error'
 
     // Enrich with real Unsplash images (non-blocking — falls back silently)
     const [enrichedHotels, enrichedFlights] = await Promise.all([

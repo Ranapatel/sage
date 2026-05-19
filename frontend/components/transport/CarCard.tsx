@@ -45,7 +45,7 @@ function CarCard({ item }: Props) {
           {item.offers?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
               {item.offers.map((o: string, i: number) => (
-                <span key={i} className="badge badge-amber text-[0.65rem]">🏷️ {o}</span>
+ <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
               ))}
             </div>
           )}

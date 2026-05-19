@@ -27,8 +27,8 @@ export default function AuthClient() {
   })
   const [activeLegal, setActiveLegal] = useState<{ title: string; content: React.ReactNode } | null>(null)
 
-  useEffect(() => { if (isLoggedIn) router.push('/plan') }, [isLoggedIn])
-  useEffect(() => { if (error) { toast.error(error); clearError() } }, [error])
+  useEffect(() => { if (isLoggedIn) router.push('/plan') }, [isLoggedIn, router])
+  useEffect(() => { if (error) { toast.error(error); clearError() } }, [error, clearError])
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
 
@@ -45,7 +45,7 @@ export default function AuthClient() {
         if (!agreeTerms) { toast.error('You must agree to the Terms & Conditions'); return }
         await signup({ name: form.name, email: form.email, password: form.password, currency: form.currency, country: form.country })
         trackEvent('signup', { method: 'email' })
-        toast.success(`Welcome to TripSage, ${form.name}! ✈️`)
+ toast.success(`Welcome to TripSage, ${form.name}!️`)
       }
       router.push('/plan')
     } catch { /* error handled by store + toast */ }

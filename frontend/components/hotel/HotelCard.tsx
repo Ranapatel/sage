@@ -35,7 +35,7 @@ function HotelCard({ item, showDetail }: Props) {
     addNotification({
       id: Date.now().toString(),
       type: 'info',
-      title: '🏨 Hotel Selected',
+ title: 'Hotel Selected',
       message: `${item.name}${displayPrice ? ` - ${displayPrice}/night` : ''}`,
       timestamp: new Date().toISOString(),
       read: false,
@@ -45,9 +45,9 @@ function HotelCard({ item, showDetail }: Props) {
 
   // ── Source badge config ────────────────────────────────────────────────────
   const sourceBadge = (() => {
-    if (item.source === 'live') return { label: '🔴 Live Price', cls: 'badge-green' }
-    if (item.source === 'affiliate_redirect') return { label: '🔗 Search Live', cls: 'badge-amber' }
-    if (item.source === 'api_error') return { label: '⚠️ Unavailable', cls: 'badge-red' }
+ if (item.source === 'live') return { label: 'Live Price', cls: 'badge-green' }
+ if (item.source === 'affiliate_redirect') return { label: 'Search Live', cls: 'badge-amber' }
+ if (item.source === 'api_error') return { label: '️ Unavailable', cls: 'badge-red' }
     return null
   })()
 
@@ -75,10 +75,10 @@ function HotelCard({ item, showDetail }: Props) {
         )}
 
         <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
-          <div className="text-white text-xs flex items-center gap-1">📍 {item.location}</div>
+ <div className="text-white text-xs flex items-center gap-1">{item.location}</div>
           {rawRating > 0 && (
             <div className="flex items-center gap-1">
-              <span className="text-yellow-400 text-xs">{'★'.repeat(filled)}{'☆'.repeat(empty)}</span>
+ <span className="text-yellow-400 text-xs">{''.repeat(filled)}{''.repeat(empty)}</span>
               <span className="text-white/80 text-[0.65rem]">{normRating}/5</span>
             </div>
           )}
@@ -128,7 +128,7 @@ function HotelCard({ item, showDetail }: Props) {
         {showDetail && item.offers?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {item.offers.map((o: string, i: number) => (
-              <span key={i} className="badge badge-amber text-[0.65rem]">🏷️ {o}</span>
+ <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
             ))}
           </div>
         )}

@@ -33,12 +33,12 @@ export default function FeedbackModal({ onClose }: Props) {
 
     addNotification({
       id: Date.now().toString(), type: 'info',
-      title: '💬 Feedback Submitted',
-      message: `${rating}⭐ — Thank you for your review of ${tripContext.destination}!`,
+ title: 'Feedback Submitted',
+ message: `${rating}— Thank you for your review of ${tripContext.destination}!`,
       timestamp: new Date().toISOString(), read: false,
     })
 
-    toast.success('Thank you for your feedback! 🙏')
+ toast.success('Thank you for your feedback!')
     setSubmitting(false)
     onClose()
   }
@@ -51,7 +51,7 @@ export default function FeedbackModal({ onClose }: Props) {
       <div className="glass-dark rounded-2xl border border-[var(--border)] shadow-2xl w-full max-w-lg animate-slide-up">
         {/* Header */}
         <div className="p-6 border-b border-[var(--border)] text-center">
-          <div className="text-4xl mb-2">🌟</div>
+ <div className="text-4xl mb-2"></div>
           <h2 className="font-bold text-xl text-[var(--text-primary)]">How was your trip?</h2>
           <p className="text-[var(--text-muted)] text-sm mt-1">
             {tripContext.destination && `Rate your experience in ${tripContext.destination}`}
@@ -71,7 +71,7 @@ export default function FeedbackModal({ onClose }: Props) {
                   onClick={() => setRating(s)}
                   className="text-4xl transition-transform hover:scale-125"
                 >
-                  <span className={s <= (hovered || rating) ? 'text-yellow-400' : 'text-[var(--border)]'}>★</span>
+ <span className={s <= (hovered || rating) ? 'text-yellow-400' : 'text-[var(--border)]'}></span>
                 </button>
               ))}
             </div>
@@ -96,7 +96,7 @@ export default function FeedbackModal({ onClose }: Props) {
                       : 'border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
                   }`}
                 >
-                  {tags.includes(tag) ? '✓ ' : ''}{tag}
+ {tags.includes(tag) ? '' : ''}{tag}
                 </button>
               ))}
             </div>
@@ -126,7 +126,7 @@ export default function FeedbackModal({ onClose }: Props) {
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                   Submitting...
                 </span>
-              ) : '🚀 Submit Feedback'}
+ ) : 'Submit Feedback'}
             </button>
             <button onClick={onClose} className="btn-outline py-3 px-5 text-sm">
               Skip

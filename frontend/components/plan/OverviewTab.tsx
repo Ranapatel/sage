@@ -1,7 +1,10 @@
 'use client'
 
 import React, { memo, lazy, Suspense } from 'react'
-import { Plane, Hotel, Sun, Calendar, History, RefreshCw, Check, ClipboardList } from 'lucide-react'
+import { 
+  Truck, PlaneLanding, History, PlaneTakeoff, Building2, 
+  CloudSun, CalendarDays, Check, ClipboardList, Star, Calendar, Plane
+} from 'lucide-react'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import TransportCard from '../transport/TransportCard'
@@ -73,18 +76,18 @@ function OverviewTab({
       <div className="card p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-sm text-[var(--text-primary)]">
-            {tripStatus === 'completed' ? '✅ Trip Completed' : `🗺️ Trip Progress — ${progress}%`}
+            {tripStatus === 'completed' ? 'Trip Completed' : `Trip Progress — ${progress}%`}
           </h3>
           <div className="flex items-center gap-2">
             {tripStatus !== 'completed' ? (
               <button onClick={onCompleteTrip} disabled={itinerary.length === 0}
-                className="text-xs px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                ✅ Complete Trip
+                className="text-xs px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5">
+                <Check size={14} /> Complete Trip
               </button>
             ) : (
               <button onClick={onNewTrip}
-                className="text-xs px-3 py-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/30 hover:bg-[var(--primary)]/20 transition-all">
-                ✈️ Start New Trip
+                className="text-xs px-3 py-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/30 hover:bg-[var(--primary)]/20 transition-all flex items-center gap-1.5">
+                <Plane size={14} /> Start New Trip
               </button>
             )}
           </div>
@@ -107,14 +110,14 @@ function OverviewTab({
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'View Transport', icon: Plane, tab: 'transport', count: transport.length, color: 'text-blue-400' },
-          { label: 'Return Flight', icon: RefreshCw, tab: 'return', count: bookingStatus.returnStatus === 'CONFIRMED' ? 1 : 0, color: 'text-[var(--primary)]' },
+          { label: 'View Transport', icon: Truck, tab: 'transport', count: transport.length, color: 'text-blue-400' },
+          { label: 'Return Flight', icon: PlaneLanding, tab: 'return', count: bookingStatus.returnStatus === 'CONFIRMED' ? 1 : 0, color: 'text-[var(--primary)]' },
           { label: 'Trip History', icon: History, tab: 'history', count: tripHistory?.length || 0, color: 'text-purple-400' },
         ].map(a => (
           <button key={a.tab} onClick={() => onTabChange(a.tab)}
             className="card p-4 text-center hover:border-[var(--border-bright)] transition-all group">
-            <div className="flex justify-center mb-1">
-              <a.icon size={32} className={`${a.color} group-hover:text-[var(--accent)] transition-colors`} />
+            <div className="flex justify-center mb-2">
+              <a.icon size={20} className={`${a.color} group-hover:text-[var(--accent)] transition-all duration-300 hover:brightness-125`} />
             </div>
             <div className="flex justify-center">
               {loading || (a.count === 0 && a.tab !== 'history') ? (
@@ -131,14 +134,14 @@ function OverviewTab({
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Best Flight', value: transport[0] ? formatPrice(transport[0].price, currency) : '--', icon: Plane, color: 'text-blue-400' },
-          { label: 'Best Hotel', value: hotels[0] ? `${formatPrice(hotels[0].price, currency)}/night` : '--', icon: Hotel, color: 'text-green-400' },
-          { label: 'Weather', value: weather ? `${weather.temperature}°C` : '--', icon: Sun, color: 'text-yellow-400' },
-          { label: 'Days Planned', value: itinerary.length || 0, icon: Calendar, color: 'text-purple-400' },
+          { label: 'Best Flight', value: transport[0] ? formatPrice(transport[0].price, currency) : '--', icon: PlaneTakeoff, color: 'text-blue-400' },
+          { label: 'Best Hotel', value: hotels[0] ? `${formatPrice(hotels[0].price, currency)}/night` : '--', icon: Building2, color: 'text-green-400' },
+          { label: 'Weather', value: weather ? `${weather.temperature}°C` : '--', icon: CloudSun, color: 'text-yellow-400' },
+          { label: 'Days Planned', value: itinerary.length || 0, icon: CalendarDays, color: 'text-purple-400' },
         ].map((s, i) => (
           <div key={i} className="card p-4 group">
             <div className="mb-2">
-              <s.icon size={32} className={`${s.color} group-hover:text-[var(--accent)] transition-colors`} />
+              <s.icon size={20} className={`${s.color} group-hover:text-[var(--accent)] transition-all duration-300 hover:brightness-125`} />
             </div>
             {loading || s.value === '--' || s.value === 0 ? (
               <div className="shimmer h-7 w-24 mb-1" />
@@ -168,14 +171,14 @@ function OverviewTab({
           {/* Return journey visibility */}
           <div className="card p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <RefreshCw size={32} className="text-[var(--primary)]" />
+              <PlaneLanding size={32} className="text-[var(--primary)]" />
               <div>
                 <p className="font-semibold text-sm text-[var(--text-primary)]">Return Journey</p>
                 <p className="text-xs text-[var(--text-muted)]">
                   {bookingStatus.returnStatus === 'CONFIRMED'
-                    ? `✅ ${bookingStatus.selectedReturn?.name}`
+                    ? `Confirmed: ${bookingStatus.selectedReturn?.name}`
                     : bookingStatus.returnStatus === 'SELECTED'
-                    ? '⏳ Selected — confirm to book'
+                    ? 'Selected — confirm to book'
                     : 'Not yet booked'}
                 </p>
               </div>
@@ -244,8 +247,14 @@ function OverviewTab({
                     <div>
                       <p className="font-semibold text-[var(--text-primary)]">{t.destination}</p>
                       <p className="text-[var(--text-muted)]">{t.dates.start || 'No date'}</p>
+                      {t.rating && (
+                        <div className="flex items-center gap-0.5 text-yellow-400 mt-1">
+                          {Array.from({ length: t.rating }).map((_, idx) => (
+                            <Star key={idx} size={10} fill="currentColor" stroke="none" />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {t.rating && <span className="text-yellow-400">{'★'.repeat(t.rating)}</span>}
                   </div>
                 ))}
               </div>
