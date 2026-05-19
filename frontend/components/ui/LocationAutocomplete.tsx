@@ -216,6 +216,7 @@ export default function LocationAutocomplete({
         aria-autocomplete="list"
         aria-expanded={isOpen}
         role="combobox"
+        suppressHydrationWarning
       />
 
       {/* Loading spinner inside input */}

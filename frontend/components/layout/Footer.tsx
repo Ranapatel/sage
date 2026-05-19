@@ -161,6 +161,7 @@ export default function Footer() {
                     key={link.title}
                     onClick={() => setActiveLegal(link)} 
                     className="hover:text-blue-400 transition-colors text-left flex items-center gap-2 group"
+                    suppressHydrationWarning
                   >
                     <link.icon size={16} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
                     {link.title}

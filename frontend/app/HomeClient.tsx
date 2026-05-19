@@ -15,14 +15,14 @@ import { SYMBOLS, CURRENCY_NAMES } from '@/lib/currency'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
-import { 
-  MapPin, 
-  Calendar, 
-  Wallet, 
-  Users, 
-  Compass, 
-  Zap, 
-  Sparkles, 
+import {
+  MapPin,
+  Calendar,
+  Wallet,
+  Users,
+  Compass,
+  Zap,
+  Sparkles,
   LogOut,
   X,
   Menu,
@@ -178,10 +178,10 @@ export default function HomeClient() {
               transition={{ duration: 1.5 }}
               className="absolute inset-0"
             >
-              <Image 
-                src={getOptimizedImageUrl(HERO_IMAGES[currentImage], false)} 
-                alt="Travel Hero" 
-                fill 
+              <Image
+                src={getOptimizedImageUrl(HERO_IMAGES[currentImage], false)}
+                alt="Travel Hero"
+                fill
                 className="object-cover object-center"
                 priority
                 loading="eager"
@@ -196,7 +196,7 @@ export default function HomeClient() {
 
         <div className="relative z-10 text-center max-w-5xl mx-auto">
 
-          <motion.h1 
+          <motion.h1
             className="section-title text-[clamp(2.5rem,7vw,5rem)] mb-8 font-extrabold tracking-tight text-slate-900 md:text-white leading-[1.1] md:drop-shadow-lg"
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
@@ -207,7 +207,7 @@ export default function HomeClient() {
             <span className="text-blue-600 md:text-blue-400">Travel Operating</span> <span className="text-orange-600 md:text-orange-400">System</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             className="text-slate-600 md:text-slate-100 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium md:drop-shadow-md"
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
@@ -218,9 +218,9 @@ export default function HomeClient() {
           </motion.p>
 
           {/* SEARCH FORM */}
-          <motion.form 
+          <motion.form
             ref={formRef}
-            onSubmit={handleSubmit} 
+            onSubmit={handleSubmit}
             className="bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-3xl rounded-[40px] px-4 py-8 md:p-12 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.18)] border border-white/60 max-w-5xl mx-auto text-left relative overflow-hidden w-full"
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
@@ -261,6 +261,7 @@ export default function HomeClient() {
                       className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 cursor-pointer appearance-none pr-4 focus:ring-0 focus:outline-none"
                       value={form.currency}
                       onChange={e => setForm(p => ({ ...p, currency: e.target.value as any }))}
+                      suppressHydrationWarning
                       style={{
                         backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E")`,
                         backgroundPosition: 'right center',
@@ -290,6 +291,7 @@ export default function HomeClient() {
                     type="number"
                     value={form.budget}
                     onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
+                    suppressHydrationWarning
                   />
                 </div>
               </div>
@@ -306,6 +308,7 @@ export default function HomeClient() {
                     value={form.startDate}
                     onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
                     required
+                    suppressHydrationWarning
                   />
                 </div>
               </div>
@@ -318,6 +321,7 @@ export default function HomeClient() {
                     type="date"
                     value={form.endDate}
                     onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
+                    suppressHydrationWarning
                   />
                 </div>
               </div>
@@ -329,6 +333,7 @@ export default function HomeClient() {
                     className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300"
                     value={form.travelers}
                     onChange={e => setForm(p => ({ ...p, travelers: e.target.value }))}
+                    suppressHydrationWarning
                   >
                     {[1, 2, 3, 4, 5, 6].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'People'}</option>
@@ -344,6 +349,7 @@ export default function HomeClient() {
                     className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300"
                     value={form.style}
                     onChange={e => setForm(p => ({ ...p, style: e.target.value }))}
+                    suppressHydrationWarning
                   >
                     {['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business'].map(s => (
                       <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -353,7 +359,7 @@ export default function HomeClient() {
               </div>
             </div>
 
-            <button type="submit" className="btn-primary w-full py-6 text-xl font-bold flex items-center justify-center gap-4 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-orange-500/30" disabled={loading}>
+            <button type="submit" suppressHydrationWarning className="btn-primary w-full py-6 text-xl font-bold flex items-center justify-center gap-4 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-orange-500/30" disabled={loading}>
               {loading ? (
                 <><span className="inline-block w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></span> Initializing AI Engine...</>
               ) : (
@@ -370,11 +376,10 @@ export default function HomeClient() {
                 <button
                   key={i}
                   onClick={() => setCurrentImage(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    currentImage === i 
-                      ? 'bg-blue-500 w-8' 
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${currentImage === i
+                      ? 'bg-blue-500 w-8'
                       : 'bg-white/40 hover:bg-white/60'
-                  }`}
+                    }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
               ))}
@@ -382,7 +387,7 @@ export default function HomeClient() {
           )}
 
           {/* Feature Badges below form */}
-          <motion.div 
+          <motion.div
             className="flex flex-wrap items-center justify-center gap-12 mt-16"
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
@@ -418,8 +423,8 @@ export default function HomeClient() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {FEATURES.map((f, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="bg-white/60 backdrop-blur-md border border-white/50 rounded-[32px] p-8 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all duration-500 group"
             >
               <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform flex-shrink-0">
@@ -436,8 +441,8 @@ export default function HomeClient() {
       <section className="py-10 px-6 max-w-7xl mx-auto text-center border-t border-slate-100">
         <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-8">Want to see how the magic happens?</h2>
-          <Link 
-            href="/learn-more" 
+          <Link
+            href="/learn-more"
             className="inline-flex items-center justify-center gap-2 px-10 py-4 text-lg font-bold rounded-full transition-all hover:scale-[1.05] active:scale-[0.95] shadow-sm border-2 border-orange-500 text-orange-500 bg-white hover:bg-orange-50 hover:text-orange-600"
           >
             Learn More
@@ -466,11 +471,11 @@ export default function HomeClient() {
                   }
                 }}
               >
-                <Image 
-                  src={getOptimizedImageUrl(d.img, !isDesktop)} 
-                  alt={d.name} 
+                <Image
+                  src={getOptimizedImageUrl(d.img, !isDesktop)}
+                  alt={d.name}
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
                   sizes="(max-width: 768px) 280px, (max-width: 1200px) 33vw, 16vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
@@ -496,18 +501,12 @@ export default function HomeClient() {
               View All Guides <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-<<<<<<< HEAD
               { title: 'AI Trip Planner India', desc: 'The definitive guide to planning your Indian holiday with AI.', link: '/seo/ai-trip-planner-india', img: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=400&q=80' },
               { title: 'Budget Bali Trip', desc: 'How to plan a budget-friendly trip to Bali from India.', link: '/seo/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
               { title: 'Solo Travel Guide', desc: 'Expert tips for exploring India safely and confidently.', link: '/seo/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80' }
-=======
-              { title: 'AI Trip Planner India', desc: 'The definitive guide to planning your Indian holiday with AI.', link: '/ai-trip-planner-india', img: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=400&q=80' },
-              { title: 'Budget Bali Hacks', desc: 'How to see the best of Bali without breaking the bank.', link: '/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
-              { title: 'Solo Travel Guide', desc: 'Expert tips for exploring India safely and confidently.', link: '/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80' }
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
             ].map((g, i) => (
               <Link key={i} href={g.link} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 flex flex-col">
                 <div className="relative h-48">
@@ -529,7 +528,7 @@ export default function HomeClient() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {STATS.map((s, i) => (
-              <div 
+              <div
                 key={i}
                 className="text-center"
               >
@@ -557,8 +556,8 @@ export default function HomeClient() {
               { step: '03', icon: Zap, title: 'Book', desc: 'Real-time flight & hotel options' },
               { step: '04', icon: Compass, title: 'Explore', desc: 'Live navigation & notifications' },
             ].map((s, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="bg-white/60 backdrop-blur-md border border-white/50 p-8 rounded-[32px] text-center relative shadow-sm hover:shadow-xl hover:bg-white/80 transition-all duration-500"
               >
                 <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-6">
@@ -569,7 +568,7 @@ export default function HomeClient() {
                 <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
                 {i < 3 && (
                   <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 z-10 text-gray-200">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                   </div>
                 )}
               </div>

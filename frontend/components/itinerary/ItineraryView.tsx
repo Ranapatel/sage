@@ -62,11 +62,7 @@ async function fetchPlaceImages(placeName: string, category: string, destination
   // Curated fallbacks by category
   const fallbacks: Record<string, string[]> = {
     transport: [
-<<<<<<< HEAD
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80',
-=======
-      'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&q=80',
->>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
       'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&q=80',
       'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80',
     ],
