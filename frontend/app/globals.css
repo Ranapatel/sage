@@ -36,7 +36,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior is set via data-scroll-behavior="smooth" on the <html>
+     element in layout.tsx — Next.js handles smooth scrolling that way to
+     avoid conflicts during route transitions */
 }
 
 body {

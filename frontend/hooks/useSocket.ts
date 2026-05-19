@@ -5,7 +5,7 @@ import { io, Socket } from 'socket.io-client'
 import { useTripStore } from '@/store/tripStore'
 import toast from 'react-hot-toast'
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000'
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null)

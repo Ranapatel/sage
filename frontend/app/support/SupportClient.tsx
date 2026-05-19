@@ -90,8 +90,8 @@ export default function SupportClient() {
       {/* NAV */}
       <nav className="glass-dark sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={56} height={56} className="rounded-2xl shadow-lg border border-[var(--border)]" />
+          <img src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
+              alt="TripSage" width={56} height={56} className="rounded-2xl shadow-lg border border-[var(--border)] w-[56px] h-[56px] object-contain" />
           <span className="font-bold text-[var(--primary)]">TripSage</span>
         </Link>
         <div className="flex items-center gap-3">

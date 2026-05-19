@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import PlanClient from './PlanClient'
+import PlanClientWrapper from './PlanClientWrapper'
 
 export const metadata: Metadata = {
   title: 'AI Trip Planner | Design Your Perfect Itinerary',
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function PlanPage() {
-  return <PlanClient />
+  return <PlanClientWrapper />
 }

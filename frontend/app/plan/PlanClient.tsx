@@ -370,11 +370,19 @@ export default function PlanClient() {
     <div className="min-h-screen bg-grid">
       {/* TOP NAV */}
       <nav className="glass-dark sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+<<<<<<< HEAD
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
             <Image
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
               alt="TripSage" width={32} height={32} className="rounded-lg shrink-0"
+=======
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.push('/')} className="flex items-center gap-2">
+            <img
+              src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
+              alt="TripSage" width={32} height={32} className="rounded-lg w-[32px] h-[32px] object-contain"
+>>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
             />
             <span className="font-bold text-[var(--primary)] text-lg hidden sm:block tracking-tight whitespace-nowrap">TripSage</span>
           </button>
@@ -398,7 +406,9 @@ export default function PlanClient() {
 
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Download + Share */}
-          <TripActions />
+          <Suspense fallback={null}>
+            <TripActions />
+          </Suspense>
 
           {/* Notifications */}
           <button
@@ -421,6 +431,7 @@ export default function PlanClient() {
           </button>
 
           {/* Currency selector */}
+<<<<<<< HEAD
           <CurrencySelector
             value={currency}
             onChange={val => {
@@ -429,6 +440,15 @@ export default function PlanClient() {
             }}
             className="hidden sm:block min-w-[140px]"
           />
+=======
+          <Suspense fallback={null}>
+            <CurrencySelector
+              value={currency}
+              onChange={val => updateCurrency(val as any)}
+              className="hidden sm:block min-w-[140px]"
+            />
+          </Suspense>
+>>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
 
           {tripStatus === 'planning' || tripStatus === 'active' ? (
             <button
@@ -489,6 +509,7 @@ export default function PlanClient() {
         <div className="sm:hidden fixed inset-0 top-[60px] bg-[var(--bg-dark)] z-[9999] p-6 flex flex-col gap-6 animate-fade-in overflow-y-auto">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[var(--text-primary)]">Currency</span>
+<<<<<<< HEAD
             <CurrencySelector
               value={currency}
               onChange={val => {
@@ -497,6 +518,15 @@ export default function PlanClient() {
               }}
               className="min-w-[140px]"
             />
+=======
+            <Suspense fallback={null}>
+              <CurrencySelector
+                value={currency}
+                onChange={val => updateCurrency(val as any)}
+                className="min-w-[140px]"
+              />
+            </Suspense>
+>>>>>>> 97f35f5bb4479bf3f1e3d6a137a43ea4a51a5a75
           </div>
           
           {tripStatus === 'planning' || tripStatus === 'active' ? (
@@ -537,38 +567,46 @@ export default function PlanClient() {
       {/* NOTIFICATIONS PANEL */}
       {showNotifs && (
         <div className="fixed top-16 right-4 z-50 w-80">
-          <NotificationsPanel onClose={() => setShowNotifs(false)} />
+          <Suspense fallback={null}>
+            <NotificationsPanel onClose={() => setShowNotifs(false)} />
+          </Suspense>
         </div>
       )}
 
       {/* SEARCH BAR */}
-      <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
-        <div className="glass rounded-xl p-3 sm:p-4 w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
-            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
-              onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
-            <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
-              onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
-              onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
-              onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
-            <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
-              onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
-            <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.travelers}
-              onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
-              {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
-            </select>
-            <button
-              onClick={() => runSearch()}
-              className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
-              disabled={loading}
-            >
-              {loading ? '...' : <><Search size={16} /> Search</>}
-            </button>
+      {activeTab === 'overview' && (
+        <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
+          <div className="glass rounded-xl p-3 sm:p-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
+              <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." disabled />}>
+                <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
+                  onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
+              </Suspense>
+              <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="To..." disabled />}>
+                <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
+                  onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
+              </Suspense>
+              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
+                onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
+              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
+                onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
+              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
+                onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
+              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.travelers}
+                onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
+                {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
+              </select>
+              <button
+                onClick={() => runSearch()}
+                className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
+                disabled={loading}
+              >
+                {loading ? '...' : <><Search size={16} /> Search</>}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* AI THINKING */}
       {aiThinking && (
@@ -732,7 +770,9 @@ export default function PlanClient() {
 
       {/* FEEDBACK MODAL */}
       {showFeedback && feedbackStatus === 'pending' && (
-        <FeedbackModal onClose={() => setShowFeedback(false)} />
+        <Suspense fallback={null}>
+          <FeedbackModal onClose={() => setShowFeedback(false)} />
+        </Suspense>
       )}
 
       {/* MOBILE BOTTOM NAV */}

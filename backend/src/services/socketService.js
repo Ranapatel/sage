@@ -1,4 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
+const { searchFlights, searchHotels, searchBuses, searchCars } = require('./travelService')
+const { generateItinerary } = require('./aiService')
+const { enrichHotelsWithImages, enrichFlightsWithImages } = require('./imageService')
 
 const sessions = new Map()
 const subscriptions = new Map()
@@ -37,6 +40,89 @@ module.exports = function setupSocket(io) {
     socket.on('SEARCH_REQUEST', async (data) => {
       socket.emit('SEARCH_START', { timestamp: new Date().toISOString() })
       // Search results would come from the search service
+    })
+
+    socket.on('GENERATE_TRIP_STREAM', async (data) => {
+      const { destination, from, startDate, endDate, budget, travelers, style, preferences } = data
+      const startTime = Date.now()
+      console.log(`[Perf] Starting trip generation for ${destination}`)
+      
+      socket.emit('TRIP_STAGE', { stage: 'analysis', data: { userType: style }, message: 'Analyzing request' })
+
+      try {
+        const fetchStart = Date.now()
+        // Execute parallel requests for fast transport/hotel results
+        const [flightRes, hotelRes, busRes, carRes] = await Promise.allSettled([
+          searchFlights({ from, to: destination, date: startDate, returnDate: endDate, travelers, budget }),
+          searchHotels({ destination, checkin: startDate, checkout: endDate, members: travelers, budget }),
+          searchBuses({ from, to: destination, date: startDate, budget }),
+          searchCars({ destination, date: startDate, budget }),
+        ])
+
+        const flights = flightRes.status === 'fulfilled' ? flightRes.value?.data || [] : []
+        const hotels = hotelRes.status === 'fulfilled' ? hotelRes.value?.data || [] : []
+        const buses = busRes.status === 'fulfilled' ? busRes.value?.data || [] : []
+        const cars = carRes.status === 'fulfilled' ? carRes.value?.data || [] : []
+        const fetchLatency = Date.now() - fetchStart
+        console.log(`[Perf] Parallel APIs completed in ${fetchLatency}ms (Flights/Hotels/Buses/Cars)`)
+
+        // Enrich images without blocking
+        enrichHotelsWithImages(hotels, destination).catch(() => {})
+        enrichFlightsWithImages(flights, destination).catch(() => {})
+
+        // Stream transport and hotel results immediately
+        socket.emit('TRIP_STAGE', { 
+          stage: 'transport', 
+          data: { flights, buses, cars }, 
+          message: 'Transport options loaded' 
+        })
+        
+        socket.emit('TRIP_STAGE', { 
+          stage: 'hotels', 
+          data: hotels, 
+          message: 'Hotels loaded' 
+        })
+
+        // Calculate days
+        let days = 3;
+        if (startDate && endDate) {
+          const s = new Date(startDate);
+          const e = new Date(endDate);
+          if (!isNaN(s) && !isNaN(e)) {
+            days = Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
+          }
+        }
+
+        // Then asynchronously fetch the itinerary from Groq
+        const aiStart = Date.now()
+        const itineraryRes = await generateItinerary({ 
+          destination, 
+          days, 
+          budget, 
+          style, 
+          preferences, 
+          members: travelers, 
+          startDate 
+        })
+        const aiLatency = Date.now() - aiStart
+        console.log(`[Perf] AI Itinerary generation completed in ${aiLatency}ms`)
+
+        if (itineraryRes.success) {
+          socket.emit('TRIP_STAGE', { 
+            stage: 'itinerary', 
+            data: itineraryRes.data.itinerary, 
+            message: 'Itinerary generated' 
+          })
+        }
+
+        const totalLatency = Date.now() - startTime
+        console.log(`[Perf] Total Trip Generation Stream completed in ${totalLatency}ms`)
+        socket.emit('TRIP_STAGE', { stage: 'complete', message: 'Trip generation complete' })
+
+      } catch (error) {
+        console.error('[TripSage Socket] Stream error:', error)
+        socket.emit('TRIP_STAGE', { stage: 'error', message: error.message })
+      }
     })
 
     // User location update for location-based notifications

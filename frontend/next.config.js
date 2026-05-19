@@ -9,10 +9,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'maps.googleapis.com' },
       { protocol: 'https', hostname: '*.booking.com' },
       { protocol: 'https', hostname: '*.expedia.com' },
-      { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'logos-world.net' },
       { protocol: 'https', hostname: '*.agoda.com' },
       { protocol: 'https', hostname: 'agoda.com' },
-      { protocol: 'https', hostname: '*.staticflickr.com' },
+      { protocol: 'https', hostname: 'www.google.com' },
+      { protocol: 'https', hostname: 'images.kiwi.com' },
     ],
   },
   async redirects() {
@@ -59,25 +60,19 @@ const nextConfig = {
     ]
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
-    NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+    NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000',
   },
   reactStrictMode: false,
-  webpack: (config, { dev }) => {
-    if (dev) {
-      // Fix Windows NTFS pack.gz rename race condition (ENOENT error in dev)
-      config.cache = { type: 'memory' }
 
-      // Use named (path-based) IDs so chunk IDs are stable across dev server
-      // restarts — prevents the "options.factory is undefined" error that occurs
-      // when the browser has a stale numeric chunk ID from a previous session.
-      config.optimization = {
-        ...config.optimization,
-        moduleIds: 'named',
-        chunkIds: 'named',
-      }
-    }
-    return config
+  // Next.js 16: Turbopack is the default bundler.
+  // Empty config silences the "webpack config with no turbopack config" error.
+  // Turbopack handles Windows NTFS cache, named chunk IDs, and in-memory
+  // caching automatically — no manual configuration needed.
+  turbopack: {
+    // Explicitly set the workspace root so Next.js doesn't get confused by
+    // the multiple package-lock.json files in the monorepo.
+    root: __dirname,
   },
 }
 

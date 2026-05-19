@@ -8,7 +8,7 @@ import { formatPrice } from '@/lib/currency'
 
 import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
-import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { getOptimizedImageUrl, getLogoUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface Props {
@@ -23,6 +23,10 @@ function TransportCard({ item, showDetail }: Props) {
   const currency = user?.currency ?? 'INR'
 
   const displayPrice = item.price ? formatPrice(item.price, currency) : null
+
+  const initialLogo = React.useMemo(() => getLogoUrl(item.logo || item.name), [item.logo, item.name])
+  const [logoSrc, setLogoSrc] = React.useState(initialLogo)
+  const [logoError, setLogoError] = React.useState(false)
 
   const handleSelect = () => {
     setBookingStatus({ flightStatus: 'SELECTED', selectedFlight: item })
@@ -63,13 +67,20 @@ function TransportCard({ item, showDetail }: Props) {
           {/* Airline logo + name overlay */}
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-3">
             {item.logo && (
-              <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-lg flex-shrink-0">
+              <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-lg flex-shrink-0 relative">
                 <Image
-                  src={item.logo}
+                  src={logoError ? '/logos/default-airline.svg' : logoSrc}
                   alt={`${item.name} logo`}
-                  width={56}
-                  height={56}
-                  className="object-contain"
+                  fill
+                  sizes="48px"
+                  className="object-contain p-1"
+                  onError={() => {
+                    if (!logoError) {
+                      setLogoError(true)
+                      setLogoSrc('/logos/default-airline.svg')
+                    }
+                  }}
+                  unoptimized={!logoError && !logoSrc.startsWith('/')}
                 />
               </div>
             )}
