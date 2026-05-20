@@ -142,7 +142,7 @@ router.get('/autocomplete', async (req, res) => {
         return (
           cls === 'place' ||
           type === 'city' || type === 'town' ||
-          type === 'village' || type === 'municipality'
+          type === 'village' || type === 'municipality' || type === 'state' || type === 'county'
         )
       })
       .sort((a, b) => (b.importance || 0) - (a.importance || 0))
@@ -187,11 +187,11 @@ router.get('/autocomplete', async (req, res) => {
     const features = pRes.data?.features || []
     const seen = new Set()
     const locations = features
-      .filter(f => ['city', 'town', 'village', 'municipality']
+      .filter(f => ['city', 'town', 'village', 'municipality', 'state', 'county']
         .includes(f.properties?.type || ''))
       .map((f, i) => {
         const p = f.properties || {}
-        const cityName = p.name || p.city || ''
+        const cityName = p.name || p.city || p.state || ''
         const country = p.country || ''
         const state = p.state || ''
         if (!cityName) return null
@@ -219,8 +219,8 @@ router.get('/autocomplete', async (req, res) => {
     console.warn('[Places] Photon error:', err.message)
   }
 
-
-  return res.status(404).json({ success: false, error: 'No locations found' })
+  // Return empty array instead of 404 to prevent frontend console errors
+  return res.json({ success: true, data: [] })
 })
 
 

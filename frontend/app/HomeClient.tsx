@@ -178,10 +178,11 @@ export default function HomeClient() {
               transition={{ duration: 1.5 }}
               className="absolute inset-0"
             >
-              <Image
-                src={getOptimizedImageUrl(HERO_IMAGES[currentImage], false)}
-                alt="Travel Hero"
-                fill
+              <Image 
+                src={getOptimizedImageUrl(HERO_IMAGES[currentImage], false)} 
+                alt="Travel Hero" 
+                fill 
+                sizes="100vw"
                 className="object-cover object-center"
                 priority
                 loading="eager"

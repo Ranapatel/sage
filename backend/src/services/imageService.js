@@ -33,7 +33,7 @@ const FALLBACK_HOTEL_IMAGES = [
 async function fetchUnsplashImage(query, orientation = 'landscape') {
   if (!UNSPLASH_KEY) return null
 
-  const cacheKey = generateCacheKey('img', { query, orientation })
+  const cacheKey = generateCacheKey('img_v2', { query, orientation })
   const cached = await cacheGet(cacheKey)
   if (cached) return cached
 
@@ -53,8 +53,9 @@ async function fetchUnsplashImage(query, orientation = 'landscape') {
     const results = res.data?.results || []
     if (results.length === 0) return null
 
-    // Pick the result with the highest likes (most relevant/quality)
-    const best = results.reduce((a, b) => (a.likes >= b.likes ? a : b))
+    // Pick a random image from the top 5 results to ensure variety across hotels in the same destination
+    const randomIndex = Math.floor(Math.random() * results.length)
+    const best = results[randomIndex]
     const url = `${best.urls.raw}&w=800&q=80&auto=format&fit=crop`
 
     // Cache for 24 hours — images don't change

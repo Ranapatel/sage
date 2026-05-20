@@ -3,6 +3,7 @@ import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import KeepAlive from '@/components/KeepAlive'
+// GoogleAnalytics from @next/third-parties omitted — it emits a spurious preload hint.
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tripsage.in'),

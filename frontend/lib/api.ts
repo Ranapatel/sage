@@ -73,8 +73,8 @@ export const tripAPI = {
   search: (params: {
     from: string; to: string; startDate: string; endDate?: string
     budget?: number; travelers?: number; style?: string
-  }): Promise<ApiResponse<SearchData>> =>
-    API.post('/api/search', params),
+  }, config?: { signal?: AbortSignal }): Promise<ApiResponse<SearchData>> =>
+    API.post('/api/search', params, config),
 
   getAutocomplete: (query: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/places/autocomplete?query=${encodeURIComponent(query)}`),
@@ -85,8 +85,8 @@ export const tripAPI = {
   generateItinerary: (params: {
     destination: string; days: number; budget: number
     style: string; preferences: string[]; members: number; startDate?: string
-  }): Promise<ApiResponse<ItineraryData>> =>
-    API.post('/api/itinerary/generate', params),
+  }, config?: { signal?: AbortSignal }): Promise<ApiResponse<ItineraryData>> =>
+    API.post('/api/itinerary/generate', params, config),
 
   optimizeBudget: (params: {
     destination: string; days: number; budget: number
@@ -94,8 +94,8 @@ export const tripAPI = {
   }): Promise<ApiResponse<string>> =>
     API.post('/api/itinerary/optimize-budget', params),
 
-  getWeather: (destination: string): Promise<ApiResponse<any>> =>
-    API.get(`/api/weather/${encodeURIComponent(destination)}`),
+  getWeather: (destination: string, config?: { signal?: AbortSignal }): Promise<ApiResponse<any>> =>
+    API.get(`/api/weather/${encodeURIComponent(destination)}`, config),
 
   initBooking: (data: { type: 'flight' | 'hotel'; itemId: string; userDetails: any }): Promise<ApiResponse<any>> =>
     API.post('/api/booking/init', data),

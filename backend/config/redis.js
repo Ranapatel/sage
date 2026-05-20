@@ -80,9 +80,11 @@ async function cacheDel(key) {
   } catch { /* silent */ }
 }
 
+const crypto = require('crypto')
+
 function generateCacheKey(prefix, params) {
   const sorted = JSON.stringify(params, Object.keys(params).sort())
-  const hash   = Buffer.from(sorted).toString('base64url').slice(0, 32)
+  const hash = crypto.createHash('md5').update(sorted).digest('hex')
   return `ts:${prefix}:${hash}`
 }
 

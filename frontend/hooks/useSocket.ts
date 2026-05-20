@@ -5,14 +5,28 @@ import { io, Socket } from 'socket.io-client'
 import { useTripStore } from '@/store/tripStore'
 import toast from 'react-hot-toast'
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
+const getSocketUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL
+
+  if (typeof window !== 'undefined') {
+    const { hostname, protocol } = window.location
+    // Detect if hostname is a local IPv4 address (e.g., 192.168.x.x) for local network testing
+    const isIpAddress = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname)
+    
+    if (isIpAddress && hostname !== '127.0.0.1') {
+      return `${protocol}//${hostname}:5000`
+    }
+  }
+  
+  return envUrl || 'http://localhost:5000'
+}
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null)
   const { setConnected, setTransport, setHotels, setBuses, setCars, setItinerary, setWeather, addNotification, setLoading, setError } = useTripStore()
 
   useEffect(() => {
-    const socket = io(SOCKET_URL, {
+    const socket = io(getSocketUrl(), {
       transports: ['websocket', 'polling'],   // polling as fallback
       withCredentials: true,
       reconnection: true,

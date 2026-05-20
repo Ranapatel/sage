@@ -270,6 +270,7 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
   // Check node-cache first
   const localCached = localCache.get(cacheKey)
   if (localCached) return { ...localCached, meta: { ...localCached.meta, cache: true, type: 'local' } }
+
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -403,6 +404,7 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
   // Check node-cache first
   const localCached = localCache.get(cacheKey)
   if (localCached) return { ...localCached, meta: { ...localCached.meta, cache: true, type: 'local' } }
+
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
@@ -561,7 +563,15 @@ function generateMockBuses(from, to, date, budget) {
 }
 
 async function searchBuses({ from, to, date, budget }) {
-  const cacheKey = generateCacheKey('buses_v2', { from, to, date, budget })
+  // Only support Indian routes for the bus integration
+  const isSupported = (from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india')
+  
+  if (!isSupported) {
+    console.log(`[Buses] Route ${from} → ${to} not supported. Returning empty inventory.`)
+    return { success: true, data: [], meta: { cache: false, source: 'unsupported' } }
+  }
+
+  const cacheKey = generateCacheKey('buses_v3', { from, to, date, budget })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 

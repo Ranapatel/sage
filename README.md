@@ -1,6 +1,6 @@
 # 🌍 TripSage — AI-Powered Travel Operating System
 
-![TripSage](https://res.cloudinary.com/dob5llmb2/image/upload/v1774999435/LOGO_xbwcwe.png)
+![TripSage](https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png)
 
 > Real-time AI travel OS. Plan → Book → Navigate → Explore → Support → Monetize.
 

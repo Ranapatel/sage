@@ -32,11 +32,11 @@ const app = express()
 
 const allowedOrigin = (origin, callback) => {
   if (!origin) return callback(null, true) // curl / Postman
+  if (process.env.NODE_ENV !== 'production') return callback(null, true) // allow all in dev
   if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) return callback(null, true)
   if (origin === 'https://tripsage.in' || origin === 'https://www.tripsage.in') return callback(null, true)
   if (process.env.CORS_ORIGIN === '*') return callback(null, true)
   if (process.env.CORS_ORIGIN && origin === process.env.CORS_ORIGIN) return callback(null, true)
-  if (process.env.NODE_ENV !== 'production' && origin.startsWith('https://')) return callback(null, true)
   if (origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com') ||
       origin.endsWith('.railway.app') || origin.endsWith('.netlify.app')) return callback(null, true)
   callback(new Error(`CORS: origin '${origin}' not allowed`))

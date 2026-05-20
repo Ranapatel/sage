@@ -27,7 +27,7 @@ router.post('/generate', itineraryValidation, async (req, res) => {
   const requestId = uuidv4()
 
   // Check cache first
-  const cacheKey = generateCacheKey('itinerary', { destination, days, budget, style })
+  const cacheKey = generateCacheKey('itinerary', { destination, days, budget, style, startDate, members, preferences: preferences.join(',') })
   const cached = await cacheGet(cacheKey)
   if (cached) {
     return res.json({ ...cached, meta: { ...cached.meta, requestId, cache: true } })
