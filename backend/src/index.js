@@ -69,6 +69,7 @@ app.use('/api/explore',       require('./routes/explore'))
 app.use('/api/notifications', require('./routes/notifications'))
 app.use('/api/profile',       require('./routes/profile'))
 app.use('/api/places',        require('./routes/places'))
+app.use('/api/reviews',       require('./routes/reviews'))
 
 // Health check
 app.get('/health', (req, res) => {

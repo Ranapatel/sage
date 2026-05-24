@@ -24,6 +24,10 @@ export default function SEODashboard() {
     { name: 'best beaches in india', slug: '/seo/best-beaches-in-india', status: 'Active', group: 'Destination Pages' },
     { name: 'best honeymoon destinations india', slug: '/seo/best-honeymoon-destinations-india', status: 'Active', group: 'Destination Pages' },
     { name: 'weekend trips from hyderabad', slug: '/weekend-trips-from-hyderabad', status: 'Active', group: 'Destination Pages' },
+    { name: 'kerala backwaters trip planner', slug: '/seo/kerala-backwaters-trip-planner', status: 'Active', group: 'Destination Pages' },
+    { name: 'rajasthan heritage trip planner', slug: '/seo/rajasthan-heritage-trip-planner', status: 'Active', group: 'Destination Pages' },
+    { name: 'golden triangle india itinerary', slug: '/seo/golden-triangle-india-itinerary', status: 'Active', group: 'Destination Pages' },
+    { name: 'ladakh road trip planner', slug: '/seo/ladakh-road-trip-planner', status: 'Active', group: 'Destination Pages' },
   ];
 
   const groupedPages = seoPages.reduce((acc, page) => {

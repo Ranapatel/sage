@@ -8,13 +8,14 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import { BLOG_POSTS } from '@/lib/blog-data'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = BLOG_POSTS.find((p) => p.slug === params.slug)
+  const { slug } = await params
+  const post = BLOG_POSTS.find((p) => p.slug === slug)
   if (!post) return { title: 'Post Not Found' }
 
   return {
@@ -34,8 +35,9 @@ export async function generateStaticParams() {
   }))
 }
 
-export default function BlogPostPage({ params }: PageProps) {
-  const post = BLOG_POSTS.find((p) => p.slug === params.slug)
+export default async function BlogPostPage({ params }: PageProps) {
+  const { slug } = await params
+  const post = BLOG_POSTS.find((p) => p.slug === slug)
   if (!post) notFound()
 
   return (

@@ -186,10 +186,16 @@ export default function PlanClient() {
     const p = params || {
       from: searchForm.from, to: searchForm.to,
       startDate: searchForm.startDate, endDate: searchForm.endDate,
-      budget: parseInt(searchForm.budget),
-      travelers: parseInt(searchForm.travelers),
-      style: searchForm.style,
+      budget: parseInt(searchForm.budget) || 2000,
+      travelers: parseInt(searchForm.travelers) || 2,
+      style: searchForm.style || 'adventure',
     }
+    
+    // Ensure numeric fields are valid and do not pass NaN or invalid values to the backend
+    if (isNaN(p.budget) || p.budget <= 0) p.budget = 2000
+    if (isNaN(p.travelers) || p.travelers <= 0) p.travelers = 2
+    if (!p.style) p.style = 'adventure'
+
     if (!p.from || !p.to) return
 
     // Dismiss any active inputs (closes mobile keyboard and dropdowns instantly)
@@ -293,15 +299,28 @@ export default function PlanClient() {
         }),
         // Itinerary fetched in parallel
         fetchWithRetry(
-          () => tripAPI.generateItinerary({
-            destination: p.to,
-            days: p.startDate && p.endDate ? Math.max(1, Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / (1000 * 3600 * 24))) : 3,
-            budget: p.budget,
-            style: p.style,
-            preferences: [],
-            members: p.travelers,
-            startDate: p.startDate
-          }, { signal }),
+          () => {
+            let daysCount = 3
+            if (p.startDate && p.endDate) {
+              const start = new Date(p.startDate).getTime()
+              const end = new Date(p.endDate).getTime()
+              if (!isNaN(start) && !isNaN(end)) {
+                daysCount = Math.max(1, Math.ceil((end - start) / (1000 * 3600 * 24)))
+              }
+            }
+            // Clamp days count to backend valid ranges (min 1, max 90)
+            daysCount = Math.min(Math.max(daysCount, 1), 90)
+
+            return tripAPI.generateItinerary({
+              destination: p.to,
+              days: daysCount,
+              budget: p.budget,
+              style: p.style,
+              preferences: [],
+              members: p.travelers,
+              startDate: p.startDate
+            }, { signal })
+          },
           { timeout: 20000, maxRetries: 1, label: 'Itinerary' }
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null

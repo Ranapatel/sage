@@ -92,11 +92,20 @@ function cityFallback(query) {
  *           2. Nominatim (supplements with international cities not in builtin)
  *           3. Photon (fallback if Nominatim fails)
  */
+
 router.get('/autocomplete', async (req, res) => {
+  // Prevent aggressive browser caching and 304 Not Modified responses
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
+  res.setHeader('Surrogate-Control', 'no-store')
+  res.set('ETag', false)
+
   const rawQuery = (req.query.query || '').trim()
   if (!rawQuery || rawQuery.length < 2) {
     return res.status(400).json({ success: false, error: 'Query must be at least 2 characters' })
   }
+
   // Normalize: strip country part — "goa, indi" → "goa", "Paris, France" → "Paris"
   const query = rawQuery.split(',')[0].trim()
   if (query.length < 2) {

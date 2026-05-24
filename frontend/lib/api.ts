@@ -114,6 +114,9 @@ export const tripAPI = {
 
   saveProfile: (profile: any): Promise<ApiResponse<any>> =>
     API.post('/api/profile', profile),
+
+  getReviews: (): Promise<ApiResponse<any[]>> =>
+    API.get('/api/reviews'),
 }
 
 // ─── Auth API ─────────────────────────────────────────────────────────────────

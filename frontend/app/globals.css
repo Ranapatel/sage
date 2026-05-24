@@ -422,3 +422,24 @@ body {
   transition-duration: 0.001ms !important;
   animation-delay: 0s !important;
 }
+
+/* Hero section fade-up entrance animations */
+.hero-headline-fade {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.hero-subtitle-fade {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+.hero-form-fade {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+  opacity: 0;
+}
+
+.hero-features-fade {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+  opacity: 0;
+}

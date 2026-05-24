@@ -33,7 +33,8 @@ import {
   Headphones as HeadphonesIcon,
   PiggyBank,
   BellRing,
-  Coins
+  Coins,
+  Star
 } from 'lucide-react'
 
 const POPULAR_DESTINATIONS = [
@@ -41,8 +42,8 @@ const POPULAR_DESTINATIONS = [
   { name: 'Goa, India', img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400&q=80', tag: 'Beach', link: '/seo/goa-trip-under-10000' },
   { name: 'Manali, India', img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=400&q=80', tag: 'Mountains', link: '/seo/manali-trip-planner' },
   { name: 'Hyderabad, India', img: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=400&q=80', tag: 'Cultural', link: '/weekend-trips-from-hyderabad' },
-  { name: 'Best Beaches', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80', tag: 'Scenic', link: '/seo/best-beaches-in-india' },
-  { name: 'Honeymoon', img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=400&q=80', tag: 'Romantic', link: '/seo/best-honeymoon-destinations-india' },
+  { name: 'Santorini, Greece', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80', tag: 'Scenic', link: '/seo/best-beaches-in-india' },
+  { name: 'Maldives', img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=400&q=80', tag: 'Luxury', link: '/seo/best-honeymoon-destinations-india' },
 ]
 
 const FEATURES = [
@@ -92,6 +93,26 @@ export default function HomeClient() {
   })
   const [loading, setLoading] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
+  const [reviews, setReviews] = useState<any[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    const fetchReviews = async () => {
+      try {
+        const res = await tripAPI.getReviews()
+        if (active && res.success && Array.isArray(res.data)) {
+          setReviews(res.data)
+        }
+      } catch (err) {
+        console.error('Error fetching reviews:', err)
+      } finally {
+        if (active) setReviewsLoading(false)
+      }
+    }
+    fetchReviews()
+    return () => { active = false }
+  }, [])
 
   // Sync currency from auth store if user logs in after mount
   useEffect(() => {
@@ -198,35 +219,26 @@ export default function HomeClient() {
 
         <div className="relative z-10 text-center max-w-5xl mx-auto">
 
-          <motion.h1
-            className="section-title text-[clamp(2.5rem,7vw,5rem)] mb-8 font-extrabold tracking-tight text-slate-900 md:text-white leading-[1.1] md:drop-shadow-lg"
-            initial={{ opacity: 1, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+          <h1
+            className="section-title text-[clamp(2.5rem,7vw,5rem)] mb-8 font-extrabold tracking-tight text-slate-900 md:text-white leading-[1.1] md:drop-shadow-lg hero-headline-fade"
           >
             Your AI-Powered
             <br />
             <span className="text-blue-600 md:text-blue-400">Travel Operating</span> <span className="text-orange-600 md:text-orange-400">System</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            className="text-slate-600 md:text-slate-100 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium md:drop-shadow-md"
-            initial={{ opacity: 1, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+          <p
+            className="text-slate-600 md:text-slate-100 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium md:drop-shadow-md hero-subtitle-fade"
           >
             TripSage orchestrates real-time flights, hotels, activities, and AI itineraries —
             all personalized to your budget, style, and group.
-          </motion.p>
+          </p>
 
           {/* SEARCH FORM */}
-          <motion.form
+          <form
             ref={formRef}
             onSubmit={handleSubmit}
-            className="bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-3xl rounded-[40px] px-4 py-8 md:p-12 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.18)] border border-white/60 max-w-5xl mx-auto text-left relative overflow-hidden w-full"
-            initial={{ opacity: 1, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            className="bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-3xl rounded-[40px] px-4 py-8 md:p-12 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.18)] border border-white/60 max-w-5xl mx-auto text-left relative overflow-hidden w-full hero-form-fade"
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               <div className="relative group">
@@ -368,7 +380,7 @@ export default function HomeClient() {
                 <><Sparkles className="w-6 h-6" /> Generate AI Trip Plan</>
               )}
             </button>
-          </motion.form>
+          </form>
 
 
           {/* Slideshow Indicators - Hidden on mobile */}
@@ -389,11 +401,8 @@ export default function HomeClient() {
           )}
 
           {/* Feature Badges below form */}
-          <motion.div
-            className="flex flex-wrap items-center justify-center gap-12 mt-16"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+          <div
+            className="flex flex-wrap items-center justify-center gap-12 mt-16 hero-features-fade"
           >
             {[
               { label: 'Real-time Results', icon: Zap },
@@ -413,7 +422,7 @@ export default function HomeClient() {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -459,11 +468,11 @@ export default function HomeClient() {
             <h2 className="section-title mb-4 text-slate-900 font-bold">Popular <span className="text-orange-500">Destinations</span></h2>
             <p className="text-slate-500 max-w-2xl mx-auto">AI-ranked by affordability, rating, and traveler preferences</p>
           </div>
-          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory hide-scrollbar -mx-6 px-6">
+          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory hide-scrollbar [scrollbar-width:none] -mx-6 pl-4 pr-4 md:px-6">
             {POPULAR_DESTINATIONS.map((d, i) => (
               <div
                 key={i}
-                className="relative rounded-[24px] overflow-hidden cursor-pointer group aspect-[3/4] shadow-md hover:shadow-2xl transition-all duration-500 min-w-[280px] md:min-w-0 snap-start"
+                className="relative rounded-[24px] overflow-hidden cursor-pointer group aspect-[3/4] shadow-md hover:shadow-2xl transition-all duration-500 w-[260px] min-w-[260px] md:w-auto md:min-w-0 snap-start"
                 onClick={() => {
                   if (d.link) {
                     router.push(d.link)
@@ -542,6 +551,113 @@ export default function HomeClient() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS SECTION */}
+      <section className="py-24 bg-slate-50 border-t border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              What Travelers <span className="text-orange-500">Say</span>
+            </h2>
+            <p className="text-slate-500 max-w-xl mx-auto">
+              Real feedback from explorers planning their journeys with TripSage
+            </p>
+          </div>
+
+          {reviewsLoading ? (
+            /* Skeleton Loading (3 Cards) */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((n) => (
+                <div 
+                  key={n} 
+                  className="bg-white rounded-3xl p-8 border border-slate-100/80 shadow-sm animate-pulse flex flex-col gap-6"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-slate-200" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-slate-200 rounded w-2/3" />
+                      <div className="h-3 bg-slate-200 rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <div key={s} className="w-4 h-4 bg-slate-200 rounded-full" />
+                    ))}
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <div className="h-3 bg-slate-200 rounded w-full" />
+                    <div className="h-3 bg-slate-200 rounded w-5/6" />
+                    <div className="h-3 bg-slate-200 rounded w-4/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : reviews.length === 0 ? (
+            /* Empty State */
+            <div className="max-w-md mx-auto text-center bg-white rounded-[32px] p-10 shadow-sm border border-slate-100/80 flex flex-col items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                <Star size={32} className="fill-orange-500 text-orange-500" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-xl">Be the first to share your TripSage experience!</h3>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Your journey insights can help fellow explorers plan smarter, more beautiful adventures.
+              </p>
+              <Link
+                href="/support"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-bold rounded-xl transition-all hover:scale-[1.03] active:scale-[0.97] shadow-sm bg-orange-500 text-white hover:bg-orange-600 w-full"
+              >
+                Write a Review
+              </Link>
+            </div>
+          ) : (
+            /* Review Cards Grid */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {reviews.map((r, i) => {
+                const initials = r.name
+                  ? r.name
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : 'TS';
+                return (
+                  <div
+                    key={r._id || i}
+                    className="bg-white rounded-3xl p-8 border border-slate-100/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col gap-5"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-base flex-shrink-0">
+                        {initials}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-base">{r.name}</h4>
+                        <p className="text-slate-400 text-xs">{r.location}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={16}
+                          className={`${
+                            star <= r.rating
+                              ? 'text-orange-500 fill-orange-500'
+                              : 'text-slate-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-slate-600 text-sm leading-relaxed italic flex-1">
+                      "{r.reviewText}"
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import LegalModal from '@/components/ui/LegalModal'
-import { FileText, Shield, AlertCircle, Cookie, RefreshCcw, MessageSquare } from 'lucide-react'
+import { FileText, Shield, AlertCircle, Cookie, RefreshCcw, MessageSquare, Instagram, X, Linkedin } from 'lucide-react'
 
 export default function Footer() {
   const [activeLegal, setActiveLegal] = useState<{ title: string; content: React.ReactNode } | null>(null)
@@ -119,9 +119,38 @@ export default function Footer() {
               />
               <span className="font-display text-2xl font-bold text-white">TripSage</span>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-slate-400 text-sm leading-relaxed mb-6">
               The world's first AI-powered Travel Operating System. We orchestrate real-time travel intelligence for the modern explorer.
             </p>
+            <div className="flex items-center gap-4">
+              <a
+                href="https://www.instagram.com/tripsage_?igsh=NDBzdWhzejgwaDh1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-orange-500 transition-colors duration-300"
+                aria-label="Instagram"
+              >
+                <Instagram size={20} />
+              </a>
+              <a
+                href="https://x.com/SageTrip8016?s=20"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-orange-500 transition-colors duration-300"
+                aria-label="X (formerly Twitter)"
+              >
+                <X size={20} />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/tripsage/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-orange-500 transition-colors duration-300"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={20} />
+              </a>
+            </div>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-sm">
             <div>

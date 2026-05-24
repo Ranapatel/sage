@@ -26,7 +26,6 @@ export default function Navbar() {
             />
             <span className="font-display text-xl font-extrabold text-slate-900 tracking-tight hidden md:block">TripSage</span>
           </Link>
-          <span className="badge bg-blue-50 text-blue-600 border border-blue-100 ml-2 hidden md:inline-flex px-2 py-0.5 rounded-lg text-[10px] font-bold">LIVE</span>
         </div>
         
         <div className="hidden md:flex items-center gap-8 text-[13px] font-semibold text-slate-500">
@@ -37,11 +36,6 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
-          <div className="hidden sm:flex items-center gap-2 text-xs text-blue-600 font-medium">
-            <span className="live-dot bg-blue-600"></span>
-            <span>Real-time Engine</span>
-          </div>
-          
           {isLoggedIn && user ? (
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="hidden sm:flex w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 items-center justify-center text-white text-xs font-bold">

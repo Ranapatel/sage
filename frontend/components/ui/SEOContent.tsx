@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Sparkles, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 interface FAQ {
   question: string
@@ -31,9 +32,71 @@ export default function SEOContent({
   ctaLink = "/plan"
 }: SEOContentProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const pathname = usePathname()
+
+  // Generate dynamic BreadcrumbList Schema
+  const domain = "https://tripsage.in"
+  const pathSegments = pathname ? pathname.split('/').filter(Boolean) : []
+  
+  const breadcrumbElements = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: domain
+    }
+  ]
+
+  let accumulatedPath = ""
+  pathSegments.forEach((segment, index) => {
+    accumulatedPath += `/${segment}`
+    const displayName = segment
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+    
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      position: index + 2,
+      name: displayName,
+      item: `${domain}${accumulatedPath}`
+    })
+  })
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbElements
+  }
+
+  // Generate dynamic FAQPage Schema
+  const faqSchema = faqs && faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  } : null
 
   return (
     <div className="bg-white">
+      {/* Dynamic SEO JSON-LD structured data */}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Hero Section */}
       <section className="relative py-24 px-6 overflow-hidden bg-[#0F172A] text-white">
         <div className="absolute inset-0 z-0 opacity-40">
@@ -137,10 +200,10 @@ export default function SEOContent({
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: 'Budget Bali Trip', link: '/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80', price: 'Under $500' },
-              { title: 'Goa Under 10k', link: '/goa-trip-under-10000', img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400&q=80', price: 'Budget Friendly' },
-              { title: 'Manali Tour Plan', link: '/manali-trip-planner', img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=400&q=80', price: 'Adventure' },
-              { title: 'Solo Travel India', link: '/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80', price: 'Expert Guide' }
+              { title: 'Budget Bali Trip', link: '/seo/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80', price: 'Under $500' },
+              { title: 'Goa Under 10k', link: '/seo/goa-trip-under-10000', img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400&q=80', price: 'Budget Friendly' },
+              { title: 'Manali Tour Plan', link: '/seo/manali-trip-planner', img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=400&q=80', price: 'Adventure' },
+              { title: 'Solo Travel India', link: '/seo/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80', price: 'Expert Guide' }
             ].map((trip, i) => (
               <Link key={i} href={trip.link} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-200">
                 <div className="relative h-40">
@@ -160,12 +223,12 @@ export default function SEOContent({
           </div>
 
           <div className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium border-t border-slate-200 pt-10">
-            <Link href="/ai-trip-planner-india" className="text-slate-500 hover:text-blue-600 transition-colors">AI Trip Planner India</Link>
+            <Link href="/seo/ai-trip-planner-india" className="text-slate-500 hover:text-blue-600 transition-colors">AI Trip Planner India</Link>
             <Link href="/weekend-trips-from-hyderabad" className="text-slate-500 hover:text-blue-600 transition-colors">Weekend Trips Hyderabad</Link>
-            <Link href="/best-honeymoon-destinations-india" className="text-slate-500 hover:text-blue-600 transition-colors">Honeymoon Destinations</Link>
-            <Link href="/cheapest-international-trips-from-india" className="text-slate-500 hover:text-blue-600 transition-colors">Cheap International Trips</Link>
-            <Link href="/best-beaches-in-india" className="text-slate-500 hover:text-blue-600 transition-colors">Best Beaches India</Link>
-            <Link href="/family-trip-planner-india" className="text-slate-500 hover:text-blue-600 transition-colors">Family Trip Planner</Link>
+            <Link href="/seo/best-honeymoon-destinations-india" className="text-slate-500 hover:text-blue-600 transition-colors">Honeymoon Destinations</Link>
+            <Link href="/seo/cheapest-international-trips-from-india" className="text-slate-500 hover:text-blue-600 transition-colors">Cheap International Trips</Link>
+            <Link href="/seo/best-beaches-in-india" className="text-slate-500 hover:text-blue-600 transition-colors">Best Beaches India</Link>
+            <Link href="/seo/family-trip-planner-india" className="text-slate-500 hover:text-blue-600 transition-colors">Family Trip Planner</Link>
           </div>
         </div>
       </section>
