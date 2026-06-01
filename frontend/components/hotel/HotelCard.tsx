@@ -69,7 +69,7 @@ function HotelCard({ item, showDetail }: Props) {
           alt={`Stay at ${item.name} - ${item.location}`} 
           fill
           className="object-cover hover:scale-105 transition-transform duration-500" 
-          sizes="(max-width: 768px) 100vw, 400px"
+          sizes="(max-width: 768px) 100vw, 50vw"
           unoptimized={imgSrc.includes('unsplash.com')}
           onError={() => {
             if (imgSrc !== fallbackHotelImage) {

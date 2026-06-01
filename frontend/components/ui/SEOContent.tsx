@@ -2,10 +2,13 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Sparkles, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface FAQ {
   question: string
@@ -33,6 +36,7 @@ export default function SEOContent({
 }: SEOContentProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const pathname = usePathname()
+  const isMobile = useIsMobile()
 
   // Generate dynamic BreadcrumbList Schema
   const domain = "https://tripsage.in"
@@ -100,7 +104,15 @@ export default function SEOContent({
       {/* Hero Section */}
       <section className="relative py-24 px-6 overflow-hidden bg-[#0F172A] text-white">
         <div className="absolute inset-0 z-0 opacity-40">
-          <img src={heroImage} alt={title} className="w-full h-full object-cover" />
+          <Image 
+            src={getOptimizedImageUrl(heroImage, isMobile)} 
+            alt={title} 
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            priority
+            unoptimized={heroImage.includes('unsplash.com')}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/20" />
         </div>
         

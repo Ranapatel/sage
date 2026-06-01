@@ -68,7 +68,7 @@ function TransportCard({ item, showDetail }: Props) {
             alt={`Flight from ${item.departure || 'origin'} to ${item.arrival || 'destination'}`}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 500px"
+            sizes="(max-width: 768px) 100vw, 50vw"
             unoptimized={bannerSrc.includes('unsplash.com')}
             onError={() => {
               if (bannerSrc !== fallbackFlightImage) {
@@ -86,7 +86,7 @@ function TransportCard({ item, showDetail }: Props) {
                   src={logoError ? '/logos/default-airline.svg' : logoSrc}
                   alt={`${item.name} logo`}
                   fill
-                  sizes="48px"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-contain p-1"
                   onError={() => {
                     if (!logoError) {

@@ -13,9 +13,12 @@ export default function SEODashboard() {
     { name: 'budget destination trip', slug: '/seo/budget-[destination]-trip', status: 'Dynamic Pattern', group: 'Budget Pages' },
     { name: 'goa trip under 10000', slug: '/seo/goa-trip-under-10000', status: 'Active', group: 'Budget Pages' },
     { name: 'cheapest international trips from india', slug: '/seo/cheapest-international-trips-from-india', status: 'Active', group: 'Budget Pages' },
+    { name: 'budget kerala trip', slug: '/seo/budget-kerala-trip', status: 'Active', group: 'Budget Pages' },
+    { name: 'budget rajasthan trip', slug: '/seo/budget-rajasthan-trip', status: 'Active', group: 'Budget Pages' },
     
     { name: 'category travel guide', slug: '/seo/[category]-travel-guide', status: 'Dynamic Pattern', group: 'Category Pages' },
     { name: 'solo travel guide india', slug: '/seo/solo-travel-guide-india', status: 'Active', group: 'Category Pages' },
+    { name: 'solo trip manali', slug: '/seo/solo-trip-manali', status: 'Active', group: 'Category Pages' },
     
     { name: 'ai trip planner india', slug: '/seo/ai-trip-planner-india', status: 'Active', group: 'Destination Pages' },
     { name: 'destination trip planner', slug: '/seo/[destination]-trip-planner', status: 'Dynamic Pattern', group: 'Destination Pages' },
@@ -28,6 +31,13 @@ export default function SEODashboard() {
     { name: 'rajasthan heritage trip planner', slug: '/seo/rajasthan-heritage-trip-planner', status: 'Active', group: 'Destination Pages' },
     { name: 'golden triangle india itinerary', slug: '/seo/golden-triangle-india-itinerary', status: 'Active', group: 'Destination Pages' },
     { name: 'ladakh road trip planner', slug: '/seo/ladakh-road-trip-planner', status: 'Active', group: 'Destination Pages' },
+    { name: 'mumbai to bangkok trip planner', slug: '/seo/mumbai-to-bangkok-trip-planner', status: 'Active', group: 'Destination Pages' },
+    { name: 'delhi to singapore trip planner', slug: '/seo/delhi-to-singapore-trip-planner', status: 'Active', group: 'Destination Pages' },
+    { name: 'bangalore to dubai trip planner', slug: '/seo/bangalore-to-dubai-trip-planner', status: 'Active', group: 'Destination Pages' },
+    { name: 'honeymoon in kashmir', slug: '/seo/honeymoon-in-kashmir', status: 'Active', group: 'Destination Pages' },
+    { name: 'honeymoon in andaman', slug: '/seo/honeymoon-in-andaman', status: 'Active', group: 'Destination Pages' },
+    { name: 'family trip singapore', slug: '/seo/family-trip-singapore', status: 'Active', group: 'Destination Pages' },
+    { name: 'best places december india', slug: '/seo/best-places-december-india', status: 'Active', group: 'Destination Pages' },
   ];
 
   const groupedPages = seoPages.reduce((acc, page) => {

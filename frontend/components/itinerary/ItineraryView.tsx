@@ -148,7 +148,7 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
                 alt={`${place.name} view ${idx + 1}`} 
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                sizes="160px"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 unoptimized={img.includes('unsplash.com')}
                 onError={() => setErroredIndices(prev => new Set(prev).add(idx))}
               />

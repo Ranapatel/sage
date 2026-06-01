@@ -204,7 +204,7 @@ export default function ReturnBookingTab({ tripContext }: Props) {
               }`}>
                 <div className="flex items-start gap-4">
                   <div className="relative w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                    <Image src={item.image} alt={item.name} fill className="object-cover" sizes="80px" />
+                    <Image src={item.image} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>
                   <div className="flex-1 min-w-0">

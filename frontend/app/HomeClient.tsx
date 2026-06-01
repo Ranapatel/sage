@@ -190,31 +190,30 @@ export default function HomeClient() {
       <section className="relative min-h-[95vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-hidden bg-white md:bg-[#0F172A]">
         {/* Background Slideshow */}
         <div className="absolute inset-0 z-0 hidden md:block">
-          <AnimatePresence mode="wait">
+          {HERO_IMAGES.map((img, i) => (
             <motion.div
-              key={currentImage}
+              key={i}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              animate={{ opacity: currentImage === i ? 1 : 0 }}
               transition={{ duration: 1.5 }}
               className="absolute inset-0"
+              style={{ pointerEvents: currentImage === i ? 'auto' : 'none' }}
             >
               <Image 
-                src={getOptimizedImageUrl(HERO_IMAGES[currentImage], false)} 
-                alt="Travel Hero" 
+                src={getOptimizedImageUrl(img, !isDesktop)} 
+                alt={`Travel Hero ${i + 1}`} 
                 fill 
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover object-center"
-                priority
-                loading="eager"
-                fetchPriority="high"
+                priority={i === 0}
+                loading={i === 0 ? undefined : 'lazy'}
                 decoding="async"
                 unoptimized
               />
               {/* Dark Gradient Overlay */}
               <div className="absolute inset-0 bg-black/45" />
             </motion.div>
-          </AnimatePresence>
+          ))}
         </div>
 
         <div className="relative z-10 text-center max-w-5xl mx-auto">
@@ -487,7 +486,7 @@ export default function HomeClient() {
                   alt={d.name}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
-                  sizes="(max-width: 768px) 280px, (max-width: 1200px) 33vw, 16vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
@@ -522,7 +521,7 @@ export default function HomeClient() {
             ].map((g, i) => (
               <Link key={i} href={g.link} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 flex flex-col">
                 <div className="relative h-48">
-                  <Image src={g.img} alt={g.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized />
+                  <Image src={g.img} alt={g.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized />
                 </div>
                 <div className="p-6">
                   <h3 className="font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{g.title}</h3>

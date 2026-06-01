@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next'
 import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
@@ -20,7 +21,7 @@ export default function Page() {
           <>
             <h2>The Adventure of a Lifetime Awaits</h2>
             <p>A road trip to Leh Ladakh is a badge of honor for travelers and motorcycle enthusiasts worldwide. Driving across the rugged terrain of the trans-Himalayas, surrounded by jagged snow-capped peaks and deep river gorges, is a raw, humbling, and utterly spectacular experience.</p>
-            
+
             <h3>Choose Your Route: Manali vs. Srinagar</h3>
             <p>There are two primary highway routes that lead into the beautiful city of Leh, each offering vastly different landscapes and experiences:</p>
             <ul>

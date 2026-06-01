@@ -46,7 +46,7 @@ function CarsTab() {
             alt="Search Rental Cars on TripSage"
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 800px"
+            sizes="(max-width: 768px) 100vw, 50vw"
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
