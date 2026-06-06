@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTripStore } from '@/store/tripStore'
+import { useAuthStore } from '@/store/authStore'
 import { tripAPI } from '@/lib/api'
+import { convertToINR } from '@/lib/currency'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 export default function BudgetOptimizerTab() {
   const { tripContext, userProfile } = useTripStore()
+  const { user } = useAuthStore()
   const [data, setData] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -17,13 +20,16 @@ export default function BudgetOptimizerTab() {
     setLoading(true)
     setError(null)
     try {
+      const currency = user?.currency ?? 'INR'
+      const budgetInINR = convertToINR(userProfile?.budget || 2000, currency)
+
       // Interceptor already unwraps res.data — result is the server payload directly
       const res: any = await tripAPI.optimizeBudget({
         destination: tripContext.destination,
         days: tripContext.endDate && tripContext.startDate 
           ? Math.ceil((new Date(tripContext.endDate).getTime() - new Date(tripContext.startDate).getTime()) / (1000 * 3600 * 24)) || 3
           : 3,
-        budget: userProfile?.budget || 2000,
+        budget: budgetInINR,
         style: userProfile?.travelStyle || 'adventure',
         preferences: userProfile?.preferences || [],
         members: userProfile?.members || 2

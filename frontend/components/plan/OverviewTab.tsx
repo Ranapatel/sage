@@ -5,8 +5,10 @@ import {
   Truck, PlaneLanding, History, PlaneTakeoff, Building2, 
   CloudSun, CalendarDays, Check, ClipboardList, Star, Calendar, Plane
 } from 'lucide-react'
-import { formatPrice } from '@/lib/currency'
+import { formatPrice, convertPrice, SYMBOLS } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
+import { useTripStore } from '@/store/tripStore'
+import { getDaysBetween } from '@/lib/utils'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 
@@ -60,6 +62,49 @@ function OverviewTab({
 }: Props) {
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
+  const { userProfile, tripContext } = useTripStore()
+  
+  const travelers = userProfile?.members || 2
+  const budget = userProfile?.budget || 2000
+
+  // Calculate days & nights
+  let days = itinerary.length
+  if (days === 0 && tripContext.startDate && tripContext.endDate) {
+    days = getDaysBetween(tripContext.startDate, tripContext.endDate)
+  }
+  days = Math.max(1, days || 3)
+  const nights = Math.max(1, days - 1)
+
+  // Selected Flight cost (per person * travelers)
+  const selectedFlight = bookingStatus.selectedFlight
+  const selectedReturn = bookingStatus.selectedReturn
+  const flightCostINR = ((selectedFlight?.price || 0) + (selectedReturn?.price || 0)) * travelers
+
+  // Selected Hotel cost (price per night * nights)
+  const selectedHotel = bookingStatus.selectedHotel
+  const hotelCostINR = (selectedHotel?.price || 0) * nights
+
+  // Activities cost (sum of estimatedCost in itinerary)
+  const activitiesCostINR = itinerary.reduce((sum, day) => {
+    const daySum = day.places?.reduce((pSum: number, place: any) => pSum + (place.estimatedCost || 0), 0) || 0
+    return sum + daySum
+  }, 0)
+
+  // Convert to target currency
+  const flightCost = convertPrice(flightCostINR, currency)
+  const hotelCost = convertPrice(hotelCostINR, currency)
+  const activitiesCost = convertPrice(activitiesCostINR, currency)
+  
+  const totalSelectedCost = flightCost + hotelCost + activitiesCost
+  const remainingBudget = budget - totalSelectedCost
+  const isOverBudget = totalSelectedCost > budget
+
+  // Custom formatting for target currency values
+  const formatTargetPrice = (amount: number) => {
+    const symbol = SYMBOLS[currency] ?? currency
+    const locale = currency === 'INR' ? 'en-IN' : 'en-US'
+    return `${symbol}${Math.round(amount).toLocaleString(locale)}`
+  }
   
   const STEPS = [
     { label: 'Search', done: transport.length > 0 || hotels.length > 0 },
@@ -218,6 +263,103 @@ function OverviewTab({
               </div>
             </div>
           )}
+
+          {/* Budget Tracker */}
+          <div className="card p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-2">
+                <ClipboardList size={16} className="text-[var(--primary)]" />
+                Trip Budget Tracker
+              </h3>
+              <span className="text-xs font-bold font-mono text-[var(--text-muted)]">
+                Budget: {formatTargetPrice(budget)}
+              </span>
+            </div>
+
+            {/* Stacked Progress Bar */}
+            <div className="space-y-1">
+              <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50">
+                {budget > 0 && (
+                  <>
+                    <div 
+                      className="bg-blue-500 h-full transition-all duration-500" 
+                      style={{ width: `${Math.min(100, (flightCost / budget) * 100)}%` }}
+                      title={`Flights: ${formatTargetPrice(flightCost)}`}
+                    />
+                    <div 
+                      className="bg-green-500 h-full transition-all duration-500" 
+                      style={{ width: `${Math.min(100, (hotelCost / budget) * 100)}%` }}
+                      title={`Hotels: ${formatTargetPrice(hotelCost)}`}
+                    />
+                    <div 
+                      className="bg-purple-500 h-full transition-all duration-500" 
+                      style={{ width: `${Math.min(100, (activitiesCost / budget) * 100)}%` }}
+                      title={`Activities: ${formatTargetPrice(activitiesCost)}`}
+                    />
+                  </>
+                )}
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] px-0.5">
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Flights</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Hotels</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Activities</span>
+              </div>
+            </div>
+
+            {/* Detailed list */}
+            <div className="space-y-2.5 text-xs text-[var(--text-secondary)]">
+              <div className="flex items-center justify-between">
+                <span>Flights Cost</span>
+                <span className="font-bold font-mono text-[var(--text-primary)]">
+                  {flightCost > 0 ? (
+                    `${formatTargetPrice(flightCost)}`
+                  ) : (
+                    <span className="text-[var(--text-muted)] italic font-normal">None selected</span>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Hotels Cost</span>
+                <span className="font-bold font-mono text-[var(--text-primary)]">
+                  {hotelCost > 0 ? (
+                    `${formatTargetPrice(hotelCost)}`
+                  ) : (
+                    <span className="text-[var(--text-muted)] italic font-normal">None selected</span>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Activities Cost</span>
+                <span className="font-bold font-mono text-[var(--text-primary)]">
+                  {activitiesCost > 0 ? (
+                    `${formatTargetPrice(activitiesCost)}`
+                  ) : (
+                    <span className="text-[var(--text-muted)] italic font-normal">None planned</span>
+                  )}
+                </span>
+              </div>
+              <div className="h-px bg-[var(--border)] my-1" />
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold text-[var(--text-primary)]">Remaining Budget</span>
+                <span className={`font-extrabold font-mono ${remainingBudget >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatTargetPrice(remainingBudget)}
+                </span>
+              </div>
+            </div>
+
+            {/* Warning Message */}
+            {isOverBudget && (
+              <div className="p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 text-[11px] flex gap-2">
+                <span className="text-sm shrink-0">⚠️</span>
+                <div>
+                  <p className="font-bold leading-tight">Exceeds Budget</p>
+                  <p className="mt-0.5 leading-relaxed">
+                    Selected flights or hotels + activities exceed your budget limit by <strong>{formatTargetPrice(Math.abs(remainingBudget))}</strong>.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Booking tracker */}
           <div className="card p-4">

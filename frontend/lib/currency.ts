@@ -158,4 +158,11 @@ export function convertPrice(inrAmount: number, toCurrency: string): number {
   return Math.round(inUSD * (RATES[toCurrency] ?? 1))
 }
 
+export function convertToINR(amount: number, fromCurrency: string): number {
+  if (fromCurrency === 'INR') return Math.round(amount)
+  const inUSD = amount / (RATES[fromCurrency] ?? 1)
+  return Math.round(inUSD * RATES['INR'])
+}
+
 export const ALL_CURRENCIES = Object.keys(RATES) as (keyof typeof RATES)[]
+

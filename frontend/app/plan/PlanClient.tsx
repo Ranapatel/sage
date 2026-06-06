@@ -9,7 +9,7 @@ import { tripAPI } from '@/lib/api'
 import { fetchWithRetry } from '@/lib/fetchWithRetry'
 import { formatDate, getDaysBetween } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
-import { SYMBOLS, formatPrice, ALL_CURRENCIES } from '@/lib/currency'
+import { SYMBOLS, formatPrice, ALL_CURRENCIES, convertToINR } from '@/lib/currency'
 import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -64,6 +64,34 @@ const TABS = [
   { id: 'bookings', label: 'Bookings', icon: ClipboardList },
   { id: 'history', label: 'History', icon: History },
 ]
+
+const isInternationalTrip = (from: string, to: string) => {
+  const f = from.toLowerCase();
+  const t = to.toLowerCase();
+  const domesticCities = [
+    'mumbai', 'delhi', 'bengaluru', 'bangalore', 'hyderabad', 'chennai', 'kolkata', 
+    'ahmedabad', 'pune', 'goa', 'jaipur', 'agra', 'varanasi', 'kochi', 'udaipur', 
+    'manali', 'shimla', 'darjeeling', 'amritsar', 'mysuru', 'srinagar', 'rishikesh', 
+    'ooty', 'visakhapatnam', 'coimbatore', 'bhopal', 'indore', 'chandigarh', 
+    'nagpur', 'lucknow', 'patna'
+  ];
+  const hasDomesticTo = domesticCities.some(city => t.includes(city)) || t.includes('india');
+  const hasDomesticFrom = domesticCities.some(city => f.includes(city)) || f.includes('india');
+  return !(hasDomesticTo && hasDomesticFrom);
+}
+
+const getMinRequiredBudgetInINR = (from: string, to: string, days: number, travelers: number) => {
+  const isInter = isInternationalTrip(from, to);
+  const minFlight = isInter ? 15000 : 2000;
+  const minHotelPerNight = isInter ? 2500 : 800;
+  const minDailyExpense = isInter ? 2000 : 500;
+
+  const totalFlightCost = minFlight * travelers;
+  const totalHotelCost = minHotelPerNight * Math.max(1, days - 1);
+  const totalDailyExpense = minDailyExpense * days * travelers;
+
+  return totalFlightCost + totalHotelCost + totalDailyExpense;
+}
 
 export default function PlanClient() {
   const router = useRouter()
@@ -198,6 +226,17 @@ export default function PlanClient() {
 
     if (!p.from || !p.to) return
 
+    // ── BUDGET VALIDATION ──
+    const days = (p.startDate && p.endDate) ? getDaysBetween(p.startDate, p.endDate) : 3
+    const budgetInINR = convertToINR(p.budget, currency)
+    const minBudgetInINR = getMinRequiredBudgetInINR(p.from, p.to, days, p.travelers)
+
+    if (budgetInINR < minBudgetInINR) {
+      const minRequiredFormatted = formatPrice(minBudgetInINR, currency)
+      toast.error(`Your budget of ${formatPrice(budgetInINR, currency)} is too low. The minimum estimated budget for ${p.travelers} ${p.travelers === 1 ? 'person' : 'people'} for ${days} days is ${minRequiredFormatted}.`)
+      return
+    }
+
     // Dismiss any active inputs (closes mobile keyboard and dropdowns instantly)
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur()
@@ -279,7 +318,7 @@ export default function PlanClient() {
             to: p.to,
             startDate: p.startDate,
             endDate: p.endDate,
-            budget: p.budget,
+            budget: budgetInINR,
             travelers: p.travelers,
             style: p.style,
           }, { signal }),
@@ -314,7 +353,7 @@ export default function PlanClient() {
             return tripAPI.generateItinerary({
               destination: p.to,
               days: daysCount,
-              budget: p.budget,
+              budget: budgetInINR,
               style: p.style,
               preferences: [],
               members: p.travelers,

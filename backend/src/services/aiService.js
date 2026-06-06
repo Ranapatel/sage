@@ -24,9 +24,14 @@ Rules:
 
   const userPrompt = `Generate a ${days}-day itinerary for ${destination}.
 Starting date: ${startDate || 'unspecified'}. Please use realistic YYYY-MM-DD strings for the "date" field for each day starting from this date.
-Budget: ₹${budget} total for ${members} people (INR)
+Budget: ₹${budget} INR total for ${members} people (INR)
 Style: ${style}
 Preferences: ${preferences?.join(', ') || 'general sightseeing'}
+
+STRICT BUDGET CONSTRAINT RULES:
+1. The sum of the 'estimatedCost' fields for all activities/places across the entire itinerary MUST NOT exceed the total budget constraint of ₹${budget} INR.
+2. The returned 'totalEstimatedCost' MUST be the exact sum of all places' 'estimatedCost' values and MUST NOT exceed ₹${budget} INR.
+3. Make sure the estimates reflect realistic prices in INR for activities, food, and sightseeing at ${destination}.
 
 Return JSON in this exact schema:
 {

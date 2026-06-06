@@ -25,6 +25,81 @@ interface LocationAutocompleteProps {
   className?: string
 }
 
+// ── Static local cities list for instant matching ────────────────────────────
+const LOCAL_CITIES = [
+  { name: 'Mumbai, India', type: 'city' as const },
+  { name: 'Delhi, India', type: 'city' as const },
+  { name: 'Bengaluru, India', type: 'city' as const },
+  { name: 'Hyderabad, India', type: 'city' as const },
+  { name: 'Chennai, India', type: 'city' as const },
+  { name: 'Kolkata, India', type: 'city' as const },
+  { name: 'Ahmedabad, India', type: 'city' as const },
+  { name: 'Pune, India', type: 'city' as const },
+  { name: 'Goa, India', type: 'city' as const },
+  { name: 'Jaipur, India', type: 'city' as const },
+  { name: 'Agra, India', type: 'city' as const },
+  { name: 'Varanasi, India', type: 'city' as const },
+  { name: 'Kochi, India', type: 'city' as const },
+  { name: 'Udaipur, India', type: 'city' as const },
+  { name: 'Manali, India', type: 'city' as const },
+  { name: 'Shimla, India', type: 'city' as const },
+  { name: 'Darjeeling, India', type: 'city' as const },
+  { name: 'Amritsar, India', type: 'city' as const },
+  { name: 'Mysuru, India', type: 'city' as const },
+  { name: 'Srinagar, India', type: 'city' as const },
+  { name: 'Rishikesh, India', type: 'city' as const },
+  { name: 'Ooty, India', type: 'city' as const },
+  { name: 'Visakhapatnam, India', type: 'city' as const },
+  { name: 'Coimbatore, India', type: 'city' as const },
+  { name: 'Bhopal, India', type: 'city' as const },
+  { name: 'Indore, India', type: 'city' as const },
+  { name: 'Chandigarh, India', type: 'city' as const },
+  { name: 'Nagpur, India', type: 'city' as const },
+  { name: 'Lucknow, India', type: 'city' as const },
+  { name: 'Patna, India', type: 'city' as const },
+  { name: 'Bali, Indonesia', type: 'city' as const },
+  { name: 'Bangkok, Thailand', type: 'city' as const },
+  { name: 'Phuket, Thailand', type: 'city' as const },
+  { name: 'Singapore', type: 'city' as const },
+  { name: 'Kuala Lumpur, Malaysia', type: 'city' as const },
+  { name: 'Dubai, UAE', type: 'city' as const },
+  { name: 'Abu Dhabi, UAE', type: 'city' as const },
+  { name: 'London, United Kingdom', type: 'city' as const },
+  { name: 'Paris, France', type: 'city' as const },
+  { name: 'Barcelona, Spain', type: 'city' as const },
+  { name: 'Rome, Italy', type: 'city' as const },
+  { name: 'Amsterdam, Netherlands', type: 'city' as const },
+  { name: 'New York, USA', type: 'city' as const },
+  { name: 'Los Angeles, USA', type: 'city' as const },
+  { name: 'Tokyo, Japan', type: 'city' as const },
+  { name: 'Seoul, South Korea', type: 'city' as const },
+  { name: 'Sydney, Australia', type: 'city' as const },
+  { name: 'Melbourne, Australia', type: 'city' as const },
+  { name: 'Maldives', type: 'city' as const },
+  { name: 'Colombo, Sri Lanka', type: 'city' as const },
+  { name: 'Kathmandu, Nepal', type: 'city' as const },
+  { name: 'Hong Kong, China', type: 'city' as const },
+  { name: 'Istanbul, Turkey', type: 'city' as const },
+  { name: 'Cairo, Egypt', type: 'city' as const },
+  { name: 'Cape Town, South Africa', type: 'city' as const },
+  { name: 'Nairobi, Kenya', type: 'city' as const },
+  { name: 'Toronto, Canada', type: 'city' as const },
+  { name: 'Vancouver, Canada', type: 'city' as const },
+].map((c, i) => ({
+  id: `local_${i}`,
+  name: c.name,
+  type: c.type,
+}))
+
+const POPULAR_FALLBACK_CITIES: Location[] = [
+  LOCAL_CITIES[0], // Mumbai
+  LOCAL_CITIES[1], // Delhi
+  LOCAL_CITIES[2], // Bengaluru
+  LOCAL_CITIES[3], // Hyderabad
+  LOCAL_CITIES[8], // Goa
+  LOCAL_CITIES[30], // Bali
+]
+
 // ── Session-level cache — avoids redundant network requests ───────────────────
 const queryCache = new Map<string, Location[]>()
 
@@ -39,6 +114,7 @@ export default function LocationAutocomplete({
   const [query, setQuery] = useState(value)
   const [state, setState] = useState<AutoCompleteState>({ status: 'idle' })
   const [isOpen, setIsOpen] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
 
   // Tracks whether the last input change was a user selecting a suggestion
   // (prevents re-triggering a search after selection)
@@ -46,10 +122,15 @@ export default function LocationAutocomplete({
   const isFocusedRef = useRef(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastSentValueRef = useRef(value)
 
   // ── Sync external value changes (e.g. auto-detect location) ─────────────────
   useEffect(() => {
-    setQuery(value)
+    if (value !== lastSentValueRef.current) {
+      setQuery(value)
+      lastSentValueRef.current = value
+    }
   }, [value])
 
   // ── Close dropdown on outside click ─────────────────────────────────────────
@@ -61,6 +142,14 @@ export default function LocationAutocomplete({
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // ── Cleanup on unmount ──────────────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort()
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
   }, [])
 
   // ── Debounced search trigger ─────────────────────────────────────────────────
@@ -75,22 +164,20 @@ export default function LocationAutocomplete({
     if (trimmed.length < 2) {
       setState({ status: 'idle' })
       setIsOpen(false)
+      setIsFetching(false)
+      abortRef.current?.abort()
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
       return
     }
 
-    const timer = setTimeout(() => {
-      fetchSuggestions(trimmed)
-    }, 300)
+    const cacheKey = trimmed.toLowerCase()
 
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
-
-  // ── Fetch suggestions from backend ──────────────────────────────────────────
-  const fetchSuggestions = useCallback(async (searchTerm: string) => {
-    // Serve from cache when available
-    const cacheKey = searchTerm.toLowerCase()
+    // 1. Instant Cache Check
     if (queryCache.has(cacheKey)) {
+      abortRef.current?.abort()
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      setIsFetching(false)
+
       const cached = queryCache.get(cacheKey)!
       setState(
         cached.length > 0
@@ -101,15 +188,72 @@ export default function LocationAutocomplete({
       return
     }
 
+    // 2. Local Instant Search (Show matches instantly as they type)
+    const localMatches = LOCAL_CITIES.filter((c) =>
+      c.name.toLowerCase().includes(cacheKey)
+    ).slice(0, 6)
+
+    if (localMatches.length > 0) {
+      setState({ status: 'success', data: localMatches })
+      setIsOpen(true)
+    } else {
+      setState({ status: 'loading' })
+      if (isFocusedRef.current) setIsOpen(true)
+    }
+
+    // 3. Debounce API call (300ms)
+    const timer = setTimeout(() => {
+      fetchSuggestions(trimmed)
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
+
+  // ── Fetch suggestions from backend ──────────────────────────────────────────
+  const fetchSuggestions = useCallback(async (searchTerm: string) => {
+    const cacheKey = searchTerm.toLowerCase()
+
+    // Double check cache in case it got populated during debounce
+    if (queryCache.has(cacheKey)) {
+      const cached = queryCache.get(cacheKey)!
+      setState(
+        cached.length > 0
+          ? { status: 'success', data: cached }
+          : { status: 'empty' }
+      )
+      setIsOpen(true)
+      setIsFetching(false)
+      return
+    }
+
     // Cancel any in-flight request
     abortRef.current?.abort()
     abortRef.current = new AbortController()
 
-    setState({ status: 'loading' })
-    if (isFocusedRef.current) setIsOpen(true)
+    // Set 5 seconds timeout fallback timer
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => {
+      console.warn('[LocationAutocomplete] Request timed out. Showing fallback cities.')
+      abortRef.current?.abort()
+      setIsFetching(false)
+      setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
+      if (isFocusedRef.current) setIsOpen(true)
+    }, 5000)
+
+    setIsFetching(true)
 
     try {
       const res = await tripAPI.getAutocomplete(searchTerm)
+      
+      // Clear timeout since response is received
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+
       const results = res?.data
 
       if (!Array.isArray(results) || results.length === 0) {
@@ -159,7 +303,17 @@ export default function LocationAutocomplete({
     } catch (err: any) {
       if (err?.name === 'AbortError') return // Silently ignore cancelled requests
       console.error('[LocationAutocomplete] fetch error:', err?.message)
-      setState({ status: 'error', message: 'Unable to fetch suggestions. Try again.' })
+      
+      // Clear timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+
+      // If API fails, show fallback cities instead of blank screen
+      setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
+    } finally {
+      setIsFetching(false)
     }
   }, [])
 
@@ -168,6 +322,7 @@ export default function LocationAutocomplete({
   const handleSelect = (loc: Location) => {
     isSelectingRef.current = true
     setQuery(loc.name)
+    lastSentValueRef.current = loc.name
     onChange(loc.name)
     setState({ status: 'idle' })
     setIsOpen(false)
@@ -176,6 +331,7 @@ export default function LocationAutocomplete({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setQuery(val)
+    lastSentValueRef.current = val
     onChange(val)
   }
 
@@ -220,7 +376,7 @@ export default function LocationAutocomplete({
       />
 
       {/* Loading spinner inside input */}
-      {state.status === 'loading' && (
+      {isFetching && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
           <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin inline-block" />
         </div>
@@ -248,7 +404,7 @@ export default function LocationAutocomplete({
           {/* No results */}
           {state.status === 'empty' && (
             <div className="px-4 py-5 text-sm text-center" style={{ color: '#94a3b8' }}>
- <div className="text-2xl mb-1"></div>
+              <div className="text-2xl mb-1"></div>
               No cities found for &ldquo;{query}&rdquo;
             </div>
           )}
@@ -286,7 +442,7 @@ export default function LocationAutocomplete({
                   }}
                 >
                   <div className="flex items-center gap-3">
- <span style={{ fontSize: '1rem' }}></span>
+                    <span style={{ fontSize: '1rem' }}></span>
                     <span
                       className="text-sm font-semibold"
                       style={{ color: '#f1f5f9' }}
@@ -312,3 +468,4 @@ export default function LocationAutocomplete({
     </div>
   )
 }
+
