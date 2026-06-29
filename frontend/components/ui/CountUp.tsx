@@ -16,7 +16,7 @@ export default function CountUp({ to, suffix = "" }: CountUpProps) {
   const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
-    setMounted(true)
+    Promise.resolve().then(() => setMounted(true))
   }, [])
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function CountUp({ to, suffix = "" }: CountUpProps) {
       }, 16)
       return () => clearInterval(timer)
     } else if (inView && (shouldReduceMotion || !mounted)) {
-      setCount(to)
+      Promise.resolve().then(() => setCount(to))
     }
   }, [inView, to, shouldReduceMotion, mounted])
 

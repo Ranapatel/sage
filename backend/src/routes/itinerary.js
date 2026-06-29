@@ -1,17 +1,31 @@
 const express = require('express')
 const router = express.Router()
 const { body, query, validationResult } = require('express-validator')
-const { generateItinerary, optimizeBudget } = require('../services/aiService')
+const { generateItinerary, optimizeBudget } = require('../services/aiService') // AI services
 const { enrichItineraryWithRealCoords, searchPlace } = require('../services/placesService')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 const { v4: uuidv4 } = require('uuid')
 
 const itineraryValidation = [
   body('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
-  body('days').isInt({ min: 1, max: 90 }),
-  body('budget').isFloat({ min: 0, max: 10000000 }),
-  body('style').isIn(['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business']),
-  body('members').optional().isInt({ min: 1, max: 20 }),
+  body('days').customSanitizer(val => {
+    const parsed = parseInt(val, 10);
+    return isNaN(parsed) || parsed < 1 || parsed > 90 ? 3 : parsed;
+  }).isInt({ min: 1, max: 90 }),
+  body('budget').customSanitizer(val => {
+    const parsed = parseFloat(val);
+    return isNaN(parsed) || parsed < 0 || parsed > 10000000 ? 50000 : parsed;
+  }).isFloat({ min: 0, max: 10000000 }),
+  body('style').customSanitizer(val => {
+    if (typeof val !== 'string') return 'adventure';
+    const clean = val.trim().toLowerCase();
+    const allowed = ['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business'];
+    return allowed.includes(clean) ? clean : 'adventure';
+  }).isIn(['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business']),
+  body('members').customSanitizer(val => {
+    const parsed = parseInt(val, 10);
+    return isNaN(parsed) || parsed < 1 || parsed > 20 ? 2 : parsed;
+  }).isInt({ min: 1, max: 20 }),
   body('preferences').optional().isArray({ max: 10 }),
   body('startDate').optional().isString(),
 ]
@@ -20,6 +34,7 @@ const itineraryValidation = [
 router.post('/generate', itineraryValidation, async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
+    console.error('[Itinerary Validation Error]:', errors.array(), 'req.body:', req.body)
     return res.status(400).json({ success: false, error: 'Invalid input', details: errors.array() })
   }
 
@@ -61,7 +76,7 @@ router.post('/generate', itineraryValidation, async (req, res) => {
     console.error('[Itinerary Route] Error:', err.message)
     res.status(500).json({
       success: false,
-      error: 'Failed to generate itinerary. Please try again.',
+      error: err.message || 'Failed to generate itinerary. Please try again.',
       meta: { timestamp: new Date().toISOString(), requestId },
     })
   }

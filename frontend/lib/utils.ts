@@ -19,14 +19,6 @@ export const affiliateLinks = {
     return `${base}?adults=1&cabinclass=economy&ref=home&rtn=0`
   },
 
- /** Agoda — hotel search deep-link with affiliate ID */
-  hotel: (destination: string, checkin: string, checkout: string, members = 2) => {
-    const dest = encodeURIComponent(cityName(destination))
-    let url = `https://www.agoda.com/search?city=${dest}&adults=${members}&rooms=1&cid=1962536`
-    if (checkin) url += `&checkIn=${checkin}`
-    if (checkout) url += `&checkOut=${checkout}`
-    return url
-  },
 
  /** GetYourGuide — activities search with partner ID */
   activity: (destination: string) => {

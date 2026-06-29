@@ -2,11 +2,11 @@
 
 import React, { memo } from 'react'
 import { useTripStore } from '@/store/tripStore'
-import Image from 'next/image'
-import { trackEvent } from '@/lib/analytics'
+import { Bus, Shield } from 'lucide-react'
+import BookingButton from '../BookingButton'
 
 function BusesTab() {
-  const { buses, loading, tripContext } = useTripStore()
+  const { buses, busSearchUrl, loading, tripContext } = useTripStore()
 
   if (loading) {
     return (
@@ -18,7 +18,58 @@ function BusesTab() {
     )
   }
 
-  if (!buses || buses.length === 0) return null
+  if (!buses || buses.length === 0) {
+    const fallbackUrl = busSearchUrl || "https://www.makemytrip.com/bus-tickets/";
+    return (
+      <div className="space-y-6">
+        {/* Branded Header */}
+        <div className="glass rounded-2xl border border-blue-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-red-500 flex items-center justify-center shadow-md shadow-blue-600/20">
+                    <Bus size={18} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-[var(--text-primary)]">
+                    Bus Bookings
+                  </h3>
+                </div>
+                <p className="text-xs font-bold text-blue-700/80 mt-2 flex items-center gap-1.5">
+                  <Shield size={11} className="text-blue-600" />
+                  Routed via MakeMyTrip
+                </p>
+                <p className="text-[11px] text-[var(--text-muted)] mt-1">
+                  Live routes &bull; Instant availability &bull; Official Deep Links
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Prominent MMT Card */}
+        <div className="glass p-8 border border-slate-200/60 rounded-2xl bg-white shadow-md text-center max-w-2xl mx-auto space-y-6">
+          <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto text-blue-600">
+            <Bus size={32} />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-lg font-black text-slate-800">Book Buses on MakeMyTrip</h4>
+            <p className="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+              We have generated a direct listing search for your route from <span className="font-extrabold text-slate-700">{tripContext.startLocation || 'your origin'}</span> to <span className="font-extrabold text-slate-700">{tripContext.destination || 'your destination'}</span> on MakeMyTrip.
+            </p>
+          </div>
+          <div className="max-w-xs mx-auto">
+            <BookingButton
+              label="Book on MakeMyTrip"
+              icon="bus"
+              url={fallbackUrl}
+              provider="makemytrip"
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -67,15 +118,12 @@ function BusesTab() {
             </div>
             
             <div className="mt-auto pt-4 border-t border-[var(--border)]">
-              <a
-                href={bus.bookingLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent('booking_click', { type: 'bus', operator: bus.name })}
-                className="w-full text-center block py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-red-600 to-red-500 text-white hover:opacity-90 transition-opacity shadow-md"
-              >
-                Book on redBus →
-              </a>
+              <BookingButton
+                label="Book on MakeMyTrip"
+                icon="bus"
+                url={bus.bookingLink || busSearchUrl || ''}
+                provider="makemytrip"
+              />
             </div>
           </div>
         ))}

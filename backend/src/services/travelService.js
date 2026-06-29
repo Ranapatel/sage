@@ -6,10 +6,11 @@ const { estimateFlightPrices } = require('./aiService')
 // Initialize node-cache with 5 minutes (300 seconds) standard TTL
 const localCache = new NodeCache({ stdTTL: 300, checkperiod: 60 })
 
+const hotelbedsService = require('./hotelbedsService')
+
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY
 const RAPIDAPI_HOSTS = {
   flights: process.env.RAPIDAPI_HOST_FLIGHTS || 'sky-scrapper.p.rapidapi.com',
-  hotels: process.env.RAPIDAPI_HOST_HOTELS || 'booking-com15.p.rapidapi.com',
 }
 
 // ─── Booking Links ────────────────────────────────────────────────────────────
@@ -37,13 +38,8 @@ function flightBookingLink(from, to, date) {
   return `${base}?adults=1&cabinclass=economy&ref=home&rtn=0`
 }
 
-function hotelBookingLink(destination, checkin, checkout, members) {
-  // Use Agoda with affiliate cid=1962536 and destination search
-  const dest = encodeURIComponent(citySlug(destination))
-  let url = `https://www.agoda.com/search?city=${dest}&adults=${members || 2}&rooms=1&cid=1962536`
-  if (checkin) url += `&checkIn=${checkin}`
-  if (checkout) url += `&checkOut=${checkout}`
-  return url
+function hotelBookingLink() {
+  return ''
 }
 
 // ─── RapidAPI helpers ─────────────────────────────────────────────────────────
@@ -201,42 +197,7 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
   }).sort((a, b) => a.price - b.price)
 }
 
-const HOTEL_PREFIXES = ['The Grand', 'Royal', 'Paradise', 'Comfort', 'Heritage', 'Golden', 'Mountain', 'Sunrise']
-const HOTEL_SUFFIXES = ['Hotel', 'Resort', 'Inn', 'Suites', 'Palace', 'Retreat', 'Lodge', 'Residency']
-const AMENITIES_POOL = ['WiFi', 'Pool', 'Spa', 'Gym', 'Restaurant', 'Room Service', 'Parking', 'Breakfast']
 
-function generateMockHotels(destination, checkin, checkout, members, budget) {
-  // Use stable seed (destination only) so hotel prices don't change on every search
-  const seed = (destination || 'dest').split(',')[0].toLowerCase().trim()
-  const destLabel = (destination || 'destination').split(',')[0]
-  // Realistic per-night prices: ₹800–₹6,000
-  const maxPerNight = budget ? Math.min(budget * 0.35, 7000) : 5500
-  const basePrice = Math.max(700, Math.round((seededRandom(seed) * 2500 + 800) / 100) * 100)
-
-  return Array.from({ length: 6 }, (_, i) => {
-    const r = seededRandom(seed + i)
-    const prefix = HOTEL_PREFIXES[Math.floor(r * HOTEL_PREFIXES.length)]
-    const suffix = HOTEL_SUFFIXES[Math.floor(seededRandom(seed + i + 'sfx') * HOTEL_SUFFIXES.length)]
-    const price = Math.min(basePrice + Math.round((seededRandom(seed + i + 'p') * 3500) / 100) * 100, maxPerNight)
-    const amenStart = Math.floor(seededRandom(seed + i + 'as') * 4)
-    const amenities = AMENITIES_POOL.slice(amenStart, amenStart + 4)
-    return {
-      id: `ht_mock_${i}`,
-      type: 'hotel',
-      name: `${prefix} ${destLabel} ${suffix}`,
-      price: Math.max(price, 700),
-      rating: parseFloat((3.5 + seededRandom(seed + i + 'r') * 1.5).toFixed(1)),
-      image: HOTEL_IMAGES[i % HOTEL_IMAGES.length],
-      location: `${destLabel} City Centre`,
-      bookingLink: hotelBookingLink(destination, checkin, checkout, members),
-      score: parseFloat((0.5 + seededRandom(seed + i + 's') * 0.5).toFixed(2)),
-      liveStatus: i < 2 ? '2 rooms left' : 'Available',
-      amenities,
-      offers: i === 0 ? ['Free Cancellation', 'Breakfast Included'] : [],
-      source: 'estimated',
-    }
-  }).sort((a, b) => a.price - b.price)
-}
 
 // ─── Airport Resolution ───────────────────────────────────────────────────────
 
@@ -398,8 +359,8 @@ function normalizeKiwiFlights(rawData, from, to, date) {
 
 // ─── Hotel Search ─────────────────────────────────────────────────────────────
 
-async function searchHotels({ destination, checkin, checkout, members = 2, budget }) {
-  const cacheKey = generateCacheKey('hotels_v4', { destination, checkin, checkout, members, budget })
+async function searchHotels({ destination, checkin, checkout, members = 2, budget, rooms = 1, adults = 2, children = 0 }) {
+  const cacheKey = generateCacheKey('hotels_hbd_v3', { destination, checkin, checkout, members, budget, rooms, adults, children })
   
   // Check node-cache first
   const localCached = localCache.get(cacheKey)
@@ -408,112 +369,14 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
-  if (RAPIDAPI_KEY) {
-    try {
-      const locRes = await axios.get(`https://${RAPIDAPI_HOSTS.hotels}/api/v1/hotels/searchDestination`, {
-        params: { query: destination.split(',')[0].trim() },
-        headers: rapidHeaders(RAPIDAPI_HOSTS.hotels),
-        timeout: 8000,
-      })
+  const result = await hotelbedsService.searchHotels({ destination, checkin, checkout, members, budget, rooms, adults, children })
 
-      const locData = locRes.data?.data || []
-      const firstLoc = Array.isArray(locData)
-        ? (locData.find(l => l.dest_type === 'city' || l.dest_type === 'district') || locData[0])
-        : null
-
-      if (firstLoc) {
-        const today = new Date().toISOString().split('T')[0]
-        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
-
-        const propsRes = await axios.get(`https://${RAPIDAPI_HOSTS.hotels}/api/v1/hotels/searchHotels`, {
-          params: {
-            dest_id: firstLoc.dest_id || firstLoc.id,
-            search_type: firstLoc.dest_type || 'city',
-            arrival_date: checkin || today,
-            departure_date: checkout || tomorrow,
-            adults: String(members),
-            room_qty: 1,
-            page_number: 1,
-            languagecode: 'en-us',
-            currency_code: 'INR',
-          },
-          headers: rapidHeaders(RAPIDAPI_HOSTS.hotels),
-          timeout: 12000,
-        })
-
-        let liveHotels = normalizeBookingCom(propsRes.data, destination, checkin, checkout, members)
-
-        if (budget && liveHotels.length > 0) {
-          const perNightBudget = budget * 0.35
-          const filtered = liveHotels.filter(h => h.price <= perNightBudget)
-          liveHotels = filtered.length > 0 ? filtered : liveHotels.slice(0, 3)
-        }
-
-        if (liveHotels.length > 0) {
-          console.log(`[Hotels] ✅ ${liveHotels.length} live hotels`)
-          const result = { success: true, data: liveHotels, meta: { cache: false, source: 'live' } }
-          await cacheSet(cacheKey, result)
-          localCache.set(cacheKey, result)
-          return result
-        }
-      }
-    } catch (err) {
-      console.warn('[Hotels] Live search failed:', err.response?.status || err.message)
-    }
+  if (result && result.success) {
+    await cacheSet(cacheKey, result)
+    localCache.set(cacheKey, result)
   }
-
-  // Always fall back to smart mock data
-  console.log(`[Hotels] Using estimated data for ${destination}`)
-  const mocks = generateMockHotels(destination, checkin, checkout, members, budget)
-  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
-  await cacheSet(cacheKey, result)
-  localCache.set(cacheKey, result)
+  
   return result
-}
-
-function normalizeBookingCom(rawData, destination, checkin, checkout, members) {
-  const hotels = rawData?.data?.hotels || rawData?.result || rawData?.data || []
-  if (!Array.isArray(hotels) || hotels.length === 0) return []
-
-  return hotels
-    .map((item, i) => {
-      const prop = item.property || item
-      const priceInfo =
-        prop.priceBreakdown?.grossPrice ||
-        item.min_total_price ||
-        prop.priceBreakdown?.strikethroughPrice
-
-      const rawPrice = priceInfo?.value || priceInfo?.amount || priceInfo
-      let numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || '0').replace(/[^0-9.]/g, ''))
-
-      if (!numPrice || numPrice <= 0) return null
-
-      // Paise detection: hotel per-night rates rarely exceed ₹50,000
-      if (numPrice > 50000) numPrice = Math.round(numPrice / 100)
-      // Still high? Cap at ₹25,000/night (luxury cap)
-      numPrice = Math.min(Math.round(numPrice), 25000)
-      // Minimum floor
-      if (numPrice < 300) numPrice = numPrice * 100
-
-      return {
-        id: (prop.id || item.hotel_id || `ht_live_${i}`).toString(),
-        type: 'hotel',
-        name: prop.name || item.hotel_name || `Hotel in ${destination.split(',')[0]}`,
-        price: numPrice,
-        rating: parseFloat(String(prop.reviewScore || prop.review_score || item.review_score || 4.0)),
-        image: (prop.photoUrls || [])[0] || item.max_photo_url || HOTEL_IMAGES[i % HOTEL_IMAGES.length],
-        location: prop.wishlistName || prop.countryCode || destination.split(',')[0],
-        bookingLink: hotelBookingLink(destination, checkin, checkout, members),
-        score: prop.reviewScore ? prop.reviewScore / 10 : 0.7,
-        liveStatus: 'Live',
-        amenities: [],
-        offers: [],
-        source: 'live',
-      }
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.price - b.price)
-    .slice(0, 6)
 }
 
 // ─── Buses Search ─────────────────────────────────────────────────────────────
@@ -562,24 +425,58 @@ function generateMockBuses(from, to, date, budget) {
   }).sort((a, b) => a.price - b.price)
 }
 
-async function searchBuses({ from, to, date, budget }) {
+async function searchBuses({ from, to, date }) {
   // Only support Indian routes for the bus integration
   const isSupported = (from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india')
   
   if (!isSupported) {
     console.log(`[Buses] Route ${from} → ${to} not supported. Returning empty inventory.`)
-    return { success: true, data: [], meta: { cache: false, source: 'unsupported' } }
+    return { success: true, results: [], searchUrl: '', meta: { cache: false, source: 'unsupported' } }
   }
 
-  const cacheKey = generateCacheKey('buses_v3', { from, to, date, budget })
+  const cacheKey = generateCacheKey('buses_v3', { from, to, date })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
-  console.log(`[Buses] Using estimated data for ${from} → ${to}`)
-  const mocks = generateMockBuses(from, to, date, budget)
-  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
-  await cacheSet(cacheKey, result)
-  return result
+  try {
+    const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
+    console.log(`[Buses] Querying NestJS bus search: ${nestUrl}/api/bus/search`);
+    const response = await axios.post(`${nestUrl}/api/bus/search`, {
+      departureCity: from.split(',')[0].trim(),
+      destinationCity: to.split(',')[0].trim(),
+      departureDate: date
+    });
+    
+    const result = {
+      success: true,
+      results: response.data?.results || [],
+      searchUrl: response.data?.searchUrl || '',
+      meta: { cache: false, source: 'nestjs-mmt' }
+    };
+    await cacheSet(cacheKey, result);
+    return result;
+  } catch (err) {
+    console.error('[travelService.js] searchBuses failed:', err.message);
+    
+    let fallbackSearchUrl = '';
+    if (err.response?.data?.searchUrl) {
+      fallbackSearchUrl = err.response.data.searchUrl;
+    } else {
+      const originSlug = (from || '').split(',')[0].trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase();
+      const destSlug = (to || '').split(',')[0].trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase();
+      const dateParts = (date || '').split('-');
+      if (dateParts.length === 3) {
+        fallbackSearchUrl = `https://www.makemytrip.com/bus-tickets/${originSlug}-to-${destSlug}/?dd=${dateParts[2]}&mm=${dateParts[1]}&yy=${dateParts[0]}`;
+      }
+    }
+    
+    return {
+      success: false,
+      results: [],
+      searchUrl: fallbackSearchUrl,
+      meta: { cache: false, source: 'error' }
+    };
+  }
 }
 
 // ─── Rental Cars Search ───────────────────────────────────────────────────────

@@ -64,7 +64,7 @@ Return JSON in this exact schema:
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      timeout: 15000,
+      timeout: 30000,
     })
 
     const content = response.data.choices[0]?.message?.content
@@ -81,8 +81,17 @@ Return JSON in this exact schema:
 
     return { success: true, data: parsed }
   } catch (err) {
-    console.error('[Groq AI] Error:', err.response?.data?.error?.message || err.message)
-    throw new Error('Failed to generate real AI itinerary: ' + (err.response?.data?.error?.message || err.message))
+    const errorMsg = err.response?.data?.error?.message || err.message
+    console.error('[Groq AI] Error:', errorMsg)
+    console.warn('[Groq AI] Falling back to mock itinerary due to API failure.')
+    return {
+      success: true,
+      data: getMockItinerary({ destination, days, budget, members, startDate }),
+      meta: {
+        fallback: true,
+        error: `Failed to generate real AI itinerary: ${errorMsg}`
+      }
+    }
   }
 }
 

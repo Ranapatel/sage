@@ -38,8 +38,8 @@ function TripHistoryTab({ onPlanSimilar, onReopenItinerary }: Props) {
       </div>
 
       <div className="space-y-4">
-        {tripHistory.map((trip) => (
-          <div key={trip.tripId} className="card overflow-hidden">
+        {tripHistory.map((trip, index) => (
+          <div key={`${trip.tripId || ''}-${index}`} className="card overflow-hidden">
             {/* Header strip */}
             <div className="h-2 w-full" style={{
               background: trip.status === 'completed'

@@ -9,6 +9,7 @@ import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
+import HotelDetailModal from '../hotel/HotelDetailModal'
 
 const WeatherWidget = lazy(() => import('../weather/WeatherWidget'))
 
@@ -242,8 +243,8 @@ function OverviewTab({
                 <button onClick={() => onTabChange('history')} className="text-xs text-[var(--primary)]">View all →</button>
               </div>
               <div className="space-y-2">
-                {tripHistory.slice(0, 3).map((t: any) => (
-                  <div key={t.tripId} className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--border)] last:border-0">
+                {tripHistory.slice(0, 3).map((t: any, index: number) => (
+                  <div key={`${t.tripId || ''}-${index}`} className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--border)] last:border-0">
                     <div>
                       <p className="font-semibold text-[var(--text-primary)]">{t.destination}</p>
                       <p className="text-[var(--text-muted)]">{t.dates.start || 'No date'}</p>
@@ -262,6 +263,9 @@ function OverviewTab({
           )}
         </div>
       </div>
+
+      {/* Hotel Detail Modal */}
+      <HotelDetailModal />
     </div>
   )
 }

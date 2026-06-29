@@ -1,0 +1,28 @@
+import { CityInfo } from '../types/transport';
+
+export const CITY_SLUG_MAP: Record<string, CityInfo> = {
+  mumbai: { name: 'Mumbai', slug: 'mumbai' },
+  pune: { name: 'Pune', slug: 'pune' },
+  bangalore: { name: 'Bengaluru', slug: 'bengaluru' },
+  bengaluru: { name: 'Bengaluru', slug: 'bengaluru' },
+  hyderabad: { name: 'Hyderabad', slug: 'hyderabad' },
+  chennai: { name: 'Chennai', slug: 'chennai' },
+  goa: { name: 'Panaji', slug: 'panaji' },
+  panaji: { name: 'Panaji', slug: 'panaji' },
+  delhi: { name: 'New Delhi', slug: 'new-delhi' },
+  'new delhi': { name: 'New Delhi', slug: 'new-delhi' },
+  kochi: { name: 'Kochi', slug: 'kochi' },
+  ahmedabad: { name: 'Ahmedabad', slug: 'ahmedabad' },
+  jaipur: { name: 'Jaipur', slug: 'jaipur' },
+  nagpur: { name: 'Nagpur', slug: 'nagpur' },
+  surat: { name: 'Surat', slug: 'surat' },
+  vizag: { name: 'Visakhapatnam', slug: 'visakhapatnam' },
+  visakhapatnam: { name: 'Visakhapatnam', slug: 'visakhapatnam' },
+  mysore: { name: 'Mysore', slug: 'mysore' },
+  mysuru: { name: 'Mysore', slug: 'mysore' },
+  coimbatore: { name: 'Coimbatore', slug: 'coimbatore' },
+  indore: { name: 'Indore', slug: 'indore' },
+  bhopal: { name: 'Bhopal', slug: 'bhopal' },
+  lucknow: { name: 'Lucknow', slug: 'lucknow' },
+  kolkata: { name: 'Kolkata', slug: 'kolkata' },
+};

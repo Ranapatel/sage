@@ -49,7 +49,9 @@ export default function LocationAutocomplete({
 
   // ── Sync external value changes (e.g. auto-detect location) ─────────────────
   useEffect(() => {
-    setQuery(value)
+    Promise.resolve().then(() => {
+      setQuery(value)
+    })
   }, [value])
 
   // ── Close dropdown on outside click ─────────────────────────────────────────
@@ -62,29 +64,6 @@ export default function LocationAutocomplete({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  // ── Debounced search trigger ─────────────────────────────────────────────────
-  useEffect(() => {
-    // Skip search if user just selected from dropdown
-    if (isSelectingRef.current) {
-      isSelectingRef.current = false
-      return
-    }
-
-    const trimmed = query.trim()
-    if (trimmed.length < 2) {
-      setState({ status: 'idle' })
-      setIsOpen(false)
-      return
-    }
-
-    const timer = setTimeout(() => {
-      fetchSuggestions(trimmed)
-    }, 300)
-
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
 
   // ── Fetch suggestions from backend ──────────────────────────────────────────
   const fetchSuggestions = useCallback(async (searchTerm: string) => {
@@ -162,6 +141,29 @@ export default function LocationAutocomplete({
       setState({ status: 'error', message: 'Unable to fetch suggestions. Try again.' })
     }
   }, [])
+
+  // ── Debounced search trigger ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
+      return
+    }
+
+    const trimmed = query.trim()
+    if (trimmed.length < 2) {
+      Promise.resolve().then(() => {
+        setState({ status: 'idle' })
+        setIsOpen(false)
+      })
+      return
+    }
+
+    const timer = setTimeout(() => {
+      fetchSuggestions(trimmed)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [query, fetchSuggestions])
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 

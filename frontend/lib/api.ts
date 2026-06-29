@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance } from 'axios'
+import type { TrainStationInfo, TrainOption } from '@/store/tripStore'
 
 // ─── Shared response shape from TripSage backend ─────────────────────────────
 
@@ -14,16 +15,134 @@ export interface SearchData {
   transport: any[]
   hotels:    any[]
   buses:     any[]
+  busSearchUrl?: string
   cars:      any[]
   weather:   any
   itinerary: any[]
   exploration: any[]
+  trains?:   any[]
+  trainSearchUrl?: string
+  trainStationInfo?: any
 }
 
 export interface ItineraryData {
   itinerary: any[]
   totalEstimatedCost?: number
   tips?: string[]
+}
+
+/** Matches the output schema from hotelRecommendationService.js */
+export interface HotelRecommendation {
+  hotel_name:            string
+  price_per_night:       string   // "1200" | "Price unavailable"
+  currency:              string
+  rating:                string   // "4.5" | "Not rated"
+  image_url:             string
+  image_source:          'hotelbeds-cdn' | 'placeholder'
+  location:              string
+  amenities:             string[]
+  booking_link:          string
+  rate_key:              string | null
+  rate_type:             string
+  recommendation_reason: string
+  image_path?:           string | null
+  gallery_paths?:        string[]
+  rooms?:                any[]
+  _meta: {
+    id:            string
+    rank:          number
+    score:         number
+    source:        string
+    nights:        number | null
+    total_price:   number | null
+    category_name: string | null
+    live_status:   string | null
+    rate_type:     string
+  }
+}
+
+/** Response from POST /api/hotels/checkrate */
+export interface CheckRateResult {
+  success:              boolean
+  rateType:             'BOOKABLE' | 'RECHECK'
+  rateKey:              string
+  netInr:               number
+  net:                  string
+  currency:             string
+  boardCode:            string
+  boardName:            string
+  cancellationPolicies: { amount: string; from: string }[]
+  rateComments:         string
+  priceChanged:         boolean
+  priceDiff:            number   // percentage change, e.g. +5 or -2
+}
+
+/** Hotel content from Hotelbeds Content API */
+export interface HotelContent {
+  code:          string | number
+  name:          string
+  description:   string
+  address:       string
+  city:          string
+  postalCode:    string
+  countryCode:   string
+  phone:         string
+  email:         string
+  web:           string
+  latitude:      number | null
+  longitude:     number | null
+  checkInTime:   string
+  checkOutTime:  string
+  categoryCode:  string
+  categoryName:  string
+  images:        { path: string; url: string; order: number; visualOrder: number; type: string }[]
+  facilities:    { code: string; groupCode: string; name: string; hotelMandatory?: boolean; voucher?: boolean }[]
+  issues?:       { code: string; dateFrom: string; dateTo: string }[]
+}
+
+/** Guest data collected by GuestInfoForm */
+export interface GuestData {
+  holder:    { firstName: string; lastName: string }
+  guests:    { firstName: string; lastName: string }[]
+  contact:   { email: string; phone: string }
+}
+
+/** Complete booking record stored after successful confirmation */
+export interface FullBookingRecord {
+  bookingId:            string
+  status:               'CONFIRMED' | 'PENDING' | 'CANCELLED'
+  bookingReference:     string
+  clientReference:      string
+  hotelName:            string
+  hotelAddress:         string
+  checkIn:              string
+  checkOut:             string
+  roomType:             string
+  boardType:            string
+  totalPrice:           number
+  currency:             string
+  guests:               { name: string; type: string; role: string }[]
+  cancellationPolicies: { amount: string; from: string }[]
+  bookingDate:          string
+}
+
+/** Voucher data from GET /api/booking/:id/voucher */
+export interface VoucherData {
+  bookingReference:  string
+  clientReference:   string
+  status:            string
+  bookingDate:       string
+  hotel: {
+    code: string; name: string; address: string; phone: string
+    checkIn: string; checkOut: string; checkInTime: string; checkOutTime: string
+  }
+  guests:             { name: string; type: string; role?: string }[]
+  room:               { type: string; boardType: string }
+  cancellationPolicy: string
+  totalPaid:          { amount: number; currency: string }
+  contact:            { email: string; phone: string }
+  checkInInstructions: string[]
+  rateComments?:      string
 }
 
 // ─── Axios instance ──────────────────────────────────────────────────────────
@@ -58,7 +177,21 @@ _API.interceptors.request.use((config) => {
 // Response interceptor — unwraps res.data so callers receive the API body directly
 _API.interceptors.response.use(
   (res) => res.data,
-  (err) => {
+  async (err) => {
+    if (err.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        // Clear token from header
+        delete _API.defaults.headers.common['Authorization']
+        // Dynamically import useAuthStore to avoid circular dependency
+        try {
+          const { useAuthStore } = await import('@/store/authStore')
+          useAuthStore.getState().logout()
+        } catch (e) {
+          console.error('Failed to logout on 401:', e)
+          localStorage.removeItem('tripsage-auth')
+        }
+      }
+    }
     const msg = err.response?.data?.message || err.message || 'Something went wrong'
     return Promise.reject(new Error(msg))
   }
@@ -73,6 +206,7 @@ export const tripAPI = {
   search: (params: {
     from: string; to: string; startDate: string; endDate?: string
     budget?: number; travelers?: number; style?: string
+    rooms?: number; adults?: number; children?: number
   }, config?: { signal?: AbortSignal }): Promise<ApiResponse<SearchData>> =>
     API.post('/api/search', params, config),
 
@@ -114,6 +248,65 @@ export const tripAPI = {
 
   saveProfile: (profile: any): Promise<ApiResponse<any>> =>
     API.post('/api/profile', profile),
+
+  /**
+   * Fetches ranked hotel recommendations from the Hotelbeds API.
+   * Data is API-supplied only — no fabricated prices, ratings, or images.
+   */
+  recommendHotels: (params: {
+    destination: string
+    checkin:     string
+    checkout:    string
+    members?:    number
+    budget?:     number
+    rooms?:      number
+    adults?:     number
+    children?:   number
+  }): Promise<ApiResponse<HotelRecommendation[]>> =>
+    API.post('/api/hotels/recommend', params),
+
+  /**
+   * Validates a rate key before booking (Hotelbeds CheckRate API).
+   * Required for RECHECK rates per Hotelbeds certification.
+   */
+  checkRate: (rateKey: string, originalPrice?: number, rateType?: string, hotelCode?: string): Promise<CheckRateResult> =>
+    API.post('/api/hotels/checkrate', { rateKey, originalPrice, rateType, hotelCode }),
+
+  /**
+   * Fetches hotel content from the Hotelbeds Content API.
+   * Returns real CDN images (photos.hotelbeds.com/giata/...) and facilities.
+   */
+  getHotelContent: (hotelCode: string): Promise<ApiResponse<HotelContent | null>> =>
+    API.get(`/api/hotels/content/${encodeURIComponent(hotelCode)}`),
+
+  /**
+   * Creates a hotel booking with full guest pax data.
+   * Implements the Hotelbeds certification booking flow.
+   */
+  initHotelBookingFull: (data: {
+    type:        'hotel'
+    itemId:      string
+    userDetails: Record<string, any>
+    holder:      { firstName: string; lastName: string }
+    guests:      { firstName: string; lastName: string }[]
+    contact:     { email: string; phone: string }
+  }): Promise<ApiResponse<FullBookingRecord>> =>
+    API.post('/api/booking/init', data),
+
+  /**
+   * Gets voucher data for a confirmed hotel booking.
+   */
+  getBookingVoucher: (bookingId: string): Promise<ApiResponse<VoucherData>> =>
+    API.get(`/api/booking/${bookingId}/voucher`),
+
+  searchTrains: (params: {
+    departureCity: string
+    destinationCity: string
+    departureDate: string
+    passengers?: number
+    travelClass?: string
+  }, config?: { signal?: AbortSignal }): Promise<{ trains: TrainOption[]; stationInfo: TrainStationInfo | null; isDomestic: boolean }> =>
+    API.post('/api/train/search', params, config),
 }
 
 // ─── Auth API ─────────────────────────────────────────────────────────────────

@@ -30,12 +30,7 @@ userSchema.methods.toSafe = function () {
   return obj
 }
 
-let User
-try {
-  User = mongoose.model('User')
-} catch {
-  User = mongoose.model('User', userSchema)
-}
+const User = mongoose.models.User || mongoose.model('User', userSchema)
 
 // ── Memory-store helpers (fallback when MongoDB is down) ──────────────────────
 const memUsers = {

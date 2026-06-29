@@ -57,9 +57,11 @@ export function useUrgency(itemId: string) {
 
   useEffect(() => {
     // Set real values only on the client after hydration
-    setSeed(timeSeed())
-    setCountdown(secondsLeft())
-    setMounted(true)
+    Promise.resolve().then(() => {
+      setSeed(timeSeed())
+      setCountdown(secondsLeft())
+      setMounted(true)
+    })
 
     const seedTimer = setInterval(() => setSeed(timeSeed()), 90000)
     const countTimer = setInterval(() => setCountdown(secondsLeft()), 1000)

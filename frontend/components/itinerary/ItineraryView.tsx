@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import PlaceCard from '@/components/PlaceCard'
+import PlaceDetailsModal from '@/components/PlaceDetailsModal'
 
 const CATEGORY_COLORS: Record<string, string> = {
   transport: 'badge-green', explore: 'badge-amber', dining: 'badge-red',
@@ -164,6 +166,8 @@ interface Props {
 function ItineraryView({ itinerary, loading, destination }: Props) {
   const [activeDay, setActiveDay] = useState(0)
   const isMobile = useIsMobile()
+  const [selectedPlace, setSelectedPlace] = useState<any | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   if (loading) {
     return (
@@ -248,47 +252,30 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                 {/* Timeline dot */}
                 <div className="absolute left-[5px] sm:left-3.5 top-4 w-3.5 h-3.5 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
 
-                <div className="card p-3 sm:p-4 flex-1 hover:border-[var(--primary)] transition-colors min-w-0 overflow-hidden">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                      <span className="text-xl sm:text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || '📍'}</span>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-[var(--text-primary)] text-sm leading-tight">{place.name}</h3>
-                        <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed line-clamp-2">{place.description}</p>
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <span className={`badge ${CATEGORY_COLORS[place.category] || 'badge-green'} text-[0.6rem]`}>
-                            {place.category}
-                          </span>
-                          {hasCoords ? (
-                            <span className="text-xs text-[var(--text-muted)]">
-                              📍 {lat!.toFixed(3)}, {lng!.toFixed(3)}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-yellow-500">📍 Coordinates loading...</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="font-mono text-sm font-bold text-[var(--primary)]">{place.time}</div>
-                      <a
-                        href={mapsHref}
-                        target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors mt-1 block"
-                      >
-                        Open Maps →
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Image Gallery */}
-                  <PlaceGallery place={place} destination={destination} isMobile={isMobile} />
-                </div>
+                <PlaceCard
+                  place={place}
+                  destinationName={destination}
+                  onClick={() => {
+                    setSelectedPlace(place)
+                    setIsModalOpen(true)
+                  }}
+                />
               </div>
               )
             })}
-          </div>
         </div>
+      </div>
+
+      {/* Place Details Modal */}
+      <PlaceDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedPlace(null)
+        }}
+        place={selectedPlace}
+        destinationName={destination}
+      />
     </div>
   )
 }

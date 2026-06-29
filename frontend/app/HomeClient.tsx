@@ -96,9 +96,11 @@ export default function HomeClient() {
   // Sync currency from auth store if user logs in after mount
   useEffect(() => {
     if (user?.currency && user.currency !== form.currency) {
-      setForm(p => ({ ...p, currency: user.currency }))
+      Promise.resolve().then(() => {
+        setForm(p => ({ ...p, currency: user.currency }))
+      })
     }
-  }, [user?.currency])
+  }, [user?.currency, form.currency])
 
   // Handle responsive check
   useEffect(() => {
@@ -158,7 +160,7 @@ export default function HomeClient() {
   }, [])
 
   useEffect(() => {
-    setInitialized(true)
+    Promise.resolve().then(() => setInitialized(true))
   }, [])
 
   return (

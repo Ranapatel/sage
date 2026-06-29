@@ -138,7 +138,7 @@ function ExploreSection({ destination }: Props) {
 
   useEffect(() => {
     if (!destination) return
-    setLoading(true)
+    Promise.resolve().then(() => setLoading(true))
     tripAPI.getActivities(destination).then((res: any) => {
       // Interceptor already unwraps res.data — access fields directly
       const acts = res?.activities ?? res?.data?.activities

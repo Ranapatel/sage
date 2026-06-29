@@ -10,11 +10,56 @@ import { trackEvent } from '@/lib/analytics'
 
 const STATUS_STEPS = ['INIT', 'SELECTED', 'PENDING', 'CONFIRMED']
 
+const ProgressBar = ({ step }: { step: number }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '20px' }}>
+    {STATUS_STEPS.map((s, i) => (
+      <div key={s} style={{ display: 'flex', alignItems: 'center', flex: 1, gap: '6px' }}>
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center'
+        }}>
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '0.72rem', fontWeight: 700,
+            background: i <= step ? 'var(--primary)' : 'var(--bg-card-hover)',
+            color: i <= step ? '#fff' : 'var(--text-muted)',
+            transition: 'all 0.3s ease'
+          }}>
+            {i < step ? '✓' : i + 1}
+          </div>
+          <span style={{
+            fontSize: '0.58rem', color: 'var(--text-muted)',
+            marginTop: '4px', textAlign: 'center'
+          }}>
+            {s}
+          </span>
+        </div>
+        {i < STATUS_STEPS.length - 1 && (
+          <div style={{
+            height: '2px', flex: 1, marginTop: '-14px',
+            background: i < step ? 'var(--primary)' : 'var(--border)',
+            transition: 'all 0.3s ease', borderRadius: '1px'
+          }} />
+        )}
+      </div>
+    ))}
+  </div>
+)
+
 export default function BookingStatus() {
-  const { bookingStatus, setBookingStatus, addNotification } = useTripStore()
+  const {
+    bookingStatus,
+    setBookingStatus,
+    addNotification,
+    tripContext,
+    openBookingFlow,
+    bookingFlow,
+    cancelHotelBooking
+  } = useTripStore()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
   const [confirming, setConfirming] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
 
   const flightStep = STATUS_STEPS.indexOf(bookingStatus.flightStatus)
   const hotelStep = STATUS_STEPS.indexOf(bookingStatus.hotelStatus)
@@ -27,17 +72,17 @@ export default function BookingStatus() {
     setConfirming(true)
     setBookingStatus({ flightStatus: 'PENDING' })
     try {
-      await new Promise(r => setTimeout(r, 1500)) // Simulate API
+      await new Promise(r => setTimeout(r, 1500))
       setBookingStatus({ flightStatus: 'CONFIRMED' })
       addNotification({
         id: Date.now().toString(),
         type: 'info',
- title: 'Flight Confirmed',
+        title: 'Flight Confirmed',
         message: `${bookingStatus.selectedFlight?.name} booking confirmed!`,
         timestamp: new Date().toISOString(),
         read: false,
       })
- toast.success('Flight booking confirmed!')
+      toast.success('Flight booking confirmed!')
     } catch {
       setBookingStatus({ flightStatus: 'SELECTED' })
       toast.error('Booking failed. Try again.')
@@ -46,83 +91,183 @@ export default function BookingStatus() {
     }
   }
 
-  const handleConfirmHotel = async () => {
-    if (!bookingStatus.selectedHotel) {
-      toast.error('Select a hotel first from the Hotels tab')
+  const handleCancelHotel = async () => {
+    if (!window.confirm('Are you sure you want to cancel this hotel booking? This action cannot be undone.')) {
       return
     }
-    setConfirming(true)
-    setBookingStatus({ hotelStatus: 'PENDING' })
+    setCancelling(true)
     try {
-      await new Promise(r => setTimeout(r, 1500))
-      setBookingStatus({ hotelStatus: 'CONFIRMED' })
-      addNotification({
-        id: Date.now().toString(),
-        type: 'info',
- title: 'Hotel Confirmed',
-        message: `${bookingStatus.selectedHotel?.name} booking confirmed!`,
-        timestamp: new Date().toISOString(),
-        read: false,
-      })
- toast.success('Hotel booking confirmed!')
-    } catch {
-      setBookingStatus({ hotelStatus: 'SELECTED' })
-      toast.error('Booking failed. Try again.')
+      const bookingId = bookingFlow.bookingRecord?.bookingId || bookingStatus.selectedHotel?.id
+      if (!bookingId) {
+        toast.error('Booking ID not found')
+        return
+      }
+      await cancelHotelBooking(bookingId)
+      toast.success('Hotel booking cancelled successfully!')
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to cancel hotel booking')
     } finally {
-      setConfirming(false)
+      setCancelling(false)
     }
   }
 
+  const handleConfirmHotelClick = () => {
+    const hotel = bookingStatus.selectedHotel
+    const room = bookingStatus.selectedRoom
+    if (!hotel) {
+      toast.error('Select a hotel first from the Hotels tab')
+      return
+    }
+    openBookingFlow(hotel, room ? {
+      name: room.name,
+      boardName: room.boardName,
+      rateKey: room.rateKey,
+      price: room.price
+    } : null)
+  }
+
+  const handleViewVoucher = () => {
+    if (bookingFlow.bookingRecord) {
+      useTripStore.setState(s => ({
+        bookingFlow: {
+          ...s.bookingFlow,
+          isOpen: true,
+          step: 'voucher'
+        }
+      }))
+    } else {
+      const hotel = bookingStatus.selectedHotel
+      const room = bookingStatus.selectedRoom
+      if (!hotel) return
+      
+      const simulatedRecord = {
+        bookingId: hotel.id,
+        status: 'CONFIRMED' as const,
+        bookingReference: hotel.bookingReference || 'N/A',
+        clientReference: 'N/A',
+        hotelName: hotel.name,
+        hotelAddress: hotel.location,
+        checkIn: tripContext.startDate,
+        checkOut: tripContext.endDate,
+        roomType: room?.name || 'Standard Room',
+        boardType: room?.boardName || 'Room Only',
+        totalPrice: hotel.price * (hotel.nights || 1),
+        currency: hotel.currency || 'INR',
+        guests: [{ name: user?.name || 'Guest Traveler', type: 'AD', role: 'Lead' }],
+        cancellationPolicies: [],
+        bookingDate: new Date().toISOString()
+      }
+      
+      useTripStore.setState(s => ({
+        bookingFlow: {
+          isOpen: true,
+          step: 'voucher',
+          hotel,
+          room: room ? { ...room, rateType: 'BOOKABLE' } : null,
+          guestData: null,
+          checkRateResult: null,
+          bookingRecord: simulatedRecord,
+          error: null
+        }
+      }))
+    }
+  }
+
+  // ── Voucher download ─────────────────────────────────────────────────────
+  const handleDownloadVoucher = () => {
+    const hotel = bookingStatus.selectedHotel
+    const room = bookingStatus.selectedRoom
+    if (!hotel) return
+
+    const voucher = [
+      '═══════════════════════════════════════════',
+      '           TripSage Booking Voucher        ',
+      '═══════════════════════════════════════════',
+      '',
+      `Booking Reference: ${hotel.bookingReference || 'N/A'}`,
+      `Hotel: ${hotel.name}`,
+      `Location: ${hotel.location}`,
+      room ? `Room: ${room.name}` : '',
+      room ? `Board: ${room.boardName}` : '',
+      `Check-in: ${tripContext.startDate || 'N/A'}`,
+      `Check-out: ${tripContext.endDate || 'N/A'}`,
+      `Guest: ${user?.name || 'Guest Traveler'}`,
+      `Amount: ${formatPrice(hotel.price, currency)}/night`,
+      '',
+      '───────────────────────────────────────────',
+      'This voucher must be presented at check-in.',
+      'Free cancellation up to 24 hours before.',
+      '═══════════════════════════════════════════',
+    ].filter(Boolean).join('\n')
+
+    const blob = new Blob([voucher], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `TripSage-Voucher-${hotel.bookingReference || 'booking'}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('Voucher downloaded!')
+  }
+
+
+
   return (
     <div className="space-y-6">
- <h2 className="section-title text-xl">Booking Management</h2>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontWeight: 700,
+        fontSize: '1.5rem', color: 'var(--text-primary)'
+      }}>
+        Booking Management
+      </h2>
 
-      {/* Booking state machines */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Flight booking */}
-        <div className="card p-6">
-          <div className="flex items-center gap-3 mb-6">
- <span className="text-3xl">️</span>
+        {/* ── Flight Booking ──────────────────────────────────────────── */}
+        <div style={{
+          background: 'var(--bg-card)', borderRadius: '16px',
+          border: '1px solid var(--border)', padding: '24px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <span style={{ fontSize: '1.8rem' }}>✈️</span>
             <div>
-              <h3 className="font-bold text-[var(--text-primary)]">Flight Booking</h3>
-              <p className="text-xs text-[var(--text-muted)]">Status: <span className={`font-semibold ${bookingStatus.flightStatus === 'CONFIRMED' ? 'text-green-400' : 'text-yellow-400'}`}>{bookingStatus.flightStatus}</span></p>
+              <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>Flight</h3>
+              <p style={{
+                fontSize: '0.72rem', color: bookingStatus.flightStatus === 'CONFIRMED' ? '#16a34a' : 'var(--text-muted)',
+                fontWeight: 600
+              }}>
+                {bookingStatus.flightStatus === 'CONFIRMED' ? '✓ Confirmed' : bookingStatus.flightStatus}
+              </p>
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="flex items-center gap-2 mb-6">
-            {STATUS_STEPS.map((step, i) => (
-              <div key={step} className="flex items-center gap-2 flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    i <= flightStep ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'
-                  }`}>
- {i < flightStep ? '' : i + 1}
-                  </div>
-                  <span className="text-[0.6rem] text-[var(--text-muted)] mt-1 text-center">{step}</span>
-                </div>
-                {i < STATUS_STEPS.length - 1 && (
-                  <div className={`h-0.5 flex-1 -mt-4 transition-all ${i < flightStep ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`}></div>
-                )}
-              </div>
-            ))}
-          </div>
+          <ProgressBar step={flightStep} />
 
           {bookingStatus.selectedFlight ? (
-            <div className="glass rounded-xl p-4 mb-4">
-              <p className="text-xs text-[var(--text-muted)] mb-1">Selected Flight</p>
-              <p className="font-semibold text-sm text-[var(--text-primary)]">{bookingStatus.selectedFlight.name}</p>
-              <p className="text-[var(--primary)] font-bold font-mono">{formatPrice(bookingStatus.selectedFlight.price, currency)} per person</p>
-              <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-muted)]">
- <span>{bookingStatus.selectedFlight.departure}</span>
- <span>{bookingStatus.selectedFlight.arrival}</span>
- <span>{bookingStatus.selectedFlight.duration}</span>
+            <div style={{
+              padding: '14px 16px', borderRadius: '12px',
+              background: 'var(--bg-card-hover)', marginBottom: '16px'
+            }}>
+              <p style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {bookingStatus.selectedFlight.name}
+              </p>
+              <p style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>
+                {formatPrice(bookingStatus.selectedFlight.price, currency)} per person
+              </p>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                <span>🛫 {bookingStatus.selectedFlight.departure}</span>
+                <span>🛬 {bookingStatus.selectedFlight.arrival}</span>
+                <span>⏱ {bookingStatus.selectedFlight.duration}</span>
               </div>
             </div>
           ) : (
-            <div className="glass rounded-xl p-4 mb-4 text-center">
-              <p className="text-[var(--text-muted)] text-sm">No flight selected</p>
-              <p className="text-xs text-[var(--text-muted)]">Go to Transport tab to select a flight</p>
+            <div style={{
+              padding: '20px', borderRadius: '12px', background: 'var(--bg-card-hover)',
+              marginBottom: '16px', textAlign: 'center'
+            }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No flight selected</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '4px' }}>
+                Go to Transport tab to select a flight
+              </p>
             </div>
           )}
 
@@ -130,23 +275,31 @@ export default function BookingStatus() {
             <button
               onClick={handleConfirmFlight}
               disabled={!bookingStatus.selectedFlight || confirming}
-              className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="hotel-cta"
+              style={{ opacity: !bookingStatus.selectedFlight || confirming ? 0.5 : 1 }}
             >
               {confirming ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <span style={{
+                    width: '14px', height: '14px', border: '2px solid #fff',
+                    borderTopColor: 'transparent', borderRadius: '50%',
+                    display: 'inline-block', animation: 'spin 1s linear infinite'
+                  }} />
                   Processing...
                 </span>
-              ) : bookingStatus.flightStatus === 'SELECTED' ? 'Confirm Booking →' : 'Select a Flight First'}
+              ) : bookingStatus.flightStatus === 'SELECTED' ? 'Confirm Booking' : 'Select a Flight First'}
             </button>
           ) : (
-            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
- <p className="text-green-400 font-bold">Flight Confirmed!</p>
+            <div style={{
+              background: 'rgba(22, 163, 74, 0.08)', border: '1px solid rgba(22, 163, 74, 0.2)',
+              borderRadius: '12px', padding: '16px', textAlign: 'center'
+            }}>
+              <p style={{ color: '#16a34a', fontWeight: 700, fontSize: '0.9rem' }}>✓ Flight Confirmed</p>
               <a
-                href={process.env.NEXT_PUBLIC_AFFILIATE_FLIGHTS || bookingStatus.selectedFlight?.bookingLink}
+                href={bookingStatus.selectedFlight?.bookingLink || '#'}
                 target="_blank" rel="noopener noreferrer"
                 onClick={() => trackEvent('booking_click', { type: 'flight', name: bookingStatus.selectedFlight?.name, price: bookingStatus.selectedFlight?.price })}
-                className="text-xs text-[var(--primary)] hover:underline mt-1 block"
+                style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '6px', display: 'block' }}
               >
                 View booking details →
               </a>
@@ -154,84 +307,170 @@ export default function BookingStatus() {
           )}
         </div>
 
-        {/* Hotel booking */}
-        <div className="card p-6">
-          <div className="flex items-center gap-3 mb-6">
- <span className="text-3xl"></span>
+        {/* ── Hotel Booking ───────────────────────────────────────────── */}
+        <div style={{
+          background: 'var(--bg-card)', borderRadius: '16px',
+          border: '1px solid var(--border)', padding: '24px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <span style={{ fontSize: '1.8rem' }}>🏨</span>
             <div>
-              <h3 className="font-bold text-[var(--text-primary)]">Hotel Booking</h3>
-              <p className="text-xs text-[var(--text-muted)]">Status: <span className={`font-semibold ${bookingStatus.hotelStatus === 'CONFIRMED' ? 'text-green-400' : 'text-yellow-400'}`}>{bookingStatus.hotelStatus}</span></p>
+              <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>Hotel</h3>
+              <p style={{
+                fontSize: '0.72rem', color: bookingStatus.hotelStatus === 'CONFIRMED' ? '#16a34a' : 'var(--text-muted)',
+                fontWeight: 600
+              }}>
+                {bookingStatus.hotelStatus === 'CONFIRMED' ? '✓ Confirmed' : bookingStatus.hotelStatus}
+              </p>
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="flex items-center gap-2 mb-6">
-            {STATUS_STEPS.map((step, i) => (
-              <div key={step} className="flex items-center gap-2 flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    i <= hotelStep ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'
-                  }`}>
- {i < hotelStep ? '' : i + 1}
-                  </div>
-                  <span className="text-[0.6rem] text-[var(--text-muted)] mt-1 text-center">{step}</span>
-                </div>
-                {i < STATUS_STEPS.length - 1 && (
-                  <div className={`h-0.5 flex-1 -mt-4 transition-all ${i < hotelStep ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`}></div>
-                )}
-              </div>
-            ))}
-          </div>
+          <ProgressBar step={hotelStep} />
 
           {bookingStatus.selectedHotel ? (
-            <div className="glass rounded-xl p-4 mb-4">
-              <p className="text-xs text-[var(--text-muted)] mb-1">Selected Hotel</p>
-              <p className="font-semibold text-sm text-[var(--text-primary)]">{bookingStatus.selectedHotel.name}</p>
-              <p className="text-[var(--primary)] font-bold font-mono">{formatPrice(bookingStatus.selectedHotel.price, currency)}/night</p>
-              <div className="flex items-center gap-2 mt-2 text-xs">
- <span className="text-yellow-400">{''.repeat(Math.floor(bookingStatus.selectedHotel.rating))}</span>
-                <span className="text-[var(--text-muted)]">{bookingStatus.selectedHotel.location}</span>
+            <div style={{
+              padding: '14px 16px', borderRadius: '12px',
+              background: 'var(--bg-card-hover)', marginBottom: '16px'
+            }}>
+              <p style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {bookingStatus.selectedHotel.name}
+              </p>
+              <p style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>
+                {formatPrice(bookingStatus.selectedHotel.price, currency)}/night
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                <span style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>
+                  {'★'.repeat(Math.floor(bookingStatus.selectedHotel.rating))}
+                </span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  {bookingStatus.selectedHotel.location}
+                </span>
               </div>
+              {bookingStatus.selectedRoom && (
+                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                  Room: {bookingStatus.selectedRoom.name} · {bookingStatus.selectedRoom.boardName}
+                </p>
+              )}
             </div>
           ) : (
-            <div className="glass rounded-xl p-4 mb-4 text-center">
-              <p className="text-[var(--text-muted)] text-sm">No hotel selected</p>
-              <p className="text-xs text-[var(--text-muted)]">Go to Hotels tab to select</p>
+            <div style={{
+              padding: '20px', borderRadius: '12px', background: 'var(--bg-card-hover)',
+              marginBottom: '16px', textAlign: 'center'
+            }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No hotel selected</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '4px' }}>
+                Go to Hotels tab to browse and select
+              </p>
             </div>
           )}
 
           {bookingStatus.hotelStatus !== 'CONFIRMED' ? (
             <button
-              onClick={handleConfirmHotel}
-              disabled={!bookingStatus.selectedHotel || confirming}
-              className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleConfirmHotelClick}
+              disabled={!bookingStatus.selectedHotel}
+              className="hotel-cta"
+              style={{ opacity: !bookingStatus.selectedHotel ? 0.5 : 1 }}
             >
-              {confirming ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  Processing...
-                </span>
-              ) : bookingStatus.hotelStatus === 'SELECTED' ? 'Confirm Booking →' : 'Select a Hotel First'}
+              {bookingStatus.hotelStatus === 'SELECTED' ? 'Confirm Booking' : 'Select a Hotel First'}
             </button>
           ) : (
-            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
- <p className="text-green-400 font-bold">Hotel Confirmed!</p>
-              <a href={bookingStatus.selectedHotel?.bookingLink} target="_blank" rel="noopener noreferrer"
-                onClick={() => trackEvent('booking_click', { type: 'hotel', name: bookingStatus.selectedHotel?.name, price: bookingStatus.selectedHotel?.price })}
-                className="text-xs text-[var(--primary)] hover:underline mt-1 block">
-                View booking details →
-              </a>
+            <div style={{
+              background: 'rgba(22, 163, 74, 0.08)', border: '1px solid rgba(22, 163, 74, 0.2)',
+              borderRadius: '14px', padding: '20px'
+            }}>
+              {/* Confirmed state — clean booking card */}
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>✅</div>
+                <p style={{ color: '#16a34a', fontWeight: 800, fontSize: '1rem' }}>Booking Confirmed</p>
+              </div>
+
+              <div style={{
+                background: 'var(--bg-card)', borderRadius: '12px',
+                padding: '16px', border: '1px solid var(--border)'
+              }}>
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px',
+                  fontSize: '0.78rem'
+                }}>
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.65rem', marginBottom: '2px' }}>Booking Ref</p>
+                    <p style={{ fontWeight: 700, color: 'var(--primary)', fontFamily: 'var(--font-mono)' }}>
+                      {bookingStatus.selectedHotel?.bookingReference || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.65rem', marginBottom: '2px' }}>Hotel</p>
+                    <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {bookingStatus.selectedHotel?.name}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.65rem', marginBottom: '2px' }}>Check-in</p>
+                    <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {tripContext.startDate || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.65rem', marginBottom: '2px' }}>Check-out</p>
+                    <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {tripContext.endDate || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.65rem', marginBottom: '2px' }}>Guest</p>
+                    <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {user?.name || 'Guest'}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.65rem', marginBottom: '2px' }}>Amount</p>
+                    <p style={{ fontWeight: 700, color: 'var(--primary)' }}>
+                      {bookingStatus.selectedHotel ? formatPrice(bookingStatus.selectedHotel.price, currency) : '—'}/night
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleViewVoucher}
+                className="hotel-cta"
+                style={{ marginTop: '12px', background: 'var(--primary)' }}
+              >
+                📄 View & Print Voucher
+              </button>
+
+              <button
+                onClick={handleCancelHotel}
+                disabled={cancelling}
+                className="hotel-cta"
+                style={{
+                  marginTop: '8px',
+                  background: 'transparent',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  color: '#ef4444'
+                }}
+              >
+                {cancelling ? 'Cancelling...' : '❌ Cancel Hotel Booking'}
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Terms */}
-      <div className="glass rounded-xl p-4 text-xs text-[var(--text-muted)] leading-relaxed">
- <p className="font-semibold text-[var(--text-secondary)] mb-2">️ Terms & Conditions</p>
-        <p>Prices and availability may change in real time. TripSage does NOT guarantee final booking price. 
-        Bookings are handled by third-party providers. TripSage is NOT responsible for cancellations or delays. 
-        Affiliate links may generate commission. Users must verify travel documents and regulations.</p>
+      {/* ── Terms ──────────────────────────────────────────────────────── */}
+      <div style={{
+        padding: '14px 18px', borderRadius: '12px',
+        background: 'var(--bg-card-hover)', fontSize: '0.72rem',
+        color: 'var(--text-muted)', lineHeight: 1.6
+      }}>
+        <p style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', fontSize: '0.78rem' }}>
+          ℹ️ Terms & Conditions
+        </p>
+        <p>
+          Prices and availability may change in real time. Final booking price is confirmed at checkout.
+          Free cancellation is available up to 24 hours before check-in for most properties.
+          Users must verify travel documents and regulations before departure.
+        </p>
       </div>
     </div>
   )

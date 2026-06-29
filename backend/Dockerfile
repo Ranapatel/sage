@@ -8,6 +8,9 @@ RUN npm ci --omit=dev
 
 COPY . .
 
+# Install and build the transport NestJS microservice
+RUN cd transport && npm ci && npm run build
+
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nodeuser && \
     chown -R nodeuser:nodejs /app
