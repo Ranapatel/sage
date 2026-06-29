@@ -1,3 +1,6 @@
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 // ─── Affiliate Booking Links ──────────────────────────────────────────────────
 // All links include the destination/dates AND the affiliate/partner ID.
 // These open directly to a relevant search page — not a homepage.
@@ -91,4 +94,8 @@ export function getDaysBetween(start: string, end: string): number {
   const s = new Date(start)
   const e = new Date(end)
   return Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
