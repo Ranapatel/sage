@@ -10,6 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.39.5",
     "@next/third-parties": "^16.2.6",
     "@reduxjs/toolkit": "^2.2.0",
     "@tailwindcss/typography": "^0.5.19",
@@ -32,6 +33,7 @@
     "remark-gfm": "^4.0.1",
     "socket.io-client": "^4.7.4",
     "tailwind-merge": "^2.2.1",
+    "uuid": "^14.0.1",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
@@ -41,6 +43,7 @@
     "@types/node": "^20.11.25",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.18",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.6",

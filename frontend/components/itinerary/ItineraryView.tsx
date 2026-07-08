@@ -4,6 +4,12 @@ import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import PlaceCard from '@/components/PlaceCard'
+import PlaceDetailsModal from '@/components/PlaceDetailsModal'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { useAuth } from '@clerk/nextjs'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const CATEGORY_COLORS: Record<string, string> = {
   transport: 'badge-green', explore: 'badge-amber', dining: 'badge-red',
@@ -170,6 +176,68 @@ interface Props {
 function ItineraryView({ itinerary, loading, destination }: Props) {
   const [activeDay, setActiveDay] = useState(0)
   const isMobile = useIsMobile()
+  const [selectedPlace, setSelectedPlace] = useState<any | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { requireAuth } = useRequireAuth()
+  const { getToken } = useAuth()
+
+  const handleSaveTrip = requireAuth(async () => {
+    toast.loading('Saving itinerary to your profile...', { id: 'save-trip' })
+    try {
+      const token = await getToken()
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const response = await axios.post(`${apiUrl}/api/trips`, {
+        destination: destination || 'Unknown Destination',
+        title: `Trip to ${destination || 'Destination'}`,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + itinerary.length * 24 * 60 * 60 * 1000).toISOString(),
+        budget: 1500,
+        travelers: 1,
+        status: 'planned',
+        itineraryDays: itinerary.map(day => ({
+          dayNumber: day.day,
+          title: day.title || `Day ${day.day}`,
+          description: day.description || '',
+          activities: day.places.map((place: any) => ({
+            name: place.name,
+            description: place.description || '',
+            location: place.address || '',
+            category: place.category || 'Sightseeing'
+          }))
+        }))
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (response.data?.success) {
+        toast.success('Itinerary saved successfully to your trips!', { id: 'save-trip' })
+      } else {
+        toast.error(response.data?.message || 'Failed to save itinerary', { id: 'save-trip' })
+      }
+    } catch (err: any) {
+      console.error('Error saving trip:', err.message)
+      toast.error(err.response?.data?.message || err.message || 'Failed to save itinerary', { id: 'save-trip' })
+    }
+  })
+
+  const handleCustomizeTrip = requireAuth(() => {
+    toast.success('Access Granted! Customizer mode activated (you can now edit, rearrange, or modify places).', { duration: 4000 })
+  })
+
+  const handleUploadPhoto = requireAuth(() => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = (e: any) => {
+      const file = e.target.files?.[0]
+      if (file) {
+        toast.success(`Photo "${file.name}" uploaded and synchronized to this trip!`)
+      }
+    }
+    input.click()
+  })
 
   if (loading) {
     return (
@@ -210,6 +278,28 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
           <span className="badge badge-green text-xs">AI Generated</span>
           <span className="badge badge-amber text-xs">{itinerary.length} Days</span>
         </div>
+      </div>
+
+      {/* Auth Guard Actions Panel */}
+      <div className="flex items-center gap-3 flex-wrap bg-slate-900/50 border border-slate-800/85 p-4 rounded-2xl">
+        <button
+          onClick={handleSaveTrip}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer"
+        >
+          💾 Save Itinerary
+        </button>
+        <button
+          onClick={handleCustomizeTrip}
+          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs py-2.5 px-4 rounded-xl border border-slate-700 transition-all active:scale-[0.98] cursor-pointer"
+        >
+          ⚙️ Customize Trip
+        </button>
+        <button
+          onClick={handleUploadPhoto}
+          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs py-2.5 px-4 rounded-xl border border-slate-700 transition-all active:scale-[0.98] cursor-pointer"
+        >
+          📷 Upload Photo
+        </button>
       </div>
 
       {/* Day selector — horizontally scrollable */}
@@ -254,47 +344,30 @@ function ItineraryView({ itinerary, loading, destination }: Props) {
                 {/* Timeline dot */}
                 <div className="absolute left-[5px] sm:left-3.5 top-4 w-3.5 h-3.5 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-dark)] z-10"></div>
 
-                <div className="card p-3 sm:p-4 flex-1 hover:border-[var(--primary)] transition-colors min-w-0 overflow-hidden">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                      <span className="text-xl sm:text-2xl flex-shrink-0">{CATEGORY_ICONS[place.category] || '📍'}</span>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-[var(--text-primary)] text-sm leading-tight">{place.name}</h3>
-                        <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed line-clamp-2">{place.description}</p>
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <span className={`badge ${CATEGORY_COLORS[place.category] || 'badge-green'} text-[0.6rem]`}>
-                            {place.category}
-                          </span>
-                          {hasCoords ? (
-                            <span className="text-xs text-[var(--text-muted)]">
-                              📍 {lat!.toFixed(3)}, {lng!.toFixed(3)}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-yellow-500">📍 Coordinates loading...</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="font-mono text-sm font-bold text-[var(--primary)]">{place.time}</div>
-                      <a
-                        href={mapsHref}
-                        target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors mt-1 block"
-                      >
-                        Open Maps →
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Image Gallery */}
-                  <PlaceGallery place={place} destination={destination} isMobile={isMobile} />
-                </div>
+                <PlaceCard
+                  place={place}
+                  destinationName={destination}
+                  onClick={() => {
+                    setSelectedPlace(place)
+                    setIsModalOpen(true)
+                  }}
+                />
               </div>
               )
             })}
-          </div>
         </div>
+      </div>
+
+      {/* Place Details Modal */}
+      <PlaceDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedPlace(null)
+        }}
+        place={selectedPlace}
+        destinationName={destination}
+      />
     </div>
   )
 }

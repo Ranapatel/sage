@@ -3,6 +3,8 @@ import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import KeepAlive from '@/components/KeepAlive'
+import { ClerkProvider } from '@clerk/nextjs'
+import AuthGuardModal from '@/components/auth/AuthGuardModal'
 // GoogleAnalytics from @next/third-parties omitted — it emits a spurious preload hint.
 
 export const metadata: Metadata = {
@@ -91,16 +93,17 @@ const websiteSchema = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  /*
+   * suppressHydrationWarning is required here because the perf-opt script
+   * (afterInteractive — runs only on the client) may add 'slow-connection' to
+   * <html> before React reconciles. Without this flag React will warn about
+   * "Extra attributes from the server: class". The attribute is intentional
+   * and safe — suppressHydrationWarning silences the warning without
+   * disabling hydration for child nodes.
+   */
   return (
-    /*
-     * suppressHydrationWarning is required here because the perf-opt script
-     * (afterInteractive — runs only on the client) may add 'slow-connection' to
-     * <html> before React reconciles. Without this flag React will warn about
-     * "Extra attributes from the server: class". The attribute is intentional
-     * and safe — suppressHydrationWarning silences the warning without
-     * disabling hydration for child nodes.
-     */
-    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -195,7 +198,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             },
           }}
         />
+        <AuthGuardModal />
       </body>
     </html>
+  </ClerkProvider>
   )
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import API from '@/lib/api'
 
 const uuidv4 = () =>
   typeof crypto !== 'undefined' && crypto.randomUUID
@@ -39,18 +40,76 @@ export interface TransportOption {
   offers?: string[]
 }
 
+export interface TrainClassFareOption {
+  classCode: string
+  className: string
+  fare: number
+  availability?: 'AVAILABLE' | 'RAC' | 'WL' | null
+}
+
+export interface TrainOption {
+  id: string
+  trainName: string
+  trainNumber: string
+  originStation: string
+  originCode: string
+  destinationStation: string
+  destinationCode: string
+  departureTime: string
+  arrivalTime: string
+  duration: string
+  price: number
+  lastUpdated: string
+  bookingUrl: string
+  travelClass: string
+  trainType: string
+  transfers: number
+  runsOn?: string[]
+  classes?: TrainClassFareOption[]
+  aiRecommendation?: {
+    badge: string
+    reasons: string[]
+  } | null
+}
+
+export interface StationInfoEntry {
+  code: string
+  name: string
+  isSubstitute: boolean
+  originalPlace?: string
+  distanceKm?: number
+  reason?: string
+}
+
+export interface TrainStationInfo {
+  origin: StationInfoEntry
+  destination: StationInfoEntry
+}
+
 export interface HotelOption {
   id: string
   name: string
   price: number
+  totalPrice?: number
+  nights?: number
   rating: number
   image: string
+  images?: string[]
+  image_path?: string | null
+  gallery_paths?: string[]
   location: string
   bookingLink: string
   score: number
   liveStatus: string
   amenities?: string[]
   offers?: string[]
+  rateKey?: string
+  rateType?: string
+  bookingReference?: string
+  categoryName?: string
+  currency?: string
+  source?: string
+  rooms?: any[]
 }
 
 export interface ItineraryDay {
@@ -97,12 +156,33 @@ export interface BookingStatus {
   selectedFlight?: TransportOption
   selectedHotel?: HotelOption
   selectedReturn?: TransportOption
+  selectedRoom?: { name: string; boardName: string; rateKey: string; price: number }
 }
 
 export interface FeedbackData {
   rating: number
   feedback: string
   experienceTags: string[]
+}
+
+/** Booking flow state machine for the full Hotelbeds certification workflow */
+export type BookingFlowStep =
+  | 'guests'       // Collecting guest info
+  | 'verifying'    // Running CheckRate API
+  | 'confirm-rate' // Showing updated rate (RECHECK) for user confirmation
+  | 'booking'      // Calling Booking API
+  | 'confirmed'    // Booking successful — showing BookingConfirmationPanel
+  | 'voucher'      // Showing VoucherPage
+
+export interface BookingFlow {
+  isOpen:           boolean
+  step:             BookingFlowStep
+  hotel:            HotelOption | null
+  room:             { name: string; boardName: string; rateKey: string; price: number; rateType?: string } | null
+  guestData:        { holder: { firstName: string; lastName: string }; guests: { firstName: string; lastName: string }[]; contact: { email: string; phone: string } } | null
+  checkRateResult:  { rateType: string; netInr: number; net: string; currency: string; boardName: string; cancellationPolicies: any[]; rateComments: string; priceChanged: boolean; priceDiff: number; rateKey: string } | null
+  bookingRecord:    { bookingId: string; bookingReference: string; clientReference: string; hotelName: string; hotelAddress: string; checkIn: string; checkOut: string; roomType: string; boardType: string; totalPrice: number; currency: string; guests: any[]; cancellationPolicies: any[]; bookingDate: string } | null
+  error:            string | null
 }
 
 export interface TripRecord {
@@ -134,11 +214,16 @@ interface TripStore {
   returnTransport: TransportOption[]
   hotels: HotelOption[]
   buses: TransportOption[]
+  busSearchUrl: string | null
   cars: TransportOption[]
+  trains: TrainOption[]
+  trainSearchUrl: string | null
+  trainStationInfo: TrainStationInfo | null
   itinerary: ItineraryDay[]
   weather: WeatherData | null
   notifications: Notification[]
   bookingStatus: BookingStatus
+  bookingFlow: BookingFlow
   loading: boolean
   error: string | null
   isConnected: boolean
@@ -147,6 +232,8 @@ interface TripStore {
   feedbackStatus: 'idle' | 'pending' | 'submitted'
   currentTripId: string | null
   tripHistory: TripRecord[]
+  savedHotels: string[]
+  hotelDetailId: string | null
 
   // Actions
   setProfile: (profile: Partial<UserProfile>) => void
@@ -155,7 +242,11 @@ interface TripStore {
   setReturnTransport: (transport: TransportOption[]) => void
   setHotels: (hotels: HotelOption[]) => void
   setBuses: (buses: TransportOption[]) => void
+  setBusSearchUrl: (url: string | null) => void
   setCars: (cars: TransportOption[]) => void
+  setTrains: (trains: TrainOption[]) => void
+  setTrainSearchUrl: (url: string | null) => void
+  setTrainStationInfo: (info: TrainStationInfo | null) => void
   setItinerary: (itinerary: ItineraryDay[]) => void
   setWeather: (weather: WeatherData) => void
   addNotification: (notif: Notification) => void
@@ -171,6 +262,13 @@ interface TripStore {
   completeTrip: () => void
   startNewTrip: () => void
   addTripToHistory: (record: TripRecord) => void
+  toggleSaveHotel: (hotelId: string) => void
+  setHotelDetailId: (id: string | null) => void
+  // Booking flow actions
+  openBookingFlow: (hotel: HotelOption, room: BookingFlow['room']) => void
+  closeBookingFlow: () => void
+  setBookingFlowStep: (step: BookingFlowStep, data?: Partial<BookingFlow>) => void
+  cancelHotelBooking: (bookingId: string) => Promise<void>
   reset: () => void
 }
 
@@ -206,11 +304,16 @@ export const useTripStore = create<TripStore>()(
       returnTransport: [],
       hotels: [],
       buses: [],
+      busSearchUrl: null,
       cars: [],
+      trains: [],
+      trainSearchUrl: null,
+      trainStationInfo: null,
       itinerary: [],
       weather: null,
       notifications: [],
       bookingStatus: initialBooking,
+      bookingFlow: { isOpen: false, step: 'guests', hotel: null, room: null, guestData: null, checkRateResult: null, bookingRecord: null, error: null },
       loading: false,
       error: null,
       isConnected: false,
@@ -219,6 +322,8 @@ export const useTripStore = create<TripStore>()(
       feedbackStatus: 'idle',
       currentTripId: null,
       tripHistory: [],
+      savedHotels: [],
+      hotelDetailId: null,
 
       setProfile: (profile) => set((s) => ({ userProfile: { ...s.userProfile, ...profile } })),
       setTrip: (trip) => set((s) => ({ tripContext: { ...s.tripContext, ...trip } })),
@@ -226,7 +331,11 @@ export const useTripStore = create<TripStore>()(
       setReturnTransport: (returnTransport) => set({ returnTransport }),
       setHotels: (hotels) => set({ hotels }),
       setBuses: (buses) => set({ buses }),
+      setBusSearchUrl: (busSearchUrl) => set({ busSearchUrl }),
       setCars: (cars) => set({ cars }),
+      setTrains: (trains) => set({ trains }),
+      setTrainSearchUrl: (trainSearchUrl) => set({ trainSearchUrl }),
+      setTrainStationInfo: (trainStationInfo) => set({ trainStationInfo }),
       setItinerary: (itinerary) => set({ itinerary }),
       setWeather: (weather) => set({ weather }),
       addNotification: (notif) => set((s) => ({ notifications: [notif, ...s.notifications].slice(0, 20) })),
@@ -239,7 +348,24 @@ export const useTripStore = create<TripStore>()(
       setConnected: (connected) => set({ isConnected: connected }),
       setActiveTab: (tab) => set({ activeTab: tab }),
       setTripStatus: (tripStatus) => set({ tripStatus }),
+      toggleSaveHotel: (hotelId) => set((s) => ({
+        savedHotels: s.savedHotels.includes(hotelId)
+          ? s.savedHotels.filter(id => id !== hotelId)
+          : [...s.savedHotels, hotelId]
+      })),
+      setHotelDetailId: (id) => set({ hotelDetailId: id }),
       setFeedbackStatus: (feedbackStatus) => set({ feedbackStatus }),
+
+      // ── Booking flow actions ─────────────────────────────────────────────
+      openBookingFlow: (hotel, room) => set({
+        bookingFlow: { isOpen: true, step: 'guests', hotel, room, guestData: null, checkRateResult: null, bookingRecord: null, error: null }
+      }),
+      closeBookingFlow: () => set((s) => ({
+        bookingFlow: { ...s.bookingFlow, isOpen: false, step: 'guests', guestData: null, checkRateResult: null, error: null }
+      })),
+      setBookingFlowStep: (step, data = {}) => set((s) => ({
+        bookingFlow: { ...s.bookingFlow, step, ...data }
+      })),
 
       completeTrip: () => {
         const s = get()
@@ -288,6 +414,8 @@ export const useTripStore = create<TripStore>()(
           hotels: [],
           buses: [],
           cars: [],
+          trains: [],
+          trainStationInfo: null,
           itinerary: [],
           weather: null,
           bookingStatus: initialBooking,
@@ -307,8 +435,39 @@ export const useTripStore = create<TripStore>()(
         tripHistory: [record, ...s.tripHistory.filter(t => t.tripId !== record.tripId)],
       })),
 
+      cancelHotelBooking: async (bookingId) => {
+        set({ loading: true, error: null })
+        try {
+          const res: any = await API.post(`/api/booking/${bookingId}/cancel`)
+          if (res.success) {
+            set((s) => ({
+              bookingStatus: {
+                ...s.bookingStatus,
+                hotelStatus: 'INIT',
+                selectedHotel: undefined,
+                selectedRoom: undefined
+              },
+              bookingFlow: {
+                ...s.bookingFlow,
+                bookingRecord: null,
+                step: 'guests'
+              },
+              tripHistory: s.tripHistory.map(t =>
+                t.tripId === bookingId ? { ...t, status: 'cancelled' } : t
+              ),
+              loading: false
+            }))
+          } else {
+            throw new Error(res.message || 'Cancellation failed')
+          }
+        } catch (err: any) {
+          set({ error: err.message, loading: false })
+          throw err
+        }
+      },
+
       reset: () => set({
-        transport: [], returnTransport: [], hotels: [], buses: [], cars: [], itinerary: [], weather: null,
+        transport: [], returnTransport: [], hotels: [], buses: [], cars: [], trains: [], trainStationInfo: null, itinerary: [], weather: null,
         notifications: [], bookingStatus: initialBooking, error: null, loading: false,
         tripStatus: 'planning', feedbackStatus: 'idle',
       }),
@@ -325,6 +484,7 @@ export const useTripStore = create<TripStore>()(
         hotels: state.hotels,
         buses: state.buses,
         cars: state.cars,
+        trains: state.trains,
         itinerary: state.itinerary,
         bookingStatus: state.bookingStatus,
         tripStatus: state.tripStatus,

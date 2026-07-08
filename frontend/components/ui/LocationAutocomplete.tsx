@@ -127,10 +127,16 @@ export default function LocationAutocomplete({
 
   // ── Sync external value changes (e.g. auto-detect location) ─────────────────
   useEffect(() => {
+<<<<<<< HEAD
     if (value !== lastSentValueRef.current) {
       setQuery(value)
       lastSentValueRef.current = value
     }
+=======
+    Promise.resolve().then(() => {
+      setQuery(value)
+    })
+>>>>>>> staging
   }, [value])
 
   // ── Close dropdown on outside click ─────────────────────────────────────────
@@ -144,6 +150,7 @@ export default function LocationAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+<<<<<<< HEAD
   // ── Cleanup on unmount ──────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
@@ -173,6 +180,12 @@ export default function LocationAutocomplete({
     const cacheKey = trimmed.toLowerCase()
 
     // 1. Instant Cache Check
+=======
+  // ── Fetch suggestions from backend ──────────────────────────────────────────
+  const fetchSuggestions = useCallback(async (searchTerm: string) => {
+    // Serve from cache when available
+    const cacheKey = searchTerm.toLowerCase()
+>>>>>>> staging
     if (queryCache.has(cacheKey)) {
       abortRef.current?.abort()
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -316,6 +329,29 @@ export default function LocationAutocomplete({
       setIsFetching(false)
     }
   }, [])
+
+  // ── Debounced search trigger ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
+      return
+    }
+
+    const trimmed = query.trim()
+    if (trimmed.length < 2) {
+      Promise.resolve().then(() => {
+        setState({ status: 'idle' })
+        setIsOpen(false)
+      })
+      return
+    }
+
+    const timer = setTimeout(() => {
+      fetchSuggestions(trimmed)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [query, fetchSuggestions])
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import API from '@/lib/api'
 
 export interface AuthUser {
   _id?: string
@@ -29,83 +28,79 @@ interface AuthStore {
   restoreSession: () => Promise<void>
 }
 
+// In Phase 1 foundation, we provide a mock logged-in user so the rest of the application
+// compiles and runs without the old login flow. This will be replaced with Clerk later.
+const MOCK_USER: AuthUser = {
+  id: 'demo-user-id',
+  name: 'Demo Traveler',
+  email: 'demo@tripsage.ai',
+  currency: 'INR',
+  country: 'India',
+  preferences: {},
+  trips: [],
+}
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
-      user: null,
-      token: null,
-      isLoggedIn: false,
+      user: MOCK_USER,
+      token: 'mock-jwt-token',
+      isLoggedIn: true,
       loading: false,
       error: null,
 
       signup: async (data) => {
-        set({ loading: true, error: null })
-        try {
-          // Interceptor already returns res.data — destructure directly
-          const { token, user }: any = await API.post('/api/auth/signup', data)
-          API.defaults.headers.common['Authorization'] = `Bearer ${token}`
-          set({ token, user, isLoggedIn: true, loading: false })
-        } catch (err: any) {
-          set({ error: err.message, loading: false })
-          throw err
-        }
+        set({ loading: true })
+        set({
+          user: {
+            id: 'demo-user-id',
+            name: data.name,
+            email: data.email,
+            currency: (data.currency as any) || 'INR',
+            country: data.country,
+            preferences: {},
+            trips: [],
+          },
+          isLoggedIn: true,
+          loading: false,
+        })
       },
 
       login: async (email, password) => {
-        set({ loading: true, error: null })
-        try {
-          const { token, user }: any = await API.post('/api/auth/login', { email, password })
-          API.defaults.headers.common['Authorization'] = `Bearer ${token}`
-          set({ token, user, isLoggedIn: true, loading: false })
-        } catch (err: any) {
-          set({ error: err.message, loading: false })
-          throw err
-        }
+        set({ loading: true })
+        set({
+          user: {
+            ...MOCK_USER,
+            email,
+          },
+          isLoggedIn: true,
+          loading: false,
+        })
       },
 
       logout: () => {
-        delete API.defaults.headers.common['Authorization']
         set({ user: null, token: null, isLoggedIn: false, error: null })
       },
 
       updateCurrency: async (currency) => {
-        const { token, user } = get()
-        if (!user) {
-          set({ user: { currency } as any })
-          return
-        }
-        try {
-          const res: any = await API.patch('/api/auth/profile', { currency })
-          set({ user: { ...user, currency } })
-        } catch {
-          // Update locally even if server fails
+        const user = get().user
+        if (user) {
           set({ user: { ...user, currency } })
         }
       },
 
       updateProfile: async (data) => {
-        set({ loading: true, error: null })
-        try {
-          const res: any = await API.patch('/api/auth/profile', data)
-          const updated = res?.user ?? { ...get().user, ...data }
-          set({ user: updated, loading: false })
-        } catch (err: any) {
-          set({ error: err.message, loading: false })
+        const user = get().user
+        if (user) {
+          set({ user: { ...user, ...data } })
         }
       },
 
       clearError: () => set({ error: null }),
 
       restoreSession: async () => {
-        const { token } = get()
-        if (!token) return
-        API.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        try {
-          const res: any = await API.get('/api/auth/me')
-          set({ user: res?.user, isLoggedIn: true })
-        } catch {
-          // Token expired or invalid — logout
-          get().logout()
+        if (!get().user) {
+          set({ user: MOCK_USER, isLoggedIn: true })
         }
       },
     }),

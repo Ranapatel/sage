@@ -1,3 +1,6 @@
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 // ─── Affiliate Booking Links ──────────────────────────────────────────────────
 // All links include the destination/dates AND the affiliate/partner ID.
 // These open directly to a relevant search page — not a homepage.
@@ -19,14 +22,6 @@ export const affiliateLinks = {
     return `${base}?adults=1&cabinclass=economy&ref=home&rtn=0`
   },
 
- /** Agoda — hotel search deep-link with affiliate ID */
-  hotel: (destination: string, checkin: string, checkout: string, members = 2) => {
-    const dest = encodeURIComponent(cityName(destination))
-    let url = `https://www.agoda.com/search?city=${dest}&adults=${members}&rooms=1&cid=1962536`
-    if (checkin) url += `&checkIn=${checkin}`
-    if (checkout) url += `&checkOut=${checkout}`
-    return url
-  },
 
  /** GetYourGuide — activities search with partner ID */
   activity: (destination: string) => {
@@ -99,4 +94,8 @@ export function getDaysBetween(start: string, end: string): number {
   const s = new Date(start)
   const e = new Date(end)
   return Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }

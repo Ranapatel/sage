@@ -23,7 +23,9 @@ export default function MapView({ itinerary, hotels = [], tripContext }: Props) 
         ...h,
         coordinates: [parseFloat(h.latitude), parseFloat(h.longitude)]
       }))
-      if (mounted) setHotelCoords(coords)
+      Promise.resolve().then(() => {
+        if (mounted) setHotelCoords(coords)
+      })
     }
     return () => { mounted = false }
   }, [hotels])

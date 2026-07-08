@@ -49,21 +49,21 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">3. Third-Party Services</h2>
             <p>
-              TripSage acts as a search engine and aggregator. We redirect you to external third-party providers (such as Skyscanner, Booking.com, etc.) for finalizing reservations. We are not responsible for the pricing, availability, cancellations, or service quality provided by these third parties.
+              TripSage acts as a search engine and aggregator for transport and activities, redirecting you to external third-party providers (such as Skyscanner, etc.) for finalizing reservations. We are not responsible for the pricing, availability, cancellations, or service quality provided by these third parties.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">4. Pricing & Affiliate Disclosure</h2>
             <p>
-              All prices displayed on TripSage are dynamic, estimated, and subject to change based on real-time availability. The final booking and transaction occur on third-party platforms. TripSage may earn affiliate commissions from partner bookings made through our links.
+              All prices displayed on TripSage are dynamic, estimated, and subject to change based on real-time availability. Hotel rooms are booked directly on our platform via our direct booking system. For other services (flights, activities), TripSage may earn affiliate commissions from partner bookings made through our links.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">5. Cancellations & Refunds</h2>
             <p>
-              TripSage does not process payments for flights or accommodations. Therefore, all cancellations, modifications, and refunds are strictly managed by the respective third-party providers according to their policies. We hold no liability for disputes regarding refunds.
+              For hotel reservations booked directly on TripSage, modifications and cancellations are subject to the specific room cancellation policies selected at the time of booking. For flights and other third-party services, cancellations and refunds are strictly managed by their respective providers.
             </p>
           </section>
 

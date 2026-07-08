@@ -4,14 +4,20 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
+    "dev": "nodemon --exec ts-node src/index.js",
+    "start": "ts-node src/index.js",
     "kill": "npx kill-port 4000",
-    "restart": "npx kill-port 4000 && nodemon src/index.js"
+    "restart": "npx kill-port 4000 && nodemon --exec ts-node src/index.js",
+    "test:activities": "node src/activities/testRunner.js",
+    "prisma:studio": "prisma studio",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate",
+    "prisma:deploy": "prisma migrate deploy"
   },
   "dependencies": {
+    "@clerk/backend": "^1.0.0",
+    "@prisma/client": "^5.11.0",
     "axios": "^1.6.8",
-    "bcryptjs": "^2.4.3",
     "bullmq": "^5.76.1",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
@@ -22,14 +28,26 @@
     "express-validator": "^7.0.1",
     "groq-sdk": "^1.2.0",
     "helmet": "^7.1.0",
-    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.2",
     "morgan": "^1.10.0",
     "node-cache": "^5.1.2",
+    "opossum": "^10.0.0",
+    "razorpay": "^2.9.6",
     "socket.io": "^4.7.4",
-    "uuid": "^11.1.1"
+    "svix": "^1.21.0",
+    "uuid": "^11.1.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.25",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }

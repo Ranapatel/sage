@@ -2,6 +2,7 @@
 const nextConfig = {
   compress: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
@@ -14,6 +15,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'agoda.com' },
       { protocol: 'https', hostname: 'www.google.com' },
       { protocol: 'https', hostname: 'images.kiwi.com' },
+      // Hotelbeds Giata CDN — hotel photos (required for certification)
+      { protocol: 'https', hostname: 'photos.hotelbeds.com' },
     ],
   },
   async redirects() {

@@ -4,6 +4,7 @@ import { useState, useEffect, lazy, Suspense, useCallback, useMemo, useRef } fro
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useTripStore, type HotelOption, type TransportOption, type TripRecord } from '@/store/tripStore'
+import { isIndianTrip } from '@/lib/indianCities'
 import { useSocket } from '@/hooks/useSocket'
 import { tripAPI } from '@/lib/api'
 import { fetchWithRetry } from '@/lib/fetchWithRetry'
@@ -14,11 +15,12 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Plane, Bus, Car, MapPin, TrendingUp, RefreshCw, 
+  Plane, Bus, Train, Car, MapPin, TrendingUp, RefreshCw, 
   Compass, Map, ClipboardList, Search, Plus, 
   Check, LogOut, Menu, X, Bell, History,
   LayoutDashboard, Building2, Settings, User
 } from 'lucide-react'
+import UserMenu from '@/components/layout/UserMenu'
 
 // Lazy load components
 const TransportCard = lazy(() => import('@/components/transport/TransportCard'))
@@ -35,8 +37,9 @@ const TripHistoryTab = lazy(() => import('@/components/history/TripHistoryTab'))
 const TripActions = lazy(() => import('@/components/actions/TripActions'))
 const LocationAutocomplete = lazy(() => import('@/components/ui/LocationAutocomplete'))
 const BudgetOptimizerTab = lazy(() => import('@/components/optimizer/BudgetOptimizerTab'))
-const BusesTab = lazy(() => import('@/components/transport/BusesTab'))
+const BusesPanel = lazy(() => import('@/components/transport/BusesPanel'))
 const CarsTab = lazy(() => import('@/components/transport/CarsTab'))
+const TrainsPanel = lazy(() => import('@/components/transport/TrainsPanel'))
 const CurrencySelector = lazy(() => import('@/components/ui/CurrencySelector'))
 const OverviewTab = lazy(() => import('@/components/plan/OverviewTab'))
 const TransportTab = lazy(() => import('@/components/plan/TransportTab'))
@@ -50,9 +53,14 @@ const TabLoader = () => (
   </div>
 )
 
+// IMPORTANT: Every tab in TABS must have a matching render block
+// in the content area. Adding a tab without the content block
+// causes a blank screen. Bus tab was missing from TABS config.
+// Trains panel was returning null during idle/loading state.
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'transport', label: 'Flights', icon: Plane },
+  { id: 'trains', label: 'Trains', icon: Train },
   { id: 'buses', label: 'Buses', icon: Bus },
   { id: 'cars', label: 'Cabs', icon: Car },
   { id: 'hotels', label: 'Hotels', icon: Building2 },
@@ -97,10 +105,10 @@ export default function PlanClient() {
   const router = useRouter()
   const { emit } = useSocket()
   const {
-    userProfile, tripContext, transport, hotels, buses, cars, itinerary,
+    userProfile, tripContext, transport, hotels, buses, cars, trains, trainStationInfo, itinerary,
     weather, notifications, bookingStatus, loading, isConnected,
     tripStatus, feedbackStatus, tripHistory,
-    setTrip, setProfile, setTransport, setHotels, setBuses, setCars, setItinerary,
+    setTrip, setProfile, setTransport, setHotels, setBuses, setBusSearchUrl, setCars, setTrains, setTrainSearchUrl, setTrainStationInfo, setItinerary,
     setWeather, setLoading, setError, addNotification,
     completeTrip, startNewTrip, reset
   } = useTripStore()
@@ -113,27 +121,38 @@ export default function PlanClient() {
   const [showFeedback, setShowFeedback] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchForm, setSearchForm] = useState({
-    from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure', currency: 'INR'
+    from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure', currency: 'INR',
+    rooms: '1', adults: '2', children: '0'
   })
 
   // Active currency: user's saved currency, or form's selected currency, or default INR
   const currency = user?.currency ?? searchForm.currency ?? 'INR'
 
+  // Determine if the current trip is an Indian domestic route (controls Train tab visibility)
+  const isIndianRoute = useMemo(() => {
+    const from = searchForm.from || tripContext.startLocation
+    const to = searchForm.to || tripContext.destination
+    return isIndianTrip(from, to)
+  }, [searchForm.from, searchForm.to, tripContext.startLocation, tripContext.destination])
+
   // Tab cache to prevent re-renders and make switching instant
   const [tabCache, setTabCache] = useState<Record<string, boolean>>({ overview: true })
 
   useEffect(() => {
-    setTabCache(prev => ({ ...prev, [activeTab]: true }))
+    Promise.resolve().then(() => {
+      setTabCache(prev => ({ ...prev, [activeTab]: true }))
+    })
   }, [activeTab])
 
   // ── RESULT CACHE: keyed by search params so same query never re-fetches ──
   const resultCacheRef = useRef<Record<string, {
-    transport: any[]; hotels: any[]; buses: any[]; cars: any[];
+    transport: any[]; hotels: any[]; buses: any[]; cars: any[]; trains: any[];
+    trainStationInfo: any;
     itinerary: any[]; weather: any;
   }>>({})
 
   // Generate a deterministic cache key from search parameters
-  const getCacheKey = useCallback((p: { from: string; to: string; startDate?: string; endDate?: string; budget?: number; travelers?: number; style?: string }) => {
+  const getCacheKey = useCallback((p: { from: string; to: string; startDate?: string; endDate?: string; budget?: number; travelers?: number; style?: string; rooms?: number; adults?: number; children?: number }) => {
     return [
       p.from?.toLowerCase().trim(),
       p.to?.toLowerCase().trim(),
@@ -142,6 +161,9 @@ export default function PlanClient() {
       String(p.budget || ''),
       String(p.travelers || ''),
       p.style || '',
+      String(p.rooms || 1),
+      String(p.adults || 2),
+      String(p.children || 0),
     ].join('|')
   }, [])
 
@@ -154,7 +176,7 @@ export default function PlanClient() {
   // Activate ALL data-bearing tabs at once so skeletons render simultaneously
   const activateAllTabs = useCallback(() => {
     setTabCache({
-      overview: true, transport: true, buses: true, cars: true,
+      overview: true, transport: true, trains: true, buses: true, cars: true,
       hotels: true, itinerary: true, optimizer: true, return: true,
       explore: true, map: true, bookings: true, history: true,
     })
@@ -170,6 +192,8 @@ export default function PlanClient() {
       hotels: state.hotels,
       buses: state.buses,
       cars: state.cars,
+      trains: state.trains,
+      trainStationInfo: state.trainStationInfo,
       itinerary: state.itinerary,
       weather: state.weather,
     }
@@ -182,41 +206,55 @@ export default function PlanClient() {
     if (saved) {
       try {
         const ctx = JSON.parse(saved)
-        setSearchForm({
-          from: ctx.from || '',
-          to: ctx.to || '',
-          startDate: ctx.startDate || '',
-          endDate: ctx.endDate || '',
-          budget: ctx.budget || '2000',
-          travelers: ctx.travelers || '2',
-          style: ctx.style || 'adventure',
-          currency: ctx.currency || 'INR',
+        Promise.resolve().then(() => {
+          setSearchForm({
+            from: ctx.from || '',
+            to: ctx.to || '',
+            startDate: ctx.startDate || '',
+            endDate: ctx.endDate || '',
+            budget: ctx.budget || '2000',
+            travelers: ctx.travelers || '2',
+            style: ctx.style || 'adventure',
+            currency: ctx.currency || 'INR',
+            rooms: ctx.rooms || '1',
+            adults: ctx.adults || '2',
+            children: ctx.children || '0',
+          })
+          setTrip({
+            startLocation: ctx.from || '',
+            destination: ctx.to || '',
+            startDate: ctx.startDate || '',
+            endDate: ctx.endDate || '',
+          })
+          setProfile({
+            budget: parseInt(ctx.budget) || 2000,
+            members: parseInt(ctx.travelers) || 2,
+            travelStyle: ctx.style || 'adventure',
+          })
         })
-        setTrip({
-          startLocation: ctx.from || '',
-          destination: ctx.to || '',
-          startDate: ctx.startDate || '',
-          endDate: ctx.endDate || '',
-        })
-        setProfile({
-          budget: parseInt(ctx.budget) || 2000,
-          members: parseInt(ctx.travelers) || 2,
-          travelStyle: ctx.style || 'adventure',
-        })
-        // Load values into form but do NOT auto-search. Let the user click search manually.
-        // This prevents the app from automatically searching old trips like Hyderabad on every refresh.
       } catch (e) {}
     }
-    setInitialized(true)
+    Promise.resolve().then(() => {
+      setInitialized(true)
+    })
   }, [setTrip, setProfile])
 
   const runSearch = async (params?: any) => {
     const p = params || {
       from: searchForm.from, to: searchForm.to,
       startDate: searchForm.startDate, endDate: searchForm.endDate,
+<<<<<<< HEAD
       budget: parseInt(searchForm.budget) || 2000,
       travelers: parseInt(searchForm.travelers) || 2,
       style: searchForm.style || 'adventure',
+=======
+      budget: parseInt(searchForm.budget),
+      travelers: parseInt(searchForm.travelers),
+      style: searchForm.style,
+      rooms: parseInt(searchForm.rooms || '1'),
+      adults: parseInt(searchForm.adults || '2'),
+      children: parseInt(searchForm.children || '0'),
+>>>>>>> staging
     }
     
     // Ensure numeric fields are valid and do not pass NaN or invalid values to the backend
@@ -226,6 +264,7 @@ export default function PlanClient() {
 
     if (!p.from || !p.to) return
 
+<<<<<<< HEAD
     // ── BUDGET VALIDATION ──
     const days = (p.startDate && p.endDate) ? getDaysBetween(p.startDate, p.endDate) : 3
     const budgetInINR = convertToINR(p.budget, currency)
@@ -236,6 +275,11 @@ export default function PlanClient() {
       toast.error(`Your budget of ${formatPrice(budgetInINR, currency)} is too low. The minimum estimated budget for ${p.travelers} ${p.travelers === 1 ? 'person' : 'people'} for ${days} days is ${minRequiredFormatted}.`)
       return
     }
+=======
+    // Sync travelers (members) with adults + children to ensure total counts are correct across other sections
+    const totalGuests = (p.adults || 0) + (p.children || 0)
+    p.travelers = totalGuests || p.travelers || 2
+>>>>>>> staging
 
     // Dismiss any active inputs (closes mobile keyboard and dropdowns instantly)
     if (document.activeElement instanceof HTMLElement) {
@@ -246,12 +290,14 @@ export default function PlanClient() {
 
     // ── CHECK CACHE: if we already fetched this exact query, restore instantly ──
     const cached = resultCacheRef.current[cacheKey]
-    if (cached && (cached.transport.length > 0 || cached.hotels.length > 0 || cached.itinerary.length > 0)) {
+    if (cached && (cached.transport.length > 0 || cached.hotels.length > 0 || cached.itinerary.length > 0 || (cached.trains && cached.trains.length > 0))) {
       // Restore all cached data without any loading state or API call
       setTransport(cached.transport)
       setHotels(cached.hotels)
       setBuses(cached.buses)
       setCars(cached.cars)
+      setTrains(cached.trains || [])
+      setTrainStationInfo(cached.trainStationInfo || null)
       setItinerary(cached.itinerary)
       if (cached.weather) setWeather(cached.weather)
 
@@ -321,6 +367,9 @@ export default function PlanClient() {
             budget: budgetInINR,
             travelers: p.travelers,
             style: p.style,
+            rooms: p.rooms,
+            adults: p.adults,
+            children: p.children,
           }, { signal }),
           { timeout: 10000, maxRetries: 2, label: 'Search' }
         ).catch(err => {
@@ -338,6 +387,7 @@ export default function PlanClient() {
         }),
         // Itinerary fetched in parallel
         fetchWithRetry(
+<<<<<<< HEAD
           () => {
             let daysCount = 3
             if (p.startDate && p.endDate) {
@@ -361,6 +411,18 @@ export default function PlanClient() {
             }, { signal })
           },
           { timeout: 20000, maxRetries: 1, label: 'Itinerary' }
+=======
+          () => tripAPI.generateItinerary({
+            destination: p.to,
+            days: p.startDate && p.endDate ? Math.max(1, Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / (1000 * 3600 * 24))) : 3,
+            budget: p.budget,
+            style: p.style,
+            preferences: [],
+            members: p.travelers,
+            startDate: p.startDate
+          }, { signal }),
+          { timeout: 40000, maxRetries: 2, label: 'Itinerary' }
+>>>>>>> staging
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
           console.warn('[Itinerary] failed:', err.message)
@@ -380,7 +442,11 @@ export default function PlanClient() {
         if (d.transport) setTransport(d.transport)
         if (d.hotels) setHotels(d.hotels)
         if (d.buses) setBuses(d.buses)
+        if (d.busSearchUrl) setBusSearchUrl(d.busSearchUrl)
         if (d.cars) setCars(d.cars)
+        if (d.trains) setTrains(d.trains)
+        if (d.trainSearchUrl) setTrainSearchUrl(d.trainSearchUrl)
+        if (d.trainStationInfo) setTrainStationInfo(d.trainStationInfo)
       }
 
       // Populate weather
@@ -423,7 +489,7 @@ export default function PlanClient() {
   // (price drops, weather alerts — search results come from REST now)
   useEffect(() => {
     if (!loading && aiThinking) {
-      setAiThinking(false)
+      Promise.resolve().then(() => setAiThinking(false))
     }
   }, [loading, aiThinking])
 
@@ -437,7 +503,10 @@ export default function PlanClient() {
       budget: '',
       travelers: '2',
       style: 'adventure',
-      currency: currency
+      currency: currency,
+      rooms: '1',
+      adults: '2',
+      children: '0'
     })
 
     // 2. Clear all store values via store action
@@ -550,27 +619,9 @@ export default function PlanClient() {
           )}
 
           {/* User avatar / login */}
-          {isLoggedIn && user ? (
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white flex-shrink-0">
-                <User size={16} className="text-white hover:brightness-125 transition-all" />
-              </div>
-              <span className="text-xs font-semibold text-[var(--text-primary)] hidden md:block max-w-[80px] truncate">
-                {user.name}
-              </span>
-              <button
-                onClick={() => { logout(); router.push('/auth') }}
-                className="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors hidden md:block"
-                title="Logout"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => router.push('/auth')} className="btn-primary py-2 px-3 text-sm hidden sm:flex items-center gap-1.5 whitespace-nowrap">
-              <User size={16} /> Sign In
-            </button>
-          )}
+          <div className="hidden sm:block">
+            <UserMenu onOpenNotifications={() => setShowNotifs(true)} />
+          </div>
 
           <button
             onClick={() => runSearch()}
@@ -622,7 +673,7 @@ export default function PlanClient() {
 
           <div className="h-px bg-[var(--border)] my-2"></div>
 
-          {isLoggedIn && user ? (
+          {isLoggedIn && user && (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white font-bold">
@@ -632,8 +683,6 @@ export default function PlanClient() {
               </div>
               <button onClick={() => { logout(); router.push('/auth'); }} className="btn-outline text-red-400 border-red-500/30 w-full py-3">Logout</button>
             </div>
-          ) : (
-            <button onClick={() => { router.push('/auth'); setMobileMenuOpen(false); }} className="btn-primary w-full py-3">Sign In</button>
           )}
         </div>
       )}
@@ -651,7 +700,7 @@ export default function PlanClient() {
       {activeTab === 'overview' && (
         <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
           <div className="glass rounded-xl p-3 sm:p-4 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5 sm:gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-9 gap-2.5 sm:gap-3">
               <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." disabled />}>
                 <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
                   onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
@@ -666,9 +715,23 @@ export default function PlanClient() {
                 onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
               <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
                 onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
-              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.travelers}
-                onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
-                {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
+              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.rooms}
+                onChange={e => setSearchForm(p => ({ ...p, rooms: e.target.value }))}>
+                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Room{n>1?'s':''}</option>)}
+              </select>
+              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.adults}
+                onChange={e => {
+                  const val = e.target.value;
+                  setSearchForm(p => ({ ...p, adults: val, travelers: String(Number(val) + Number(p.children)) }));
+                }}>
+                {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} Adult{n>1?'s':''}</option>)}
+              </select>
+              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.children}
+                onChange={e => {
+                  const val = e.target.value;
+                  setSearchForm(p => ({ ...p, children: val, travelers: String(Number(p.adults) + Number(val)) }));
+                }}>
+                {[0,1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} Child{n===1?'':'ren'}</option>)}
               </select>
               <button
                 onClick={() => runSearch()}
@@ -697,7 +760,7 @@ export default function PlanClient() {
               <p className="text-xs text-[var(--text-muted)]">Estimated time: ~15 seconds · Calling flight API · hotel API · weather · AI ranking</p>
             </div>
             <div className="ml-auto font-mono text-xs text-[var(--text-muted)]">
-              Skyscanner · Booking.com · Open-Meteo
+              Skyscanner · Direct Hotels · Open-Meteo
             </div>
           </div>
         </div>
@@ -706,7 +769,7 @@ export default function PlanClient() {
       {/* TABS */}
       <div className="px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
         <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar w-full relative snap-x">
-          {TABS.filter(t => t.id !== 'buses' || buses.length > 0).map(t => (
+          {TABS.filter(t => (t.id !== 'buses' || isIndianRoute) && (t.id !== 'trains' || isIndianRoute)).map(t => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
@@ -726,6 +789,9 @@ export default function PlanClient() {
               )}
               {t.id === 'buses' && buses.length > 0 && (
                 <span className="badge badge-green text-[0.6rem] py-0 px-1">{buses.length}</span>
+              )}
+              {t.id === 'trains' && trains.length > 0 && (
+                <span className="badge badge-green text-[0.6rem] py-0 px-1">{trains.length}</span>
               )}
               {t.id === 'history' && tripHistory.length > 0 && (
                 <span className="badge badge-amber text-[0.6rem] py-0 px-1">{tripHistory.length}</span>
@@ -762,9 +828,25 @@ export default function PlanClient() {
             </div>
           )}
           
+          {tabCache.trains && (
+            <div className={activeTab === 'trains' ? 'block' : 'hidden'}>
+              <TrainsPanel
+                origin={tripContext.startLocation}
+                destination={tripContext.destination}
+                date={tripContext.startDate}
+                passengers={userProfile.members || 1}
+              />
+            </div>
+          )}
+          
           {tabCache.buses && (
             <div className={activeTab === 'buses' ? 'block' : 'hidden'}>
-              <BusesTab />
+              <BusesPanel
+                origin={tripContext.startLocation}
+                destination={tripContext.destination}
+                date={tripContext.startDate}
+                passengers={userProfile.members || 1}
+              />
             </div>
           )}
           
@@ -828,7 +910,10 @@ export default function PlanClient() {
                     budget: String(record.budget),
                     travelers: String(record.members),
                     style: record.style,
-                    currency: currency
+                    currency: currency,
+                    rooms: '1',
+                    adults: String(record.members || 2),
+                    children: '0'
                   })
                   startNewTrip()
                   setActiveTab('overview')

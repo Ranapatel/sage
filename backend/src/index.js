@@ -11,14 +11,15 @@ process.on('unhandledRejection', (reason) => {
 // Increase default EventEmitter limit (prevents TLSSocket warning from concurrent axios requests)
 require('events').EventEmitter.defaultMaxListeners = 30
 
-const express     = require('express')
-const http        = require('http')
-const { Server }  = require('socket.io')
-const cors        = require('cors')
-const helmet      = require('helmet')
-const compression = require('compression')
-const morgan      = require('morgan')
-const rateLimit   = require('express-rate-limit')
+const express       = require('express')
+const { getCredentialStatus } = require('./middleware/hotelbedsSignature')
+const http          = require('http')
+const { Server }    = require('socket.io')
+const cors          = require('cors')
+const helmet        = require('helmet')
+const compression   = require('compression')
+const morgan        = require('morgan')
+const rateLimit     = require('express-rate-limit')
 
 // ── Validate required env vars ────────────────────────────────────────────────
 const REQUIRED_ENV = ['GROQ_API_KEY', 'DB_URL', 'RAPIDAPI_KEY']
@@ -46,7 +47,13 @@ const allowedOrigin = (origin, callback) => {
 app.use(helmet({ contentSecurityPolicy: false }))
 app.use(compression())
 app.use(cors({ origin: allowedOrigin, credentials: true }))
-app.use(express.json({ limit: '10kb' }))
+app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '10kb' }))
+app.use(express.json({
+  limit: '10kb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString();
+  }
+}))
 app.use(morgan('dev'))
 
 // Rate limiting
@@ -60,16 +67,33 @@ const limiter = rateLimit({
 app.use('/api/', limiter)
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
-app.use('/api/auth',          require('./routes/auth'))
+
 app.use('/api/search',        require('./routes/search'))
 app.use('/api/itinerary',     require('./routes/itinerary'))
 app.use('/api/weather',       require('./routes/weather'))
 app.use('/api/booking',       require('./routes/booking'))
 app.use('/api/explore',       require('./routes/explore'))
 app.use('/api/notifications', require('./routes/notifications'))
-app.use('/api/profile',       require('./routes/profile'))
+// Webhook & TS API Routes
+app.use('/api/webhooks/clerk', require('./webhooks/clerk.webhook').handleClerkWebhook)
+app.use('/api/users',         require('./routes/users').default)
+app.use('/api/trips',         require('./routes/trips').default)
+
+app.use('/api/profile',       require('./modules/profile/profile.routes').default)
 app.use('/api/places',        require('./routes/places'))
+<<<<<<< HEAD
 app.use('/api/reviews',       require('./routes/reviews'))
+=======
+app.use('/api/hotels',        require('./routes/hotels'))
+app.use('/api/transport',     require('./routes/transport'))
+app.use('/api/train',         require('./routes/train'))
+app.use('/api/bus',           require('./routes/bus'))
+
+// ── Activities booking funnel ─────────────────────────────────────────────────
+app.use('/api/activities',    require('./routes/activities'))
+app.use('/api/payments',      require('./routes/payments'))
+app.use('/api/bookings',      require('./routes/activityBookings'))
+>>>>>>> staging
 
 // Health check
 app.get('/health', (req, res) => {
@@ -80,10 +104,12 @@ app.get('/health', (req, res) => {
     env: process.env.NODE_ENV || 'development',
     port: activePort,
     services: {
-      groq:     !!process.env.GROQ_API_KEY,
-      redis:    !!process.env.UPSTASH_REDIS_REST_URL,
-      db:       !!process.env.DB_URL,
-      rapidapi: !!process.env.RAPIDAPI_KEY,
+      groq:       !!process.env.GROQ_API_KEY,
+      redis:      !!process.env.UPSTASH_REDIS_REST_URL,
+      db:         !!process.env.DB_URL,
+      rapidapi:   !!process.env.RAPIDAPI_KEY,
+      hotelbeds:  getCredentialStatus(),
+      razorpay:   !!process.env.RAZORPAY_KEY_ID,
     },
   })
 })
@@ -166,11 +192,48 @@ function createAndListen(port) {
   })
 }
 
+// ── NestJS Transport Microservice Spawner ─────────────────────────────────────
+const { spawn } = require('child_process');
+const path = require('path');
+let nestProcess = null;
+
+function startNestService() {
+  if (process.env.SPAWN_NEST === 'false') {
+    console.log('[TripSage] ℹ️ NestJS transport microservice spawn skipped (disabled via SPAWN_NEST=false).');
+    return;
+  }
+  const isProd = process.env.NODE_ENV === 'production';
+  console.log(`[TripSage] 🚀 Starting NestJS transport microservice (${isProd ? 'production' : 'development'})...`);
+
+  const isWindows = process.platform === 'win32';
+  const cmd = 'npm';
+  const args = isProd ? ['run', 'start:prod'] : ['run', 'start:dev'];
+  const childEnv = { ...process.env, PORT: '4001' };
+
+  nestProcess = spawn(cmd, args, {
+    cwd: path.join(__dirname, '../transport'),
+    shell: isWindows,
+    stdio: 'inherit',
+    env: childEnv,
+  });
+
+  nestProcess.on('error', (err) => {
+    console.error('[TripSage] 💥 Failed to start NestJS transport service:', err.message);
+  });
+}
+
+startNestService();
+
 createAndListen(activePort)
+
 
 // ── Graceful shutdown ──────────────────────────────────────────────────────────
 function shutdown(signal) {
   console.log(`\n[TripSage] ${signal} received — shutting down gracefully...`)
+  if (nestProcess) {
+    console.log('[TripSage] 🛑 Stopping NestJS transport service...');
+    nestProcess.kill('SIGINT');
+  }
   if (ioServer) ioServer.close()
   if (httpServer) {
     httpServer.close(() => {

@@ -21,7 +21,7 @@ const FALLBACK_FLIGHT_IMAGES = [
 const FALLBACK_HOTEL_IMAGES = [
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
   'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
-  'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
+  'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80',
   'https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80',
   'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
 ]
@@ -88,29 +88,47 @@ async function getDestinationImage(destination, type = 'hotel', index = 0) {
  * Replaces static/empty images in-place. Runs at most 3 API calls
  * (rest uses cached or fallbacks) to avoid hitting rate limits.
  */
+function getHotelbedsFallbackImage(identifier) {
+  let hash = 0
+  const str = String(identifier || 'default')
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const fallbackIndex = Math.abs(hash) % 4 + 1 // 1 to 4
+  const relPath = `00/004200/004200a_hb_ro_00${fallbackIndex}.jpg`
+  return {
+    image: `https://photos.hotelbeds.com/giata/bigger/${relPath}`,
+    image_path: relPath,
+    gallery_paths: [relPath],
+    images: [`https://photos.hotelbeds.com/giata/bigger/${relPath}`]
+  }
+}
+
 async function enrichHotelsWithImages(hotels, destination) {
-  let apiCallsLeft = 5 // allow one per hotel, up to 5
-  return Promise.all(hotels.map(async (hotel, i) => {
-    // Keep real provider images (booking.com, agoda CDN, etc.)
-    if (hotel.image && (hotel.image.includes('bookingassets') || hotel.image.includes('agoda'))) {
-      return hotel
+  // Enforce Hotelbeds-only images: do NOT query or use Unsplash for hotels.
+  // We also strip out any external/Unsplash URLs that may have slipped into hotel.image.
+  return hotels.map(hotel => {
+    let img = hotel.image
+    if (img) {
+      const isAbsolute = img.startsWith('http://') || img.startsWith('https://')
+      const isRealProvider = img.includes('hotelbeds') || img.includes('bookingassets') || img.includes('agoda')
+      if (isAbsolute && !isRealProvider) {
+        img = null
+      }
     }
 
-    // Use hotel name + destination for a unique, relevant query
-    const hotelName = (hotel.name || '').replace(/hotel|resort|inn|suites?/gi, '').trim()
-    const query = hotelName
-      ? `${hotelName} ${destination} hotel room`
-      : `${destination} luxury hotel interior`
-
-    let img = null
-    if (apiCallsLeft > 0) {
-      apiCallsLeft--
-      img = await fetchUnsplashImage(query)
+    if (!img) {
+      const fallbacks = getHotelbedsFallbackImage(hotel.id || hotel.name)
+      return {
+        ...hotel,
+        image: fallbacks.image,
+        image_path: hotel.image_path || fallbacks.image_path,
+        gallery_paths: (hotel.gallery_paths && hotel.gallery_paths.length > 0) ? hotel.gallery_paths : fallbacks.gallery_paths,
+        images: (hotel.images && hotel.images.length > 0) ? hotel.images : fallbacks.images
+      }
     }
-    // Fallback: use a different fallback image per hotel so they don't all look the same
-    if (!img) img = FALLBACK_HOTEL_IMAGES[i % FALLBACK_HOTEL_IMAGES.length]
-    return { ...hotel, image: img }
-  }))
+    return hotel
+  })
 }
 
 /**

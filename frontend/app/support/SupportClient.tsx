@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 const FAQS = [
   { q: 'How does TripSage generate itineraries?', a: 'TripSage uses an advanced AI planner to analyze your budget, travel style, group type, and preferences to generate personalized day-by-day itineraries in real-time.' },
   { q: 'Are the flight and hotel prices real?', a: 'Yes! Prices are fetched in real-time from travel APIs via RapidAPI. However, prices can change frequently, so we recommend booking quickly when you find a good deal.' },
-  { q: 'How does booking work?', a: 'TripSage uses affiliate deep links that redirect you to trusted third-party booking platforms like Booking.com, Skyscanner, and Viator. All bookings are completed on those platforms.' },
+  { q: 'How does booking work?', a: 'TripSage supports direct hotel bookings processed on our platform. For flight and other transport reservations, we redirect you to trusted partners like Skyscanner.' },
   { q: 'Is my data stored?', a: 'TripSage follows a minimal data storage policy. Your trip preferences are stored in your session for real-time optimization. We do not resell personal data.' },
   { q: 'What if weather alerts or notifications are wrong?', a: 'Weather data is sourced from live APIs and updated regularly. While we aim for accuracy, always verify critical information from official sources before traveling.' },
   { q: 'Can I export my itinerary?', a: 'Yes! From the Itinerary tab, you can export your day-by-day plan as a PDF or share it with your travel group via a link.' },

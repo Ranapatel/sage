@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useTripStore } from '@/store/tripStore'
 import toast from 'react-hot-toast'
@@ -22,11 +22,12 @@ const getSocketUrl = () => {
 }
 
 export function useSocket() {
+  const [socket, setSocket] = useState<Socket | null>(null)
   const socketRef = useRef<Socket | null>(null)
-  const { setConnected, setTransport, setHotels, setBuses, setCars, setItinerary, setWeather, addNotification, setLoading, setError } = useTripStore()
+  const { setConnected, setTransport, setHotels, setBuses, setCars, setTrains, setItinerary, setWeather, addNotification, setLoading, setError } = useTripStore()
 
   useEffect(() => {
-    const socket = io(getSocketUrl(), {
+    const socketInstance = io(getSocketUrl(), {
       transports: ['websocket', 'polling'],   // polling as fallback
       withCredentials: true,
       reconnection: true,
@@ -36,26 +37,27 @@ export function useSocket() {
       timeout: 10000,
     })
 
-    socketRef.current = socket
+    socketRef.current = socketInstance
+    Promise.resolve().then(() => setSocket(socketInstance))
 
-    socket.on('connect', () => {
+    socketInstance.on('connect', () => {
       setConnected(true)
-      console.log('[TripSage] Socket connected:', socket.id)
+      console.log('[TripSage] Socket connected:', socketInstance.id)
     })
 
-    socket.on('connect_error', (err) => {
+    socketInstance.on('connect_error', (err) => {
       setConnected(false)
       console.warn('[TripSage] Socket connect error:', err.message)
       toast.error('Connection issue — retrying...', { id: 'socket-error', duration: 3000 })
     })
 
-    socket.on('reconnect', (attempt: number) => {
+    socketInstance.on('reconnect', (attempt: number) => {
       setConnected(true)
       toast.success('Reconnected!', { id: 'socket-reconnect', duration: 2000 })
       console.log('[TripSage] Socket reconnected after', attempt, 'attempts')
     })
 
-    socket.on('reconnect_failed', () => {
+    socketInstance.on('reconnect_failed', () => {
       setConnected(false)
       setLoading(false)
       setError('Unable to connect to TripSage server. Please refresh the page.')
@@ -63,29 +65,29 @@ export function useSocket() {
     })
 
     // Save server-issued sessionId
-    socket.on('SESSION_INIT', ({ sessionId }: { sessionId: string }) => {
+    socketInstance.on('SESSION_INIT', ({ sessionId }: { sessionId: string }) => {
       sessionStorage.setItem('sessionId', sessionId)
       console.log('[TripSage] Session ID registered:', sessionId)
     })
 
-    socket.on('disconnect', (reason: string) => {
+    socketInstance.on('disconnect', (reason: string) => {
       setConnected(false)
       console.log('[TripSage] Socket disconnected:', reason)
       // If server forced disconnect, re-trigger connect
       if (reason === 'io server disconnect') {
- toast('Disconnected by server — reconnecting...', { icon: '', id: 'socket-dc' })
-        socket.connect()
+        toast('Disconnected by server — reconnecting...', { icon: '', id: 'socket-dc' })
+        socketInstance.connect()
       }
     })
 
     // Real-time price updates
-    socket.on('PRICE_UPDATE', (data: any) => {
+    socketInstance.on('PRICE_UPDATE', (data: any) => {
       try {
         if (data.type === 'flight') {
           addNotification({
             id: Date.now().toString(),
             type: 'deal',
- title: '️ Price Alert',
+            title: '️ Price Alert',
             message: `Flight price dropped to $${data.price}!`,
             timestamp: new Date().toISOString(),
             read: false,
@@ -96,13 +98,13 @@ export function useSocket() {
     })
 
     // Weather alerts
-    socket.on('WEATHER_ALERT', (data: any) => {
+    socketInstance.on('WEATHER_ALERT', (data: any) => {
       try {
         setWeather(data)
         addNotification({
           id: Date.now().toString(),
           type: 'weather',
- title: '️ Weather Update',
+          title: '️ Weather Update',
           message: data.message || `${data.condition} at ${data.destination}`,
           timestamp: new Date().toISOString(),
           read: false,
@@ -111,7 +113,7 @@ export function useSocket() {
     })
 
     // Live search results streaming
-    socket.on('SEARCH_RESULTS', (data: any) => {
+    socketInstance.on('SEARCH_RESULTS', (data: any) => {
       try {
         if (data.transport) setTransport(data.transport)
         if (data.hotels) setHotels(data.hotels)
@@ -120,7 +122,7 @@ export function useSocket() {
     })
 
     // Progressive trip generation stream — fully fault-tolerant
-    socket.on('TRIP_STAGE', (payload: any) => {
+    socketInstance.on('TRIP_STAGE', (payload: any) => {
       try {
         const { stage, data, message } = payload
 
@@ -133,6 +135,7 @@ export function useSocket() {
           if (Array.isArray(data?.flights)) setTransport(data.flights)
           if (Array.isArray(data?.buses)) setBuses(data.buses)
           if (Array.isArray(data?.cars)) setCars(data.cars)
+          if (Array.isArray(data?.trains)) setTrains(data.trains)
         } else if (stage === 'activities') {
           if ((data?.length || 0) > 0) toast.success(`Found ${data.length} activities`, { id: 'stream-activities' })
         } else if (stage === 'itinerary') {
@@ -142,7 +145,7 @@ export function useSocket() {
           toast.success('Booking links ready!', { id: 'stream-booking' })
         } else if (stage === 'complete') {
           setLoading(false)
- toast.success('Trip generation complete!', { id: 'stream-complete' })
+          toast.success('Trip generation complete!', { id: 'stream-complete' })
         } else if (stage === 'error') {
           setLoading(false)
           toast.error(message || 'Something went wrong — partial results shown', { id: 'stream-error' })
@@ -154,27 +157,27 @@ export function useSocket() {
     })
 
     // Booking status updates
-    socket.on('BOOKING_UPDATE', (data: any) => {
+    socketInstance.on('BOOKING_UPDATE', (data: any) => {
       try {
         addNotification({
           id: Date.now().toString(),
           type: 'info',
- title: 'Booking Update',
+          title: 'Booking Update',
           message: data.message,
           timestamp: new Date().toISOString(),
           read: false,
         })
- if (data.status === 'CONFIRMED') toast.success('Booking confirmed!')
+        if (data.status === 'CONFIRMED') toast.success('Booking confirmed!')
       } catch (_) {}
     })
 
     // Location-based notifications
-    socket.on('LOCATION_ALERT', (data: any) => {
+    socketInstance.on('LOCATION_ALERT', (data: any) => {
       try {
         addNotification({
           id: Date.now().toString(),
           type: 'alert',
- title: data.title || 'Alert',
+          title: data.title || 'Alert',
           message: data.message,
           timestamp: new Date().toISOString(),
           read: false,
@@ -183,7 +186,7 @@ export function useSocket() {
     })
 
     return () => {
-      socket.disconnect()
+      socketInstance.disconnect()
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -198,5 +201,5 @@ export function useSocket() {
     }
   }, [])
 
-  return { socket: socketRef.current, emit }
+  return { socket, emit }
 }

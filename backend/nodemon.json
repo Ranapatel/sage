@@ -1,0 +1,14 @@
+{
+  "watch": [
+    "src",
+    "config",
+    ".env"
+  ],
+  "ignore": [
+    "transport",
+    "node_modules",
+    "*.log",
+    "crash.log"
+  ],
+  "ext": "js,json"
+}

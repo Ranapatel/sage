@@ -1,82 +1,172 @@
 'use client'
 
+import React, { memo } from 'react'
+import { Bus, Star, ExternalLink, Shield } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
-import { trackEvent } from '@/lib/analytics'
-import React, { memo } from 'react'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 
-interface Props {
-  item: any
+export interface BusClassResult {
+  id: string
+  operator: string
+  busType: string
+  rating: number | null
+  amenities: string[]
+  departure: string
+  arrival: string
+  duration: string
+  fare: number | null
+  seatsLeft: number | null
+  bookingUrl: string
+  aiRank?: { badge: string; reasons: string[] } | null
 }
 
-function BusCard({ item }: Props) {
+interface BusCardProps {
+  bus: BusClassResult
+}
+
+function BusCard({ bus }: BusCardProps) {
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
-  const displayPrice = formatPrice(item.price, currency)
+  const { requireAuth } = useRequireAuth()
 
-  const handleBook = () => {
-    // Analytics tracking event
-    console.log('Event Tracked: bus_affiliate_click', { operator: item.name, price: item.price, url: item.bookingLink })
-    trackEvent('booking_click', { type: 'bus', name: item.name, price: item.price })
-  }
+  const handleBook = requireAuth(() => {
+    trackEvent('booking_click', {
+      type: 'bus',
+      operator: bus.operator,
+      price: bus.fare,
+      url: bus.bookingUrl,
+    })
+    window.open(bus.bookingUrl, '_blank', 'noopener,noreferrer')
+  })
+
+  const hasAiBadge = bus.aiRank && bus.aiRank.badge
 
   return (
-    <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)]/10 p-4">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        
-        {/* Left side: details */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-bold text-[var(--text-primary)]">{item.name}</span>
-            <span className="text-[0.65rem] bg-[var(--bg-elevated)] px-2 py-0.5 rounded text-[var(--text-muted)] border border-[var(--border)]">
-              {item.busType}
-            </span>
-            <span className={`text-[0.6rem] px-1.5 py-0.5 rounded font-semibold ${item.liveStatus === 'Available' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
-              {item.liveStatus}
+    <div className="card border border-slate-200/80 hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg flex flex-col justify-between bg-white rounded-2xl overflow-hidden">
+      {/* AI Recommendation Banner */}
+      {hasAiBadge && (
+        <div className="bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border-b border-blue-500/10 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Star size={13} className="text-blue-600 fill-blue-600 animate-pulse" />
+            <span className="text-[10px] font-black text-blue-700 tracking-wide uppercase">
+              {bus.aiRank?.badge || 'AI Recommended'}
             </span>
           </div>
-          
-          <div className="flex items-center gap-4 text-sm text-[var(--text-muted)] mt-3">
-            <div className="flex flex-col">
-              <span className="font-bold text-[var(--text-primary)]">{item.departure}</span>
+          <div className="flex flex-wrap gap-1 justify-end">
+            {bus.aiRank?.reasons.map((reason, idx) => (
+              <span
+                key={idx}
+                className="text-[9px] font-bold bg-blue-500/15 text-blue-800 px-2 py-0.5 rounded-full"
+              >
+                {reason}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="p-5 flex flex-col gap-4 flex-1">
+        {/* Header Row */}
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 flex-shrink-0">
+              <Bus size={18} />
             </div>
-            <div className="flex-1 flex flex-col items-center">
-              <span className="text-[0.65rem]">{item.duration}</span>
-              <div className="w-full h-px bg-[var(--border)] relative my-1">
- <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--bg-card)] px-1 text-[10px]"></div>
+            <div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h4 className="font-extrabold text-slate-800 text-sm leading-snug">
+                  {bus.operator}
+                </h4>
+                {bus.rating != null && (
+                  <div className="flex items-center gap-0.5 bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded text-[10px] font-black">
+                    <Star size={10} className="fill-green-600" />
+                    {bus.rating.toFixed(1)}
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="flex flex-col text-right">
-              <span className="font-bold text-[var(--text-primary)]">{item.arrival}</span>
+              <span className="text-[11px] font-semibold text-slate-400 mt-0.5 block leading-tight">
+                {bus.busType}
+              </span>
             </div>
           </div>
           
-          {item.offers?.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {item.offers.map((o: string, i: number) => (
- <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
-              ))}
-            </div>
+          {bus.seatsLeft !== null && bus.seatsLeft > 0 && (
+            <span className="text-[9px] font-extrabold bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
+              {bus.seatsLeft} seats left
+            </span>
           )}
         </div>
 
-        {/* Right side: pricing and CTA */}
-        <div className="flex flex-col items-end justify-between min-w-[120px] sm:border-l sm:border-[var(--border)] sm:pl-4">
-          <div className="text-right w-full flex sm:flex-col justify-between sm:justify-start items-center sm:items-end">
-            <span className="text-[0.65rem] text-[var(--text-muted)]">per person</span>
-            <div className="text-xl font-black font-mono text-[var(--primary)] leading-tight">{displayPrice}</div>
+        {/* Timeline Row */}
+        <div className="flex items-center justify-between bg-slate-50/50 border border-slate-100 p-4 rounded-2xl relative my-1 text-xs">
+          <div className="text-left w-[30%]">
+            <div className="font-black text-base text-slate-800 tracking-tight leading-none">
+              {bus.departure}
+            </div>
+            <div className="font-extrabold text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+              Depart
+            </div>
           </div>
-          
-          <a
-            href={item.bookingLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleBook}
-            className="w-full text-center py-2 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity mt-4 sm:mt-0"
-          >
-            Book Now
-          </a>
+
+          <div className="flex-1 flex flex-col items-center px-2">
+            <span className="text-[9px] font-bold text-slate-400 mb-1">
+              {bus.duration}
+            </span>
+            <div className="w-full flex items-center justify-center relative">
+              <div className="h-[1.5px] bg-slate-200 w-full rounded-full"></div>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-[10px] bg-white leading-none px-0.5">›</div>
+            </div>
+          </div>
+
+          <div className="text-right w-[30%]">
+            <div className="font-black text-base text-slate-800 tracking-tight leading-none">
+              {bus.arrival}
+            </div>
+            <div className="font-extrabold text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+              Arrive
+            </div>
+          </div>
         </div>
+
+        {/* Amenities Row */}
+        {bus.amenities && bus.amenities.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-0.5">
+            {bus.amenities.slice(0, 3).map((amenity, idx) => (
+              <span 
+                key={idx} 
+                className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200/40"
+              >
+                {amenity}
+              </span>
+            ))}
+            {bus.amenities.length > 3 && (
+              <span className="text-[9px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full border border-slate-200/40">
+                +{bus.amenities.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Pricing and Booking CTA */}
+      <div className="flex items-center justify-between gap-3 p-5 pt-3 border-t border-slate-100 bg-slate-50/30">
+        <div className="text-left">
+          <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
+            Fare Estimate
+          </span>
+          <span className="text-base font-black text-blue-600 tracking-tight mt-0.5 block leading-none">
+            {bus.fare ? formatPrice(bus.fare, currency) : '—'}
+          </span>
+        </div>
+
+        <button
+          onClick={handleBook}
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white transition-colors whitespace-nowrap shadow-md shadow-blue-500/10 ml-auto cursor-pointer"
+        >
+          Book on MakeMyTrip <ExternalLink size={12} />
+        </button>
       </div>
     </div>
   )
