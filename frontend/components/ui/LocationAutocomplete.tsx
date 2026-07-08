@@ -27,36 +27,16 @@ interface LocationAutocompleteProps {
 
 // ── Static local cities list for instant matching ────────────────────────────
 const LOCAL_CITIES = [
+  { name: 'Hyderabad, India', type: 'city' as const },
   { name: 'Mumbai, India', type: 'city' as const },
   { name: 'Delhi, India', type: 'city' as const },
   { name: 'Bengaluru, India', type: 'city' as const },
-  { name: 'Hyderabad, India', type: 'city' as const },
   { name: 'Chennai, India', type: 'city' as const },
   { name: 'Kolkata, India', type: 'city' as const },
-  { name: 'Ahmedabad, India', type: 'city' as const },
   { name: 'Pune, India', type: 'city' as const },
   { name: 'Goa, India', type: 'city' as const },
   { name: 'Jaipur, India', type: 'city' as const },
-  { name: 'Agra, India', type: 'city' as const },
-  { name: 'Varanasi, India', type: 'city' as const },
   { name: 'Kochi, India', type: 'city' as const },
-  { name: 'Udaipur, India', type: 'city' as const },
-  { name: 'Manali, India', type: 'city' as const },
-  { name: 'Shimla, India', type: 'city' as const },
-  { name: 'Darjeeling, India', type: 'city' as const },
-  { name: 'Amritsar, India', type: 'city' as const },
-  { name: 'Mysuru, India', type: 'city' as const },
-  { name: 'Srinagar, India', type: 'city' as const },
-  { name: 'Rishikesh, India', type: 'city' as const },
-  { name: 'Ooty, India', type: 'city' as const },
-  { name: 'Visakhapatnam, India', type: 'city' as const },
-  { name: 'Coimbatore, India', type: 'city' as const },
-  { name: 'Bhopal, India', type: 'city' as const },
-  { name: 'Indore, India', type: 'city' as const },
-  { name: 'Chandigarh, India', type: 'city' as const },
-  { name: 'Nagpur, India', type: 'city' as const },
-  { name: 'Lucknow, India', type: 'city' as const },
-  { name: 'Patna, India', type: 'city' as const },
   { name: 'Bali, Indonesia', type: 'city' as const },
   { name: 'Bangkok, Thailand', type: 'city' as const },
   { name: 'Phuket, Thailand', type: 'city' as const },
@@ -92,13 +72,24 @@ const LOCAL_CITIES = [
 }))
 
 const POPULAR_FALLBACK_CITIES: Location[] = [
-  LOCAL_CITIES[0], // Mumbai
-  LOCAL_CITIES[1], // Delhi
-  LOCAL_CITIES[2], // Bengaluru
-  LOCAL_CITIES[3], // Hyderabad
-  LOCAL_CITIES[8], // Goa
-  LOCAL_CITIES[30], // Bali
+  LOCAL_CITIES[0], // Hyderabad
+  LOCAL_CITIES[1], // Mumbai
+  LOCAL_CITIES[2], // Delhi
+  LOCAL_CITIES[3], // Bengaluru
+  LOCAL_CITIES[7], // Goa
+  LOCAL_CITIES[10], // Bali
 ]
+
+const EXCLUDE_KEYWORDS = [
+  'sea', 'ocean', 'lake', 'mountain', 'river', 'gulf', 'bay', 'desert', 'forest', 'park',
+  'islands', 'island', 'region', 'province', 'district', 'county', 'state', 'hills', 'valley',
+  'canal', 'peak', 'canyon', 'peninsula', 'cape', 'reef', 'beach', 'plain', 'plateau', 'volcano'
+]
+
+function isCityOrAirport(name: string) {
+  const n = name.toLowerCase()
+  return !EXCLUDE_KEYWORDS.some(kw => n.includes(kw))
+}
 
 // ── Session-level cache — avoids redundant network requests ───────────────────
 const queryCache = new Map<string, Location[]>()
@@ -120,17 +111,22 @@ export default function LocationAutocomplete({
   // (prevents re-triggering a search after selection)
   const isSelectingRef = useRef(false)
   const isFocusedRef = useRef(false)
+  // KEY FIX: dropdown must NEVER open until user actively types into this field
+  const hasUserInteractedRef = useRef(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastSentValueRef = useRef(value)
 
-  // ── Sync external value changes (e.g. auto-detect location) ─────────────────
+  // Sync external value changes (e.g. sessionStorage pre-fill on plan page)
+  // Only updates the text — never triggers the dropdown
   useEffect(() => {
 <<<<<<< HEAD
     if (value !== lastSentValueRef.current) {
       setQuery(value)
       lastSentValueRef.current = value
+      // Reset so a programmatic value change never opens the dropdown
+      hasUserInteractedRef.current = false
     }
 =======
     Promise.resolve().then(() => {
@@ -139,11 +135,12 @@ export default function LocationAutocomplete({
 >>>>>>> staging
   }, [value])
 
-  // ── Close dropdown on outside click ─────────────────────────────────────────
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setIsOpen(false)
+        isFocusedRef.current = false
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -166,6 +163,9 @@ export default function LocationAutocomplete({
       isSelectingRef.current = false
       return
     }
+
+    // CRITICAL: never search or open dropdown unless user actively typed
+    if (!hasUserInteractedRef.current || !isFocusedRef.current) return
 
     const trimmed = query.trim()
     if (trimmed.length < 2) {
@@ -203,7 +203,7 @@ export default function LocationAutocomplete({
 
     // 2. Local Instant Search (Show matches instantly as they type)
     const localMatches = LOCAL_CITIES.filter((c) =>
-      c.name.toLowerCase().includes(cacheKey)
+      c.name.toLowerCase().includes(cacheKey) && isCityOrAirport(c.name)
     ).slice(0, 6)
 
     if (localMatches.length > 0) {
@@ -211,7 +211,7 @@ export default function LocationAutocomplete({
       setIsOpen(true)
     } else {
       setState({ status: 'loading' })
-      if (isFocusedRef.current) setIsOpen(true)
+      setIsOpen(true)
     }
 
     // 3. Debounce API call (300ms)
@@ -237,7 +237,7 @@ export default function LocationAutocomplete({
           ? { status: 'success', data: cached }
           : { status: 'empty' }
       )
-      setIsOpen(true)
+      if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
       setIsFetching(false)
       return
     }
@@ -253,7 +253,7 @@ export default function LocationAutocomplete({
       abortRef.current?.abort()
       setIsFetching(false)
       setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
-      if (isFocusedRef.current) setIsOpen(true)
+      if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
     }, 5000)
 
     setIsFetching(true)
@@ -275,44 +275,38 @@ export default function LocationAutocomplete({
         return
       }
 
-      const locations: Location[] = results.map((r: any) => {
-        let displayName = ''
+      const locations: Location[] = results
+        .filter((r: any) => {
+          const name = r.city || r.name || r.displayName || ''
+          return isCityOrAirport(name)
+        })
+        .map((r: any) => {
+          let displayName = ''
 
-        if (typeof r === 'string') {
-          displayName = r
-        } else if (r.city && r.country) {
-          const stateStr = r.state && r.state !== r.city ? `, ${r.state}` : ''
-          displayName = `${r.city}${stateStr}, ${r.country}`
-        } else if (r.name && r.country) {
-          const stateStr = r.state && r.state !== r.name ? `, ${r.state}` : ''
-          displayName = `${r.name}${stateStr}, ${r.country}`
-        } else if (r.displayName) {
-          const parts: string[] = r.displayName.split(',')
-          displayName =
-            parts.length > 3
-              ? `${parts[0].trim()}, ${parts[parts.length - 1].trim()}`
-              : r.displayName
-        } else if (r.description) {
-          displayName = r.description
-        } else {
-          displayName =
-            r.city ||
-            r.name ||
-            r.formatted_address ||
-            (Object.values(r).find((v) => typeof v === 'string') as string) ||
-            'Unknown Location'
-        }
+          if (r.city && r.country) {
+            displayName = `${r.city}, ${r.country}`
+          } else if (r.name && r.country) {
+            displayName = `${r.name}, ${r.country}`
+          } else if (r.displayName) {
+            const parts: string[] = r.displayName.split(',')
+            displayName =
+              parts.length > 1
+                ? `${parts[0].trim()}, ${parts[parts.length - 1].trim()}`
+                : r.displayName
+          } else {
+            displayName = r.name || r.city || 'Unknown'
+          }
 
-        return {
-          id: r.id ?? r.place_id ?? Math.random().toString(36).slice(2),
-          name: displayName,
-          type: 'city' as const,
-        }
-      })
+          return {
+            id: r.id ?? r.place_id ?? Math.random().toString(36).slice(2),
+            name: displayName,
+            type: 'city' as const,
+          }
+        })
 
       queryCache.set(cacheKey, locations)
       setState({ status: 'success', data: locations })
-      if (isFocusedRef.current) setIsOpen(true)
+      if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
     } catch (err: any) {
       if (err?.name === 'AbortError') return // Silently ignore cancelled requests
       console.error('[LocationAutocomplete] fetch error:', err?.message)
@@ -323,8 +317,11 @@ export default function LocationAutocomplete({
         timeoutRef.current = null
       }
 
-      // If API fails, show fallback cities instead of blank screen
-      setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
+      // If API fails and user is still interacting, show fallback cities
+      if (isFocusedRef.current && hasUserInteractedRef.current) {
+        setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
+        setIsOpen(true)
+      }
     } finally {
       setIsFetching(false)
     }
@@ -357,15 +354,19 @@ export default function LocationAutocomplete({
 
   const handleSelect = (loc: Location) => {
     isSelectingRef.current = true
+    hasUserInteractedRef.current = false
     setQuery(loc.name)
     lastSentValueRef.current = loc.name
     onChange(loc.name)
     setState({ status: 'idle' })
     setIsOpen(false)
+    isFocusedRef.current = false
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
+    // Every keystroke marks this as a user-initiated interaction
+    hasUserInteractedRef.current = true
     setQuery(val)
     lastSentValueRef.current = val
     onChange(val)
@@ -373,10 +374,12 @@ export default function LocationAutocomplete({
 
   const handleFocus = () => {
     isFocusedRef.current = true
+    // Only reopen if the user has previously typed AND results exist
+    // Never open on focus alone (e.g. page load with pre-filled values)
     if (
-      state.status === 'success' ||
-      state.status === 'empty' ||
-      state.status === 'error'
+      hasUserInteractedRef.current &&
+      state.status === 'success' &&
+      (state as any).data?.length > 0
     ) {
       setIsOpen(true)
     }
@@ -384,9 +387,11 @@ export default function LocationAutocomplete({
 
   const handleBlur = () => {
     isFocusedRef.current = false
-    // Delay closing slightly to allow click on dropdown items to register first
+    // Delay closing to allow dropdown item clicks to register first
     setTimeout(() => {
-      setIsOpen(false)
+      if (!isFocusedRef.current) {
+        setIsOpen(false)
+      }
     }, 200)
   }
 
@@ -397,7 +402,8 @@ export default function LocationAutocomplete({
       {/* Text input */}
       <input
         type="text"
-        className={className}
+        className={`${className} !bg-white text-[#111827] placeholder-[#9CA3AF] placeholder:text-[#9CA3AF]`}
+        style={{ backgroundColor: '#FFFFFF', color: '#111827' }}
         placeholder={placeholder}
         value={query}
         autoComplete="off"
@@ -414,7 +420,7 @@ export default function LocationAutocomplete({
       {/* Loading spinner inside input */}
       {isFetching && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin inline-block" />
+          <span className="w-4 h-4 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin inline-block" />
         </div>
       )}
 
@@ -422,43 +428,35 @@ export default function LocationAutocomplete({
       {isOpen && state.status !== 'idle' && (
         <div
           role="listbox"
-          className="absolute z-50 w-full mt-2 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden border"
-          style={{
-            background: 'rgba(15,23,42,0.97)',
-            backdropFilter: 'blur(20px)',
-            borderColor: 'rgba(255,255,255,0.12)',
-          }}
+          className="absolute z-50 w-full mt-2 rounded-[12px] border border-[#E5E7EB] bg-white py-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB', borderRadius: '12px' }}
         >
           {/* Searching state */}
           {state.status === 'loading' && (
-            <div className="px-4 py-4 text-sm text-center flex items-center justify-center gap-2" style={{ color: '#94a3b8' }}>
-              <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin inline-block" />
+            <div className="px-4 py-3 text-xs text-[#71717A] text-center flex items-center justify-center gap-2">
+              <span className="w-3.5 h-3.5 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin inline-block" />
               Searching cities...
             </div>
           )}
 
           {/* No results */}
           {state.status === 'empty' && (
-            <div className="px-4 py-5 text-sm text-center" style={{ color: '#94a3b8' }}>
-              <div className="text-2xl mb-1"></div>
+            <div className="px-4 py-4 text-xs text-[#71717A] text-center">
               No cities found for &ldquo;{query}&rdquo;
             </div>
           )}
 
           {/* Error */}
           {state.status === 'error' && (
-            <div className="px-4 py-4 text-sm text-center" style={{ color: '#f87171' }}>
+            <div className="px-4 py-3 text-xs text-rose-500 text-center">
               {state.message}
             </div>
           )}
 
           {/* Results list */}
           {state.status === 'success' && (
-            <div className="max-h-[300px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
-              <div
-                className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest"
-                style={{ color: '#64748b' }}
-              >
+            <div className="max-h-[260px] overflow-y-auto hide-scrollbar">
+              <div className="px-4 py-1.5 text-[9px] font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Suggested Destinations
               </div>
               {state.data.map((loc) => (
@@ -466,33 +464,23 @@ export default function LocationAutocomplete({
                   key={loc.id}
                   role="option"
                   aria-selected={false}
-                  className="px-5 py-3 cursor-pointer transition-colors group flex items-center justify-between"
-                  style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+                  className="px-4 py-2.5 cursor-pointer flex items-center justify-between bg-white text-[#111827] hover:bg-[#F9FAFB] transition-colors"
+                  style={{ borderTop: '1px solid #F4F4F5', backgroundColor: '#FFFFFF', color: '#111827' }}
                   onMouseDown={(e) => e.preventDefault()} // prevents input blur before click
                   onClick={() => handleSelect(loc)}
                   onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+                    e.currentTarget.style.backgroundColor = '#F9FAFB'
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                    e.currentTarget.style.backgroundColor = '#FFFFFF'
                   }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span style={{ fontSize: '1rem' }}></span>
-                    <span
-                      className="text-sm font-semibold"
-                      style={{ color: '#f1f5f9' }}
-                    >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-semibold text-[#111827]" style={{ color: '#111827' }}>
                       {loc.name}
                     </span>
                   </div>
-                  <span
-                    className="text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-widest"
-                    style={{
-                      background: 'rgba(59,130,246,0.15)',
-                      color: '#60a5fa',
-                    }}
-                  >
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#F4F4F5] text-[#71717A] uppercase tracking-wider">
                     City
                   </span>
                 </div>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import toast from 'react-hot-toast'
 
-const TAGS = ['Transport', 'Hotel', 'Activities', 'Food', 'Safety', 'Value for Money', 'AI Itinerary']
+const TAGS = ['Transport', 'Hotel', 'Activities', 'Safety', 'Value for Money', 'AI Itinerary']
 
 interface Props {
   onClose: () => void

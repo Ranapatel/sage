@@ -168,7 +168,8 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
      'jaipur','ahmedabad','kochi','bali','bangkok','dubai'].some(c => stableFrom.includes(c) && stableTo.includes(c)))
   const priceMin = isInternational ? 14000 : 2500
   const priceRange = isInternational ? 40000 : 9000
-  const maxPrice = budget ? Math.min(budget * 0.55, isInternational ? 80000 : 15000) : (isInternational ? 60000 : 12000)
+  // Cap at 40% of budget for flights (down from 55%)
+  const maxPrice = budget ? Math.min(budget * 0.40, isInternational ? 80000 : 15000) : (isInternational ? 60000 : 12000)
   const basePrice = Math.max(priceMin, Math.round((seededRandom(seed) * priceRange + priceMin) / 100) * 100)
 
   return AIRLINES.map((airline, i) => {
@@ -198,6 +199,41 @@ function generateMockFlights(from, to, date, budget, aiFlights = null) {
 }
 
 
+<<<<<<< Updated upstream
+=======
+function generateMockHotels(destination, checkin, checkout, members, budget) {
+  // Use stable seed (destination only) so hotel prices don't change on every search
+  const seed = (destination || 'dest').split(',')[0].toLowerCase().trim()
+  const destLabel = (destination || 'destination').split(',')[0]
+  // Realistic per-night prices: ₹800–₹6,000. Cap at 35% of budget per night.
+  const maxPerNight = budget ? Math.min(budget * 0.35, 7000) : 5500
+  const basePrice = Math.max(700, Math.round((seededRandom(seed) * 2500 + 800) / 100) * 100)
+
+  return Array.from({ length: 6 }, (_, i) => {
+    const r = seededRandom(seed + i)
+    const prefix = HOTEL_PREFIXES[Math.floor(r * HOTEL_PREFIXES.length)]
+    const suffix = HOTEL_SUFFIXES[Math.floor(seededRandom(seed + i + 'sfx') * HOTEL_SUFFIXES.length)]
+    const price = Math.min(basePrice + Math.round((seededRandom(seed + i + 'p') * 3500) / 100) * 100, maxPerNight)
+    const amenStart = Math.floor(seededRandom(seed + i + 'as') * 4)
+    const amenities = AMENITIES_POOL.slice(amenStart, amenStart + 4)
+    return {
+      id: `ht_mock_${i}`,
+      type: 'hotel',
+      name: `${prefix} ${destLabel} ${suffix}`,
+      price: Math.max(price, 700),
+      rating: parseFloat((3.5 + seededRandom(seed + i + 'r') * 1.5).toFixed(1)),
+      image: HOTEL_IMAGES[i % HOTEL_IMAGES.length],
+      location: `${destLabel} City Centre`,
+      bookingLink: hotelBookingLink(destination, checkin, checkout, members),
+      score: parseFloat((0.5 + seededRandom(seed + i + 's') * 0.5).toFixed(2)),
+      liveStatus: i < 2 ? '2 rooms left' : 'Available',
+      amenities,
+      offers: i === 0 ? ['Free Cancellation', 'Breakfast Included'] : [],
+      source: 'estimated',
+    }
+  }).sort((a, b) => a.price - b.price)
+}
+>>>>>>> Stashed changes
 
 // ─── Airport Resolution ───────────────────────────────────────────────────────
 
@@ -235,6 +271,9 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
+  // Flight budget: 40% of total budget
+  const flightBudgetLimit = budget ? budget * 0.40 : null
+
   if (RAPIDAPI_KEY) {
     try {
       const [origin, dest] = await Promise.all([resolveAirport(from), resolveAirport(to)])
@@ -262,14 +301,15 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
         })
 
         let liveFlights = normalizeKiwiFlights(response.data, from, to, date)
-        if (budget && liveFlights.length > 0) {
-          const filtered = liveFlights.filter(f => f.price <= budget * 0.6)
-          liveFlights = filtered.length > 0 ? filtered : liveFlights.slice(0, 3) // show cheapest 3 if all over budget
+        if (flightBudgetLimit && liveFlights.length > 0) {
+          const filtered = liveFlights.filter(f => f.price <= flightBudgetLimit)
+          // If all flights exceed budget, show cheapest 3 with overBudget flag
+          liveFlights = filtered.length > 0 ? filtered : liveFlights.slice(0, 3).map(f => ({ ...f, overBudget: true }))
         }
 
         if (liveFlights.length > 0) {
           console.log(`[Flights] ✅ ${liveFlights.length} live flights (Kiwi)`)
-          const result = { success: true, data: liveFlights, meta: { cache: false, source: 'live' } }
+          const result = { success: true, data: liveFlights, meta: { cache: false, source: 'live', budgetLimit: flightBudgetLimit } }
           await cacheSet(cacheKey, result)
           localCache.set(cacheKey, result)
           return result
@@ -284,8 +324,12 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
   try {
     const aiFlights = await estimateFlightPrices({ from, to, date, travelers, budget })
     if (aiFlights && aiFlights.length > 0) {
-      const mocks = generateMockFlights(from, to, date, budget, aiFlights)
-      const result = { success: true, data: mocks, meta: { cache: false, source: 'ai-estimated' } }
+      let mocks = generateMockFlights(from, to, date, budget, aiFlights)
+      if (flightBudgetLimit) {
+        const filtered = mocks.filter(f => f.price <= flightBudgetLimit)
+        mocks = filtered.length > 0 ? filtered : mocks.slice(0, 3).map(f => ({ ...f, overBudget: true }))
+      }
+      const result = { success: true, data: mocks, meta: { cache: false, source: 'ai-estimated', budgetLimit: flightBudgetLimit } }
       await cacheSet(cacheKey, result)
       localCache.set(cacheKey, result)
       return result
@@ -296,8 +340,12 @@ async function searchFlights({ from, to, date, returnDate, travelers = 1, budget
 
   // Fallback 3: Stable seed-based mock data
   console.log(`[Flights] Using estimated data for ${from} → ${to}`)
-  const mocks = generateMockFlights(from, to, date, budget)
-  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated' } }
+  let mocks = generateMockFlights(from, to, date, budget)
+  if (flightBudgetLimit) {
+    const filtered = mocks.filter(f => f.price <= flightBudgetLimit)
+    mocks = filtered.length > 0 ? filtered : mocks.slice(0, 3).map(f => ({ ...f, overBudget: true }))
+  }
+  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated', budgetLimit: flightBudgetLimit } }
   await cacheSet(cacheKey, result)
   localCache.set(cacheKey, result)
   return result
@@ -359,8 +407,13 @@ function normalizeKiwiFlights(rawData, from, to, date) {
 
 // ─── Hotel Search ─────────────────────────────────────────────────────────────
 
+<<<<<<< Updated upstream
 async function searchHotels({ destination, checkin, checkout, members = 2, budget, rooms = 1, adults = 2, children = 0 }) {
   const cacheKey = generateCacheKey('hotels_hbd_v3', { destination, checkin, checkout, members, budget, rooms, adults, children })
+=======
+async function searchHotels({ destination, checkin, checkout, members = 2, budget, flightCostSpent = 0 }) {
+  const cacheKey = generateCacheKey('hotels_v4', { destination, checkin, checkout, members, budget })
+>>>>>>> Stashed changes
   
   // Check node-cache first
   const localCached = localCache.get(cacheKey)
@@ -369,6 +422,7 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
 
+<<<<<<< Updated upstream
   const result = await hotelbedsService.searchHotels({ destination, checkin, checkout, members, budget, rooms, adults, children })
 
   if (result && result.success) {
@@ -376,6 +430,76 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
     localCache.set(cacheKey, result)
   }
   
+=======
+  // Hotel per-night budget: 35% of remaining budget after flights
+  const remainingAfterFlight = budget ? Math.max(0, budget - flightCostSpent) : null
+  const hotelNightlyLimit = remainingAfterFlight ? remainingAfterFlight * 0.35 : null
+
+  if (RAPIDAPI_KEY) {
+    try {
+      const locRes = await axios.get(`https://${RAPIDAPI_HOSTS.hotels}/api/v1/hotels/searchDestination`, {
+        params: { query: destination.split(',')[0].trim() },
+        headers: rapidHeaders(RAPIDAPI_HOSTS.hotels),
+        timeout: 8000,
+      })
+
+      const locData = locRes.data?.data || []
+      const firstLoc = Array.isArray(locData)
+        ? (locData.find(l => l.dest_type === 'city' || l.dest_type === 'district') || locData[0])
+        : null
+
+      if (firstLoc) {
+        const today = new Date().toISOString().split('T')[0]
+        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+
+        const propsRes = await axios.get(`https://${RAPIDAPI_HOSTS.hotels}/api/v1/hotels/searchHotels`, {
+          params: {
+            dest_id: firstLoc.dest_id || firstLoc.id,
+            search_type: firstLoc.dest_type || 'city',
+            arrival_date: checkin || today,
+            departure_date: checkout || tomorrow,
+            adults: String(members),
+            room_qty: 1,
+            page_number: 1,
+            languagecode: 'en-us',
+            currency_code: 'INR',
+          },
+          headers: rapidHeaders(RAPIDAPI_HOSTS.hotels),
+          timeout: 12000,
+        })
+
+        let liveHotels = normalizeBookingCom(propsRes.data, destination, checkin, checkout, members)
+
+        if (hotelNightlyLimit && liveHotels.length > 0) {
+          const filtered = liveHotels.filter(h => h.price <= hotelNightlyLimit)
+          // If all exceed budget, show cheapest 3 with overBudget flag
+          liveHotels = filtered.length > 0 ? filtered : liveHotels.slice(0, 3).map(h => ({ ...h, overBudget: true }))
+        }
+
+        if (liveHotels.length > 0) {
+          console.log(`[Hotels] ✅ ${liveHotels.length} live hotels`)
+          const result = { success: true, data: liveHotels, meta: { cache: false, source: 'live', budgetLimit: hotelNightlyLimit } }
+          await cacheSet(cacheKey, result)
+          localCache.set(cacheKey, result)
+          return result
+        }
+      }
+    } catch (err) {
+      console.warn('[Hotels] Live search failed:', err.response?.status || err.message)
+    }
+  }
+
+  // Always fall back to smart mock data
+  console.log(`[Hotels] Using estimated data for ${destination}`)
+  let mocks = generateMockHotels(destination, checkin, checkout, members, remainingAfterFlight || budget)
+  if (hotelNightlyLimit) {
+    const filtered = mocks.filter(h => h.price <= hotelNightlyLimit)
+    mocks = filtered.length > 0 ? filtered : mocks.slice(0, 3).map(h => ({ ...h, overBudget: true }))
+  }
+  const result = { success: true, data: mocks, meta: { cache: false, source: 'estimated', budgetLimit: hotelNightlyLimit } }
+  await cacheSet(cacheKey, result)
+  localCache.set(cacheKey, result)
+>>>>>>> Stashed changes
   return result
 }
 

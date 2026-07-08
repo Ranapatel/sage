@@ -1,17 +1,32 @@
 /**
- * Optimizes Unsplash image URLs based on device type
+ * Optimizes image URLs based on device type.
+ * Handles Unsplash (w/q params) and Wikimedia Commons (width param).
  */
 export function getOptimizedImageUrl(url: string, isMobile: boolean = false): string {
-  if (!url || !url.includes('images.unsplash.com')) return url;
-  
-  // Remove existing width/quality params if they exist
-  const baseUrl = url.split('?')[0];
-  
-  // Apply requested params: w=600&q=60 on mobile and w=1920&q=90 on desktop
-  const width = isMobile ? 600 : 1920;
-  const quality = isMobile ? 60 : 90;
-  
-  return `${baseUrl}?auto=format&fit=crop&w=${width}&q=${quality}`;
+  if (!url) return url
+
+  // Wikimedia Commons Special:FilePath or upload.wikimedia.org
+  if (url.includes('wikimedia.org') || url.includes('wikipedia.org/api')) {
+    const width = isMobile ? 600 : 800
+    // Special:FilePath redirect — replace or add width param
+    try {
+      const u = new URL(url)
+      u.searchParams.set('width', String(width))
+      return u.toString()
+    } catch {
+      return url
+    }
+  }
+
+  // Unsplash
+  if (url.includes('images.unsplash.com')) {
+    const baseUrl = url.split('?')[0]
+    const width = isMobile ? 600 : 1920
+    const quality = isMobile ? 60 : 90
+    return `${baseUrl}?auto=format&fit=crop&w=${width}&q=${quality}`
+  }
+
+  return url
 }
 
 const AIRLINE_DOMAIN_MAP: Record<string, string> = {

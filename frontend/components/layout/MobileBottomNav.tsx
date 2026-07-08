@@ -3,20 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Home, Search, Map as MapIcon, Compass, User } from 'lucide-react'
+import { Home, Search, Compass, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 export default function MobileBottomNav() {
   const pathname = usePathname()
   
-  // Note: we're hardcoding 3 for the badge as a placeholder, 
-  // but in a real app this would come from a store or API.
-  const savedTripsCount = 3 
-
   const tabs = [
     { name: 'Home', href: '/', icon: Home },
     { name: 'Search', href: '/plan', icon: Search },
-    { name: 'My Trips', href: '/my-trips', icon: MapIcon, badge: savedTripsCount },
     { name: 'Explore', href: '/blog', icon: Compass },
     { name: 'Profile', href: '/profile', icon: User },
   ]
@@ -54,12 +49,6 @@ export default function MobileBottomNav() {
                   strokeWidth={1.5}
                   className={`transition-colors duration-300 ${isActive ? 'text-[#1C1917]' : 'text-[#57534E]'}`} 
                 />
-                
-                {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 bg-[#EA580C] text-white text-[9px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                    {tab.badge}
-                  </span>
-                )}
 
                 {/* Active Label with Spring Animation */}
                 {isActive && (

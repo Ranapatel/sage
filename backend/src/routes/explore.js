@@ -1,9 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const { param, query } = require('express-validator')
+<<<<<<< Updated upstream
 const { getRecommendations } = require('../services/aiService')
 const activitiesService = require('../activities/activitiesService')
 const { getCoordinates } = require('../services/hotelbedsService')
+=======
+const { getRecommendations, getExplorePlaces, generateMockPlaces } = require('../services/aiService')
+>>>>>>> Stashed changes
 
 const MOCK_ACTIVITIES = (destination) => [
   { id: 'a1', name: `${destination} Sunrise Tour`, category: 'nature', price: 35, rating: 4.8, image: 'https://images.unsplash.com/photo-1527856263669-12c3a0af2aa6?w=400&q=80', duration: '4 hours' },
@@ -104,6 +108,29 @@ router.get('/restaurants/:destination', [
     data: { restaurants, total: restaurants.length },
     meta: { timestamp: new Date().toISOString(), source: 'mock' }
   })
+})
+
+// GET /api/explore/places/:destination
+router.get('/places/:destination', [
+  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+], async (req, res) => {
+  const dest = decodeURIComponent(req.params.destination)
+  try {
+    const places = await getExplorePlaces(dest)
+    res.json({
+      success: true,
+      data: places,
+      meta: { timestamp: new Date().toISOString(), source: 'groq' }
+    })
+  } catch (err) {
+    console.warn(`[Explore Places] Groq failed for ${dest}, falling back to mock data:`, err.message)
+    const fallback = generateMockPlaces(dest)
+    res.json({
+      success: true,
+      data: fallback,
+      meta: { timestamp: new Date().toISOString(), source: 'fallback', error: err.message }
+    })
+  }
 })
 
 module.exports = router

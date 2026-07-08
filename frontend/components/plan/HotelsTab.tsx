@@ -1,16 +1,27 @@
 'use client'
 
+<<<<<<< Updated upstream
 import React, { memo, useState, useMemo, useEffect } from 'react'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
 import HotelBookingFlow from '../hotel/HotelBookingFlow'
 import { formatPrice } from '@/lib/currency'
+=======
+import React, { memo, useMemo } from 'react'
+import HotelCard from '../hotel/HotelCard'
+import { AlertTriangle, Info, Building2 } from 'lucide-react'
+import { SYMBOLS } from '@/lib/currency'
+>>>>>>> Stashed changes
 
 interface Props {
   hotels: any[]
   loading: boolean
   tripContext: any
   searchForm: any
+  budget?: number
+  flightCostSpent?: number
+  nights?: number
+  currency?: string
 }
 
 type SortMode = 'recommended' | 'price-low' | 'price-high' | 'rating'
@@ -71,6 +82,7 @@ function EmptyState() {
   )
 }
 
+<<<<<<< Updated upstream
 function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
   const [sortMode, setSortMode] = useState<SortMode>('recommended')
 
@@ -260,6 +272,73 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
             </select>
           </div>
         </div>
+=======
+function HotelsTab({ hotels, loading, tripContext, searchForm, budget = 0, flightCostSpent = 0, nights = 1, currency = 'INR' }: Props) {
+  const symbol = SYMBOLS[currency] ?? currency
+
+  // Hotel per-night budget: 35% of remaining budget after flights
+  const remainingAfterFlight = budget > 0 ? Math.max(0, budget - flightCostSpent) : 0
+  const hotelNightlyLimit = remainingAfterFlight > 0 ? remainingAfterFlight * 0.35 : Infinity
+
+  const { displayList, allOverBudget } = useMemo(() => {
+    const sorted = [...hotels].sort((a, b) => a.price - b.price)
+    if (!budget || budget <= 0) return { displayList: sorted, allOverBudget: false }
+    const within = sorted.filter(h => h.price <= hotelNightlyLimit)
+    if (within.length === 0) return { displayList: sorted.slice(0, 3), allOverBudget: true }
+    return { displayList: within, allOverBudget: false }
+  }, [hotels, hotelNightlyLimit, budget])
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="section-title text-xl flex items-center gap-2">
+          <Building2 size={20} strokeWidth={1.5} className="text-[#1C1917]" /> Hotel Options
+        </h2>
+        <div className="flex items-center gap-2">
+          <span className="live-dot"></span>
+          <span className="text-xs font-mono text-[var(--text-muted)]">Live availability</span>
+        </div>
+      </div>
+
+      {budget > 0 && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-secondary,#F4F4F5)] border border-[var(--border)] text-xs text-[var(--text-secondary)]">
+          <Info size={13} className="text-green-500 shrink-0" />
+          <span>
+            Hotel budget limit:{' '}
+            <strong className="text-[var(--text-primary)] font-mono">
+              {symbol}{Math.round(Math.min(hotelNightlyLimit, budget)).toLocaleString('en-IN')}/night
+            </strong>
+            {flightCostSpent > 0 && (
+              <span className="ml-1 text-[var(--text-muted)]">
+                (remaining after flights: {symbol}{Math.round(remainingAfterFlight).toLocaleString('en-IN')})
+              </span>
+            )}
+            {nights > 1 && (
+              <span className="ml-1 text-[var(--text-muted)]">· {nights} nights</span>
+            )}
+          </span>
+        </div>
+      )}
+
+      {!loading && allOverBudget && (
+        <div className="flex items-start gap-3 p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 text-xs">
+          <AlertTriangle size={15} className="shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold">No hotels found within your hotel budget of {symbol}{Math.round(hotelNightlyLimit).toLocaleString('en-IN')}/night.</p>
+            <p className="mt-0.5 text-amber-500">Showing cheapest available options. Consider increasing your budget or selecting a cheaper flight first.</p>
+          </div>
+        </div>
+      )}
+
+      {loading ? <SkeletonCards count={3} /> : (
+        displayList.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {displayList.map((h: any) => <HotelCard key={h.id} item={h} showDetail />)}
+          </div>
+        ) : (
+          <EmptyState icon="hotel" title="No hotels found" desc="Try adjusting your dates or budget" />
+        )
+>>>>>>> Stashed changes
       )}
 
       {/* ── Sort Bar ───────────────────────────────────────────────────── */}
@@ -303,3 +382,4 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
 }
 
 export default memo(HotelsTab)
+

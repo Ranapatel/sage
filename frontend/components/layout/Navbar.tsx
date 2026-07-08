@@ -8,45 +8,70 @@ import { SignedIn, SignedOut, useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { trackEvent } from '@/lib/analytics'
+<<<<<<< Updated upstream
 import { Menu, X, ArrowRight, LogOut } from 'lucide-react'
 import UserMenu from './UserMenu'
+=======
+import { Menu, X, ArrowRight, LogOut, ChevronDown } from 'lucide-react'
+>>>>>>> Stashed changes
 
 export default function Navbar() {
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <>
-      <nav className="glass sticky top-0 z-[100] px-3 sm:px-6 py-4 flex items-center justify-between border-b border-gray-100/50 shadow-sm bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-[100] w-full border-b border-[#E8E0D8] bg-[#FFFBF7] px-6 py-4 flex items-center justify-between transition-all duration-200">
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2">
             <img
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
               alt="TripSage"
-              width={38}
-              height={38}
-              className="rounded-xl shadow-sm w-[38px] h-[38px] object-contain"
+              width={34}
+              height={34}
+              className="rounded-lg shadow-sm w-[34px] h-[34px] object-contain"
             />
-            <span className="font-display text-xl font-extrabold text-slate-900 tracking-tight hidden md:block">TripSage</span>
+            <span className="font-display text-lg font-extrabold text-[#1A1A1A] tracking-tight hidden md:block">TripSage</span>
           </Link>
         </div>
         
-        <div className="hidden md:flex items-center gap-8 text-[13px] font-semibold text-slate-500">
-          <Link href="/#features" className="hover:text-blue-600 transition-colors">Features</Link>
-          <Link href="/#destinations" className="hover:text-blue-600 transition-colors">Destinations</Link>
-          <Link href="/blog" className="hover:text-blue-600 transition-colors">Blog</Link>
-          <Link href="/support" className="hover:text-blue-600 transition-colors">Support</Link>
+        <div className="hidden md:flex items-center gap-8 text-[13px] font-semibold text-[#6B6B6B]">
+          <Link href="/#features" className="hover:text-[#EA580C] transition-colors duration-200">Features</Link>
+          <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors duration-200">Destinations</Link>
+          <Link href="/blog" className="hover:text-[#EA580C] transition-colors duration-200">Blog</Link>
+          <Link href="/visa-guide" className="hover:text-[#EA580C] transition-colors duration-200">Visa Guide</Link>
+          
+          {/* Support Dropdown */}
+          <div className="relative group py-2">
+            <button suppressHydrationWarning className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
+              Support <ChevronDown size={12} strokeWidth={1.5} />
+            </button>
+            <div className="absolute left-0 mt-1 w-36 bg-white border border-[#E8E0D8] rounded-lg shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 py-1">
+              <Link href="/support" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Support Center</Link>
+              <Link href="/visa-guide" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Visa Guide</Link>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
+<<<<<<< Updated upstream
 <<<<<<< HEAD
           {isLoggedIn && user ? (
+=======
+          {mounted && isLoggedIn && user ? (
+>>>>>>> Stashed changes
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="hidden sm:flex w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 items-center justify-center text-white text-xs font-bold">
+              <div className="hidden sm:flex w-8 h-8 rounded-full bg-[#EA580C] items-center justify-center text-white text-xs font-bold">
                 {user.name?.charAt(0).toUpperCase()}
               </div>
+<<<<<<< Updated upstream
               <span className="text-sm font-semibold text-slate-900 hidden sm:block">{user.name}</span>
               <Link href="/plan" className="hidden md:flex btn-primary whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-xl bg-blue-600 text-white font-bold">Dashboard</Link>
               <button onClick={() => logout()} className="hidden sm:block text-slate-400 hover:text-red-400 transition-colors p-2" title="Logout"><LogOut size={18} /></button>
@@ -67,9 +92,21 @@ export default function Navbar() {
             <Link href="/sign-in" className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center justify-center rounded-xl font-bold">Sign In</Link>
             <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-blue-600 text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:opacity-90 transition-opacity">Plan Trip <ArrowRight size={14} /></Link>
           </SignedOut>
+=======
+              <span className="text-sm font-semibold text-[#1A1A1A] hidden sm:block">{user.name}</span>
+              <Link href="/plan" className="hidden md:flex whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
+              <button onClick={() => logout()} className="hidden sm:block text-[#6B6B6B] hover:text-red-500 transition-colors duration-200 p-2" title="Logout"><LogOut size={16} strokeWidth={1.5} /></button>
+            </div>
+          ) : (
+            <>
+              <Link href="/auth" className="hidden sm:flex text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
+              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={14} strokeWidth={1.5} /></Link>
+            </>
+          )}
+>>>>>>> Stashed changes
           
-          <button className="md:hidden p-1.5 sm:p-2 text-slate-900" onClick={() => setMobileMenuOpen(true)}>
-            <Menu size={28} />
+          <button className="md:hidden p-1.5 sm:p-2 text-[#1A1A1A]" onClick={() => setMobileMenuOpen(true)}>
+            <Menu size={20} strokeWidth={1.5} />
           </button>
         </div>
       </nav>
@@ -92,8 +129,8 @@ export default function Navbar() {
               className="fixed top-0 right-0 h-full w-[75%] bg-white z-[9999] shadow-2xl p-6 flex flex-col md:hidden"
             >
               <div className="flex justify-end mb-8">
-                <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-slate-500 hover:text-slate-900">
-                  <X size={28} />
+                <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-[#57534E] hover:text-[#1C1917]">
+                  <X size={20} strokeWidth={1.5} />
                 </button>
               </div>
               <div className="flex flex-col gap-2">
@@ -101,8 +138,10 @@ export default function Navbar() {
                 <Link href="/#features" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Features</Link>
                 <Link href="/#destinations" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Destinations</Link>
                 <Link href="/support" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Support</Link>
+                <Link href="/visa-guide" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Visa Guide</Link>
                 <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Blog</Link>
                 <div className="h-px bg-slate-100 my-4 mx-4"></div>
+<<<<<<< Updated upstream
                 <SignedIn>
                   <div className="flex flex-col gap-1 overflow-y-auto max-h-[60vh] pr-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mt-2 mb-1">Navigation</span>
@@ -134,6 +173,12 @@ export default function Navbar() {
                     >
                       Sign Out
                     </button>
+=======
+                {mounted && isLoggedIn && user ? (
+                  <div className="flex flex-col gap-2">
+                    <Link href="/plan" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-xl">Dashboard</Link>
+                    <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="flex items-center h-[52px] px-4 text-lg font-semibold text-red-500 hover:bg-red-50 rounded-xl text-left w-full">Logout</button>
+>>>>>>> Stashed changes
                   </div>
                 </SignedIn>
                 <SignedOut>

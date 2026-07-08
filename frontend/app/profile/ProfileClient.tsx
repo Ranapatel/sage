@@ -33,8 +33,9 @@ export default function ProfileClient() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [currency, setCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP' | 'AED'>('INR')
-  const [diet, setDiet] = useState('any')
+
   const [travelStyle, setTravelStyle] = useState('adventure')
+  const [diet, setDiet] = useState('any')
   const [isSaving, setIsSaving] = useState(false)
   const [showRedeemModal, setShowRedeemModal] = useState(false)
   const [upiId, setUpiId] = useState('')
@@ -45,8 +46,9 @@ export default function ProfileClient() {
       setName(user.name || '')
       setEmail(user.email || '')
       setCurrency(user.currency || 'INR')
-      setDiet(user.preferences?.diet || userProfile.preferences?.[0] || 'any')
+
       setTravelStyle(user.preferences?.travelStyle || userProfile.travelStyle || 'adventure')
+      setDiet(user.preferences?.diet || 'any')
     } else {
       setName('Traveler')
       setEmail('traveler@tripsage.in')
@@ -170,16 +172,16 @@ export default function ProfileClient() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dietary Filter</label>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dietary Preference</label>
                     <select 
                       value={diet} 
                       onChange={e => setDiet(e.target.value)}
                       className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-orange-500/50 transition-all font-semibold"
                     >
-                      <option value="any">Any Diet</option>
-                      <option value="veg">Pure Veg</option>
-                      <option value="jain">Jain Dining</option>
-                      <option value="halal">Halal Food</option>
+                      <option value="any">Any / No preference</option>
+                      <option value="veg">Vegetarian</option>
+                      <option value="vegan">Vegan</option>
+                      <option value="halal">Halal</option>
                     </select>
                   </div>
 

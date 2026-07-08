@@ -149,8 +149,11 @@ export interface VoucherData {
 
 // The response interceptor unwraps res.data, so all methods resolve to ApiResponse<T>.
 // We cast the axios instance to reflect this so callers get correct types.
+//
+// NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:4000 in dev).
+// We also hard-code the local fallback so hot-reload works without a restart.
 const _API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -193,7 +196,7 @@ export const tripAPI = {
     API.get('/api/places/ip-location'),
 
   generateItinerary: (params: {
-    destination: string; days: number; budget: number
+    destination: string; days: number; budget: number; currency?: string
     style: string; preferences: string[]; members: number; startDate?: string
   }, config?: { signal?: AbortSignal }): Promise<ApiResponse<ItineraryData>> =>
     API.post('/api/itinerary/generate', params, config),
@@ -216,8 +219,10 @@ export const tripAPI = {
   getActivities: (destination: string, params?: any): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/activities/${encodeURIComponent(destination)}`, { params }),
 
-  getRestaurants: (destination: string): Promise<ApiResponse<any[]>> =>
-    API.get(`/api/explore/restaurants/${encodeURIComponent(destination)}`),
+  getExplorePlaces: (destination: string): Promise<ApiResponse<any[]>> =>
+    API.get(`/api/explore/places/${encodeURIComponent(destination)}`),
+
+
 
   getNotifications: (sessionId: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/notifications/${sessionId}`),

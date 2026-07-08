@@ -10,7 +10,11 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl, getLogoUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+<<<<<<< Updated upstream
 import { useRequireAuth } from '@/hooks/useRequireAuth'
+=======
+import SageScoreBadge from '../ui/SageScoreBadge'
+>>>>>>> Stashed changes
 
 interface Props {
   item: any
@@ -135,20 +139,23 @@ function TransportCard({ item, showDetail }: Props) {
       <div className="p-4">
         {/* Flight details row */}
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            {item.liveStatus && (
-              <span className={`badge text-[0.65rem] ${item.liveStatus === 'Live' ? 'badge-green' : 'badge-amber'}`}>
-                {item.liveStatus}
-              </span>
-            )}
-            {item.rating != null && (
- <span className="text-xs text-[var(--text-muted)]">{item.rating}</span>
-            )}
-            {item.stops != null && (
-              <span className="text-xs text-[var(--text-muted)]">
- {item.stops === 0 ? '️ Direct' : `${item.stops} stop${item.stops > 1 ? 's' : ''}`}
-              </span>
-            )}
+          <div className="flex items-center gap-3">
+            <SageScoreBadge item={item} type="flight" />
+            <div className="flex items-center gap-2 flex-wrap">
+              {item.liveStatus && (
+                <span className={`badge text-[0.65rem] ${item.liveStatus === 'Live' ? 'badge-green' : 'badge-amber'}`}>
+                  {item.liveStatus}
+                </span>
+              )}
+              {item.rating != null && (
+                <span className="text-xs text-[var(--text-muted)]">{item.rating}</span>
+              )}
+              {item.stops != null && (
+                <span className="text-xs text-[var(--text-muted)]">
+                  {item.stops === 0 ? '️ Direct' : `${item.stops} stop${item.stops > 1 ? 's' : ''}`}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Price — only shown when real */}

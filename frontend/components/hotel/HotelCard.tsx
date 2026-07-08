@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/currency'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import SageScoreBadge from '../ui/SageScoreBadge'
 
 // ── Amenity detection from raw data ──────────────────────────────────────────
 const AMENITY_MAP: Record<string, { icon: string; label: string }> = {
@@ -237,6 +238,7 @@ function HotelCard({ item, showDetail }: Props) {
         }} />
       </div>
 
+<<<<<<< Updated upstream
       {/* ── Content ─────────────────────────────────────────────────────── */}
       <div style={{ padding: '14px 16px 16px' }}>
 
@@ -263,6 +265,66 @@ function HotelCard({ item, showDetail }: Props) {
             <span className={`hotel-rating-pill ${ratingInfo.cls}`}>
               {item.rating.toFixed(1)} {ratingInfo.label}
             </span>
+=======
+      <div className="p-4 space-y-3">
+        {/* Name + Price */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 flex gap-3 items-start">
+            <div className="flex-shrink-0 mt-0.5">
+              <SageScoreBadge item={item} type="hotel" />
+            </div>
+            <h3 className="font-bold text-[var(--text-primary)] leading-tight">{item.name}</h3>
+          </div>
+          <div className="text-right flex-shrink-0">
+            {displayPrice ? (
+              <>
+                <div className="text-2xl font-black font-mono text-[var(--primary)] leading-tight">
+                  {displayPrice}
+                </div>
+                <div className="text-[0.65rem] text-[var(--text-muted)]">/night</div>
+              </>
+            ) : (
+              <div className="text-xs text-[var(--text-muted)] italic">Price on site</div>
+            )}
+          </div>
+        </div>
+
+
+
+        {/* Amenities from API */}
+        {showDetail && item.amenities?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {item.amenities.map((a: string, i: number) => (
+              <span key={i} className="badge badge-green text-[0.65rem]">{a}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Offers from API */}
+        {showDetail && item.offers?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {item.offers.map((o: string, i: number) => (
+ <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
+            ))}
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="flex gap-2 pt-1">
+          <a
+            href={item.bookingLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('booking_click', { type: 'hotel', name: item.name, price: item.price })}
+            className="flex-1 text-center py-3 px-4 rounded-xl font-black text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
+          >
+            {item.source === 'affiliate_redirect' ? 'Search on Agoda →' : 'Book on Agoda →'}
+          </a>
+          {item.source === 'live' && (
+            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3">
+              Select
+            </button>
+>>>>>>> Stashed changes
           )}
         </div>
 

@@ -1,20 +1,32 @@
 'use client'
+
 import React, { memo, useState, useEffect } from 'react'
-import Image from 'next/image'
-import { getOptimizedImageUrl } from '@/lib/imageUtils'
-import { useIsMobile } from '@/hooks/useIsMobile'
+import { getPlaceImage } from '@/data/placeImages'
 import { tripAPI } from '@/lib/api'
+<<<<<<< Updated upstream
 import { affiliateLinks } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { useUrgency } from '@/hooks/useUrgency'
 import { trackEvent } from '@/lib/analytics'
 import { useTripStore } from '@/store/tripStore'
+=======
+import { Compass, Info, MapPin } from 'lucide-react'
+
+interface PlaceItem {
+  name: string
+  category: 'Must See' | 'Hidden Gems' | 'Outdoor'
+  description: string
+  cost: number
+  bestTime: string
+}
+>>>>>>> Stashed changes
 
 interface Props {
   destination: string
 }
 
+<<<<<<< Updated upstream
 const MOCK_ACTIVITIES = [
   { id: 'a1', name: 'Sunset Boat Tour', category: 'Water', price: 3750, rating: 4.8, image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80', duration: '3 hours', discount: 20, spotsLeft: 3 },
   { id: 'a2', name: 'Temple Hopping Tour', category: 'Culture', price: 2100, rating: 4.6, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80', duration: '6 hours', discount: 15, spotsLeft: 5 },
@@ -145,10 +157,19 @@ function ExploreSection({ destination }: Props) {
   const [activeType, setActiveType] = useState<'activities' | 'restaurants' | 'rentals'>('activities')
   const [activities, setActivities] = useState<any[]>([])
   const [restaurants] = useState(MOCK_RESTAURANTS)
+=======
+const CATEGORIES = ['All', 'Must See', 'Hidden Gems', 'Outdoor'] as const
+
+function ExploreSection({ destination }: Props) {
+  const [places, setPlaces] = useState<PlaceItem[]>([])
+  const [activeCategory, setActiveCategory] = useState<typeof CATEGORIES[number]>('All')
+>>>>>>> Stashed changes
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!destination) return
+<<<<<<< Updated upstream
     Promise.resolve().then(() => setLoading(true))
     
     const params = {
@@ -171,30 +192,88 @@ function ExploreSection({ destination }: Props) {
   const filteredActivities = activeCategory === 'All'
     ? activities
     : activities.filter(a => a.category && a.category.toLowerCase() === activeCategory.toLowerCase())
+=======
+    setLoading(true)
+    setError(null)
+    tripAPI.getExplorePlaces(destination)
+      .then((res: any) => {
+        // Interceptor unwraps to ApiResponse, data contains actual payload
+        const list = res.data || res
+        if (Array.isArray(list)) {
+          setPlaces(list)
+        } else if (res.success && Array.isArray(res.data)) {
+          setPlaces(res.data)
+        } else {
+          setPlaces([])
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load explore places:', err)
+        setError('Unable to fetch recommendations. Please try again.')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [destination])
+
+  const filteredPlaces = activeCategory === 'All'
+    ? places
+    : places.filter(p => p.category.toLowerCase() === activeCategory.toLowerCase())
+
+  const destCity = destination.split(',')[0].trim()
+
+  const getCategoryBadgeStyles = (cat: string) => {
+    switch (cat) {
+      case 'Must See':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-100'
+      case 'Hidden Gems':
+        return 'bg-purple-50 text-purple-700 border-purple-100'
+      case 'Outdoor':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-100'
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-100'
+    }
+  }
+>>>>>>> Stashed changes
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
- <h2 className="section-title text-xl">Explore {destination || 'Destination'}</h2>
-        <a href={affiliateLinks.activity(destination || 'popular')} target="_blank" rel="noopener noreferrer"
-          className="btn-outline text-xs py-1.5 px-3">
-          All Activities →
-        </a>
+    <div className="space-y-8">
+      {/* ── HEADER ──────────────────────────────────────────────────────── */}
+      <div className="text-left">
+        <h1
+          className="text-[24px] font-bold text-[#1A1A1A] leading-tight mb-1.5 flex items-center gap-2"
+          style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
+        >
+          <Compass size={24} className="text-[#EA580C]" strokeWidth={2} />
+          Explore {destCity || 'Destination'}
+        </h1>
+        <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-xl">
+          Pick the category that matches your mood — find iconic landmarks, hidden gems, and outdoor adventures.
+        </p>
       </div>
 
-      {/* Type tabs */}
-      <div className="flex gap-2">
-        {(['activities', 'restaurants', 'rentals'] as const).map(t => (
-          <button key={t} onClick={() => setActiveType(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
-              activeType === t ? 'bg-[var(--primary)] text-white' : 'glass text-[var(--text-secondary)]'
-            }`}>
- {t === 'activities' ? '' : t === 'restaurants' ? '️' : ''} {t}
-          </button>
-        ))}
+      {/* ── FILTER TABS ─────────────────────────────────────────────────── */}
+      <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+        {CATEGORIES.map(cat => {
+          const isActive = activeCategory === cat
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="shrink-0 h-9 px-4 rounded-xl text-[14px] font-medium flex items-center justify-center transition-all border font-sans"
+              style={{
+                background: isActive ? '#EA580C' : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : '#6B6B6B',
+                borderColor: isActive ? '#EA580C' : '#E8E0D8',
+              }}
+            >
+              {cat}
+            </button>
+          )
+        })}
       </div>
 
+<<<<<<< Updated upstream
       {/* ─── ACTIVITIES ─── */}
       {activeType === 'activities' && (
         <>
@@ -280,9 +359,107 @@ function ExploreSection({ destination }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {MOCK_CARS.map(car => (
             <CarCard key={car.id} car={car} destination={destination} currency={currency} />
+=======
+      {/* ── Loading Skeleton ── */}
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white border border-[#E8E0D8] rounded-[12px] overflow-hidden space-y-3 p-4">
+              <div className="w-full h-48 bg-[#F0ECE8] animate-pulse rounded-lg" />
+              <div className="h-4 bg-[#F0ECE8] animate-pulse rounded w-2/3" />
+              <div className="h-3 bg-[#F0ECE8] animate-pulse rounded w-1/3" />
+              <div className="h-10 bg-[#F0ECE8] animate-pulse rounded" />
+            </div>
+>>>>>>> Stashed changes
           ))}
         </div>
       )}
+
+      {/* ── Error state ── */}
+      {!loading && error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm text-left">
+          {error}
+        </div>
+      )}
+
+      {/* ── EMPTY STATE ── */}
+      {!loading && !error && filteredPlaces.length === 0 && (
+        <div className="bg-white border border-[#E8E0D8] rounded-[16px] p-16 flex flex-col items-center gap-4 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] border border-[#FED7AA] flex items-center justify-center">
+            <MapPin size={24} className="text-[#EA580C]" strokeWidth={1.5} />
+          </div>
+          <div>
+            <p className="text-[16px] font-bold text-[#1A1A1A] mb-1.5">No recommendations found</p>
+            <p className="text-[13px] text-[#6B6B6B]">Try switching categories or check back later.</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── PLACES GRID ── */}
+      {!loading && !error && filteredPlaces.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {filteredPlaces.map((place, idx) => {
+            const image = getPlaceImage(place.name, place.category)
+            return (
+              <div
+                key={idx}
+                className="bg-white border border-[#E8E0D8] rounded-[12px] overflow-hidden shadow-sm flex flex-col hover:border-[#EA580C] transition-all duration-200"
+              >
+                {/* Photo Header */}
+                <div className="h-48 w-full relative bg-[#F5F5F4]">
+                  <img
+                    src={image}
+                    alt={place.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {/* Category Badge */}
+                  <div className="absolute top-3 left-3">
+                    <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${getCategoryBadgeStyles(place.category)}`}>
+                      {place.category}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Details Body */}
+                <div className="p-4 flex flex-col flex-1 justify-between text-left space-y-3">
+                  <div className="space-y-1.5">
+                    <h3 className="text-[16px] font-semibold text-[#1A1A1A] leading-snug font-sans">
+                      {place.name}
+                    </h3>
+                    <p className="text-[14px] text-[#6B6B6B] leading-relaxed font-sans">
+                      {place.description}
+                    </p>
+                  </div>
+
+                  <div className="border-t border-[#E8E0D8] pt-3 flex items-center justify-between font-sans">
+                    <div>
+                      <p className="text-[9px] text-[#9CA3AF] uppercase font-bold tracking-wider leading-none">Est. Cost</p>
+                      <p className="text-[14px] font-bold text-[#EA580C] mt-0.5 leading-none">
+                        {place.cost === 0 ? 'Free Entry' : `₹${place.cost.toLocaleString('en-IN')}`}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[9px] text-[#9CA3AF] uppercase font-bold tracking-wider leading-none">Best Visit</p>
+                      <p className="text-[12px] text-[#6B6B6B] mt-0.5 leading-none font-medium">
+                        {place.bestTime}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── AFFILIATE DISCLOSURE ── */}
+      <div className="p-4 bg-[#FFF4EE] border border-[#FED7AA] rounded-xl flex items-start gap-3 text-left">
+        <Info size={16} className="text-[#EA580C] mt-0.5 shrink-0" strokeWidth={1.5} />
+        <p className="text-[12px] text-[#6B6B6B] italic leading-relaxed font-sans">
+          <strong>Affiliate disclosure:</strong> TripSage recommends curated local places and experiences. Booking related activities, transfers, or dining reservations through partner links may earn us a small referral commission at no additional cost to you.
+        </p>
+      </div>
     </div>
   )
 }

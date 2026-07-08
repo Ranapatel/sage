@@ -97,6 +97,7 @@ module.exports = function setupSocket(io) {
         const aiStart = Date.now()
         const itineraryRes = await generateItinerary({ 
           destination, 
+          from,
           days, 
           budget, 
           style, 

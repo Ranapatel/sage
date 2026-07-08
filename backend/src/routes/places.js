@@ -4,19 +4,18 @@ const axios = require('axios')
 
 // ── Built-in city list — ultimate fallback, always works ─────────────────────
 const CITIES = [
+  { name: 'Hyderabad', country: 'India', lat: 17.385, lon: 78.487 },
   { name: 'Mumbai', country: 'India', lat: 19.076, lon: 72.877 },
   { name: 'Delhi', country: 'India', lat: 28.614, lon: 77.209 },
   { name: 'Bengaluru', country: 'India', lat: 12.972, lon: 77.594 },
-  { name: 'Hyderabad', country: 'India', lat: 17.385, lon: 78.487 },
   { name: 'Chennai', country: 'India', lat: 13.083, lon: 80.270 },
   { name: 'Kolkata', country: 'India', lat: 22.573, lon: 88.364 },
-  { name: 'Ahmedabad', country: 'India', lat: 23.033, lon: 72.620 },
   { name: 'Pune', country: 'India', lat: 18.520, lon: 73.856 },
   { name: 'Goa', country: 'India', lat: 15.300, lon: 74.124 },
   { name: 'Jaipur', country: 'India', lat: 26.912, lon: 75.789 },
+  { name: 'Kochi', country: 'India', lat: 9.931, lon: 76.267 },
   { name: 'Agra', country: 'India', lat: 27.176, lon: 78.008 },
   { name: 'Varanasi', country: 'India', lat: 25.316, lon: 82.973 },
-  { name: 'Kochi', country: 'India', lat: 9.931, lon: 76.267 },
   { name: 'Udaipur', country: 'India', lat: 24.585, lon: 73.712 },
   { name: 'Manali', country: 'India', lat: 32.241, lon: 77.186 },
   { name: 'Shimla', country: 'India', lat: 31.105, lon: 77.173 },
@@ -64,17 +63,29 @@ const CITIES = [
   { name: 'Vancouver', country: 'Canada', lat: 49.283, lon: -123.121 },
 ]
 
+const EXCLUDE_KEYWORDS = [
+  'sea', 'ocean', 'lake', 'mountain', 'river', 'gulf', 'bay', 'desert', 'forest', 'park',
+  'islands', 'island', 'region', 'province', 'district', 'county', 'state', 'hills', 'valley',
+  'canal', 'peak', 'canyon', 'peninsula', 'cape', 'reef', 'beach', 'plain', 'plateau', 'volcano'
+]
+
+function isCityOrAirport(name, displayName) {
+  const n = (name || '').toLowerCase()
+  const d = (displayName || '').toLowerCase()
+  return !EXCLUDE_KEYWORDS.some(kw => n.includes(kw) || d.includes(kw))
+}
+
 function cityFallback(query) {
   const q = query.toLowerCase()
   return CITIES
     .filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      c.country.toLowerCase().includes(q)
+      (c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q)) &&
+      isCityOrAirport(c.name, c.country)
     )
     .slice(0, 6)
     .map((c, i) => ({
       id: `builtin_${i}`,
-      name: c.name,
+      name: `${c.name}, ${c.country}`,
       city: c.name,
       country: c.country,
       state: '',
@@ -144,31 +155,30 @@ router.get('/autocomplete', async (req, res) => {
         const imp = r.importance || 0
         // High importance threshold — only major, well-known cities
         if (imp < 0.45) return false
-        // Skip if already in our builtin list (we trust builtin data more)
         const name = (r.name || '').toLowerCase()
         const country = (r.address?.country || '').toLowerCase()
+        const display = (r.display_name || '').toLowerCase()
+        // Skip if already in our builtin list (we trust builtin data more)
         if (builtinCityNames.has(name) || builtinCountries.has(country)) return false
+        // Exclude non-city features
+        if (!isCityOrAirport(r.name || r.display_name.split(',')[0], r.display_name)) return false
         return (
           cls === 'place' ||
           type === 'city' || type === 'town' ||
-          type === 'village' || type === 'municipality' || type === 'state' || type === 'county'
+          type === 'village' || type === 'municipality'
         )
       })
       .sort((a, b) => (b.importance || 0) - (a.importance || 0))
       .map((r, i) => {
         const addr = r.address || {}
         const cityName = r.name || addr.city || addr.town || r.display_name.split(',')[0].trim()
-        const state = addr.state || addr.state_district || ''
         const country = addr.country || ''
-        const parts = [cityName]
-        if (state && state !== cityName && country !== cityName) parts.push(state)
-        if (country) parts.push(country)
-        const displayName = parts.join(', ')
+        const displayName = country ? `${cityName}, ${country}` : cityName
         if (seen.has(displayName.toLowerCase())) return null
         seen.add(displayName.toLowerCase())
         return {
           id: r.place_id?.toString() || `nom_${i}`,
-          name: cityName, city: cityName, country, state,
+          name: displayName, city: cityName, country, state: '',
           displayName, description: displayName,
           latitude: parseFloat(r.lat), longitude: parseFloat(r.lon),
           source: 'nominatim',
@@ -189,30 +199,32 @@ router.get('/autocomplete', async (req, res) => {
   // ── 3. Photon fallback (if both above return nothing) ─────────────────────
   try {
     const pRes = await axios.get('https://photon.komoot.io/api/', {
-      params: { q: query, limit: 7, lang: 'en' },
+      params: { q: query, limit: 12, lang: 'en' },
       timeout: 5000,
       headers: { 'User-Agent': 'TripSage/2.0' },
     })
     const features = pRes.data?.features || []
     const seen = new Set()
     const locations = features
-      .filter(f => ['city', 'town', 'village', 'municipality', 'state', 'county']
-        .includes(f.properties?.type || ''))
+      .filter(f => {
+        const p = f.properties || {}
+        const type = p.type || ''
+        if (!['city', 'town', 'village', 'municipality'].includes(type)) return false
+        const name = p.name || p.city || ''
+        const country = p.country || ''
+        return isCityOrAirport(name, `${name}, ${country}`)
+      })
       .map((f, i) => {
         const p = f.properties || {}
-        const cityName = p.name || p.city || p.state || ''
+        const cityName = p.name || p.city || ''
         const country = p.country || ''
-        const state = p.state || ''
         if (!cityName) return null
-        const parts = [cityName]
-        if (state && state !== cityName) parts.push(state)
-        if (country) parts.push(country)
-        const displayName = parts.join(', ')
+        const displayName = country ? `${cityName}, ${country}` : cityName
         if (seen.has(displayName.toLowerCase())) return null
         seen.add(displayName.toLowerCase())
         return {
           id: `photon_${i}`,
-          name: cityName, city: cityName, country, state,
+          name: displayName, city: cityName, country, state: '',
           displayName, description: displayName,
           latitude: f.geometry?.coordinates?.[1] || 0,
           longitude: f.geometry?.coordinates?.[0] || 0,

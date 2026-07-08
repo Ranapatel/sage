@@ -38,11 +38,11 @@ router.post('/generate', itineraryValidation, async (req, res) => {
     return res.status(400).json({ success: false, error: 'Invalid input', details: errors.array() })
   }
 
-  const { destination, days, budget, style, members = 2, preferences = [], startDate } = req.body
+  const { destination, from, days, budget, currency = 'INR', style, members = 2, preferences = [], startDate } = req.body
   const requestId = uuidv4()
 
   // Check cache first
-  const cacheKey = generateCacheKey('itinerary', { destination, days, budget, style, startDate, members, preferences: preferences.join(',') })
+  const cacheKey = generateCacheKey('itinerary', { destination, from, days, budget, style, startDate, members, preferences: preferences.join(',') })
   const cached = await cacheGet(cacheKey)
   if (cached) {
     return res.json({ ...cached, meta: { ...cached.meta, requestId, cache: true } })
@@ -50,7 +50,7 @@ router.post('/generate', itineraryValidation, async (req, res) => {
 
   try {
     // 1. Generate itinerary via AI
-    const result = await generateItinerary({ destination, days, budget, style, members, preferences, startDate })
+    const result = await generateItinerary({ destination, from, days, budget, currency, style, members, preferences, startDate })
 
     if (!result.success) throw new Error('Itinerary generation failed')
 

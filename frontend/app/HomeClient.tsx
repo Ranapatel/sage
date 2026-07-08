@@ -2,101 +2,240 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import Image from 'next/image'
-import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
-import { useRef } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
-import { tripAPI } from '@/lib/api'
 import { trackEvent } from '@/lib/analytics'
-import LegalModal from '@/components/ui/LegalModal'
-import { SYMBOLS, CURRENCY_NAMES } from '@/lib/currency'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import {
-  MapPin,
-  Calendar,
-  Wallet,
-  Users,
-  Compass,
-  Zap,
-  Sparkles,
-  LogOut,
-  X,
-  Menu,
-  ArrowRight,
-  Search,
-  Brain,
-  Map,
-  Headphones as HeadphonesIcon,
-  PiggyBank,
-  BellRing,
-  Coins,
-  Star
+  MapPin, Calendar, ArrowRight, Plane, Shield, Plus, Minus, Info, ChevronRight, X
 } from 'lucide-react'
 
-const POPULAR_DESTINATIONS = [
-  { name: 'Bali, Indonesia', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80', tag: 'Tropical', link: '/seo/budget-bali-trip' },
-  { name: 'Goa, India', img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400&q=80', tag: 'Beach', link: '/seo/goa-trip-under-10000' },
-  { name: 'Manali, India', img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=400&q=80', tag: 'Mountains', link: '/seo/manali-trip-planner' },
-  { name: 'Hyderabad, India', img: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=400&q=80', tag: 'Cultural', link: '/weekend-trips-from-hyderabad' },
-  { name: 'Santorini, Greece', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80', tag: 'Scenic', link: '/seo/best-beaches-in-india' },
-  { name: 'Maldives', img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=400&q=80', tag: 'Luxury', link: '/seo/best-honeymoon-destinations-india' },
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const BLUEPRINT_DESTINATIONS = [
+  {
+    name: 'Bali, Indonesia',
+    img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80&auto=format&fit=crop',
+    season: 'Apr – Oct',
+    city: 'Bali',
+    country: 'Indonesia',
+    visa: 'Visa on Arrival',
+    visaType: 'warning',
+    budget: '₹45,000',
+    duration: '6 nights',
+    bestFor: 'Couples, Adventure',
+    link: '/seo/budget-bali-trip',
+  },
+  {
+    name: 'Dubai, UAE',
+    img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80&auto=format&fit=crop',
+    season: 'Nov – Mar',
+    city: 'Dubai',
+    country: 'UAE',
+    visa: 'E-Visa Required',
+    visaType: 'warning',
+    budget: '₹70,000',
+    duration: '5 nights',
+    bestFor: 'Luxury, Shopping',
+    link: '',
+  },
+  {
+    name: 'Bangkok, Thailand',
+    img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=600&q=80&auto=format&fit=crop',
+    season: 'Nov – Feb',
+    city: 'Bangkok',
+    country: 'Thailand',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹35,000',
+    duration: '5 nights',
+    bestFor: 'Food, Culture',
+    link: '',
+  },
+  {
+    name: 'Hanoi, Vietnam',
+    img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80&auto=format&fit=crop',
+    season: 'Sep – Nov',
+    city: 'Hanoi',
+    country: 'Vietnam',
+    visa: 'E-Visa Required',
+    visaType: 'warning',
+    budget: '₹30,000',
+    duration: '5 nights',
+    bestFor: 'History, Food',
+    link: '',
+  },
+  {
+    name: 'Maldives',
+    img: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80&auto=format&fit=crop',
+    season: 'Nov – Apr',
+    city: 'Maldives',
+    country: 'Maldives',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹1,20,000',
+    duration: '5 nights',
+    bestFor: 'Honeymoon, Leisure',
+    link: '/seo/best-honeymoon-destinations-india',
+  },
+  {
+    name: 'Singapore',
+    img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=600&q=80&auto=format&fit=crop',
+    season: 'Dec – Jun',
+    city: 'Singapore',
+    country: 'Singapore',
+    visa: 'E-Visa Required',
+    visaType: 'warning',
+    budget: '₹55,000',
+    duration: '4 nights',
+    bestFor: 'Family, Urban',
+    link: '',
+  },
 ]
 
-const FEATURES = [
-  { icon: Brain, title: 'AI Planning', desc: 'AI planner generates personalized itineraries in seconds' },
-  { icon: Zap, title: 'Real-time', desc: 'Live flight prices, hotel availability, and weather updates' },
-  { icon: Map, title: 'Smart Maps', desc: 'Interactive maps with clickable places and route optimization' },
-  { icon: HeadphonesIcon, title: 'Support', desc: 'Our AI and support team are here for you anytime, anywhere' },
-  { icon: PiggyBank, title: 'Budget', desc: 'Score-based ranking: affordability × rating × relevance' },
-  { icon: BellRing, title: 'Notifications', desc: 'Real-time updates, price drop alerts, and travel reminders' },
+const DOMESTIC_DESTINATIONS = [
+  {
+    name: 'Goa',
+    img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80&auto=format&fit=crop',
+    season: 'Nov – Feb',
+    city: 'Goa',
+    country: 'Goa',
+    badge: 'Beach favorite',
+    budget: '₹12,000',
+    duration: '4 nights',
+    bestFor: 'Beaches, Friends',
+    link: '/seo/goa-trip-under-10000',
+  },
+  {
+    name: 'Manali',
+    img: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=600&q=80&auto=format&fit=crop',
+    season: 'Oct – Jun',
+    city: 'Manali',
+    country: 'Himachal Pradesh',
+    badge: 'Hill escape',
+    budget: '₹18,000',
+    duration: '5 nights',
+    bestFor: 'Mountains, Adventure',
+    link: '/seo/manali-trip-planner',
+  },
+  {
+    name: 'Kerala',
+    img: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600&q=80&auto=format&fit=crop',
+    season: 'Sep – Mar',
+    city: 'Kerala',
+    country: 'Kerala',
+    badge: 'Family favorite',
+    budget: '₹22,000',
+    duration: '5 nights',
+    bestFor: 'Family, Nature',
+    link: '/seo/budget-kerala-trip',
+  },
+  {
+    name: 'Rishikesh',
+    img: 'https://images.unsplash.com/photo-1603867106100-0d2039fc8757?w=600&q=80&auto=format&fit=crop',
+    season: 'Sep – Apr',
+    city: 'Rishikesh',
+    country: 'Uttarakhand',
+    badge: 'Weekend friendly',
+    budget: '₹9,000',
+    duration: '3 nights',
+    bestFor: 'Adventure, Spiritual',
+    link: '',
+  },
+  {
+    name: 'Jaipur',
+    img: 'https://images.unsplash.com/photo-1524230507669-5ff97982bb5e?w=600&q=80&auto=format&fit=crop',
+    season: 'Oct – Mar',
+    city: 'Jaipur',
+    country: 'Rajasthan',
+    badge: 'Heritage trip',
+    budget: '₹10,000',
+    duration: '3 nights',
+    bestFor: 'Culture, Heritage',
+    link: '/seo/budget-rajasthan-trip',
+  },
+  {
+    name: 'Kashmir',
+    img: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=600&q=80&auto=format&fit=crop',
+    season: 'Mar – Oct',
+    city: 'Kashmir',
+    country: 'Jammu & Kashmir',
+    badge: 'Honeymoon pick',
+    budget: '₹28,000',
+    duration: '5 nights',
+    bestFor: 'Honeymoon, Nature',
+    link: '/seo/honeymoon-in-kashmir',
+  },
+  {
+    name: 'Andaman',
+    img: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600&q=80&auto=format&fit=crop',
+    season: 'Oct – May',
+    city: 'Andaman',
+    country: 'Andaman Islands',
+    badge: 'Island escape',
+    budget: '₹35,000',
+    duration: '5 nights',
+    bestFor: 'Beaches, Couples',
+    link: '/seo/honeymoon-in-andaman',
+  },
+  {
+    name: 'Varanasi',
+    img: 'https://images.unsplash.com/photo-1561361058-c24cecae35ca?w=600&q=80&auto=format&fit=crop',
+    season: 'Oct – Mar',
+    city: 'Varanasi',
+    country: 'Uttar Pradesh',
+    badge: 'Spiritual trip',
+    budget: '₹8,000',
+    duration: '3 nights',
+    bestFor: 'Spiritual, Culture',
+    link: '',
+  },
 ]
 
-const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=90",
-  "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1920&q=90",
-  "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1920&q=90",
-  "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1920&q=90",
-  "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1920&q=90"
+const FAQS = [
+  {
+    q: 'Is TripSage completely free to use?',
+    a: 'Yes, generating itineraries and using our basic planning tools is completely free. We earn money through affiliate bookings with our flight and hotel partners, meaning you pay the exact same price.',
+  },
+  {
+    q: 'Where does TripSage get flight and hotel rates?',
+    a: 'We query aggregated travel APIs and partner networks to fetch live availability and baseline price estimations.',
+  },
+  {
+    q: 'Can I customize the generated itineraries?',
+    a: 'Absolutely. Every day is modular. You can add, edit, remove activities, swap hotels, or search for different transport connections.',
+  },
+  {
+    q: 'What destinations does TripSage support?',
+    a: 'While we support planning for global routes, our blueprint destinations are highly optimized for direct bookings, itineraries, and visa requirements.',
+  },
+  {
+    q: 'Does TripSage handle flight booking cancellations?',
+    a: 'TripSage is a planning assistant. All flights and stays are booked directly with partners (like Skyscanner, Booking.com, etc.), and cancellations are handled by those platforms.',
+  },
 ]
-
-const STATS = [
-  { label: 'Active Travelers', value: 12400, suffix: '+' },
-  { label: 'Countries Covered', value: 50, suffix: '+' },
-  { label: 'AI Itineraries', value: 85000, suffix: '+' },
-  { label: 'Success Rate', value: 99, suffix: '%' },
-]
-
-function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
-  return <span>{to.toLocaleString()}{suffix}</span>
-}
-
-// Top 12 currencies for the landing page selector
-const POPULAR_CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'JPY', 'AUD', 'CAD', 'SGD', 'THB', 'MYR', 'SAR']
 
 export default function HomeClient() {
   const router = useRouter()
-  const { user, isLoggedIn, logout, updateCurrency } = useAuthStore()
-  const [currentImage, setCurrentImage] = useState(0)
+  const { user, updateCurrency } = useAuthStore()
   const [form, setForm] = useState({
     from: '',
     to: '',
     startDate: '',
     endDate: '',
-    budget: '',
+    budget: '50000',
     travelers: '2',
     style: 'adventure',
-    currency: user?.currency || 'INR',
+
+    currency: (user?.currency || 'INR') as 'INR' | 'USD' | 'EUR' | 'GBP' | 'AED' | 'JPY' | 'AUD' | 'CAD' | 'SGD' | 'THB' | 'MYR' | 'SAR',
   })
   const [loading, setLoading] = useState(false)
-  const [isDesktop, setIsDesktop] = useState(false)
-  const [reviews, setReviews] = useState<any[]>([])
-  const [reviewsLoading, setReviewsLoading] = useState(true)
+  const [activeFaq, setActiveFaq] = useState<number | null>(null)
+  const [showPrefModal, setShowPrefModal] = useState(false)
 
   useEffect(() => {
+<<<<<<< Updated upstream
     let active = true
     const fetchReviews = async () => {
       try {
@@ -120,39 +259,21 @@ export default function HomeClient() {
       Promise.resolve().then(() => {
         setForm(p => ({ ...p, currency: user.currency }))
       })
+=======
+    sessionStorage.removeItem('tripContext')
+    if (user?.currency) {
+      setForm(p => ({ ...p, currency: user.currency as any }))
+>>>>>>> Stashed changes
     }
   }, [user?.currency, form.currency])
 
-  // Handle responsive check
-  useEffect(() => {
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768)
-    checkDesktop()
-    window.addEventListener('resize', checkDesktop)
-    return () => window.removeEventListener('resize', checkDesktop)
-  }, [])
-
-  // Auto-rotate slideshow
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImage(prev => (prev + 1) % HERO_IMAGES.length)
-    }, 6000)
-    return () => clearInterval(timer)
-  }, [])
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.from || !form.to || !form.startDate) return
-    setLoading(true)
-    trackEvent('plan_trip_click', { source: 'hero_form' })
-    // Persist selected currency to auth store so plan page uses it
-    if (form.currency) {
-      updateCurrency(form.currency as any)
-    }
-    // Store in session and navigate
-    sessionStorage.setItem('tripContext', JSON.stringify(form))
-    setTimeout(() => router.push('/plan'), 800)
+    setShowPrefModal(true)
   }
 
+<<<<<<< Updated upstream
   const [initialized, setInitialized] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const isFormInView = useInView(formRef, { amount: 0.1 })
@@ -184,549 +305,580 @@ export default function HomeClient() {
     Promise.resolve().then(() => setInitialized(true))
   }, [])
 
+=======
+>>>>>>> Stashed changes
   return (
-    <div className="min-h-screen bg-grid">
+    <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] font-body selection:bg-orange-500/20 selection:text-[#EA580C] antialiased">
       <Navbar />
 
-      {/* HERO */}
-      <section className="relative min-h-[95vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-hidden bg-white md:bg-[#0F172A]">
-        {/* Background Slideshow */}
-        <div className="absolute inset-0 z-0 hidden md:block">
-          {HERO_IMAGES.map((img, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: currentImage === i ? 1 : 0 }}
-              transition={{ duration: 1.5 }}
-              className="absolute inset-0"
-              style={{ pointerEvents: currentImage === i ? 'auto' : 'none' }}
+      {/* ─── HERO SECTION ─────────────────────────────────────────────────── */}
+      <section className="relative min-h-[50vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-hidden bg-[#FFFBF7]">
+        <div className="relative z-10 text-center max-w-5xl mx-auto w-full py-8 md:py-14">
+          
+          {/* Desktop Headline & Subtitle */}
+          <div className="hidden md:block">
+            <h1
+              className="font-display text-[44px] md:text-[64px] font-bold text-[#1A1A1A] tracking-tight leading-none text-center mb-4"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              <Image 
-                src={getOptimizedImageUrl(img, !isDesktop)} 
-                alt={`Travel Hero ${i + 1}`} 
-                fill 
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover object-center"
-                priority={i === 0}
-                loading={i === 0 ? undefined : 'lazy'}
-                decoding="async"
-                unoptimized
-              />
-              {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-black/45" />
-            </motion.div>
-          ))}
-        </div>
+              Where to next?
+            </h1>
+            <p
+              className="text-[15px] md:text-[18px] text-[#6B6B6B] font-normal leading-relaxed text-center mb-10 max-w-xl mx-auto"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              Tell us where you want to go — we plan everything else.
+            </p>
+          </div>
 
-        <div className="relative z-10 text-center max-w-5xl mx-auto">
-
-          <h1
-            className="section-title text-[clamp(2.5rem,7vw,5rem)] mb-8 font-extrabold tracking-tight text-slate-900 md:text-white leading-[1.1] md:drop-shadow-lg hero-headline-fade"
-          >
-            Your AI-Powered
-            <br />
-            <span className="text-blue-600 md:text-blue-400">Travel Operating</span> <span className="text-orange-600 md:text-orange-400">System</span>
-          </h1>
-
-          <p
-            className="text-slate-600 md:text-slate-100 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium md:drop-shadow-md hero-subtitle-fade"
-          >
-            TripSage orchestrates real-time flights, hotels, activities, and AI itineraries —
-            all personalized to your budget, style, and group.
-          </p>
-
-          {/* SEARCH FORM */}
+          {/* Mobile Search Form (Planner-First: rendered first on mobile) */}
           <form
-            ref={formRef}
             onSubmit={handleSubmit}
-            className="bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-3xl rounded-[40px] px-4 py-8 md:p-12 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.18)] border border-white/60 max-w-5xl mx-auto text-left relative overflow-hidden w-full hero-form-fade"
+            className="flex md:hidden flex-col gap-4 w-full bg-white border border-[#E8E0D8] rounded-[16px] p-4 shadow-sm text-left mb-6"
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">From</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 pointer-events-none transition-transform group-focus-within:scale-110" />
-                  <LocationAutocomplete
-                    className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300"
-                    placeholder="Hyderabad, India"
-                    value={form.from}
-                    onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
-                  />
-                </div>
+            {/* From */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] pl-0.5">From</label>
+              <LocationAutocomplete
+                className="w-full bg-transparent border-b border-[#E8E0D8] outline-none text-sm text-[#1A1A1A] font-semibold py-2"
+                placeholder="Departure city"
+                value={form.from}
+                onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
+              />
+            </div>
+
+            {/* To */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] pl-0.5">To</label>
+              <LocationAutocomplete
+                className="w-full bg-transparent border-b border-[#E8E0D8] outline-none text-sm text-[#1A1A1A] font-semibold py-2"
+                placeholder="Destination"
+                value={form.to}
+                onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
+              />
+            </div>
+
+            {/* When Dates */}
+            <div className="grid grid-cols-2 gap-3 text-left">
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] pl-0.5">Depart</label>
+                <input
+                  type="date"
+                  required
+                  suppressHydrationWarning
+                  value={form.startDate}
+                  onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
+                  className="w-full bg-transparent border-b border-[#E8E0D8] outline-none text-xs text-[#1A1A1A] font-semibold py-2"
+                />
               </div>
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">To</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 pointer-events-none transition-transform group-focus-within:scale-110" />
-                  <LocationAutocomplete
-                    className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300"
-                    placeholder="Bali, Indonesia"
-                    value={form.to}
-                    onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
-                  />
-                </div>
-              </div>
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">Budget</label>
-                <div className="input-field flex items-center gap-2 !p-0 focus-within:!border-blue-400 focus-within:!bg-white focus-within:!ring-4 focus-within:!ring-blue-500/10 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300">
-                  {/* Currency selector inside the box */}
-                  <div className="relative flex items-center pl-4 pr-1">
-                    <Coins className="text-blue-500 w-4 h-4 mr-1.5 pointer-events-none" />
-                    <select
-                      className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 cursor-pointer appearance-none pr-4 focus:ring-0 focus:outline-none"
-                      value={form.currency}
-                      onChange={e => setForm(p => ({ ...p, currency: e.target.value as any }))}
-                      suppressHydrationWarning
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E")`,
-                        backgroundPosition: 'right center',
-                        backgroundSize: '14px',
-                        backgroundRepeat: 'no-repeat',
-                        paddingRight: '16px'
-                      }}
-                    >
-                      {POPULAR_CURRENCIES.map(c => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Vertical divider */}
-                  <div className="w-px h-6 bg-slate-200"></div>
-
-                  {/* Active currency symbol dynamically updated */}
-                  <span className="text-[15px] font-bold text-slate-500 pl-2 select-none">
-                    {SYMBOLS[form.currency]}
-                  </span>
-
-                  {/* Number entering budget input */}
-                  <input
-                    className="flex-1 bg-transparent border-none outline-none py-3 pr-4 text-[15px] font-semibold text-slate-800 placeholder-slate-400 focus:ring-0 focus:outline-none"
-                    placeholder={`e.g. ${form.currency === 'INR' ? '50000' : form.currency === 'USD' ? '2000' : form.currency === 'EUR' ? '1800' : '2000'}`}
-                    type="number"
-                    value={form.budget}
-                    onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
-                    suppressHydrationWarning
-                  />
-                </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] pl-0.5">Return</label>
+                <input
+                  type="date"
+                  suppressHydrationWarning
+                  value={form.endDate}
+                  min={form.startDate || undefined}
+                  onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
+                  className="w-full bg-transparent border-b border-[#E8E0D8] outline-none text-xs text-[#1A1A1A] font-semibold py-2"
+                />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">Depart</label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 pointer-events-none z-10 transition-transform group-focus-within:scale-110" />
-                  <input
-                    className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300 appearance-none"
-                    type="date"
-                    value={form.startDate}
-                    onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
-                    required
-                    suppressHydrationWarning
-                  />
-                </div>
-              </div>
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">Return</label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 pointer-events-none z-10 transition-transform group-focus-within:scale-110" />
-                  <input
-                    className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300 appearance-none"
-                    type="date"
-                    value={form.endDate}
-                    onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
-                    suppressHydrationWarning
-                  />
-                </div>
-              </div>
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">Travelers</label>
-                <div className="relative">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 pointer-events-none transition-transform group-focus-within:scale-110" />
-                  <select
-                    className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300"
-                    value={form.travelers}
-                    onChange={e => setForm(p => ({ ...p, travelers: e.target.value }))}
-                    suppressHydrationWarning
-                  >
-                    {[1, 2, 3, 4, 5, 6].map(n => (
-                      <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'People'}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="relative group">
-                <label className="text-[11px] text-slate-400 uppercase tracking-widest mb-3 block font-bold">Style</label>
-                <div className="relative">
-                  <Compass className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5 pointer-events-none transition-transform group-focus-within:scale-110" />
-                  <select
-                    className="input-field !pl-12 !bg-slate-50/50 !border-slate-200/60 focus:!bg-white focus:!border-blue-400 min-h-[52px] md:min-h-[60px] !rounded-2xl transition-all duration-300"
-                    value={form.style}
-                    onChange={e => setForm(p => ({ ...p, style: e.target.value }))}
-                    suppressHydrationWarning
-                  >
-                    {['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business'].map(s => (
-                      <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" suppressHydrationWarning className="btn-primary w-full py-6 text-xl font-bold flex items-center justify-center gap-4 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-orange-500/30" disabled={loading}>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              suppressHydrationWarning
+              className="w-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[15px] h-[52px] rounded-xl flex items-center justify-center gap-2 transition-colors mt-2"
+            >
               {loading ? (
-                <><span className="inline-block w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></span> Initializing AI Engine...</>
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
-                <><Sparkles className="w-6 h-6" /> Generate AI Trip Plan</>
+                <>
+                  <span>Plan my trip</span>
+                  <ArrowRight size={16} strokeWidth={1.5} />
+                </>
               )}
             </button>
           </form>
 
-
-          {/* Slideshow Indicators - Hidden on mobile */}
-          {isDesktop && (
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 hidden md:flex gap-3 z-20">
-              {HERO_IMAGES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentImage(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${currentImage === i
-                      ? 'bg-blue-500 w-8'
-                      : 'bg-white/40 hover:bg-white/60'
-                    }`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Feature Badges below form */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-12 mt-16 hero-features-fade"
-          >
-            {[
-              { label: 'Real-time Results', icon: Zap },
-              { label: 'AI Personalization', icon: Sparkles },
-              { label: 'Best Prices', icon: PiggyBank },
-              { label: '24/7 Support', icon: HeadphonesIcon },
-            ].map((b, i) => (
-              <div key={i} className="flex items-center gap-4 text-sm font-semibold text-slate-600 group cursor-default">
-                <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm flex-shrink-0">
-                  <b.icon size={32} className="transition-all hover:brightness-125 duration-300" />
-                </div>
-                <div className="text-left">
-                  <div className="text-slate-900 font-bold text-[15px]">{b.label}</div>
-                  <div className="text-[12px] text-slate-400 font-normal">
-                    {i === 0 ? '500+ live sources' : i === 1 ? 'Smart itineraries' : i === 2 ? 'AI-powered deals' : "Global support"}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section id="features" className="py-32 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-20">
-          <h2 className="section-title mb-4 text-slate-900 font-bold">The Complete <span className="text-blue-600">Travel OS</span></h2>
-          <p className="text-slate-500 max-w-2xl mx-auto">Every module engineered for real-time, event-driven travel intelligence</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURES.map((f, i) => (
-            <div
-              key={i}
-              className="bg-white/60 backdrop-blur-md border border-white/50 rounded-[32px] p-8 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all duration-500 group"
+          {/* Mobile Brand / Headline (rendered below search form on mobile) */}
+          <div className="block md:hidden text-center mb-6">
+            <h1
+              className="font-display text-[32px] font-bold text-[#1A1A1A] leading-tight mb-2"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform flex-shrink-0">
-                <f.icon size={24} className="transition-all hover:brightness-125 duration-300" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-xl mb-3">{f.title}</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* LEARN MORE CTA */}
-      <section className="py-10 px-6 max-w-7xl mx-auto text-center border-t border-slate-100">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900 mb-8">Want to see how the magic happens?</h2>
-          <Link
-            href="/learn-more"
-            className="inline-flex items-center justify-center gap-2 px-10 py-4 text-lg font-bold rounded-full transition-all hover:scale-[1.05] active:scale-[0.95] shadow-sm border-2 border-orange-500 text-orange-500 bg-white hover:bg-orange-50 hover:text-orange-600"
-          >
-            Learn More
-          </Link>
-        </div>
-      </section>
-
-      {/* DESTINATIONS */}
-      <section id="destinations" className="pt-12 pb-16 px-6 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="section-title mb-4 text-slate-900 font-bold">Popular <span className="text-orange-500">Destinations</span></h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">AI-ranked by affordability, rating, and traveler preferences</p>
-          </div>
-          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory hide-scrollbar [scrollbar-width:none] -mx-6 pl-4 pr-4 md:px-6">
-            {POPULAR_DESTINATIONS.map((d, i) => (
-              <div
-                key={i}
-                className="relative rounded-[24px] overflow-hidden cursor-pointer group aspect-[3/4] shadow-md hover:shadow-2xl transition-all duration-500 w-[260px] min-w-[260px] md:w-auto md:min-w-0 snap-start"
-                onClick={() => {
-                  if (d.link) {
-                    router.push(d.link)
-                  } else {
-                    setForm(p => ({ ...p, to: d.name }))
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }
-                }}
-              >
-                <Image
-                  src={getOptimizedImageUrl(d.img, !isDesktop)}
-                  alt={d.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  unoptimized
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <span className="bg-orange-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 inline-block uppercase tracking-wider">{d.tag}</span>
-                  <p className="text-white text-sm font-bold leading-tight">{d.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURED GUIDES */}
-      <section className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
-            <div className="max-w-2xl text-left">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Curated <span className="text-blue-600">Travel Intelligence</span></h2>
-              <p className="text-slate-500">Expert guides and AI-powered insights for the modern explorer.</p>
-            </div>
-            <Link href="/blog" className="text-blue-600 font-bold flex items-center gap-2 group whitespace-nowrap">
-              View All Guides <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { title: 'AI Trip Planner India', desc: 'The definitive guide to planning your Indian holiday with AI.', link: '/seo/ai-trip-planner-india', img: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=400&q=80' },
-              { title: 'Budget Bali Trip', desc: 'How to plan a budget-friendly trip to Bali from India.', link: '/seo/budget-bali-trip', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
-              { title: 'Solo Travel Guide', desc: 'Expert tips for exploring India safely and confidently.', link: '/seo/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80' }
-            ].map((g, i) => (
-              <Link key={i} href={g.link} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 flex flex-col">
-                <div className="relative h-48">
-                  <Image src={g.img} alt={g.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{g.title}</h3>
-                  <p className="text-slate-500 text-sm mb-4">{g.desc}</p>
-                  <span className="text-blue-600 text-sm font-bold flex items-center gap-2">Explore Guide <ArrowRight size={14} /></span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-            {STATS.map((s, i) => (
-              <div
-                key={i}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-2">
-                  <CountUp to={s.value} suffix={s.suffix} />
-                </div>
-                <div className="text-sm font-semibold text-slate-500 uppercase tracking-widest">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS SECTION */}
-      <section className="py-24 bg-slate-50 border-t border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              What Travelers <span className="text-orange-500">Say</span>
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Real feedback from explorers planning their journeys with TripSage
+              Where to next?
+            </h1>
+            <p
+              className="text-[14px] text-[#6B6B6B] max-w-xs mx-auto"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              Tell us where you want to go — we plan everything else.
             </p>
           </div>
 
-          {reviewsLoading ? (
-            /* Skeleton Loading (3 Cards) */
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[1, 2, 3].map((n) => (
-                <div 
-                  key={n} 
-                  className="bg-white rounded-3xl p-8 border border-slate-100/80 shadow-sm animate-pulse flex flex-col gap-6"
+          {/* Search Form (Desktop Horizontal) */}
+          <form
+            onSubmit={handleSubmit}
+            className="hidden md:flex items-center w-full max-w-4xl bg-white border-[1.5px] border-[#E8E0D8] rounded-[16px] p-2.5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] mx-auto text-left"
+          >
+            {/* From */}
+            <div className="flex-[1.2] px-4 border-r border-[#E8E0D8]">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">From</label>
+              <LocationAutocomplete
+                className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-sm placeholder:text-[#A1A1AA]/60 p-0 focus:ring-0"
+                placeholder="Departure city"
+                value={form.from}
+                onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
+              />
+            </div>
+
+            {/* To */}
+            <div className="flex-[1.2] px-4 border-r border-[#E8E0D8]">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">To</label>
+              <LocationAutocomplete
+                className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-sm placeholder:text-[#A1A1AA]/60 p-0 focus:ring-0"
+                placeholder="Destination"
+                value={form.to}
+                onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
+              />
+            </div>
+
+            {/* When (Depart & Return) */}
+            <div className="flex-[1.6] px-4 flex items-center gap-2">
+              <div className="flex-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Depart</label>
+                <input
+                  type="date"
+                  required
+                  suppressHydrationWarning
+                  value={form.startDate}
+                  onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
+                  className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-xs p-0 focus:ring-0 cursor-pointer"
+                />
+              </div>
+              <div className="w-px bg-[#E8E0D8] h-8 self-center"></div>
+              <div className="flex-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Return</label>
+                <input
+                  type="date"
+                  suppressHydrationWarning
+                  value={form.endDate}
+                  min={form.startDate || undefined}
+                  onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
+                  className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-xs p-0 focus:ring-0 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              suppressHydrationWarning
+              className="bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold px-8 h-[48px] rounded-xl text-sm flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ml-2 shrink-0"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <>
+                  <span>Plan my trip</span>
+                  <ArrowRight size={15} strokeWidth={1.5} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Micro-copy below search */}
+          <p className="text-[13px] text-[#6B6B6B] italic font-normal text-center mt-6">
+            ₹ Budget and travelers — just one more step
+          </p>
+        </div>
+      </section>
+
+      {/* ─── HOW SIMPLE SECTION ────────────────────────────────────────────── */}
+      <section className="py-10 bg-white border-t border-b border-[#E8E0D8]">
+        <div className="max-w-5xl mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            {/* Step 1 */}
+            <div className="text-left space-y-1">
+              <span className="text-sm font-bold text-[#EA580C] block mb-1">01</span>
+              <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 1 — Tell us where</h4>
+              <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
+                Input departure, destination, and dates in seconds.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-left space-y-1">
+              <span className="text-sm font-bold text-[#EA580C] block mb-1">02</span>
+              <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 2 — We build the plan</h4>
+              <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
+                Our system fetches live connection options and hotels.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-left space-y-1">
+              <span className="text-sm font-bold text-[#EA580C] block mb-1">03</span>
+              <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 3 — Pick and book</h4>
+              <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
+                Refine details and book directly with travel providers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── DESTINATIONS SECTION ─────────────────────────────────────────── */}
+      <section id="destinations" className="py-12 md:py-16 bg-[#FFFBF7]">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-12">
+          
+          {/* Row 1: Popular international trips */}
+          <div className="space-y-6">
+            <div className="text-left">
+              <h2 className="font-display text-2xl font-bold text-[#1A1A1A] tracking-tight">
+                Popular international trips
+              </h2>
+            </div>
+            
+            {/* Horizontal Scroll row with snap alignment */}
+            <div className="flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory hide-scrollbar">
+              {BLUEPRINT_DESTINATIONS.map((d, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-[220px] h-[300px] snap-center bg-white border border-[#E8E0D8] rounded-[16px] overflow-hidden shadow-sm flex flex-col group cursor-pointer hover:border-[#EA580C] transition-all duration-200"
+                  onClick={() => {
+                    if (d.link) {
+                      router.push(d.link)
+                    } else {
+                      setForm(p => ({ ...p, to: d.name }))
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }
+                  }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-slate-200" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-slate-200 rounded w-2/3" />
-                      <div className="h-3 bg-slate-200 rounded w-1/2" />
+                  {/* Photo Top 55% */}
+                  <div className="h-[55%] w-full relative overflow-hidden">
+                    <img
+                      src={d.img}
+                      alt={d.name}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300 rounded-t-[16px]"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        d.visaType === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-orange-50 text-orange-700 border border-orange-100'
+                      }`}>
+                        {d.visa}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <div key={s} className="w-4 h-4 bg-slate-200 rounded-full" />
-                    ))}
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <div className="h-3 bg-slate-200 rounded w-full" />
-                    <div className="h-3 bg-slate-200 rounded w-5/6" />
-                    <div className="h-3 bg-slate-200 rounded w-4/5" />
+
+                  {/* Details Bottom 45% */}
+                  <div className="h-[45%] p-3.5 bg-white flex flex-col justify-between text-left">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-display font-semibold text-[#1A1A1A] text-sm leading-tight truncate mr-2">{d.city}</h4>
+                        <span className="text-[10px] text-[#EA580C] font-semibold whitespace-nowrap">Best: {d.season}</span>
+                      </div>
+                      <p className="text-[11px] text-[#6B6B6B]">{d.country} · {d.duration}</p>
+                      <p className="text-[10px] text-[#9CA3AF] truncate">Best for: {d.bestFor}</p>
+                    </div>
+                    <div className="border-t border-[#E8E0D8] pt-2 flex items-center justify-between">
+                      <div>
+                        <p className="text-[9px] text-[#9CA3AF] uppercase font-bold tracking-wider leading-none">From</p>
+                        <p className="text-[14px] font-bold text-[#1A1A1A] mt-0.5 leading-none">{d.budget}</p>
+                      </div>
+                      <span className="text-[#EA580C] text-[12px] font-bold flex items-center gap-0.5 hover:underline">
+                        Plan <ChevronRight size={11} />
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          ) : reviews.length === 0 ? (
-            /* Empty State */
-            <div className="max-w-md mx-auto text-center bg-white rounded-[32px] p-10 shadow-sm border border-slate-100/80 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
-                <Star size={32} className="fill-orange-500 text-orange-500" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-xl">Be the first to share your TripSage experience!</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Your journey insights can help fellow explorers plan smarter, more beautiful adventures.
-              </p>
-              <Link
-                href="/support"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-bold rounded-xl transition-all hover:scale-[1.03] active:scale-[0.97] shadow-sm bg-orange-500 text-white hover:bg-orange-600 w-full"
-              >
-                Write a Review
-              </Link>
+          </div>
+
+          {/* Row 2: Popular domestic getaways */}
+          <div className="space-y-6">
+            <div className="text-left">
+              <h2 className="font-display text-2xl font-bold text-[#1A1A1A] tracking-tight">
+                Popular domestic getaways
+              </h2>
             </div>
-          ) : (
-            /* Review Cards Grid */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {reviews.map((r, i) => {
-                const initials = r.name
-                  ? r.name
-                      .split(' ')
-                      .map((n: string) => n[0])
-                      .join('')
-                      .toUpperCase()
-                      .slice(0, 2)
-                  : 'TS';
-                return (
-                  <div
-                    key={r._id || i}
-                    className="bg-white rounded-3xl p-8 border border-slate-100/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col gap-5"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-base flex-shrink-0">
-                        {initials}
+            
+            {/* Horizontal Scroll row with snap alignment */}
+            <div className="flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory hide-scrollbar">
+              {DOMESTIC_DESTINATIONS.map((d, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-[220px] h-[300px] snap-center bg-white border border-[#E8E0D8] rounded-[16px] overflow-hidden shadow-sm flex flex-col group cursor-pointer hover:border-[#EA580C] transition-all duration-200"
+                  onClick={() => {
+                    if (d.link) {
+                      router.push(d.link)
+                    } else {
+                      setForm(p => ({ ...p, to: d.name }))
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }
+                  }}
+                >
+                  {/* Photo Top 55% */}
+                  <div className="h-[55%] w-full relative overflow-hidden">
+                    <img
+                      src={d.img}
+                      alt={d.name}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300 rounded-t-[16px]"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-100">
+                        {d.badge}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Details Bottom 45% */}
+                  <div className="h-[45%] p-3.5 bg-white flex flex-col justify-between text-left">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-display font-semibold text-[#1A1A1A] text-sm leading-tight truncate mr-2">{d.city}</h4>
+                        <span className="text-[10px] text-[#EA580C] font-semibold whitespace-nowrap">Best: {d.season}</span>
                       </div>
+                      <p className="text-[11px] text-[#6B6B6B]">{d.country} · {d.duration}</p>
+                      <p className="text-[10px] text-[#9CA3AF] truncate">Best for: {d.bestFor}</p>
+                    </div>
+                    <div className="border-t border-[#E8E0D8] pt-2 flex items-center justify-between">
                       <div>
-                        <h4 className="font-bold text-slate-900 text-base">{r.name}</h4>
-                        <p className="text-slate-400 text-xs">{r.location}</p>
+                        <p className="text-[9px] text-[#9CA3AF] uppercase font-bold tracking-wider leading-none">From</p>
+                        <p className="text-[14px] font-bold text-[#1A1A1A] mt-0.5 leading-none">{d.budget}</p>
                       </div>
+                      <span className="text-[#EA580C] text-[12px] font-bold flex items-center gap-0.5 hover:underline">
+                        Plan <ChevronRight size={11} />
+                      </span>
                     </div>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={16}
-                          className={`${
-                            star <= r.rating
-                              ? 'text-orange-500 fill-orange-500'
-                              : 'text-slate-200'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-slate-600 text-sm leading-relaxed italic flex-1">
-                      "{r.reviewText}"
-                    </p>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="pt-16 pb-12 px-6 bg-dots">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="section-title mb-4 text-slate-900 font-bold">How <span className="text-blue-600">TripSage</span> Works</h2>
-            <p className="text-slate-500">From concept to reality in four simple steps</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-            {[
-              { step: '01', icon: Users, title: 'Profile', desc: 'Set your budget, style & group' },
-              { step: '02', icon: Sparkles, title: 'AI Plans', desc: 'AI planner generates itinerary' },
-              { step: '03', icon: Zap, title: 'Book', desc: 'Real-time flight & hotel options' },
-              { step: '04', icon: Compass, title: 'Explore', desc: 'Live navigation & notifications' },
-            ].map((s, i) => (
-              <div
-                key={i}
-                className="bg-white/60 backdrop-blur-md border border-white/50 p-8 rounded-[32px] text-center relative shadow-sm hover:shadow-xl hover:bg-white/80 transition-all duration-500"
-              >
-                <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-6">
-                  <s.icon className="w-8 h-8" />
                 </div>
-                <div className="font-bold text-xs text-blue-600 uppercase tracking-widest mb-3">{s.step}</div>
-                <h3 className="font-bold text-slate-900 text-lg mb-3">{s.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
-                {i < 3 && (
-                  <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 z-10 text-gray-200">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                  </div>
-                )}
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ─── FEATURES SECTION ────────────────────────────────────────────── */}
+      <section className="py-12 md:py-16 bg-[#FFF4EE]">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 text-left">
+          <h2 className="font-display text-3xl font-bold text-[#1A1A1A] tracking-tight mb-10">
+            Everything handled for you
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+            {/* Flights and hotels */}
+            <div className="flex flex-col gap-4">
+              <div className="p-3 bg-white text-[#EA580C] rounded-xl w-fit shadow-sm border border-[#E8E0D8]">
+                <Plane size={20} strokeWidth={1.5} />
               </div>
-            ))}
+              <div className="space-y-1.5">
+                <h4 className="font-display font-semibold text-lg text-[#1A1A1A]">Flights and hotels</h4>
+                <p className="text-sm text-[#6B6B6B] leading-relaxed">
+                  Compare best-value flight connections and top rated hotel recommendations matching your profile.
+                </p>
+              </div>
+            </div>
+
+
+
+            {/* Visa guidance */}
+            <div className="flex flex-col gap-4">
+              <div className="p-3 bg-white text-[#EA580C] rounded-xl w-fit shadow-sm border border-[#E8E0D8]">
+                <Shield size={20} strokeWidth={1.5} />
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="font-display font-semibold text-lg text-[#1A1A1A]">Visa guidance</h4>
+                <p className="text-sm text-[#6B6B6B] leading-relaxed">
+                  Automatic visa requirements check and step-by-step guidance for Indian passport holders.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="pt-10 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center bg-blue-600 rounded-[40px] p-16 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-          <h2 className="section-title mb-6 text-white font-bold text-4xl">Ready to Travel <span className="text-orange-300">Smarter?</span></h2>
-          <p className="text-blue-100 mb-10 text-lg opacity-90">Join thousands using TripSage for AI-powered travel planning</p>
-          <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'cta_section' })} className="btn-primary text-base py-4 px-10 inline-block">
-            Start Planning Free →
-          </Link>
+      {/* ─── TRUST SECTION ───────────────────────────────────────────────── */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-3xl mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:divide-x md:divide-[#E8E0D8] text-center">
+            {/* Stat 1 */}
+            <div className="space-y-1">
+              <h3 className="font-display text-[48px] md:text-[56px] font-bold text-[#EA580C] leading-none">6</h3>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">
+                International Destinations
+              </p>
+            </div>
+
+            {/* Stat 2 */}
+            <div className="space-y-1 md:pl-6">
+              <h3 className="font-display text-[48px] md:text-[56px] font-bold text-[#EA580C] leading-none">5m</h3>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">
+                AI Plans in Under 5 Minutes
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <Footer />
+      {/* ─── FAQ SECTION ─────────────────────────────────────────────────── */}
+      <section className="py-12 md:py-16 bg-[#FFFBF7] border-t border-[#E8E0D8]">
+        <div className="max-w-3xl mx-auto px-4 md:px-6">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl font-bold text-[#1A1A1A] tracking-tight">
+              Frequently Asked Questions
+            </h2>
+          </div>
 
-      {/* Sticky Mobile Search Button */}
-      <AnimatePresence>
-        {showStickySearch && (
-          <motion.button
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-            className="fixed bottom-8 left-8 right-8 h-[52px] bg-orange-600 text-white font-bold rounded-2xl shadow-[0_20px_50px_rgba(234,88,12,0.3)] flex items-center justify-center gap-2 z-[9999] md:hidden border border-orange-400/20 active:scale-95 transition-transform"
-          >
-            <Search size={20} />
-            Search Trips
-          </motion.button>
-        )}
-      </AnimatePresence>
+          <div className="space-y-4">
+            {FAQS.map((faq, idx) => {
+              const isOpen = activeFaq === idx
+              return (
+                <div
+                  key={idx}
+                  className="bg-white border border-[#E8E0D8] rounded-[16px] overflow-hidden"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveFaq(isOpen ? null : idx)}
+                    suppressHydrationWarning
+                    className="w-full flex items-center justify-between p-5 text-left font-bold text-sm text-[#1A1A1A] focus:outline-none"
+                  >
+                    <span>{faq.q}</span>
+                    {isOpen ? (
+                      <Minus size={16} className="text-[#EA580C]" strokeWidth={1.5} />
+                    ) : (
+                      <Plus size={16} className="text-[#6B6B6B]" strokeWidth={1.5} />
+                    )}
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-5 text-xs md:text-sm text-[#6B6B6B] leading-relaxed border-t border-[#E8E0D8]/45 pt-4">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Affiliate Disclosure Card */}
+          <div className="mt-8 p-4 bg-[#FFF4EE] border border-[#FED7AA] rounded-xl flex items-start gap-3 text-left">
+            <Info size={16} className="text-[#EA580C] mt-0.5 shrink-0" strokeWidth={1.5} />
+            <p className="text-[12px] text-[#6B6B6B] italic leading-relaxed">
+              <strong>Affiliate disclosure:</strong> TripSage recommends travel plans and booking options. If you choose to book through our partner links (such as flights, hotels, or cabs), we earn a small referral commission at no additional cost to you.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PREFERENCES MODAL ───────────────────────────────────────────── */}
+      {showPrefModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#1A1A1A]/35 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border border-[#E8E0D8] rounded-[24px] p-6 md:p-8 max-w-md w-full shadow-[0_4px_32px_rgba(0,0,0,0.12)] text-left relative space-y-6 animate-scale-up">
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setShowPrefModal(false)}
+              className="absolute top-4 right-4 text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+            >
+              <X size={20} strokeWidth={1.5} />
+            </button>
+
+            <div>
+              <h3 className="font-display font-bold text-[20px] text-[#1A1A1A] leading-tight mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                One more step
+              </h3>
+              <p className="text-[13px] text-[#6B6B6B] leading-relaxed">
+                Customise travelers and budget to optimize your AI itinerary.
+              </p>
+            </div>
+
+            {/* Travelers counter */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Travelers</label>
+              <div className="flex items-center gap-4 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-2 w-fit">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const val = Math.max(1, parseInt(form.travelers) - 1)
+                    setForm(p => ({ ...p, travelers: String(val) }))
+                  }}
+                  className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-[#1A1A1A] hover:shadow-sm border border-transparent hover:border-[#E8E0D8] transition-all"
+                >
+                  <Minus size={15} strokeWidth={2} />
+                </button>
+                <span className="font-semibold text-[#1A1A1A] text-sm w-8 text-center">{form.travelers}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const val = Math.min(10, parseInt(form.travelers) + 1)
+                    setForm(p => ({ ...p, travelers: String(val) }))
+                  }}
+                  className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-[#1A1A1A] hover:shadow-sm border border-transparent hover:border-[#E8E0D8] transition-all"
+                >
+                  <Plus size={15} strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+
+            {/* Budget Input */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Total Trip Budget</label>
+              <div className="relative flex items-center">
+                <span className="absolute left-4 text-sm font-semibold text-[#6B6B6B]">
+                  {form.currency === 'INR' ? '₹' : form.currency}
+                </span>
+                <input
+                  type="number"
+                  value={form.budget}
+                  onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl pl-8 pr-4 py-3 outline-none text-[#1A1A1A] font-semibold text-sm focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
+                  placeholder="Enter total budget"
+                />
+              </div>
+            </div>
+
+
+
+            {/* Submit Button */}
+            <button
+              type="button"
+              disabled={loading}
+              onClick={async () => {
+                setLoading(true)
+                trackEvent('plan_trip_click', { source: 'preference_modal' })
+                if (form.currency) {
+                  updateCurrency(form.currency as any)
+                }
+                sessionStorage.setItem('tripContext', JSON.stringify(form))
+                setTimeout(() => {
+                  setShowPrefModal(false)
+                  router.push('/plan')
+                }, 800)
+              }}
+              className="w-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[15px] h-[52px] rounded-xl flex items-center justify-center gap-2 transition-colors"
+            >
+              {loading ? (
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <>
+                  <span>Generate My Itinerary</span>
+                  <ArrowRight size={16} strokeWidth={1.5} />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <Footer />
     </div>
   )
 }

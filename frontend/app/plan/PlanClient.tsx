@@ -15,10 +15,18 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
+<<<<<<< Updated upstream
   Plane, Bus, Train, Car, MapPin, TrendingUp, RefreshCw, 
   Compass, Map, ClipboardList, Search, Plus, 
   Check, LogOut, Menu, X, Bell, History,
   LayoutDashboard, Building2, Settings, User
+=======
+  Plane, MapPin, TrendingUp, RefreshCw, 
+  ClipboardList, Search, Plus, 
+  Check, LogOut, Menu, X, Bell,
+  LayoutDashboard, Building2, Settings, User,
+  CalendarDays, Users, Wallet, Share2, BookmarkPlus, Bus, Car, Compass, Map, Navigation
+>>>>>>> Stashed changes
 } from 'lucide-react'
 import UserMenu from '@/components/layout/UserMenu'
 
@@ -31,13 +39,15 @@ const NotificationsPanel = lazy(() => import('@/components/notifications/Notific
 const ExploreSection = lazy(() => import('@/components/explore/ExploreSection'))
 const MapView = lazy(() => import('@/components/map/MapView'))
 const BookingStatus = lazy(() => import('@/components/booking/BookingStatus'))
-const ReturnBookingTab = lazy(() => import('@/components/booking/ReturnBookingTab'))
 const FeedbackModal = lazy(() => import('@/components/feedback/FeedbackModal'))
-const TripHistoryTab = lazy(() => import('@/components/history/TripHistoryTab'))
 const TripActions = lazy(() => import('@/components/actions/TripActions'))
 const LocationAutocomplete = lazy(() => import('@/components/ui/LocationAutocomplete'))
+<<<<<<< Updated upstream
 const BudgetOptimizerTab = lazy(() => import('@/components/optimizer/BudgetOptimizerTab'))
 const BusesPanel = lazy(() => import('@/components/transport/BusesPanel'))
+=======
+const BusesTab = lazy(() => import('@/components/transport/BusesTab'))
+>>>>>>> Stashed changes
 const CarsTab = lazy(() => import('@/components/transport/CarsTab'))
 const TrainsPanel = lazy(() => import('@/components/transport/TrainsPanel'))
 const CurrencySelector = lazy(() => import('@/components/ui/CurrencySelector'))
@@ -48,11 +58,12 @@ const HotelsTab = lazy(() => import('@/components/plan/HotelsTab'))
 // Helper for loading state
 const TabLoader = () => (
   <div className="flex flex-col items-center justify-center py-20 space-y-4">
-    <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
-    <p className="text-[var(--text-muted)] animate-pulse">Loading module...</p>
+    <div className="w-8 h-8 border-[3px] border-[#EA580C] border-t-transparent rounded-full animate-spin"></div>
+    <p className="text-[#9CA3AF] text-sm">Loading...</p>
   </div>
 )
 
+<<<<<<< Updated upstream
 // IMPORTANT: Every tab in TABS must have a matching render block
 // in the content area. Adding a tab without the content block
 // causes a blank screen. Bus tab was missing from TABS config.
@@ -71,6 +82,22 @@ const TABS = [
   { id: 'map', label: 'Map', icon: Map },
   { id: 'bookings', label: 'Bookings', icon: ClipboardList },
   { id: 'history', label: 'History', icon: History },
+=======
+// ── The 6 primary tabs shown in the nav bar ─────────────────────────────────
+// Travel   → maps to internal id 'transport' (flights, buses, cabs)
+// Stay     → maps to 'hotels'
+// Plan     → maps to 'itinerary'
+// Budget   → maps to 'optimizer'
+// Bookings → maps to 'bookings'
+const TABS = [
+  { id: 'overview',  label: 'Overview',  icon: LayoutDashboard },
+  { id: 'transport', label: 'Travel',    icon: Plane },
+  { id: 'hotels',   label: 'Stay',      icon: Building2 },
+  { id: 'itinerary',label: 'Plan',      icon: MapPin },
+  { id: 'explore',   label: 'Explore',   icon: Compass },
+  { id: 'map',       label: 'Route',     icon: Navigation },
+  { id: 'bookings', label: 'Bookings',  icon: ClipboardList },
+>>>>>>> Stashed changes
 ]
 
 const isInternationalTrip = (from: string, to: string) => {
@@ -110,7 +137,7 @@ export default function PlanClient() {
     tripStatus, feedbackStatus, tripHistory,
     setTrip, setProfile, setTransport, setHotels, setBuses, setBusSearchUrl, setCars, setTrains, setTrainSearchUrl, setTrainStationInfo, setItinerary,
     setWeather, setLoading, setError, addNotification,
-    completeTrip, startNewTrip, reset
+    completeTrip, startNewTrip, reset, addTripToHistory
   } = useTripStore()
   const { user, isLoggedIn, logout, updateCurrency } = useAuthStore()
 
@@ -119,6 +146,7 @@ export default function PlanClient() {
   const [initialized, setInitialized] = useState(false)
   const [aiThinking, setAiThinking] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [showEditTrip, setShowEditTrip] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchForm, setSearchForm] = useState({
     from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure', currency: 'INR',
@@ -143,6 +171,11 @@ export default function PlanClient() {
       setTabCache(prev => ({ ...prev, [activeTab]: true }))
     })
   }, [activeTab])
+
+  // Merge flights, buses, and cars for TransportTab
+  const mergedTransport = useMemo(() => {
+    return [...transport, ...buses, ...cars]
+  }, [transport, buses, cars])
 
   // ── RESULT CACHE: keyed by search params so same query never re-fetches ──
   const resultCacheRef = useRef<Record<string, {
@@ -232,12 +265,47 @@ export default function PlanClient() {
             travelStyle: ctx.style || 'adventure',
           })
         })
+<<<<<<< Updated upstream
+=======
+        setTrip({
+          startLocation: ctx.from || '',
+          destination: ctx.to || '',
+          startDate: ctx.startDate || '',
+          endDate: ctx.endDate || '',
+        })
+        setProfile({
+          budget: parseInt(ctx.budget) || 2000,
+          members: parseInt(ctx.travelers) || 2,
+          travelStyle: ctx.style || 'adventure',
+          preferences: [],
+        })
+        // Load values into form but do NOT auto-search. Let the user click search manually.
+        // This prevents the app from automatically searching old trips like Hyderabad on every refresh.
+>>>>>>> Stashed changes
       } catch (e) {}
+    } else {
+      // ── FRESH NAVIGATION (no prior session) ──
+      // e.g. user clicked "Create my trip" from the homepage navbar.
+      // Clear any stale persisted trip data (flights, hotels, itinerary) so the plan
+      // page starts completely blank instead of showing the last trip's results.
+      startNewTrip()
+      setSearchForm({
+        from: '', to: '', startDate: '', endDate: '',
+        budget: '2000', travelers: '2', style: 'adventure',
+        currency: user?.currency ?? 'INR',
+      })
+      resultCacheRef.current = {}
+      setTabCache({ overview: true })
     }
+<<<<<<< Updated upstream
     Promise.resolve().then(() => {
       setInitialized(true)
     })
   }, [setTrip, setProfile])
+=======
+    setInitialized(true)
+  }, [setTrip, setProfile]) // eslint-disable-line react-hooks/exhaustive-deps
+>>>>>>> Stashed changes
 
   const runSearch = async (params?: any) => {
     const p = params || {
@@ -247,6 +315,7 @@ export default function PlanClient() {
       budget: parseInt(searchForm.budget) || 2000,
       travelers: parseInt(searchForm.travelers) || 2,
       style: searchForm.style || 'adventure',
+<<<<<<< Updated upstream
 =======
       budget: parseInt(searchForm.budget),
       travelers: parseInt(searchForm.travelers),
@@ -255,6 +324,9 @@ export default function PlanClient() {
       adults: parseInt(searchForm.adults || '2'),
       children: parseInt(searchForm.children || '0'),
 >>>>>>> staging
+=======
+      preferences: userProfile?.preferences || [],
+>>>>>>> Stashed changes
     }
     
     // Ensure numeric fields are valid and do not pass NaN or invalid values to the backend
@@ -404,8 +476,9 @@ export default function PlanClient() {
               destination: p.to,
               days: daysCount,
               budget: budgetInINR,
+              currency: currency,
               style: p.style,
-              preferences: [],
+              preferences: p.preferences || [],
               members: p.travelers,
               startDate: p.startDate
             }, { signal })
@@ -485,6 +558,62 @@ export default function PlanClient() {
     }
   }
 
+  const handleRegenerate = useCallback(async () => {
+    const toastId = toast.loading("Regenerating itinerary...")
+    try {
+      const currentParams = {
+        from: searchForm.from,
+        to: searchForm.to,
+        startDate: searchForm.startDate,
+        endDate: searchForm.endDate,
+        budget: parseInt(searchForm.budget) || 2000,
+        travelers: parseInt(searchForm.travelers) || 2,
+        style: searchForm.style || 'adventure',
+        preferences: userProfile?.preferences || [],
+      }
+      const key = getCacheKey(currentParams)
+      // Clear cache key first to force a fresh Miss/API call
+      delete resultCacheRef.current[key]
+
+      await runSearch(currentParams)
+      toast.success("Itinerary regenerated successfully!", { id: toastId })
+    } catch (err: any) {
+      toast.error(err.message || "Failed to regenerate", { id: toastId })
+    }
+  }, [searchForm, userProfile, getCacheKey, runSearch])
+
+  const handleShareTrip = useCallback(() => {
+    const url = typeof window !== 'undefined' ? window.location.href : 'TripSage Plan'
+    navigator.clipboard.writeText(url)
+      .then(() => toast.success("Share link copied to clipboard!"))
+      .catch(() => toast.error("Could not copy link."))
+  }, [])
+
+  const handleSaveTrip = useCallback(() => {
+    if (!tripContext.destination) {
+      toast.error("No active trip to save.")
+      return
+    }
+    
+    // Construct trip history record to append
+    const record: TripRecord = {
+      tripId: Date.now().toString(),
+      destination: tripContext.destination,
+      startLocation: tripContext.startLocation,
+      dates: { start: tripContext.startDate, end: tripContext.endDate },
+      bookings: {},
+      itinerary: itinerary as any,
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+      budget: userProfile.budget,
+      style: userProfile.travelStyle,
+      members: userProfile.members
+    }
+    
+    addTripToHistory(record)
+    toast.success("Trip plan saved to your profile history!")
+  }, [tripContext, userProfile, itinerary, addTripToHistory])
+
   // Listen to real-time socket data as supplementary updates
   // (price drops, weather alerts — search results come from REST now)
   useEffect(() => {
@@ -492,6 +621,34 @@ export default function PlanClient() {
       Promise.resolve().then(() => setAiThinking(false))
     }
   }, [loading, aiThinking])
+
+  // ── Budget-aware derived values ──
+  // Compute how much has been spent so far based on selections
+  const tripDays = useMemo(() => {
+    if (tripContext.startDate && tripContext.endDate) {
+      return Math.max(1, getDaysBetween(tripContext.startDate, tripContext.endDate))
+    }
+    return itinerary.length || 3
+  }, [tripContext.startDate, tripContext.endDate, itinerary.length])
+
+  const tripNights = Math.max(1, tripDays - 1)
+
+  // Flight cost in user display currency (already stored in user currency in the card)
+  const flightCostSpent = useMemo(() => {
+    const selected = bookingStatus.selectedFlight
+    if (!selected) return 0
+    return (selected.price || 0) * (userProfile.members || 1)
+  }, [bookingStatus.selectedFlight, userProfile.members])
+
+  // Hotel cost in user display currency
+  const hotelCostSpent = useMemo(() => {
+    const selected = bookingStatus.selectedHotel
+    if (!selected) return 0
+    return (selected.price || 0) * tripNights
+  }, [bookingStatus.selectedHotel, tripNights])
+
+  // Total budget in display currency
+  const totalBudget = userProfile.budget || 0
 
   const handleNewTripClick = useCallback(() => {
     // 1. Clear searchForm state to empty placeholders in React state
@@ -531,55 +688,38 @@ export default function PlanClient() {
 
   const unreadCount = notifications.filter(n => !n.read).length
 
+  // ── Derived trip metadata for header display ─────────────────────────────
+  // Must stay ABOVE any early return to satisfy React's rules of hooks.
+  const tripDaysDisplay = useMemo(() => {
+    if (tripContext.startDate && tripContext.endDate) {
+      return Math.max(1, getDaysBetween(tripContext.startDate, tripContext.endDate))
+    }
+    return null
+  }, [tripContext.startDate, tripContext.endDate])
+
+  const sym = SYMBOLS[currency] ?? currency
+  const budgetDisplay = userProfile?.budget
+    ? `${sym}${Math.round(userProfile.budget).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US')}`
+    : null
+
   if (!initialized) return <LoadingSkeleton />
 
   return (
-    <div className="min-h-screen bg-grid">
-      {/* TOP NAV */}
-      <nav className="glass-dark sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+    <div className="min-h-screen" style={{ background: '#FFFBF7' }}>
+      {/* ── PREMIUM TOP HEADER ──────────────────────────────────────────── */}
+      <header className="bg-white border-b border-[#E8E0D8] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between gap-4">
+
+          {/* Logo */}
           <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
             <img
               src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={32} height={32} className="rounded-lg shrink-0 object-contain w-[32px] h-[32px]"
+              alt="TripSage" width={28} height={28} className="rounded-md shrink-0 object-contain"
             />
-            <span className="font-bold text-[var(--primary)] text-lg hidden sm:block tracking-tight whitespace-nowrap">TripSage</span>
-          </button>
-          <div className="hidden sm:flex shrink-0 items-center gap-1.5 px-2 py-1 rounded-md border border-slate-200/60 bg-white/50 shadow-sm backdrop-blur-sm">
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-            <span className="text-[10px] font-bold tracking-wider text-slate-500 whitespace-nowrap">{isConnected ? 'LIVE' : 'OFFLINE'}</span>
-          </div>
-        </div>
-
-        {/* Trip info pill */}
-        {tripContext.destination && (
-          <div className="glass px-4 py-1.5 rounded-full text-sm hidden lg:flex items-center gap-3">
-            <span className="text-[var(--text-muted)]">{tripContext.startLocation}</span>
-            <span className="text-[var(--primary)]">→</span>
-            <span className="font-semibold text-[var(--text-primary)]">{tripContext.destination}</span>
-            {tripContext.startDate && (
-              <span className="text-[var(--text-muted)] text-xs">· {formatDate(tripContext.startDate)}</span>
-            )}
-          </div>
-        )}
-
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          {/* Download + Share */}
-          <Suspense fallback={null}>
-            <TripActions />
-          </Suspense>
-
-          {/* Notifications */}
-          <button
-            className="relative p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
-            onClick={() => setShowNotifs(!showNotifs)}
-          >
-            <Bell size={18} className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" />
-            {unreadCount > 0 && (
-              <span className="notif-badge">{unreadCount}</span>
-            )}
+            <span className="font-bold text-[#EA580C] text-base tracking-tight hidden sm:block">TripSage</span>
           </button>
 
+<<<<<<< Updated upstream
           {/* Settings */}
           <button
             className="p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
@@ -622,20 +762,126 @@ export default function PlanClient() {
           <div className="hidden sm:block">
             <UserMenu onOpenNotifications={() => setShowNotifs(true)} />
           </div>
+=======
+          {/* Trip metadata pill — only shown when a trip is active */}
+          {tripContext.destination ? (
+            <div className="relative hidden md:block">
+              <button
+                onClick={() => setShowEditTrip(true)}
+                className="flex items-center gap-1 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-1.5 text-sm divide-x divide-[#E8E0D8] hover:border-[#EA580C] hover:shadow-sm transition-all text-left"
+                title="Edit trip details"
+              >
+                <span className="pr-3 font-semibold text-[#1A1A1A]">
+                  {tripContext.startLocation || '—'}
+                  <span className="text-[#EA580C] mx-1.5">→</span>
+                  {tripContext.destination}
+                </span>
+                {tripDaysDisplay && (
+                  <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
+                    <CalendarDays size={13} className="text-[#9CA3AF]" />
+                    {tripDaysDisplay}d
+                    {tripContext.startDate && (
+                      <span className="text-[#9CA3AF]">· {formatDate(tripContext.startDate)}</span>
+                    )}
+                  </span>
+                )}
+                <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
+                  <Users size={13} className="text-[#9CA3AF]" />
+                  {userProfile?.members ?? 2}
+                </span>
+                {budgetDisplay && (
+                  <span className="pl-3 flex items-center gap-1.5 text-[#6B6B6B]">
+                    <Wallet size={13} className="text-[#9CA3AF]" />
+                    {budgetDisplay}
+                  </span>
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="hidden md:block" />
+          )}
+>>>>>>> Stashed changes
 
-          <button
-            onClick={() => runSearch()}
-            className="btn-primary p-2 sm:py-2 sm:px-3 text-sm flex items-center justify-center"
-            disabled={loading || !searchForm.from || !searchForm.to}
-          >
-            {loading ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : <RefreshCw size={18} />}
-          </button>
-          
-          <button className="sm:hidden p-2 text-[var(--text-primary)] text-xl" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Right actions */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Currency */}
+            <Suspense fallback={null}>
+              <CurrencySelector
+                value={currency}
+                onChange={val => { updateCurrency(val as any); setSearchForm(p => ({ ...p, currency: val })) }}
+                className="hidden lg:block min-w-[130px]"
+              />
+            </Suspense>
+
+            {/* Share */}
+            <button
+              onClick={handleShareTrip}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#6B6B6B] border border-[#E8E0D8] rounded-lg hover:bg-[#FFFBF7] transition-colors active:scale-95"
+            >
+              <Share2 size={14} /> Share
+            </button>
+
+            {/* Save */}
+            <button
+              onClick={handleSaveTrip}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#6B6B6B] border border-[#E8E0D8] rounded-lg hover:bg-[#FFFBF7] transition-colors active:scale-95"
+            >
+              <BookmarkPlus size={14} /> Save
+            </button>
+
+            {/* Notifications */}
+            <button
+              className="relative p-2 rounded-lg hover:bg-[#F5F5F4] transition-colors"
+              onClick={() => setShowNotifs(!showNotifs)}
+            >
+              <Bell size={17} className="text-[#6B6B6B]" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-[#EA580C] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{unreadCount}</span>
+              )}
+            </button>
+
+            {/* Refresh */}
+            <button
+              onClick={() => runSearch()}
+              className="p-2 rounded-lg hover:bg-[#F5F5F4] transition-colors"
+              disabled={loading || !searchForm.from || !searchForm.to}
+              title="Refresh results"
+            >
+              {loading
+                ? <span className="inline-block w-4 h-4 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin" />
+                : <RefreshCw size={16} className="text-[#6B6B6B]" />}
+            </button>
+
+            {/* Sign In / User */}
+            {isLoggedIn && user ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-[#EA580C] flex items-center justify-center text-white font-bold text-xs shrink-0">
+                  {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <button
+                  onClick={() => { logout(); router.push('/auth') }}
+                  className="text-xs text-[#9CA3AF] hover:text-red-400 transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut size={15} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => router.push('/auth')}
+                className="flex items-center gap-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+              >
+                <User size={14} /> Sign in
+              </button>
+            )}
+
+            {/* Mobile hamburger */}
+            <button className="sm:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X size={22} className="text-[#1A1A1A]" /> : <Menu size={22} className="text-[#1A1A1A]" />}
+            </button>
+          </div>
         </div>
-      </nav>
+      </header>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
@@ -696,6 +942,7 @@ export default function PlanClient() {
         </div>
       )}
 
+<<<<<<< Updated upstream
       {/* SEARCH BAR */}
       {activeTab === 'overview' && (
         <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
@@ -744,6 +991,8 @@ export default function PlanClient() {
           </div>
         </div>
       )}
+=======
+>>>>>>> Stashed changes
 
       {/* AI THINKING */}
       {aiThinking && (
@@ -766,6 +1015,7 @@ export default function PlanClient() {
         </div>
       )}
 
+<<<<<<< Updated upstream
       {/* TABS */}
       <div className="px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
         <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar w-full relative snap-x">
@@ -801,12 +1051,48 @@ export default function PlanClient() {
               )}
             </button>
           ))}
+=======
+      {/* ── TAB BAR ──────────────────────────────────────────────────────── */}
+      <div className="bg-white border-b border-[#E8E0D8] sticky top-[60px] z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex gap-0 overflow-x-auto hide-scrollbar">
+            {TABS.map(t => {
+              const isActive = activeTab === t.id
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id)}
+                  className={`relative flex items-center gap-2 px-5 py-4 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${
+                    isActive
+                      ? 'text-[#EA580C] border-[#EA580C]'
+                      : 'text-[#6B6B6B] border-transparent hover:text-[#1A1A1A] hover:border-[#E8E0D8]'
+                  }`}
+                >
+                  <t.icon size={15} strokeWidth={isActive ? 2.5 : 2} />
+                  {t.label}
+                  {t.id === 'transport' && mergedTransport.length > 0 && (
+                    <span className="ml-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                      {mergedTransport.length}
+                    </span>
+                  )}
+                  {t.id === 'hotels' && hotels.length > 0 && (
+                    <span className="ml-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                      {hotels.length}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+>>>>>>> Stashed changes
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <main className="px-4 py-6 max-w-7xl mx-auto animate-fade-in pb-24 md:pb-6">
+      {/* ── MAIN CONTENT ──────────────────────────────────────────────────── */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-8">
         <Suspense fallback={<TabLoader />}>
+
+          {/* Overview */}
           <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
             <OverviewTab
               transport={transport} hotels={hotels}
@@ -819,14 +1105,23 @@ export default function PlanClient() {
               tripHistory={tripHistory}
               onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
               onNewTrip={handleNewTripClick}
+              onShare={handleShareTrip}
+              onSave={handleSaveTrip}
             />
           </div>
-          
+
+          {/* Travel (flights) */}
           {tabCache.transport && (
             <div className={activeTab === 'transport' ? 'block' : 'hidden'}>
-              <TransportTab transport={transport} loading={loading} tripContext={tripContext} searchForm={searchForm} />
+              <TransportTab
+                transport={mergedTransport} loading={loading}
+                tripContext={tripContext} searchForm={searchForm}
+                budget={totalBudget} hotelCostSpent={hotelCostSpent}
+                currency={currency}
+              />
             </div>
           )}
+<<<<<<< Updated upstream
           
           {tabCache.trains && (
             <div className={activeTab === 'trains' ? 'block' : 'hidden'}>
@@ -856,47 +1151,40 @@ export default function PlanClient() {
             </div>
           )}
           
+=======
+
+          {/* Stay (hotels) */}
+>>>>>>> Stashed changes
           {tabCache.hotels && (
             <div className={activeTab === 'hotels' ? 'block' : 'hidden'}>
-              <HotelsTab hotels={hotels} loading={loading} tripContext={tripContext} searchForm={searchForm} />
+              <HotelsTab
+                hotels={hotels} loading={loading}
+                tripContext={tripContext} searchForm={searchForm}
+                budget={totalBudget} flightCostSpent={flightCostSpent}
+                nights={tripNights} currency={currency}
+              />
             </div>
           )}
-          
+
+          {/* Plan (itinerary) */}
           {tabCache.itinerary && (
             <div className={activeTab === 'itinerary' ? 'block' : 'hidden'}>
-              <ItineraryView itinerary={itinerary} loading={loading} />
+              <ItineraryView
+                itinerary={itinerary}
+                loading={loading}
+                destination={tripContext.destination}
+                onRegenerate={handleRegenerate}
+              />
             </div>
           )}
-          
-          {tabCache.optimizer && (
-            <div className={activeTab === 'optimizer' ? 'block' : 'hidden'}>
-              <BudgetOptimizerTab />
-            </div>
-          )}
-          
-          {tabCache.return && (
-            <div className={activeTab === 'return' ? 'block' : 'hidden'}>
-              <ReturnBookingTab tripContext={tripContext} />
-            </div>
-          )}
-          
-          {tabCache.explore && (
-            <div className={activeTab === 'explore' ? 'block' : 'hidden'}>
-              <ExploreSection destination={tripContext.destination} />
-            </div>
-          )}
-          
-          {tabCache.map && (
-            <div className={activeTab === 'map' ? 'block' : 'hidden'}>
-              <MapView itinerary={itinerary} hotels={hotels} tripContext={tripContext} />
-            </div>
-          )}
-          
+
+          {/* Bookings */}
           {tabCache.bookings && (
             <div className={activeTab === 'bookings' ? 'block' : 'hidden'}>
               <BookingStatus />
             </div>
           )}
+<<<<<<< Updated upstream
           
           {tabCache.history && (
             <div className={activeTab === 'history' ? 'block' : 'hidden'}>
@@ -925,8 +1213,21 @@ export default function PlanClient() {
                   toast.success('Itinerary restored!')
                 }}
               />
+=======
+
+          {/* Hidden extras still accessible via OverviewTab CTAs */}
+          {tabCache.explore && (
+            <div className={activeTab === 'explore' ? 'block' : 'hidden'}>
+              <ExploreSection destination={tripContext.destination} />
+>>>>>>> Stashed changes
             </div>
           )}
+          {tabCache.map && (
+            <div className={activeTab === 'map' ? 'block' : 'hidden'}>
+              <MapView itinerary={itinerary} hotels={hotels} tripContext={tripContext} isActive={activeTab === 'map'} />
+            </div>
+          )}
+
         </Suspense>
       </main>
 
@@ -937,37 +1238,100 @@ export default function PlanClient() {
         </Suspense>
       )}
 
-      {/* MOBILE BOTTOM NAV */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 z-[1000] shadow-[0_-8px_30px_rgba(0,0,0,0.05)]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-center justify-around h-[64px]">
-          {[
-            { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-            { id: 'transport', label: 'Flights', icon: Plane },
-            { id: 'hotels', label: 'Hotels', icon: Building2 },
-            { id: 'itinerary', label: 'Itinerary', icon: MapPin },
-            { id: 'bookings', label: 'Bookings', icon: ClipboardList },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => {
-                setActiveTab(t.id)
-                window.scrollTo({ top: 0, behavior: 'smooth' })
-              }}
-              className={`flex flex-col items-center justify-center gap-1.5 flex-1 h-full transition-all duration-300 relative ${
-                activeTab === t.id ? 'text-orange-500' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <t.icon size={22} strokeWidth={activeTab === t.id ? 2.5 : 2} />
-              <span className="text-[10px] font-bold tracking-tight uppercase">{t.label}</span>
-              {activeTab === t.id && (
-                <motion.div 
-                  layoutId="activeTabUnderline"
-                  className="absolute top-0 w-8 h-1 bg-orange-500 rounded-b-full"
-                />
-              )}
-            </button>
-          ))}
+      {/* EDIT TRIP MODAL */}
+      {showEditTrip && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={() => setShowEditTrip(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-[#E8E0D8] flex items-center justify-between bg-[#FFFBF7]">
+              <h3 className="font-bold text-[#1A1A1A] text-lg">Edit Trip Details</h3>
+              <button onClick={() => setShowEditTrip(false)} className="p-1.5 hover:bg-[#E8E0D8] rounded-lg transition-colors text-[#6B6B6B]">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">From</label>
+                  <Suspense fallback={<input className="input-field" disabled />}>
+                    <LocationAutocomplete className="input-field w-full" placeholder="From..." value={searchForm.from} onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
+                  </Suspense>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">To</label>
+                  <Suspense fallback={<input className="input-field" disabled />}>
+                    <LocationAutocomplete className="input-field w-full" placeholder="To..." value={searchForm.to} onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
+                  </Suspense>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">Start Date</label>
+                  <input className="input-field w-full" type="date" value={searchForm.startDate} onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">End Date</label>
+                  <input className="input-field w-full" type="date" value={searchForm.endDate} onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">Budget ({SYMBOLS[currency] || '$'})</label>
+                  <input className="input-field w-full" type="number" value={searchForm.budget} onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">Travelers</label>
+                  <select className="input-field w-full" value={searchForm.travelers} onChange={e => setSearchForm(p => ({ ...p, travelers: e.target.value }))}>
+                    {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-[#E8E0D8] bg-[#FFFBF7] flex justify-end gap-3">
+              <button onClick={() => setShowEditTrip(false)} className="btn-outline px-5 py-2.5 border-[#E8E0D8] text-[#6B6B6B] hover:bg-white">
+                Cancel
+              </button>
+              <button
+                onClick={() => { setShowEditTrip(false); runSearch(); }}
+                className="btn-primary px-6 py-2.5 flex items-center gap-2"
+                disabled={loading}
+              >
+                {loading ? '...' : <><RefreshCw size={16} /> Update Trip</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MOBILE BOTTOM NAV ─────────────────────────────────────────────── */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E0D8] z-[1000]"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="flex items-center justify-around h-[60px]">
+          {([
+            { id: 'overview',  label: 'Overview',  icon: LayoutDashboard },
+            { id: 'transport', label: 'Travel',     icon: Plane },
+            { id: 'hotels',    label: 'Stay',       icon: Building2 },
+            { id: 'itinerary', label: 'Plan',       icon: MapPin },
+            { id: 'optimizer', label: 'Budget',     icon: Wallet },
+          ] as const).map(t => {
+            const isActive = activeTab === t.id
+            return (
+              <button
+                key={t.id}
+                onClick={() => { setActiveTab(t.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-colors ${
+                  isActive ? 'text-[#EA580C]' : 'text-[#9CA3AF]'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#EA580C] rounded-b-full" />
+                )}
+                <t.icon size={20} strokeWidth={isActive ? 2.5 : 1.75} />
+                <span className="text-[9px] font-bold uppercase tracking-wide">{t.label}</span>
+              </button>
+            )
+          })}
         </div>
       </nav>
     </div>

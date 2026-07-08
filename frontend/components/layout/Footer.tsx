@@ -105,7 +105,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="bg-slate-900 text-white px-6 py-20">
+    <footer className="bg-[#F5F0EA] text-[#6B6B6B] px-6 py-20 border-t border-[#E8E0D8]">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-start justify-between gap-12 mb-16">
           <div className="max-w-sm">
@@ -117,91 +117,81 @@ export default function Footer() {
                 height={40}
                 className="rounded-xl w-[40px] h-[40px] object-contain"
               />
-              <span className="font-display text-2xl font-bold text-white">TripSage</span>
+              <span className="font-display text-2xl font-bold text-[#1A1A1A]">TripSage</span>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              The world's first AI-powered Travel Operating System. We orchestrate real-time travel intelligence for the modern explorer.
+            <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
+              TripSage helps you build customized itineraries and find flight and hotel bookings that fit your budget.
             </p>
-            <div className="flex items-center gap-4">
-              <a
-                href="https://www.instagram.com/tripsage_?igsh=NDBzdWhzejgwaDh1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-orange-500 transition-colors duration-300"
-                aria-label="Instagram"
-              >
-                <Instagram size={20} />
-              </a>
-              <a
-                href="https://x.com/SageTrip8016?s=20"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-orange-500 transition-colors duration-300"
-                aria-label="X (formerly Twitter)"
-              >
-                <X size={20} />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/tripsage/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-orange-500 transition-colors duration-300"
-                aria-label="LinkedIn"
-              >
-                <Linkedin size={20} />
-              </a>
-            </div>
+            <p className="text-[#9CA3AF] text-xs italic leading-relaxed mb-6">
+              Affiliate Disclosure: TripSage earns a referral commission when you book through our partner links (flights, hotels, cabs). You pay the exact same price.
+            </p>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 text-sm w-full md:w-auto">
             <div>
-              <h4 className="font-bold mb-6 uppercase tracking-widest text-slate-200">Platform</h4>
-              <div className="flex flex-col gap-4 text-slate-400">
-                <Link href="/#features" className="hover:text-blue-400 transition-colors">Features</Link>
-                <Link href="/#destinations" className="hover:text-blue-400 transition-colors">Destinations</Link>
-                <Link href="/blog" className="hover:text-blue-400 transition-colors">Blog</Link>
-                <Link href="/plan" className="hover:text-blue-400 transition-colors">AI Planner</Link>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Platform</h4>
+              <div className="flex flex-col gap-4">
+                <Link href="/#features" className="hover:text-[#EA580C] transition-colors">Features</Link>
+                <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors">Destinations</Link>
+                <Link href="/blog" className="hover:text-[#EA580C] transition-colors">Blog</Link>
+                <Link href="/plan" className="hover:text-[#EA580C] transition-colors">AI Planner</Link>
               </div>
             </div>
             <div>
-              <h4 className="font-bold mb-6 uppercase tracking-widest text-slate-200">Popular Guides</h4>
-              <div className="flex flex-col gap-4 text-slate-400">
-                <Link href="/ai-trip-planner-india" className="hover:text-blue-400 transition-colors">India Trip Planner</Link>
-                <Link href="/solo-travel-guide-india" className="hover:text-blue-400 transition-colors">Solo Travel Guide</Link>
-                <Link href="/family-trip-planner-india" className="hover:text-blue-400 transition-colors">Family Vacation Plan</Link>
-                <Link href="/best-honeymoon-destinations-india" className="hover:text-blue-400 transition-colors">Honeymoon Spots</Link>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Company</h4>
+              <div className="flex flex-col gap-4">
+                <Link href="/support" className="hover:text-[#EA580C] transition-colors">Support Center</Link>
+                <a href="mailto:rana@tripsage.in" className="hover:text-[#EA580C] transition-colors">Contact Us</a>
               </div>
             </div>
             <div>
-              <h4 className="font-bold mb-6 uppercase tracking-widest text-slate-200">Top Destinations</h4>
-              <div className="flex flex-col gap-4 text-slate-400">
-                <Link href="/goa-trip-under-10000" className="hover:text-blue-400 transition-colors">Budget Goa Trip</Link>
-                <Link href="/manali-trip-planner" className="hover:text-blue-400 transition-colors">Manali Tour Plan</Link>
-                <Link href="/budget-bali-trip" className="hover:text-blue-400 transition-colors">Bali Under Budget</Link>
-                <Link href="/best-beaches-in-india" className="hover:text-blue-400 transition-colors">India's Best Beaches</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold mb-6 uppercase tracking-widest text-slate-200">Company</h4>
-              <div className="flex flex-col gap-4 text-slate-400">
-                <Link href="/support" className="hover:text-blue-400 transition-colors">Support Center</Link>
-                <a href="mailto:rana@tripsage.in" className="hover:text-blue-400 transition-colors">Contact Us</a>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Legal</h4>
+              <div className="flex flex-col gap-4">
                 {legalLinks.map((link) => (
                   <button 
                     key={link.title}
                     onClick={() => setActiveLegal(link)} 
-                    className="hover:text-blue-400 transition-colors text-left flex items-center gap-2 group"
+                    className="hover:text-[#EA580C] transition-colors text-left flex items-center gap-2 group"
                     suppressHydrationWarning
                   >
-                    <link.icon size={16} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
+                    <link.icon size={16} className="text-[#6B6B6B] group-hover:text-[#EA580C] transition-colors" />
                     {link.title}
                   </button>
                 ))}
               </div>
             </div>
+            <div>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Social</h4>
+              <div className="flex flex-col gap-4">
+                <a
+                  href="https://www.instagram.com/tripsage_?igsh=NDBzdWhzejgwaDh1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2"
+                >
+                  <Instagram size={16} /> Instagram
+                </a>
+                <a
+                  href="https://x.com/SageTrip8016?s=20"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2"
+                >
+                  <X size={16} /> X (Twitter)
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/tripsage/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2"
+                >
+                  <Linkedin size={16} /> LinkedIn
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="pt-8 border-t border-slate-800 text-center text-slate-500 text-xs">
-          © {new Date().getFullYear()} TripSage AI Travel OS. All rights reserved.
+        <div className="pt-8 border-t border-[#E8E0D8] text-center text-[#6B6B6B] text-xs">
+          © {new Date().getFullYear()} TripSage. All rights reserved.
         </div>
       </div>
 

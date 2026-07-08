@@ -6,32 +6,58 @@ const MODEL = 'llama-3.3-70b-versatile'
 /**
  * Generate AI-powered itinerary using Groq LLaMA3
  */
-async function generateItinerary({ destination, days, budget, style, preferences, members, startDate }) {
+async function generateItinerary({ destination, from, days, budget, currency = 'INR', style, preferences, members, startDate }) {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    console.warn('[TripSage] ⚠️  GROQ_API_KEY missing — generating mock itinerary');
+    console.warn('[TripSage] GROQ_API_KEY missing — generating mock itinerary');
     return { success: true, data: getMockItinerary({ destination, days, budget, members, startDate }) };
   }
 
-  const systemPrompt = `You are TripSage — a real-time AI travel optimizer.
-Your task: Generate a detailed day-by-day travel itinerary.
-Rules:
-- Return ONLY valid JSON, no explanations, no markdown
-- No hallucinations — only real, well-known places
-- Optimize for: budget, traveler style, group size
-- Include realistic GPS coordinates for each place
-- Times must be logical and sequential`
+  const currencySymbol = currency === 'INR' ? 'Rs.' : currency
+  const budgetDisplay = `${currencySymbol}${Number(budget).toLocaleString('en-IN')} ${currency}`
+  // Strip country suffix for cleaner AI references ("Bangkok, Thailand" -> "Bangkok")
+  const destinationCity = destination.split(',')[0].trim()
+  const originCity = from ? from.split(',')[0].trim() : null
 
-  const userPrompt = `Generate a ${days}-day itinerary for ${destination}.
-Starting date: ${startDate || 'unspecified'}. Please use realistic YYYY-MM-DD strings for the "date" field for each day starting from this date.
-Budget: ₹${budget} INR total for ${members} people (INR)
-Style: ${style}
+  const systemPrompt = `You are TripSage, a professional AI travel planner.
+Your job: generate a precise, day-by-day itinerary ONLY for the destination city.
+
+CRITICAL LOCATION RULES — NEVER VIOLATE:
+1. DESTINATION CITY: "${destinationCity}". Every single place, activity, landmark, restaurant, and attraction MUST be physically located in ${destinationCity} or its immediate surrounding area.
+${originCity ? `2. ORIGIN CITY: "${originCity}" is ONLY where the traveler departs from. NEVER include any activity, place, or event in ${originCity}. NEVER reference ${originCity} in any place name, description, or recommendation.` : '2. Only include places that exist in the destination city.'}
+3. PLACE NAME FORMAT: Each place name MUST follow this exact format:
+   "[Specific Activity or Attraction Name] — [Exact Neighborhood, District, or Landmark in ${destinationCity}]"
+   CORRECT examples for Bangkok:
+   - "Chatuchak Weekend Market — Northern Bangkok, Chatuchak District"
+   - "Grand Palace & Wat Phra Kaew Tour — Rattanakosin Island, Old City"
+   - "Rooftop Dinner at Vertigo — Sathorn District, Silom"
+   WRONG examples (FORBIDDEN):
+   - "Museum Visit in Delhi" (wrong city)
+   - "Nature Park Hike in Chennai" (wrong city, generic name)
+   - "City Exploration" (no neighborhood specified)
+4. COORDINATES: GPS coordinates must be REAL coordinates inside ${destinationCity}, not generic or approximate.
+5. DESCRIPTIONS: All descriptions must reference specific ${destinationCity} landmarks, streets, or local context.
+
+OTHER RULES:
+- Return ONLY valid JSON, no explanations, no markdown
+- Optimize for: budget, traveler style, group size
+- Times must be logical and sequential per day
+- CRITICAL: Total budget is strictly ${budgetDisplay}. Every recommendation MUST stay within this total budget.`
+
+  const userPrompt = `Generate a ${days}-day travel itinerary for a trip TO ${destinationCity}.
+Origin (departure city, DO NOT include in itinerary): ${originCity || 'unspecified'}
+Destination (ALL activities MUST be here): ${destinationCity}
+Starting date: ${startDate || 'unspecified'}. Use realistic YYYY-MM-DD strings for the "date" field.
+Total budget: ${budgetDisplay} for ${members} people.
+Travel style: ${style}
 Preferences: ${preferences?.join(', ') || 'general sightseeing'}
 
-STRICT BUDGET CONSTRAINT RULES:
-1. The sum of the 'estimatedCost' fields for all activities/places across the entire itinerary MUST NOT exceed the total budget constraint of ₹${budget} INR.
-2. The returned 'totalEstimatedCost' MUST be the exact sum of all places' 'estimatedCost' values and MUST NOT exceed ₹${budget} INR.
-3. Make sure the estimates reflect realistic prices in INR for activities, food, and sightseeing at ${destination}.
+STRICT RULES REMINDER:
+- Every place.name MUST be: "[Specific Attraction] — [${destinationCity} Neighborhood/District]"
+- ZERO places from ${originCity || 'origin city'} — ONLY places in ${destinationCity}
+- GPS coordinates must be REAL coordinates in ${destinationCity}
+- Sum of all estimatedCost values MUST NOT exceed ${budgetDisplay}
+- If budget is too low for ${destinationCity}, set budgetWarning to a message suggesting the minimum required budget
 
 Return JSON in this exact schema:
 {
@@ -41,18 +67,26 @@ Return JSON in this exact schema:
       "date": "",
       "places": [
         {
-          "name": "Place Name",
+          "name": "[Specific Attraction Name] — [${destinationCity} Neighborhood]",
           "time": "09:00",
           "category": "culture|nature|dining|activity|transport|shopping|accommodation",
           "coordinates": [latitude, longitude],
-          "description": "Brief description under 100 chars",
+          "description": "Brief description mentioning specific ${destinationCity} context, under 100 chars",
           "estimatedCost": 20
         }
       ]
     }
   ],
   "totalEstimatedCost": 500,
-  "tips": ["Tip 1", "Tip 2"]
+  "budgetBreakdown": {
+    "flightsEstimate": 0,
+    "hotelsEstimate": 0,
+    "foodEstimate": 0,
+    "activitiesEstimate": 0,
+    "remainingBudget": 0
+  },
+  "budgetWarning": null,
+  "tips": ["Tip 1 specific to ${destinationCity}", "Tip 2"]
 }`
 
   try {
@@ -103,16 +137,19 @@ Return JSON in this exact schema:
 /**
  * AI-powered travel recommendations
  */
-async function getRecommendations({ destination, category, budget, style }) {
+async function getRecommendations({ destination, category, budget, currency = 'INR', style }) {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) throw new Error('GROQ_API_KEY is missing')
+
+  const currencySymbol = currency === 'INR' ? '₹' : currency
+  const budgetDisplay = `${currencySymbol}${Number(budget).toLocaleString('en-IN')} ${currency}`
 
   try {
     const response = await axios.post(GROQ_API_URL, {
       model: MODEL,
       messages: [{
         role: 'user',
-        content: `List top 5 ${category} in ${destination} for a ${style} traveler with ₹${budget} INR budget.
+        content: `List top 5 ${category} in ${destination} for a ${style} traveler. Total budget is strictly ${budgetDisplay} — every recommendation MUST stay within this budget.
         Return only JSON: {"recommendations": [{"name": "", "description": "", "price": 0, "rating": 0, "category": ""}]}`
       }],
       max_tokens: 1000,
@@ -287,14 +324,15 @@ Rules:
 function getMockItinerary({ destination, days, budget, members, startDate }) {
   const start = startDate ? new Date(startDate) : new Date();
   const itinerary = [];
+  const city = destination.split(',')[0].trim()
 
   const activityTemplates = [
-    { name: "City Exploration", category: "culture", desc: "Walking tour of the historic city center and main landmarks." },
-    { name: "Local Cuisine Tour", category: "dining", desc: "Savoring authentic flavors at highly-rated local eateries." },
-    { name: "Museum Visit", category: "culture", desc: "Discovering art and history at the city's premier museum." },
-    { name: "Nature Park Hike", category: "nature", desc: "Enjoying the fresh air and scenic views in a lush green park." },
-    { name: "Shopping Spree", category: "shopping", desc: "Exploring local markets and boutiques for unique finds." },
-    { name: "Sunset Viewpoint", category: "activity", desc: "Perfect spot for panoramic photos as the day ends." }
+    { name: `Morning Walking Tour — ${city} Old Town`, category: 'culture', desc: `Discover historic streets and local life in ${city}'s old quarter.` },
+    { name: `Local Street Food Experience — ${city} Night Market`, category: 'dining', desc: `Savoring authentic flavors at highly-rated ${city} street stalls.` },
+    { name: `${city} City Museum — Cultural District`, category: 'culture', desc: `Discovering art, history and heritage at ${city}'s premier museum.` },
+    { name: `Nature Reserve & Gardens — ${city} Outskirts`, category: 'nature', desc: `Enjoying scenic views and fresh air in ${city}'s green spaces.` },
+    { name: `${city} Local Market Shopping — Central Bazaar`, category: 'shopping', desc: `Exploring local markets and boutiques for unique ${city} finds.` },
+    { name: `Sunset Viewpoint — ${city} Hilltop District`, category: 'activity', desc: `Panoramic views of ${city} as the day ends. Best spot for photos.` }
   ];
 
   for (let i = 1; i <= days; i++) {
@@ -307,8 +345,8 @@ function getMockItinerary({ destination, days, budget, members, startDate }) {
     for (let j = 0; j < numPlaces; j++) {
       const template = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
       places.push({
-        name: `${template.name} in ${destination}`,
-        time: j === 0 ? "10:00" : j === 1 ? "14:00" : "18:00",
+        name: template.name,
+        time: j === 0 ? '10:00' : j === 1 ? '14:00' : '18:00',
         category: template.category,
         coordinates: [20.0 + Math.random(), 70.0 + Math.random()],
         description: template.desc,
@@ -327,12 +365,126 @@ function getMockItinerary({ destination, days, budget, members, startDate }) {
     itinerary,
     totalEstimatedCost: Math.floor(budget * 0.9),
     tips: [
-      "Book local transport in advance for better rates.",
-      "Try street food for an authentic experience.",
-      "Carry a power bank for long exploration days."
+      `Book local transport in ${city} in advance for better rates.`,
+      `Try ${city} street food for an authentic local experience.`,
+      'Carry a power bank for long exploration days.'
     ]
   };
 }
 
-module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices }
+/**
+ * Generate 12 top places for exploration using Groq
+ */
+async function getExplorePlaces(destination) {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) {
+    throw new Error('GROQ_API_KEY is missing')
+  }
+
+  const destinationCity = destination.split(',')[0].trim()
+
+  const userPrompt = `given destination city "${destinationCity}", return top 12 places categorized as Must See landmarks, Local Food spots, Hidden Gems, and Outdoor Activities — each with name, category, short description, estimated cost in INR, and best time to visit.
+Return ONLY a valid JSON object with the format:
+{
+  "places": [
+    {
+      "name": "Place Name",
+      "category": "Must See" | "Local Food" | "Hidden Gems" | "Outdoor",
+      "description": "Short description of the place",
+      "cost": 150, // estimated cost in INR as a number (e.g. entry fee or avg meal cost)
+      "bestTime": "Best time to visit (e.g., Early morning, Evening, 9 AM - 5 PM)"
+    }
+  ]
+}`
+
+  const response = await axios.post(GROQ_API_URL, {
+    model: MODEL,
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a professional travel assistant. You only output valid JSON.'
+      },
+      {
+        role: 'user',
+        content: userPrompt
+      }
+    ],
+    max_tokens: 1500,
+    temperature: 0.3,
+    response_format: { type: 'json_object' }
+  }, {
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    timeout: 15000
+  })
+
+  const content = response.data.choices[0]?.message?.content
+  const parsed = JSON.parse(content)
+  return parsed.places || []
+}
+
+function generateMockPlaces(destination) {
+  const city = destination.split(',')[0].trim()
+  
+  // Custom mock data for popular destinations
+  const isGoa = city.toLowerCase().includes('goa')
+  const isBali = city.toLowerCase().includes('bali')
+  const isDubai = city.toLowerCase().includes('dubai')
+  const isBangkok = city.toLowerCase().includes('bangkok')
+  const isSingapore = city.toLowerCase().includes('singapore')
+
+  if (isGoa) {
+    return [
+      { name: 'Basilica of Bom Jesus', category: 'Must See', description: 'UNESCO World Heritage Site holding the remains of St. Francis Xavier.', cost: 0, bestTime: '9:00 AM - 6:30 PM' },
+      { name: 'Fort Aguada', category: 'Must See', description: 'A well-preserved 17th-century Portuguese fort standing on Sinquerim Beach.', cost: 50, bestTime: '9:30 AM - 6:00 PM' },
+      { name: 'Baga Beach', category: 'Must See', description: 'Famous for water sports, beach shacks, and vibrant nightlife.', cost: 0, bestTime: 'Sunset' },
+      { name: 'Dudhsagar Waterfalls', category: 'Outdoor', description: 'Four-tiered majestic waterfall on the Mandovi River, surrounded by forests.', cost: 400, bestTime: 'October to May' },
+      { name: 'Anjuna Flea Market', category: 'Local Food', description: 'Bustling beachfront market known for local spices, street food, and souvenirs.', cost: 0, bestTime: 'Wednesdays' },
+      { name: 'Mum\'s Kitchen', category: 'Local Food', description: 'Renowned restaurant serving authentic traditional Goan cuisine in Panaji.', cost: 800, bestTime: 'Lunch or Dinner' },
+      { name: 'Curlies Beach Shack', category: 'Local Food', description: 'Iconic beachfront eatery offering fresh seafood and stunning sea views.', cost: 600, bestTime: 'Sunset onwards' },
+      { name: 'Chorao Island', category: 'Hidden Gems', description: 'Serene island home to the Salim Ali Bird Sanctuary, accessible by ferry.', cost: 100, bestTime: 'Early morning' },
+      { name: 'Cola Beach Lagoon', category: 'Hidden Gems', description: 'A hidden paradise beach with a freshwater lagoon near the sea.', cost: 0, bestTime: 'Afternoon' },
+      { name: 'Devil\'s Canyon', category: 'Hidden Gems', description: 'A mysterious river canyon in the jungle near Mollem.', cost: 50, bestTime: 'Morning' },
+      { name: 'Grande Island Snorkeling', category: 'Outdoor', description: 'Thrilling boat trip offering snorkeling, fishing, and dolphin spotting.', cost: 1500, bestTime: '8:00 AM - 2:00 PM' },
+      { name: 'Netravali Bubble Lake', category: 'Outdoor', description: 'A sacred lake that naturally bubbles when you clap your hands.', cost: 20, bestTime: 'Morning' }
+    ]
+  }
+
+  if (isBali) {
+    return [
+      { name: 'Uluwatu Temple', category: 'Must See', description: 'Sea temple perched on a cliff edge, famous for traditional Kecak fire dances.', cost: 300, bestTime: 'Sunset' },
+      { name: 'Tegallalang Rice Terraces', category: 'Must See', description: 'Scenic valley of terraced paddy fields offering beautiful walking trails.', cost: 100, bestTime: 'Early morning' },
+      { name: 'Tanah Lot Temple', category: 'Must See', description: 'Iconic pilgrimage temple sitting on a rock formation surrounded by crashing waves.', cost: 350, bestTime: 'Late afternoon' },
+      { name: 'Nusa Penida Kelingking Beach', category: 'Outdoor', description: 'Dramatic T-Rex shaped cliff view overlooking a white sand beach.', cost: 150, bestTime: 'Morning' },
+      { name: 'Warung Ibu Oka', category: 'Local Food', description: 'Famous eatery in Ubud renowned for serving Bali\'s signature roasted delicacies.', cost: 250, bestTime: 'Lunch' },
+      { name: 'Naughty Nuri\'s Warung', category: 'Local Food', description: 'Iconic spot famous for legendary flame-grilled pork ribs.', cost: 600, bestTime: 'Dinner' },
+      { name: 'Potato Head Beach Club', category: 'Local Food', description: 'Premium beachside venue serving locally infused drinks and snacks.', cost: 1000, bestTime: 'Sunset onwards' },
+      { name: 'Sidemen Valley', category: 'Hidden Gems', description: 'Quiet rural escape with lush green landscapes and Mount Agung views.', cost: 0, bestTime: 'Morning' },
+      { name: 'Tirta Sudamala Temple', category: 'Hidden Gems', description: 'Peaceful water temple utilized by locals for spiritual purification.', cost: 120, bestTime: 'Morning' },
+      { name: 'Peguyangan Waterfall', category: 'Hidden Gems', description: 'Blue stairs leading down a cliffside to a sacred spring with sea views.', cost: 60, bestTime: 'Morning' },
+      { name: 'Mount Batur Sunrise Trek', category: 'Outdoor', description: 'Active volcano climb offering incredible sunrise views above the clouds.', cost: 2000, bestTime: '2:00 AM - 8:00 AM' },
+      { name: 'Sekumpul Waterfall', category: 'Outdoor', description: 'Majestic cluster of seven tall waterfalls surrounded by lush tropical jungle.', cost: 150, bestTime: 'Morning' }
+    ]
+  }
+
+  // General fallbacks for other places
+  return [
+    { name: `${city} City Center Landmark`, category: 'Must See', description: 'The historic and cultural center of the city, perfect for photography and sightseeing.', cost: 0, bestTime: 'Morning' },
+    { name: `Grand Cathedral / Temple`, category: 'Must See', description: 'Stunning architecture reflecting the deep-rooted heritage of the local community.', cost: 150, bestTime: '10:00 AM - 4:00 PM' },
+    { name: `Central Public Park`, category: 'Must See', description: 'Lush green landscape featuring fountains, local flowers, and walking tracks.', cost: 0, bestTime: 'Evening' },
+    { name: `Traditional Food Market`, category: 'Local Food', description: 'Vibrant local bazaar offering street food, fresh produce, and local spices.', cost: 200, bestTime: 'Evening' },
+    { name: `Heritage Diner`, category: 'Local Food', description: 'Renowned diner serving authentic local recipes passed down through generations.', cost: 450, bestTime: 'Lunch' },
+    { name: `Scenic Viewpoint Café`, category: 'Local Food', description: 'A cozy hillside café serving local beverages with panoramic views of the city.', cost: 300, bestTime: 'Sunset' },
+    { name: `Secret Botanical Garden`, category: 'Hidden Gems', description: 'A quiet, less crowded sanctuary housing rare plants and peaceful walking trails.', cost: 80, bestTime: 'Morning' },
+    { name: `Historical Archive Museum`, category: 'Hidden Gems', description: 'Fascinating museum displaying rare relics and stories of the city\'s origins.', cost: 50, bestTime: '10:00 AM - 5:00 PM' },
+    { name: `Ancient Ruins in Forest`, category: 'Hidden Gems', description: 'Overgrown structural ruins of historical significance nestled deep in the forest.', cost: 100, bestTime: 'Daytime' },
+    { name: `Scenic Mountain Trail`, category: 'Outdoor', description: 'A beautiful hiking trail leading up to the highest peak overlooking the valley.', cost: 0, bestTime: 'Early morning' },
+    { name: `River Rafting Adventure`, category: 'Outdoor', description: 'Thrilling white-water rafting experience down the city\'s primary river.', cost: 1200, bestTime: '9:00 AM - 2:00 PM' },
+    { name: `Caves Exploration Tour`, category: 'Outdoor', description: 'A guided hike through ancient limestone caves filled with stalactites and stalagmites.', cost: 350, bestTime: 'Daytime' }
+  ]
+}
+
+module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices, getExplorePlaces, generateMockPlaces }
 
