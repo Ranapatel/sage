@@ -4,6 +4,7 @@ import { useTripStore, HotelOption } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { tripAPI, HotelContent } from '@/lib/api'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 import HotelImage from './HotelImage'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
@@ -48,6 +49,7 @@ export default function HotelDetailModal() {
   const { hotelDetailId, setHotelDetailId, hotels, openBookingFlow } = useTripStore()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
+  const { requireAuth } = useRequireAuth()
 
   const [galleryIdx, setGalleryIdx] = useState(0)
   
@@ -530,7 +532,7 @@ export default function HotelDetailModal() {
                                     </button>
                                   ) : isRecheck ? (
                                     <button
-                                      onClick={() => {
+                                      onClick={requireAuth(() => {
                                         openBookingFlow(hotel, {
                                           name: roomRate.roomName,
                                           boardName: roomRate.boardName,
@@ -539,7 +541,7 @@ export default function HotelDetailModal() {
                                           rateType: 'RECHECK'
                                         })
                                         setHotelDetailId(null)
-                                      }}
+                                      })}
                                       style={{
                                         padding: '10px 18px',
                                         borderRadius: '10px',
@@ -557,7 +559,7 @@ export default function HotelDetailModal() {
                                     </button>
                                   ) : (
                                     <button
-                                      onClick={() => {
+                                      onClick={requireAuth(() => {
                                         openBookingFlow(hotel, {
                                           name: roomRate.roomName,
                                           boardName: roomRate.boardName,
@@ -566,7 +568,7 @@ export default function HotelDetailModal() {
                                           rateType: 'BOOKABLE'
                                         })
                                         setHotelDetailId(null)
-                                      }}
+                                      })}
                                       style={{
                                         padding: '10px 18px',
                                         borderRadius: '10px',

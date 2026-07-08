@@ -1,151 +1,142 @@
-import axios from 'axios';
+import axios from 'axios'
+import type {
+  ITrainProvider,
+  IBusProvider,
+  TrainSearchParams,
+  TrainSearchResponse,
+  TrainResult,
+  TrainClassFare,
+  BusSearchParams,
+  BusSearchResponse,
+  BusResult,
+  CLASS_NAMES,
+} from '@/types/transport'
 
-export interface TrainClassAvailability {
-  class: string;
-  className: string;
-  available: boolean;
-  price?: number;
-  availability?: string;
+const CLASS_NAME_MAP: Record<string, string> = {
+  SL: 'Sleeper',
+  '3A': 'AC 3 Tier',
+  '3E': '3A Economy',
+  '2A': 'AC 2 Tier',
+  '1A': 'First AC',
+  CC: 'Chair Car',
+  EC: 'Exec. Chair',
+  '2S': 'Second Sitting',
 }
 
-export interface TrainResult {
-  trainNumber: string;
-  trainName: string;
-  departure: string;
-  arrival: string;
-  duration: string;
-  runsOn: string[];
-  availableClasses: TrainClassAvailability[];
-  bookingUrl: string;
-  originCode: string;
-  destinationCode: string;
-}
+export class MakeMyTripProvider implements ITrainProvider, IBusProvider {
+  private nestUrl = process.env.NEST_SERVICE_URL || 'http://localhost:4001'
 
-export interface BusResult {
-  operatorName: string;
-  busType: string;
-  rating?: number;
-  departure: string;
-  arrival: string;
-  duration: string;
-  amenities: string[];
-  price?: number;
-  seatsAvailable?: number;
-  bookingUrl: string;
-}
-
-export class MakeMyTripProvider {
-  private nestUrl = process.env.NEST_SERVICE_URL || 'http://localhost:4001';
-
-  async searchTrains(params: {
-    originStation: string;
-    destinationStation: string;
-    travelDate: string;
-    passengers?: number;
-    preferredClass?: string;
-  }): Promise<{ results: TrainResult[]; searchUrl: string }> {
+  async searchTrains(params: TrainSearchParams): Promise<TrainSearchResponse> {
     const response = await axios.post(`${this.nestUrl}/api/train/search`, {
       departureCity: params.originStation,
       destinationCity: params.destinationStation,
       departureDate: params.travelDate,
       passengers: params.passengers || 1,
       travelClass: params.preferredClass || '3A',
-    });
+    })
 
-    const data = response.data;
-    const searchUrl = data.searchUrl || 'https://www.makemytrip.com/railways/';
-    const rawResults = data.results || [];
+    const data = response.data
+    const searchUrl = data.searchUrl || 'https://www.makemytrip.com/railways/'
+    const rawResults = data.results || []
 
-    // Group flat results by trainNumber
-    const grouped = new Map<string, TrainResult>();
+    // Group flat results by trainNumber (backend now sends grouped,
+    // but handle legacy per-class rows too for backward compat)
+    const grouped = new Map<string, TrainResult>()
     for (const flat of rawResults) {
-      const trainNo = flat.trainNumber;
+      const trainNo = flat.trainNumber
       if (!grouped.has(trainNo)) {
         grouped.set(trainNo, {
+          id: trainNo,
           trainNumber: trainNo,
           trainName: flat.trainName,
+          trainType: flat.trainType || 'EXPRESS',
+          origin: {
+            station: flat.originStation || '',
+            code: flat.originCode || '',
+          },
+          destination: {
+            station: flat.destinationStation || '',
+            code: flat.destinationCode || '',
+          },
           departure: flat.departureTime || flat.departure || '',
           arrival: flat.arrivalTime || flat.arrival || '',
           duration: flat.duration,
-          runsOn: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], // default to daily runs if not present
-          originCode: flat.originCode || '',
-          destinationCode: flat.destinationCode || '',
-          availableClasses: [],
+          runsOn: flat.runsOn || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          classes: [],
           bookingUrl: searchUrl,
-        });
+          aiRank: null,
+        })
       }
-      const t = grouped.get(trainNo)!;
-      t.availableClasses.push({
-        class: flat.travelClass,
-        className: this.getClassName(flat.travelClass),
-        available: true,
-        price: flat.price,
-        availability: 'AVAILABLE',
-      });
+
+      const t = grouped.get(trainNo)!
+
+      // If backend sends pre-grouped classFares array, use that
+      if (flat.classFares && Array.isArray(flat.classFares) && flat.classFares.length > 0) {
+        // Only add if not already populated
+        if (t.classes.length === 0) {
+          t.classes = flat.classFares.map((cf: { classCode: string; fare: number }) => ({
+            classCode: cf.classCode,
+            className: CLASS_NAME_MAP[cf.classCode] || cf.classCode,
+            fare: cf.fare,
+            availability: null, // eRail doesn't provide seat availability
+          }))
+        }
+      } else if (flat.travelClass) {
+        // Legacy per-class row format
+        t.classes.push({
+          classCode: flat.travelClass,
+          className: CLASS_NAME_MAP[flat.travelClass] || flat.travelClass,
+          fare: flat.price,
+          availability: null,
+        })
+      }
     }
 
     return {
       results: Array.from(grouped.values()),
       searchUrl,
-    };
+    }
   }
 
-  async searchBuses(params: {
-    origin: string;
-    destination: string;
-    travelDate: string;
-    passengers?: number;
-  }): Promise<{ results: BusResult[]; searchUrl: string }> {
+  async searchBuses(params: BusSearchParams): Promise<BusSearchResponse> {
     const response = await axios.post(`${this.nestUrl}/api/bus/search`, {
       departureCity: params.origin,
       destinationCity: params.destination,
       departureDate: params.travelDate,
-    });
+    })
 
-    const data = response.data;
-    const searchUrl = data.searchUrl || 'https://www.makemytrip.com/bus-tickets/';
-    const rawResults = data.results || [];
+    const data = response.data
+    const searchUrl = data.searchUrl || 'https://www.makemytrip.com/bus-tickets/'
+    const rawResults = data.results || []
 
-    const results = rawResults.map((flat: any): BusResult => {
-      // Parse seats from liveStatus e.g. "14 seats left" -> 14
-      let seats = 10;
-      if (flat.liveStatus) {
-        const match = flat.liveStatus.match(/(\d+)/);
-        if (match) {
-          seats = parseInt(match[1], 10);
-        }
+    const results: BusResult[] = rawResults.map((flat: any): BusResult => {
+      let seats: number | null = null
+      if (flat.seatsAvailable != null) {
+        seats = flat.seatsAvailable
+      } else if (flat.liveStatus) {
+        const match = flat.liveStatus.match(/(\d+)/)
+        if (match) seats = parseInt(match[1], 10)
       }
-      
+
       return {
-        operatorName: flat.name,
-        busType: flat.type,
-        rating: 4.2, // default rating
+        id: flat.id || `${(flat.name || '').replace(/\s+/g, '-')}-${flat.departure}`,
+        operator: flat.name || flat.operatorName || '',
+        busType: flat.type || flat.busType || '',
+        rating: flat.rating ?? null,
         departure: flat.departure,
         arrival: flat.arrival,
         duration: flat.duration,
-        amenities: ['WiFi', 'Charging Port', 'Blanket'],
-        price: flat.price,
-        seatsAvailable: seats,
+        amenities: flat.amenities || [],
+        fare: flat.price ?? null,
+        seatsLeft: seats,
         bookingUrl: flat.bookingLink || searchUrl,
-      };
-    });
+        aiRank: null,
+      }
+    })
 
     return {
       results,
       searchUrl,
-    };
-  }
-
-  private getClassName(c: string): string {
-    switch (c) {
-      case 'SL': return 'Sleeper Class';
-      case '3A': return 'AC 3 Tier';
-      case '2A': return 'AC 2 Tier';
-      case '1A': return 'AC First Class';
-      case 'CC': return 'Chair Car';
-      case 'EC': return 'Executive Chair Car';
-      case '3E': return 'AC 3 Tier Economy';
-      default: return c;
     }
   }
 }

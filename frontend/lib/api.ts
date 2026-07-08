@@ -155,21 +155,11 @@ const _API = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Request interceptor — inject session + auth token
+// Request interceptor — inject session
 _API.interceptors.request.use((config) => {
   if (typeof sessionStorage !== 'undefined') {
     const sessionId = sessionStorage.getItem('sessionId')
     if (sessionId) config.headers['x-session-id'] = sessionId
-  }
-  if (!config.headers['Authorization'] && typeof localStorage !== 'undefined') {
-    try {
-      const raw = localStorage.getItem('tripsage-auth')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        const token = parsed?.state?.token
-        if (token) config.headers['Authorization'] = `Bearer ${token}`
-      }
-    } catch { /* ignore */ }
   }
   return config
 })
@@ -178,20 +168,6 @@ _API.interceptors.request.use((config) => {
 _API.interceptors.response.use(
   (res) => res.data,
   async (err) => {
-    if (err.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        // Clear token from header
-        delete _API.defaults.headers.common['Authorization']
-        // Dynamically import useAuthStore to avoid circular dependency
-        try {
-          const { useAuthStore } = await import('@/store/authStore')
-          useAuthStore.getState().logout()
-        } catch (e) {
-          console.error('Failed to logout on 401:', e)
-          localStorage.removeItem('tripsage-auth')
-        }
-      }
-    }
     const msg = err.response?.data?.message || err.message || 'Something went wrong'
     return Promise.reject(new Error(msg))
   }
@@ -237,8 +213,8 @@ export const tripAPI = {
   confirmBooking: (bookingId: string): Promise<ApiResponse<any>> =>
     API.post(`/api/booking/${bookingId}/confirm`),
 
-  getActivities: (destination: string, category?: string): Promise<ApiResponse<any[]>> =>
-    API.get(`/api/explore/activities/${encodeURIComponent(destination)}`, { params: { category } }),
+  getActivities: (destination: string, params?: any): Promise<ApiResponse<any[]>> =>
+    API.get(`/api/explore/activities/${encodeURIComponent(destination)}`, { params }),
 
   getRestaurants: (destination: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/restaurants/${encodeURIComponent(destination)}`),
@@ -312,16 +288,11 @@ export const tripAPI = {
 // ─── Auth API ─────────────────────────────────────────────────────────────────
 
 export const authAPI = {
-  signup: (data: { name: string; email: string; password: string; currency: string; country: string }): Promise<ApiResponse<any>> =>
-    API.post('/api/auth/signup', data),
-  login: (email: string, password: string): Promise<ApiResponse<any>> =>
-    API.post('/api/auth/login', { email, password }),
-  logout: (): Promise<ApiResponse<any>> =>
-    API.post('/api/auth/logout'),
-  me: (): Promise<ApiResponse<any>> =>
-    API.get('/api/auth/me'),
-  updateProfile: (data: any): Promise<ApiResponse<any>> =>
-    API.patch('/api/auth/profile', data),
+  signup: async (data: any): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
+  login: async (email: string, password: string): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
+  logout: async (): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
+  me: async (): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
+  updateProfile: async (data: any): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
 }
 
 export default _API

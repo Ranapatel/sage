@@ -1,0 +1,1 @@
+C:/Program Files/PostgreSQL/17/bin/postgres.exe "-D" "c:\TripSage-AI-Travel-OS\tripsage\backend\postgres_data" "-p" "5433"

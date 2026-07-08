@@ -10,6 +10,7 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl, getLogoUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 
 interface Props {
   item: any
@@ -21,6 +22,7 @@ function TransportCard({ item, showDetail }: Props) {
   const { setBookingStatus, addNotification } = useTripStore()
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
+  const { requireAuth } = useRequireAuth()
 
   const displayPrice = item.price ? formatPrice(item.price, currency) : null
 
@@ -162,10 +164,14 @@ function TransportCard({ item, showDetail }: Props) {
         {/* CTA */}
         <div className="mt-3 flex items-center gap-2">
           <a
-            href={item.bookingLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })}
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              requireAuth(() => {
+                trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })
+                window.open(item.bookingLink, '_blank', 'noopener,noreferrer')
+              })()
+            }}
             className="flex-1 text-center py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
           >
             {item.source === 'affiliate_redirect' ? 'Search Live Prices →' : 'Book Now →'}

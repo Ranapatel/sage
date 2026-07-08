@@ -27,7 +27,7 @@ const activityBookingSchema = new mongoose.Schema({
   // Booking status lifecycle
   status: {
     type:    String,
-    enum:    ['PRECONFIRMED', 'CONFIRMED', 'CANCELLED', 'EXPIRED', 'FAILED'],
+    enum:    ['PRECONFIRMED', 'PAYMENT_PENDING', 'PAID', 'RECONFIRMING', 'CONFIRMED', 'CANCELLED', 'EXPIRED', 'FAILED', 'RECONFIRM_FAILED'],
     default: 'PRECONFIRMED',
     index:   true,
   },
@@ -68,6 +68,9 @@ const activityBookingSchema = new mongoose.Schema({
   // Payment reference
   paymentId:         { type: String, default: null, index: true },
   paymentVerifiedAt: { type: Date,   default: null },
+  paymentOrderId:    { type: String, default: null, index: true },
+  reconfirmAttempts: { type: Number, default: 0 },
+  lastError:         { type: String, default: null },
 
   // Preconfirmed bookings expire after 30 minutes
   expiresAt: { type: Date, default: null, index: { expireAfterSeconds: 0 } },

@@ -40,6 +40,13 @@ export interface TransportOption {
   offers?: string[]
 }
 
+export interface TrainClassFareOption {
+  classCode: string
+  className: string
+  fare: number
+  availability?: 'AVAILABLE' | 'RAC' | 'WL' | null
+}
+
 export interface TrainOption {
   id: string
   trainName: string
@@ -57,6 +64,8 @@ export interface TrainOption {
   travelClass: string
   trainType: string
   transfers: number
+  runsOn?: string[]
+  classes?: TrainClassFareOption[]
   aiRecommendation?: {
     badge: string
     reasons: string[]

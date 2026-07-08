@@ -1,139 +1,175 @@
 'use client'
 
-import React, { memo } from 'react';
-import { Bus, Star, ExternalLink } from 'lucide-react';
-import { trackEvent } from '@/lib/analytics';
-import { useAuthStore } from '@/store/authStore';
-import { formatPrice } from '@/lib/currency';
+import React, { memo } from 'react'
+import { Bus, Star, ExternalLink, Shield } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
+import { useAuthStore } from '@/store/authStore'
+import { formatPrice } from '@/lib/currency'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 
-export interface BusResult {
-  operatorName: string;
-  busType: string;
-  rating?: number;
-  departure: string;
-  arrival: string;
-  duration: string;
-  amenities: string[];
-  price?: number;
-  seatsAvailable?: number;
-  bookingUrl: string;
+export interface BusClassResult {
+  id: string
+  operator: string
+  busType: string
+  rating: number | null
+  amenities: string[]
+  departure: string
+  arrival: string
+  duration: string
+  fare: number | null
+  seatsLeft: number | null
+  bookingUrl: string
+  aiRank?: { badge: string; reasons: string[] } | null
 }
 
 interface BusCardProps {
-  bus: BusResult;
+  bus: BusClassResult
 }
 
 function BusCard({ bus }: BusCardProps) {
-  const { user } = useAuthStore();
-  const currency = user?.currency ?? 'INR';
+  const { user } = useAuthStore()
+  const currency = user?.currency ?? 'INR'
+  const { requireAuth } = useRequireAuth()
 
-  const handleBook = () => {
+  const handleBook = requireAuth(() => {
     trackEvent('booking_click', {
       type: 'bus',
-      operator: bus.operatorName,
-      price: bus.price,
+      operator: bus.operator,
+      price: bus.fare,
       url: bus.bookingUrl,
-    });
-  };
+    })
+    window.open(bus.bookingUrl, '_blank', 'noopener,noreferrer')
+  })
+
+  const hasAiBadge = bus.aiRank && bus.aiRank.badge
 
   return (
-    <div className="card border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg p-5 flex flex-col gap-4 bg-[var(--surface-2)]">
-      {/* Header Row */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
-            <Bus size={16} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-extrabold text-[var(--text-primary)] text-base leading-snug">
-                {bus.operatorName}
-              </h4>
-              {bus.rating && (
-                <div className="flex items-center gap-0.5 bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded text-[10px] font-black">
-                  <Star size={10} className="fill-green-600" />
-                  {bus.rating.toFixed(1)}
-                </div>
-              )}
-            </div>
-            <span className="text-xs font-semibold text-[var(--text-muted)] mt-0.5 block">
-              {bus.busType}
+    <div className="card border border-slate-200/80 hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg flex flex-col justify-between bg-white rounded-2xl overflow-hidden">
+      {/* AI Recommendation Banner */}
+      {hasAiBadge && (
+        <div className="bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border-b border-blue-500/10 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Star size={13} className="text-blue-600 fill-blue-600 animate-pulse" />
+            <span className="text-[10px] font-black text-blue-700 tracking-wide uppercase">
+              {bus.aiRank?.badge || 'AI Recommended'}
             </span>
           </div>
-        </div>
-        
-        {bus.seatsAvailable !== undefined && bus.seatsAvailable > 0 && (
-          <span className="text-[10px] font-extrabold bg-orange-500/10 text-orange-600 px-2 py-1 rounded uppercase tracking-wider">
-            {bus.seatsAvailable} seats left
-          </span>
-        )}
-      </div>
-
-      {/* Timeline Row */}
-      <div className="flex items-center justify-between bg-slate-50/5 p-4 rounded-xl relative my-1">
-        <div className="text-left w-[30%]">
-          <div className="font-black text-lg text-[var(--text-primary)] tracking-tight">
-            {bus.departure}
+          <div className="flex flex-wrap gap-1 justify-end">
+            {bus.aiRank?.reasons.map((reason, idx) => (
+              <span
+                key={idx}
+                className="text-[9px] font-bold bg-blue-500/15 text-blue-800 px-2 py-0.5 rounded-full"
+              >
+                {reason}
+              </span>
+            ))}
           </div>
-          <div className="font-extrabold text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-0.5">
-            Depart
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col items-center px-2">
-          <span className="text-[10px] font-bold text-[var(--text-muted)] mb-1">
-            {bus.duration}
-          </span>
-          <div className="w-full flex items-center justify-center relative">
-            <div className="h-px bg-[var(--border)] w-full"></div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 font-mono">›</div>
-          </div>
-        </div>
-
-        <div className="text-right w-[30%]">
-          <div className="font-black text-lg text-[var(--text-primary)] tracking-tight">
-            {bus.arrival}
-          </div>
-          <div className="font-extrabold text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-0.5">
-            Arrive
-          </div>
-        </div>
-      </div>
-
-      {/* Amenities Row */}
-      {bus.amenities && bus.amenities.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-0.5">
-          {bus.amenities.map((amenity, idx) => (
-            <span key={idx} className="text-[10px] font-bold bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-muted)] px-2 py-0.5 rounded-full">
-              {amenity}
-            </span>
-          ))}
         </div>
       )}
 
+      <div className="p-5 flex flex-col gap-4 flex-1">
+        {/* Header Row */}
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 flex-shrink-0">
+              <Bus size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h4 className="font-extrabold text-slate-800 text-sm leading-snug">
+                  {bus.operator}
+                </h4>
+                {bus.rating != null && (
+                  <div className="flex items-center gap-0.5 bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded text-[10px] font-black">
+                    <Star size={10} className="fill-green-600" />
+                    {bus.rating.toFixed(1)}
+                  </div>
+                )}
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400 mt-0.5 block leading-tight">
+                {bus.busType}
+              </span>
+            </div>
+          </div>
+          
+          {bus.seatsLeft !== null && bus.seatsLeft > 0 && (
+            <span className="text-[9px] font-extrabold bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
+              {bus.seatsLeft} seats left
+            </span>
+          )}
+        </div>
+
+        {/* Timeline Row */}
+        <div className="flex items-center justify-between bg-slate-50/50 border border-slate-100 p-4 rounded-2xl relative my-1 text-xs">
+          <div className="text-left w-[30%]">
+            <div className="font-black text-base text-slate-800 tracking-tight leading-none">
+              {bus.departure}
+            </div>
+            <div className="font-extrabold text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+              Depart
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center px-2">
+            <span className="text-[9px] font-bold text-slate-400 mb-1">
+              {bus.duration}
+            </span>
+            <div className="w-full flex items-center justify-center relative">
+              <div className="h-[1.5px] bg-slate-200 w-full rounded-full"></div>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-[10px] bg-white leading-none px-0.5">›</div>
+            </div>
+          </div>
+
+          <div className="text-right w-[30%]">
+            <div className="font-black text-base text-slate-800 tracking-tight leading-none">
+              {bus.arrival}
+            </div>
+            <div className="font-extrabold text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+              Arrive
+            </div>
+          </div>
+        </div>
+
+        {/* Amenities Row */}
+        {bus.amenities && bus.amenities.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-0.5">
+            {bus.amenities.slice(0, 3).map((amenity, idx) => (
+              <span 
+                key={idx} 
+                className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200/40"
+              >
+                {amenity}
+              </span>
+            ))}
+            {bus.amenities.length > 3 && (
+              <span className="text-[9px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full border border-slate-200/40">
+                +{bus.amenities.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Pricing and Booking CTA */}
-      <div className="flex items-center justify-between gap-3 pt-3 border-t border-[var(--border)] mt-1">
+      <div className="flex items-center justify-between gap-3 p-5 pt-3 border-t border-slate-100 bg-slate-50/30">
         <div className="text-left">
-          <span className="text-[10px] text-[var(--text-muted)] font-bold block uppercase tracking-wider">
+          <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
             Fare Estimate
           </span>
-          <span className="text-lg font-black text-[var(--primary)] font-mono tracking-tight mt-0.5 block">
-            {bus.price ? `from ${formatPrice(bus.price, currency)}` : '—'}
+          <span className="text-base font-black text-blue-600 tracking-tight mt-0.5 block leading-none">
+            {bus.fare ? formatPrice(bus.fare, currency) : '—'}
           </span>
         </div>
 
-        <a
-          href={bus.bookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
           onClick={handleBook}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#E8461E] text-white hover:opacity-90 transition-opacity whitespace-nowrap shadow-md shadow-red-500/10 ml-auto"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white transition-colors whitespace-nowrap shadow-md shadow-blue-500/10 ml-auto cursor-pointer"
         >
-          Book on MakeMyTrip <ExternalLink size={13} />
-        </a>
+          Book on MakeMyTrip <ExternalLink size={12} />
+        </button>
       </div>
     </div>
-  );
+  )
 }
 
-export default memo(BusCard);
+export default memo(BusCard)

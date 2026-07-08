@@ -12,8 +12,10 @@ const express = require('express')
 const router  = express.Router()
 
 const bookingService = require('../activities/activitiesBookingService')
+const reconciliationService = require('../activities/activitiesReconciliationService')
 const { writeAudit } = require('../models/AuditLog')
 const { zodValidate } = require('../middleware/validateRequest')
+const { authMiddleware } = require('../middleware/authMiddleware')
 const { cancellationSchema, bookingListSchema } = require('../activities/activitiesValidator')
 const { bookingMutationLimiter } = require('../middleware/rateLimitMiddleware')
 
@@ -30,7 +32,7 @@ function safeError(err) {
 
 // ── GET /api/bookings ─────────────────────────────────────────────────────────
 
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   const start   = Date.now()
   const parsed  = bookingListSchema.safeParse(req.query)
   const filters = parsed.success ? parsed.data : {}
@@ -56,7 +58,7 @@ router.get('/', async (req, res) => {
 
 // ── GET /api/bookings/:reference ──────────────────────────────────────────────
 
-router.get('/:reference', async (req, res) => {
+router.get('/:reference', authMiddleware, async (req, res) => {
   const start     = Date.now()
   const reference = req.params.reference
   const language  = req.query.language || 'en'
@@ -88,6 +90,7 @@ router.get('/:reference', async (req, res) => {
 
 router.post(
   '/:reference/cancel-simulation',
+  authMiddleware,
   bookingMutationLimiter,
   async (req, res) => {
     const start     = Date.now()
@@ -119,6 +122,7 @@ router.post(
 
 router.post(
   '/:reference/cancel',
+  authMiddleware,
   bookingMutationLimiter,
   zodValidate(cancellationSchema),
   async (req, res) => {
@@ -141,6 +145,22 @@ router.post(
       res.json({ success: true, data: result })
     } catch (err) {
       await writeAudit({ action: 'CANCEL', bookingId: reference, result: 'FAILURE', errorMsg: err.message, durationMs: Date.now() - start, ...clientMeta(req) })
+      const status = err.statusCode || 500
+      res.status(status).json({ success: false, error: safeError(err) })
+    }
+  }
+)
+
+router.post(
+  '/reconcile',
+  authMiddleware,
+  bookingMutationLimiter,
+  async (req, res) => {
+    const start = Date.now()
+    try {
+      const result = await reconciliationService.reconcileStrandedBookings()
+      res.json({ success: true, data: result })
+    } catch (err) {
       const status = err.statusCode || 500
       res.status(status).json({ success: false, error: safeError(err) })
     }

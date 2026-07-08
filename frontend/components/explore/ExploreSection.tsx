@@ -9,6 +9,7 @@ import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { useUrgency } from '@/hooks/useUrgency'
 import { trackEvent } from '@/lib/analytics'
+import { useTripStore } from '@/store/tripStore'
 
 interface Props {
   destination: string
@@ -39,14 +40,21 @@ const CATEGORIES = ['All', 'Adventure', 'Culture', 'Food', 'Water', 'Nature', 'N
 
 const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: string; currency: string }) => {
   const isMobile = useIsMobile()
-  const { discount, urgency, flightScarcity: spotsMsg, countdownLabel } = useUrgency(a.id)
-  const origPrice = Math.round(a.price * (100 / (100 - discount)) / 100) * 100
+  const activityId = a.activityCode || a.id
+  const name = a.activityName || a.name || 'Activity'
+  const price = a.amountsFrom?.amountINR || a.price || 0
+  const duration = a.modality?.duration || a.duration || 'Flexible'
+  const rating = a.averageRating || a.rating || 4.5
+  const image = a.image || (a.images && a.images[0]) || 'https://images.unsplash.com/photo-1527856263669-12c3a0af2aa6?w=400&q=80'
+
+  const { discount, urgency, flightScarcity: spotsMsg, countdownLabel } = useUrgency(activityId)
+  const origPrice = Math.round(price * (100 / (100 - discount)) / 100) * 100
   return (
     <div className="card overflow-hidden group border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300">
       <div className="relative h-40 overflow-hidden">
         <Image 
-          src={getOptimizedImageUrl(a.image, isMobile)} 
-          alt={a.name} 
+          src={getOptimizedImageUrl(image, isMobile)} 
+          alt={name} 
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500" 
           sizes="(max-width: 768px) 100vw, 300px"
@@ -59,23 +67,23 @@ const ActivityCard = memo(({ a, destination, currency }: { a: any; destination: 
           <span className="bg-red-500/90 text-white text-[0.6rem] font-bold px-1.5 py-0.5 rounded animate-pulse">{spotsMsg}</span>
         </div>
         <div className="absolute bottom-2 left-2 flex items-center gap-2">
- <span className="text-white text-[0.65rem] font-mono">{a.duration}</span>
- <span className="text-yellow-400 text-[0.65rem]">{a.rating}</span>
+          <span className="text-white text-[0.65rem] font-mono">{duration}</span>
+          <span className="text-yellow-400 text-[0.65rem]">★ {rating}</span>
         </div>
       </div>
       <div className="p-3 space-y-2">
         <div className="flex items-center justify-between gap-1">
-          <h3 className="font-bold text-sm text-[var(--text-primary)] leading-tight flex-1">{a.name}</h3>
-          <span className="badge badge-amber text-[0.6rem] flex-shrink-0">{a.category}</span>
+          <h3 className="font-bold text-sm text-[var(--text-primary)] leading-tight flex-1 line-clamp-1">{name}</h3>
+          <span className="badge badge-amber text-[0.6rem] flex-shrink-0 uppercase">{a.category || 'NATURE'}</span>
         </div>
         <div className="flex items-end gap-2">
           <div>
             <div className="text-[0.65rem] text-[var(--text-muted)] line-through">{formatPrice(origPrice, currency)}</div>
-            <div className="text-lg font-black font-mono text-[var(--primary)] leading-tight">{formatPrice(a.price, currency)}</div>
+            <div className="text-lg font-black font-mono text-[var(--primary)] leading-tight">{formatPrice(price, currency)}</div>
           </div>
- <span className="text-orange-400 text-[0.65rem] font-semibold mb-0.5">{urgency}</span>
+          <span className="text-orange-400 text-[0.65rem] font-semibold mb-0.5">{urgency}</span>
         </div>
- <div className="text-[0.6rem] text-orange-300 font-mono text-center">{countdownLabel} left at this price</div>
+        <div className="text-[0.6rem] text-orange-300 font-mono text-center">{countdownLabel} left at this price</div>
       </div>
     </div>
   )
@@ -129,26 +137,38 @@ const CarCard = memo(({ car, destination, currency }: { car: any; destination: s
 function ExploreSection({ destination }: Props) {
   const isMobile = useIsMobile()
   const { user } = useAuthStore()
+  const { tripContext, userProfile } = useTripStore()
   const currency = user?.currency ?? 'INR'
   const [activeCategory, setActiveCategory] = useState('All')
   const [activeType, setActiveType] = useState<'activities' | 'restaurants' | 'rentals'>('activities')
-  const [activities, setActivities] = useState(MOCK_ACTIVITIES)
+  const [activities, setActivities] = useState<any[]>([])
   const [restaurants] = useState(MOCK_RESTAURANTS)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!destination) return
     Promise.resolve().then(() => setLoading(true))
-    tripAPI.getActivities(destination).then((res: any) => {
-      // Interceptor already unwraps res.data — access fields directly
+    
+    const params = {
+      startDate: tripContext?.startDate || undefined,
+      endDate: tripContext?.endDate || undefined,
+      travelers: userProfile?.members || undefined,
+      budget: userProfile?.budget || undefined,
+      style: userProfile?.travelStyle || undefined,
+      interests: userProfile?.preferences?.join(',') || undefined
+    }
+
+    tripAPI.getActivities(destination, params).then((res: any) => {
       const acts = res?.activities ?? res?.data?.activities
-      if (acts?.length > 0) setActivities(acts)
-    }).catch(() => {}).finally(() => setLoading(false))
-  }, [destination])
+      setActivities(acts || [])
+    }).catch(() => {
+      setActivities([])
+    }).finally(() => setLoading(false))
+  }, [destination, tripContext?.startDate, tripContext?.endDate, userProfile?.members, userProfile?.budget, userProfile?.travelStyle, userProfile?.preferences])
 
   const filteredActivities = activeCategory === 'All'
     ? activities
-    : activities.filter(a => a.category.toLowerCase() === activeCategory.toLowerCase())
+    : activities.filter(a => a.category && a.category.toLowerCase() === activeCategory.toLowerCase())
 
   return (
     <div className="space-y-6">
@@ -188,11 +208,22 @@ function ExploreSection({ destination }: Props) {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {filteredActivities.map(a => (
-              <ActivityCard key={a.id} a={a} destination={destination} currency={currency} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-2">
+              <div className="w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs text-[var(--text-muted)] font-medium">Fetching live Hotelbeds activities...</span>
+            </div>
+          ) : filteredActivities.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {filteredActivities.map(a => (
+                <ActivityCard key={a.activityCode || a.id} a={a} destination={destination} currency={currency} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 border border-dashed border-slate-800 rounded-2xl bg-slate-950/20 text-center w-full">
+              <span className="text-slate-400 text-xs font-semibold">No activities found matching your preferences.</span>
+            </div>
+          )}
         </>
       )}
 

@@ -119,6 +119,11 @@ export class BusSearchDto {
   departureDate!: string;
 }
 
+export interface TrainClassFare {
+  classCode: string;
+  fare: number;
+}
+
 export interface TrainResult {
   id: string;
   trainName: string;
@@ -133,6 +138,8 @@ export interface TrainResult {
   price: number;
   travelClass: TrainClass;
   trainType: string;
+  runsOn: string[];
+  classFares: TrainClassFare[];
 }
 
 export interface BusResult {
@@ -143,6 +150,9 @@ export interface BusResult {
   departure: string;
   arrival: string;
   duration: string;
+  rating: number | null;
+  amenities: string[];
+  seatsAvailable: number | null;
   liveStatus?: string;
   bookingLink?: string;
 }

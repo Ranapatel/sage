@@ -47,7 +47,13 @@ const allowedOrigin = (origin, callback) => {
 app.use(helmet({ contentSecurityPolicy: false }))
 app.use(compression())
 app.use(cors({ origin: allowedOrigin, credentials: true }))
-app.use(express.json({ limit: '10kb' }))
+app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '10kb' }))
+app.use(express.json({
+  limit: '10kb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString();
+  }
+}))
 app.use(morgan('dev'))
 
 // Rate limiting
@@ -61,14 +67,19 @@ const limiter = rateLimit({
 app.use('/api/', limiter)
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
-app.use('/api/auth',          require('./routes/auth'))
+
 app.use('/api/search',        require('./routes/search'))
 app.use('/api/itinerary',     require('./routes/itinerary'))
 app.use('/api/weather',       require('./routes/weather'))
 app.use('/api/booking',       require('./routes/booking'))
 app.use('/api/explore',       require('./routes/explore'))
 app.use('/api/notifications', require('./routes/notifications'))
-app.use('/api/profile',       require('./routes/profile'))
+// Webhook & TS API Routes
+app.use('/api/webhooks/clerk', require('./webhooks/clerk.webhook').handleClerkWebhook)
+app.use('/api/users',         require('./routes/users').default)
+app.use('/api/trips',         require('./routes/trips').default)
+
+app.use('/api/profile',       require('./modules/profile/profile.routes').default)
 app.use('/api/places',        require('./routes/places'))
 app.use('/api/hotels',        require('./routes/hotels'))
 app.use('/api/transport',     require('./routes/transport'))

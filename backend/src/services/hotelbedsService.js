@@ -983,4 +983,5 @@ module.exports = {
   getHotelContent,
   getBookingDetails,
   cancelBooking,
+  getCoordinates,
 }

@@ -85,6 +85,34 @@ const activitySearchSchema = z
 
 // ── Activity Details ──────────────────────────────────────────────────────────
 
+const activityCacheSearchSchema = z.object({
+  destinationCode: z.string().max(20).optional(),
+  keyword:         z.string().max(100).optional(),
+  category:        z.string().max(50).optional(),
+  segment:         z.string().max(50).optional(),
+  activityType:    z.string().max(50).optional(),
+  minPrice:        z.number().min(0).optional(),
+  maxPrice:        z.number().min(0).optional(),
+  page:            z.number().int().min(1).default(1),
+  limit:           z.number().int().min(1).max(100).default(20),
+}).refine(
+  d => !d.minPrice || !d.maxPrice || d.minPrice <= d.maxPrice,
+  { message: 'minPrice must be <= maxPrice', path: ['minPrice'] }
+)
+
+const activityCacheSyncSchema = z.object({
+  destinationCode: z.string().max(20).optional(),
+  language:        z.string().max(5).default('en'),
+  from:            z.number().int().min(1).optional(),
+  to:              z.number().int().min(1).max(1000).optional(),
+})
+
+const activityContentSyncSchema = z.object({
+  language: z.string().max(5).default('en'),
+  from:     z.number().int().min(1).optional(),
+  to:       z.number().int().min(1).max(1000).optional(),
+})
+
 const activityDetailsSchema = z.object({
   activityCode: z.string().min(1).max(50),
   fromDate:     dateStringSchema,
@@ -99,7 +127,6 @@ const preconfirmSchema = z.object({
   bookingId:    z.string().uuid('bookingId must be a valid UUID'),
   activityCode: z.string().min(1).max(50),
   activityName: z.string().min(1).max(200),
-  rateKey:      z.string().min(1).max(2000),
   modalityCode: z.string().max(50).optional(),
   modalityName: z.string().max(200).optional(),
   language:     z.string().max(5).default('en'),
@@ -139,7 +166,7 @@ const cancellationSchema = z.object({
 // ── Booking List ─────────────────────────────────────────────────────────────
 
 const bookingListSchema = z.object({
-  status:   z.enum(['PRECONFIRMED', 'CONFIRMED', 'CANCELLED', 'EXPIRED']).optional(),
+  status:   z.enum(['PRECONFIRMED', 'PAYMENT_PENDING', 'PAID', 'RECONFIRMING', 'CONFIRMED', 'CANCELLED', 'EXPIRED', 'FAILED', 'RECONFIRM_FAILED']).optional(),
   fromDate: dateStringSchema.optional(),
   toDate:   dateStringSchema.optional(),
   page:     z.coerce.number().int().min(1).default(1),
@@ -148,6 +175,9 @@ const bookingListSchema = z.object({
 
 module.exports = {
   activitySearchSchema,
+  activityCacheSearchSchema,
+  activityCacheSyncSchema,
+  activityContentSyncSchema,
   activityDetailsSchema,
   preconfirmSchema,
   reconfirmSchema,

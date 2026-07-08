@@ -20,6 +20,7 @@ import {
   Check, LogOut, Menu, X, Bell, History,
   LayoutDashboard, Building2, Settings, User
 } from 'lucide-react'
+import UserMenu from '@/components/layout/UserMenu'
 
 // Lazy load components
 const TransportCard = lazy(() => import('@/components/transport/TransportCard'))
@@ -539,27 +540,9 @@ export default function PlanClient() {
           )}
 
           {/* User avatar / login */}
-          {isLoggedIn && user ? (
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white flex-shrink-0">
-                <User size={16} className="text-white hover:brightness-125 transition-all" />
-              </div>
-              <span className="text-xs font-semibold text-[var(--text-primary)] hidden md:block max-w-[80px] truncate">
-                {user.name}
-              </span>
-              <button
-                onClick={() => { logout(); router.push('/auth') }}
-                className="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors hidden md:block"
-                title="Logout"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => router.push('/auth')} className="btn-primary py-2 px-3 text-sm hidden sm:flex items-center gap-1.5 whitespace-nowrap">
-              <User size={16} /> Sign In
-            </button>
-          )}
+          <div className="hidden sm:block">
+            <UserMenu onOpenNotifications={() => setShowNotifs(true)} />
+          </div>
 
           <button
             onClick={() => runSearch()}
@@ -611,7 +594,7 @@ export default function PlanClient() {
 
           <div className="h-px bg-[var(--border)] my-2"></div>
 
-          {isLoggedIn && user ? (
+          {isLoggedIn && user && (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white font-bold">
@@ -621,8 +604,6 @@ export default function PlanClient() {
               </div>
               <button onClick={() => { logout(); router.push('/auth'); }} className="btn-outline text-red-400 border-red-500/30 w-full py-3">Logout</button>
             </div>
-          ) : (
-            <button onClick={() => { router.push('/auth'); setMobileMenuOpen(false); }} className="btn-primary w-full py-3">Sign In</button>
           )}
         </div>
       )}

@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String              @id @default(uuid())
+  clerkUserId        String              @unique
+  email              String
+  firstName          String?
+  lastName           String?
+  profileImage       String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  memories           Memory[]
+  referralReceived   Referral?           @relation("ReferredUser")
+  referralsSent      Referral[]          @relation("Referrer")
+  savedItems         SavedItem[]
+  travelPhotos       TravelPhoto[]
+  travelPreference   TravelPreference?
+  trips              Trip[]
+  profile            UserProfile?
+  wallet             Wallet?
+  walletTransactions WalletTransaction[]
+}
+
+model Trip {
+  id            String         @id @default(uuid())
+  userId        String
+  destination   String
+  title         String
+  startDate     DateTime
+  endDate       DateTime
+  budget        Float
+  travelers     Int
+  status        String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  itineraryDays ItineraryDay[]
+  memories      Memory[]
+  travelPhotos  TravelPhoto[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ItineraryDay {
+  id          String     @id @default(uuid())
+  tripId      String
+  dayNumber   Int
+  title       String
+  description String?
+  createdAt   DateTime   @default(now())
+  activities  Activity[]
+  trip        Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id             String       @id @default(uuid())
+  itineraryDayId String
+  name           String
+  description    String?
+  location       String?
+  startTime      DateTime?
+  endTime        DateTime?
+  category       String?
+  createdAt      DateTime     @default(now())
+  itineraryDay   ItineraryDay @relation(fields: [itineraryDayId], references: [id], onDelete: Cascade)
+}
+
+model TravelPhoto {
+  id        String   @id @default(uuid())
+  tripId    String
+  userId    String
+  imageUrl  String
+  caption   String?
+  createdAt DateTime @default(now())
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  clerkUserId String    @unique
+  phoneNumber String?
+  dateOfBirth DateTime?
+  gender      String?
+  country     String?
+  city        String?
+  language    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TravelPreference {
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  travelStyle             String?
+  budgetRange             String?
+  interests               String[]
+  foodPreference          String[]
+  accommodationPreference String?
+  tripDuration            String?
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedItem {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  referenceId String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  userId      String
+  tripId      String?
+  title       String
+  description String?
+  photos      String[]
+  location    String?
+  createdAt   DateTime @default(now())
+  trip        Trip?    @relation(fields: [tripId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  id      String @id @default(uuid())
+  userId  String @unique
+  balance Float  @default(0.0)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WalletTransaction {
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Float
+  type      String
+  reason    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id             String @id @default(uuid())
+  referrerId     String
+  referredUserId String @unique
+  status         String
+  reward         Float  @default(0.0)
+  referredUser   User   @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: Cascade)
+  referrer       User   @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+}

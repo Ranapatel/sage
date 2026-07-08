@@ -5,6 +5,7 @@ import { Train, ExternalLink } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import { useAuthStore } from '@/store/authStore';
 import { formatPrice } from '@/lib/currency';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 export interface ClassAvailability {
   class: string;
@@ -43,15 +44,17 @@ const CLASS_LABELS: Record<string, string> = {
 export function TrainCard({ train }: TrainCardProps) {
   const { user } = useAuthStore();
   const currency = user?.currency ?? 'INR';
+  const { requireAuth } = useRequireAuth();
 
-  const handleBook = () => {
+  const handleBook = requireAuth((e: React.MouseEvent) => {
     trackEvent('booking_click', {
       type: 'train',
       trainNumber: train.trainNumber,
       trainName: train.trainName,
       url: train.bookingUrl,
     });
-  };
+    window.open(train.bookingUrl, '_blank', 'noopener,noreferrer');
+  });
 
   // Helper to determine availability badge styles
   const getAvailabilityBadge = (cls: ClassAvailability) => {
@@ -163,10 +166,11 @@ export function TrainCard({ train }: TrainCardProps) {
         </div>
 
         <a
-          href={train.bookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleBook}
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleBook(e);
+          }}
           className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#E8461E] text-white hover:opacity-90 transition-opacity whitespace-nowrap shadow-md shadow-red-500/10 ml-auto"
         >
           Book on MakeMyTrip <ExternalLink size={13} />

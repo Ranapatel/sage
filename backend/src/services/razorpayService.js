@@ -14,6 +14,8 @@
 
 const crypto = require('crypto')
 const { paymentStore } = require('../models/Payment')
+const { bookingStore } = require('../models/ActivityBooking')
+const { STATES, assertTransition } = require('../activities/bookingStateMachine')
 
 // Lazily initialise Razorpay to avoid startup crash if package not ready
 let Razorpay = null
@@ -51,6 +53,25 @@ function getRazorpayInstance() {
  * @returns {{ razorpayOrderId, amount, currency, keyId }} — safe to return to frontend
  */
 async function createOrder({ bookingId, idempotencyKey, amountINR, currency = 'INR' }) {
+  const booking = await bookingStore.findById(bookingId)
+  if (!booking) {
+    throw Object.assign(new Error('Booking not found.'), { statusCode: 404 })
+  }
+  if (booking.status !== STATES.PRECONFIRMED && booking.status !== STATES.PAYMENT_PENDING) {
+    throw Object.assign(
+      new Error(`Cannot create payment order for booking in status '${booking.status}'.`),
+      { statusCode: 409 }
+    )
+  }
+  if (booking.expiresAt && new Date() > new Date(booking.expiresAt)) {
+    assertTransition(booking.status, STATES.EXPIRED)
+    await bookingStore.update(bookingId, { status: STATES.EXPIRED })
+    throw Object.assign(
+      new Error('Preconfirmed booking has expired. Please start a new booking.'),
+      { statusCode: 410 }
+    )
+  }
+
   // Idempotency check — return existing order if already created
   const existing = await paymentStore.findByBookingId(bookingId)
   if (existing && existing.status === 'CREATED') {
@@ -81,6 +102,14 @@ async function createOrder({ bookingId, idempotencyKey, amountINR, currency = 'I
     currency,
     amountDisplay:   amountINR,
     status:          'CREATED',
+  })
+
+  if (booking.status === STATES.PRECONFIRMED) {
+    assertTransition(STATES.PRECONFIRMED, STATES.PAYMENT_PENDING)
+  }
+  await bookingStore.update(bookingId, {
+    status: STATES.PAYMENT_PENDING,
+    paymentOrderId: rpOrder.id,
   })
 
   console.log(`[Razorpay] Created order ${rpOrder.id} for booking ${bookingId} (₹${amountINR})`)
@@ -135,6 +164,17 @@ async function verifyPayment({ razorpayOrderId, razorpayPaymentId, razorpaySigna
     throw Object.assign(new Error('Payment record not found.'), { statusCode: 404 })
   }
 
+  const booking = await bookingStore.findById(updated.bookingId)
+  if (booking && booking.status !== STATES.PAID) {
+    assertTransition(booking.status, STATES.PAID)
+    await bookingStore.update(updated.bookingId, {
+      status: STATES.PAID,
+      paymentId: updated.idempotencyKey,
+      paymentOrderId: razorpayOrderId,
+      paymentVerifiedAt: new Date(),
+    })
+  }
+
   console.log(`[Razorpay] Payment CAPTURED — order ${razorpayOrderId}, payment ${razorpayPaymentId}`)
   return updated
 }
@@ -173,13 +213,25 @@ async function handleWebhook(rawBody, signature, parsedPayload) {
   console.log(`[Razorpay] Webhook event: ${event}, paymentId: ${payment?.id}`)
 
   if (event === 'payment.captured' && payment) {
-    await paymentStore.update(payment.order_id, {
+    const updated = await paymentStore.update(payment.order_id, {
       razorpayPaymentId: payment.id,
       status:            'CAPTURED',
       verifiedAt:        new Date(),
       webhookEventId:    parsedPayload.account_id || null,
       webhookEvent:      event,
     })
+    if (updated?.bookingId) {
+      const booking = await bookingStore.findById(updated.bookingId)
+      if (booking && booking.status !== STATES.PAID) {
+        assertTransition(booking.status, STATES.PAID)
+        await bookingStore.update(updated.bookingId, {
+          status: STATES.PAID,
+          paymentId: updated.idempotencyKey,
+          paymentOrderId: payment.order_id,
+          paymentVerifiedAt: new Date(),
+        })
+      }
+    }
   }
 
   if (event === 'payment.failed' && payment) {

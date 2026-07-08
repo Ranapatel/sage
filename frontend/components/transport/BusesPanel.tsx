@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import BusCard, { BusResult } from './BusCard';
+import BusCard, { BusClassResult } from './BusCard';
 import { TrainsEmpty } from './TrainsEmpty';
 import { TrainsSkeleton } from './TrainsSkeleton';
 import { Bus, ExternalLink } from 'lucide-react';
@@ -15,7 +15,7 @@ interface BusesPanelProps {
 
 type PanelState =
   | { status: 'loading' }
-  | { status: 'success'; results: BusResult[]; searchUrl: string }
+  | { status: 'success'; results: BusClassResult[]; searchUrl: string }
   | { status: 'empty'; searchUrl: string }
   | { status: 'error'; searchUrl: string; message: string };
 

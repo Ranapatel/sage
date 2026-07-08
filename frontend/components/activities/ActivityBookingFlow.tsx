@@ -25,6 +25,7 @@ interface Props {
   toDate:         string
   onComplete:     (booking: ReconfirmResult) => void
   onBack:         () => void
+  searchParams?:  { paxes?: { age: number; type?: 'ADULT' | 'CHILD' | 'INFANT' }[] }
 }
 
 type Step = 'passengers' | 'payment' | 'confirmed'

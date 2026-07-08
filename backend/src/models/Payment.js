@@ -73,11 +73,20 @@ const paymentStore = {
       } catch (err) {
         if (err.code === 11000) {
           // Idempotency: return existing
-          const existing = await Payment.findOne({ idempotencyKey: data.idempotencyKey }).lean()
+          const existing = await Payment.findOne({
+            $or: [
+              { idempotencyKey: data.idempotencyKey },
+              { bookingId: data.bookingId, status: 'CREATED' },
+            ],
+          }).lean()
           if (existing) return existing
         }
         console.warn('[PaymentStore] Create error:', err.message)
       }
+    }
+    for (const existing of memoryPayments.values()) {
+      if (existing.idempotencyKey === data.idempotencyKey) return existing
+      if (existing.bookingId === data.bookingId && existing.status === 'CREATED') return existing
     }
     const record = { ...data, createdAt: new Date(), updatedAt: new Date() }
     memoryPayments.set(data.idempotencyKey, record)
@@ -101,13 +110,17 @@ const paymentStore = {
   async findByBookingId(bookingId) {
     if (isMongoConnected()) {
       try {
-        return await Payment.findOne({ bookingId, status: 'CAPTURED' }).lean()
+        return await Payment.findOne(
+          { bookingId, status: { $in: ['CREATED', 'CAPTURED'] } },
+          null,
+          { sort: { createdAt: -1 } }
+        ).lean()
       } catch (err) {
         console.warn('[PaymentStore] FindByBookingId error:', err.message)
       }
     }
     for (const p of memoryPayments.values()) {
-      if (p.bookingId === bookingId && p.status === 'CAPTURED') return p
+      if (p.bookingId === bookingId && ['CREATED', 'CAPTURED'].includes(p.status)) return p
     }
     return null
   },

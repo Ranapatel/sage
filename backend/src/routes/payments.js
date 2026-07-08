@@ -17,6 +17,7 @@ const router     = express.Router()
 const razorpay   = require('../services/razorpayService')
 const { writeAudit } = require('../models/AuditLog')
 const { zodValidate } = require('../middleware/validateRequest')
+const { authMiddleware } = require('../middleware/authMiddleware')
 const { createPaymentOrderSchema } = require('../activities/activitiesValidator')
 const { paymentLimiter } = require('../middleware/rateLimitMiddleware')
 
@@ -37,6 +38,7 @@ function safeError(err) {
 
 router.post(
   '/create-order',
+  authMiddleware,
   paymentLimiter,
   zodValidate(createPaymentOrderSchema),
   async (req, res) => {
@@ -66,7 +68,7 @@ router.post(
 // ── POST /api/payments/verify ────────────────────────────────────────────────
 // Called by frontend after Razorpay checkout modal success, BEFORE reconfirm
 
-router.post('/verify', paymentLimiter, async (req, res) => {
+router.post('/verify', authMiddleware, paymentLimiter, async (req, res) => {
   const start = Date.now()
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body || {}
 
@@ -103,7 +105,6 @@ router.post('/verify', paymentLimiter, async (req, res) => {
 
 router.post(
   '/webhook',
-  express.raw({ type: 'application/json' }),
   async (req, res) => {
     const start = Date.now()
     const sig   = req.headers['x-razorpay-signature'] || ''

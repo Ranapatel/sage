@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Activity {
+  id             String       @id
+  itineraryDayId String
+  name           String
+  description    String?
+  location       String?
+  startTime      DateTime?
+  endTime        DateTime?
+  category       String?
+  createdAt      DateTime     @default(now())
+  ItineraryDay   ItineraryDay @relation(fields: [itineraryDayId], references: [id], onDelete: Cascade)
+}
+
+model ItineraryDay {
+  id          String     @id
+  tripId      String
+  dayNumber   Int
+  title       String
+  description String?
+  createdAt   DateTime   @default(now())
+  Activity    Activity[]
+  Trip        Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+model Memory {
+  id          String   @id
+  userId      String
+  tripId      String?
+  title       String
+  description String?
+  photos      String[]
+  location    String?
+  createdAt   DateTime @default(now())
+  Trip        Trip?    @relation(fields: [tripId], references: [id])
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id                                 String @id
+  referrerId                         String
+  referredUserId                     String @unique
+  status                             String
+  reward                             Float  @default(0.0)
+  User_Referral_referredUserIdToUser User   @relation("Referral_referredUserIdToUser", fields: [referredUserId], references: [id], onDelete: Cascade)
+  User_Referral_referrerIdToUser     User   @relation("Referral_referrerIdToUser", fields: [referrerId], references: [id], onDelete: Cascade)
+}
+
+model SavedItem {
+  id          String   @id
+  userId      String
+  type        String
+  referenceId String
+  createdAt   DateTime @default(now())
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TravelPhoto {
+  id        String   @id
+  tripId    String
+  userId    String
+  imageUrl  String
+  caption   String?
+  createdAt DateTime @default(now())
+  Trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TravelPreference {
+  id                      String   @id
+  userId                  String   @unique
+  travelStyle             String?
+  budgetRange             String?
+  interests               String[]
+  foodPreference          String[]
+  accommodationPreference String?
+  tripDuration            String?
+  User                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Trip {
+  id           String         @id
+  userId       String
+  destination  String
+  title        String
+  startDate    DateTime
+  endDate      DateTime
+  budget       Float
+  travelers    Int
+  status       String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  ItineraryDay ItineraryDay[]
+  Memory       Memory[]
+  TravelPhoto  TravelPhoto[]
+  User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                                     String              @id
+  clerkUserId                            String              @unique
+  email                                  String
+  firstName                              String?
+  lastName                               String?
+  profileImage                           String?
+  createdAt                              DateTime            @default(now())
+  updatedAt                              DateTime
+  Memory                                 Memory[]
+  Referral_Referral_referredUserIdToUser Referral?           @relation("Referral_referredUserIdToUser")
+  Referral_Referral_referrerIdToUser     Referral[]          @relation("Referral_referrerIdToUser")
+  SavedItem                              SavedItem[]
+  TravelPhoto                            TravelPhoto[]
+  TravelPreference                       TravelPreference?
+  Trip                                   Trip[]
+  UserProfile                            UserProfile?
+  Wallet                                 Wallet?
+  WalletTransaction                      WalletTransaction[]
+}
+
+model UserProfile {
+  id          String    @id
+  userId      String    @unique
+  clerkUserId String    @unique
+  phoneNumber String?
+  dateOfBirth DateTime?
+  gender      String?
+  country     String?
+  city        String?
+  language    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  id      String @id
+  userId  String @unique
+  balance Float  @default(0.0)
+  User    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WalletTransaction {
+  id        String   @id
+  userId    String
+  amount    Float
+  type      String
+  reason    String
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -55,7 +55,11 @@ function logError(label, err) {
   const status  = err.response?.status || 'NO_RESPONSE'
   const body    = err.response?.data   || {}
   const url     = err.config?.url      || label
-  console.error(`[ActivitiesClient] ${label} failed — HTTP ${status}`, { url, body })
+  if (status === 401 || status === 403) {
+    console.warn(`[ActivitiesClient] ${label} failed — HTTP ${status} (Graceful fallback active)`)
+  } else {
+    console.error(`[ActivitiesClient] ${label} failed — HTTP ${status}`, { url, body })
+  }
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -208,7 +212,7 @@ async function listBookings(language, params = {}) {
  */
 async function simulateCancellation(language, reference) {
   try {
-    const headers = generateHotelbedsHeaders()
+    const headers = generateActivitiesHeaders()
     const { data } = await request(bookingCircuit, () =>
       axios.delete(
         `${ACTIVITIES_BASE_URL}/bookings/${encodeURIComponent(language)}/${encodeURIComponent(reference)}`,
@@ -231,7 +235,7 @@ async function simulateCancellation(language, reference) {
  */
 async function cancelBooking(language, reference) {
   try {
-    const headers = generateHotelbedsHeaders()
+    const headers = generateActivitiesHeaders()
     const { data } = await request(bookingCircuit, () =>
       axios.delete(
         `${ACTIVITIES_BASE_URL}/bookings/${encodeURIComponent(language)}/${encodeURIComponent(reference)}`,

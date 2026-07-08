@@ -1,24 +1,14 @@
-const jwt = require('jsonwebtoken')
-const JWT_SECRET = process.env.JWT_SECRET || 'tripsage_dev_secret_change_in_production'
-
-function signToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
-}
-
-function verifyToken(token) {
-  return jwt.verify(token, JWT_SECRET)
-}
+// Placeholder authMiddleware for Phase 1 clean foundation
+// This will be replaced by the Clerk verification middleware in the next phase.
 
 function authMiddleware(req, res, next) {
-  const header = req.headers.authorization || ''
-  const token = header.startsWith('Bearer ') ? header.slice(7) : null
-  if (!token) return res.status(401).json({ success: false, message: 'No token provided' })
-  try {
-    req.user = verifyToken(token)
-    next()
-  } catch {
-    return res.status(401).json({ success: false, message: 'Invalid or expired token' })
+  // Attach a mock/demo user to the request for compatibility
+  req.user = {
+    id: "demo-user-id",
+    email: "demo@tripsage.in",
+    name: "Demo User"
   }
+  next()
 }
 
-module.exports = { signToken, verifyToken, authMiddleware }
+module.exports = { authMiddleware }

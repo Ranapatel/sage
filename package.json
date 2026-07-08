@@ -3,9 +3,16 @@
     "dev:frontend": "npm run dev --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
     "dev:transport": "npm run start:dev --prefix backend/transport",
-    "dev": "npx concurrently --kill-others \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:transport\""
+    "dev": "npx concurrently --kill-others \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:transport\"",
+    "db:studio": "npm run prisma:studio --prefix backend",
+    "db:migrate": "npm run prisma:migrate --prefix backend",
+    "db:generate": "npm run prisma:generate --prefix backend",
+    "db:deploy": "npm run prisma:deploy --prefix backend"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1"
+  },
+  "devDependencies": {
+    "prisma": "^7.8.0"
   }
 }

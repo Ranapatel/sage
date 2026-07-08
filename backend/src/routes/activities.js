@@ -19,12 +19,20 @@ const router  = express.Router()
 
 const activitiesService        = require('../activities/activitiesService')
 const activitiesBookingService = require('../activities/activitiesBookingService')
+const activityCacheSearch      = require('../activities/activityCacheSearchService')
+const activityCacheSync        = require('../activities/activityCacheSyncService')
+const activityContentSync      = require('../activities/activityContentSyncService')
 const razorpayService          = require('../services/razorpayService')
+const { featureGate } = require('../activities/activityFeatureFlags')
 const { paymentStore }         = require('../models/Payment')
 const { writeAudit }           = require('../models/AuditLog')
 const { zodValidate }          = require('../middleware/validateRequest')
+const { authMiddleware }       = require('../middleware/authMiddleware')
 const {
   activitySearchSchema,
+  activityCacheSearchSchema,
+  activityCacheSyncSchema,
+  activityContentSyncSchema,
   activityDetailsSchema,
   preconfirmSchema,
   reconfirmSchema,
@@ -82,6 +90,84 @@ router.post(
 // ── POST /api/activities/details ──────────────────────────────────────────────
 
 router.post(
+  '/cache-search',
+  activitiesSearchLimiter,
+  zodValidate(activityCacheSearchSchema),
+  async (req, res) => {
+    const start = Date.now()
+    try {
+      const result = await activityCacheSearch.searchCachedActivities(req.validatedBody)
+
+      await writeAudit({
+        action:     'ACTIVITY_CACHE_SEARCH',
+        payload:    req.validatedBody,
+        result:     'SUCCESS',
+        durationMs: Date.now() - start,
+        ...clientMeta(req),
+      })
+
+      res.json({ success: true, data: result })
+    } catch (err) {
+      await writeAudit({ action: 'ACTIVITY_CACHE_SEARCH', result: 'FAILURE', errorMsg: err.message, durationMs: Date.now() - start, ...clientMeta(req) })
+      const status = err.statusCode || 500
+      res.status(status).json({ success: false, error: safeError(err) })
+    }
+  }
+)
+
+router.post(
+  '/content-sync',
+  authMiddleware,
+  bookingMutationLimiter,
+  zodValidate(activityContentSyncSchema),
+  async (req, res) => {
+    const start = Date.now()
+    try {
+      const result = await activityContentSync.syncCatalog(req.validatedBody)
+      await writeAudit({
+        action:     'ACTIVITY_CONTENT_SYNC',
+        payload:    req.validatedBody,
+        result:     'SUCCESS',
+        durationMs: Date.now() - start,
+        ...clientMeta(req),
+      })
+      res.status(202).json({ success: true, data: result })
+    } catch (err) {
+      await writeAudit({ action: 'ACTIVITY_CONTENT_SYNC', result: 'FAILURE', errorMsg: err.message, durationMs: Date.now() - start, ...clientMeta(req) })
+      const status = err.statusCode || 500
+      res.status(status).json({ success: false, error: safeError(err) })
+    }
+  }
+)
+
+router.post(
+  '/cache-sync',
+  authMiddleware,
+  bookingMutationLimiter,
+  zodValidate(activityCacheSyncSchema),
+  async (req, res) => {
+    const start = Date.now()
+    try {
+      const result = await activityCacheSync.syncAll(req.validatedBody)
+
+      await writeAudit({
+        action:     'ACTIVITY_CACHE_SYNC',
+        payload:    req.validatedBody,
+        result:     'SUCCESS',
+        durationMs: Date.now() - start,
+        ...clientMeta(req),
+      })
+
+      res.status(202).json({ success: true, data: result })
+    } catch (err) {
+      await writeAudit({ action: 'ACTIVITY_CACHE_SYNC', result: 'FAILURE', errorMsg: err.message, durationMs: Date.now() - start, ...clientMeta(req) })
+      const status = err.statusCode || 500
+      res.status(status).json({ success: false, error: safeError(err) })
+    }
+  }
+)
+
+router.post(
   '/details',
   activitiesDetailsLimiter,
   zodValidate(activityDetailsSchema),
@@ -120,6 +206,7 @@ router.post(
 
 router.post(
   '/preconfirm',
+  authMiddleware,
   bookingMutationLimiter,
   zodValidate(preconfirmSchema),
   async (req, res) => {
@@ -149,6 +236,7 @@ router.post(
 
 router.post(
   '/reconfirm',
+  authMiddleware,
   bookingMutationLimiter,
   zodValidate(reconfirmSchema),
   async (req, res) => {
