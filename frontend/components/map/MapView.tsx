@@ -237,17 +237,6 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
   // Fetch destination coordinates from Nominatim
   useEffect(() => {
     let mounted = true
-<<<<<<< Updated upstream
-    if (hotels && hotels.length > 0) {
-      const coords = hotels.filter(h => h.latitude && h.longitude).map(h => ({
-        ...h,
-        coordinates: [parseFloat(h.latitude), parseFloat(h.longitude)]
-      }))
-      Promise.resolve().then(() => {
-        if (mounted) setHotelCoords(coords)
-      })
-    }
-=======
     const city = destination ? destination.split(',')[0].trim() : ''
     if (!city) return
 
@@ -265,8 +254,6 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
         }
       })
       .catch(() => { /* ignore */ })
-
->>>>>>> Stashed changes
     return () => { mounted = false }
   }, [destination])
 

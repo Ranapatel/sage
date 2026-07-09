@@ -15,15 +15,12 @@ const nextConfig = {
       { protocol: 'https', hostname: 'agoda.com' },
       { protocol: 'https', hostname: 'www.google.com' },
       { protocol: 'https', hostname: 'images.kiwi.com' },
-<<<<<<< Updated upstream
       // Hotelbeds Giata CDN — hotel photos (required for certification)
       { protocol: 'https', hostname: 'photos.hotelbeds.com' },
-=======
       // Wikimedia Commons & Wikipedia thumbnails (free, open-licensed)
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'commons.wikimedia.org' },
       { protocol: 'https', hostname: '*.wikipedia.org' },
->>>>>>> Stashed changes
     ],
   },
   async redirects() {

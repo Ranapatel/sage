@@ -10,15 +10,11 @@ import {
 import { SYMBOLS } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { useTripStore } from '@/store/tripStore'
-<<<<<<< Updated upstream
-import { getDaysBetween } from '@/lib/utils'
+import { getDaysBetween, formatDate } from '@/lib/utils'
+import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
-=======
-import { getDaysBetween, formatDate } from '@/lib/utils'
-import toast from 'react-hot-toast'
->>>>>>> Stashed changes
 
 // ─── Destination background images ───────────────────────────────────────────
 // Curated Unsplash photos keyed by lowercase destination city name.
@@ -674,146 +670,6 @@ function WeatherOptModal({
               </button>
             </div>
           )}
-<<<<<<< Updated upstream
-
-          {/* Budget Tracker */}
-          <div className="card p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
-              <h3 className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-2">
-                <ClipboardList size={16} className="text-[var(--primary)]" />
-                Trip Budget Tracker
-              </h3>
-              <span className="text-xs font-bold font-mono text-[var(--text-muted)]">
-                Budget: {formatTargetPrice(budget)}
-              </span>
-            </div>
-
-            {/* Stacked Progress Bar */}
-            <div className="space-y-1">
-              <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50">
-                {budget > 0 && (
-                  <>
-                    <div 
-                      className="bg-blue-500 h-full transition-all duration-500" 
-                      style={{ width: `${Math.min(100, (flightCost / budget) * 100)}%` }}
-                      title={`Flights: ${formatTargetPrice(flightCost)}`}
-                    />
-                    <div 
-                      className="bg-green-500 h-full transition-all duration-500" 
-                      style={{ width: `${Math.min(100, (hotelCost / budget) * 100)}%` }}
-                      title={`Hotels: ${formatTargetPrice(hotelCost)}`}
-                    />
-                    <div 
-                      className="bg-purple-500 h-full transition-all duration-500" 
-                      style={{ width: `${Math.min(100, (activitiesCost / budget) * 100)}%` }}
-                      title={`Activities: ${formatTargetPrice(activitiesCost)}`}
-                    />
-                  </>
-                )}
-              </div>
-              <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] px-0.5">
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Flights</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Hotels</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Activities</span>
-              </div>
-            </div>
-
-            {/* Detailed list */}
-            <div className="space-y-2.5 text-xs text-[var(--text-secondary)]">
-              <div className="flex items-center justify-between">
-                <span>Flights Cost</span>
-                <span className="font-bold font-mono text-[var(--text-primary)]">
-                  {flightCost > 0 ? (
-                    `${formatTargetPrice(flightCost)}`
-                  ) : (
-                    <span className="text-[var(--text-muted)] italic font-normal">None selected</span>
-                  )}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Hotels Cost</span>
-                <span className="font-bold font-mono text-[var(--text-primary)]">
-                  {hotelCost > 0 ? (
-                    `${formatTargetPrice(hotelCost)}`
-                  ) : (
-                    <span className="text-[var(--text-muted)] italic font-normal">None selected</span>
-                  )}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Activities Cost</span>
-                <span className="font-bold font-mono text-[var(--text-primary)]">
-                  {activitiesCost > 0 ? (
-                    `${formatTargetPrice(activitiesCost)}`
-                  ) : (
-                    <span className="text-[var(--text-muted)] italic font-normal">None planned</span>
-                  )}
-                </span>
-              </div>
-              <div className="h-px bg-[var(--border)] my-1" />
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-[var(--text-primary)]">Remaining Budget</span>
-                <span className={`font-extrabold font-mono ${remainingBudget >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {formatTargetPrice(remainingBudget)}
-                </span>
-              </div>
-            </div>
-
-            {/* Warning Message */}
-            {isOverBudget && (
-              <div className="p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 text-[11px] flex gap-2">
-                <span className="text-sm shrink-0">⚠️</span>
-                <div>
-                  <p className="font-bold leading-tight">Exceeds Budget</p>
-                  <p className="mt-0.5 leading-relaxed">
-                    Selected flights or hotels + activities exceed your budget limit by <strong>{formatTargetPrice(Math.abs(remainingBudget))}</strong>.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Booking tracker */}
-          <div className="card p-4">
-            <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3 flex items-center gap-2"><ClipboardList size={16} /> Booking Status</h3>
-            {[
-              { label: 'Flight', status: bookingStatus.flightStatus },
-              { label: 'Hotel', status: bookingStatus.hotelStatus },
-              { label: 'Return', status: bookingStatus.returnStatus },
-            ].map((b: any) => (
-              <div key={b.label} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
-                <span className="text-sm text-[var(--text-secondary)]">{b.label}</span>
-                <span className={`badge text-[0.7rem] ${b.status === 'CONFIRMED' ? 'badge-green' : b.status === 'PENDING' ? 'badge-amber' : 'badge-red'}`}>{b.status}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Recent trip history */}
-          {tripHistory?.length > 0 && (
-            <div className="card p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-2"><History size={16} /> Past Trips</h3>
-                <button onClick={() => onTabChange('history')} className="text-xs text-[var(--primary)]">View all →</button>
-              </div>
-              <div className="space-y-2">
-                {tripHistory.slice(0, 3).map((t: any, index: number) => (
-                  <div key={`${t.tripId || ''}-${index}`} className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--border)] last:border-0">
-                    <div>
-                      <p className="font-semibold text-[var(--text-primary)]">{t.destination}</p>
-                      <p className="text-[var(--text-muted)]">{t.dates.start || 'No date'}</p>
-                      {t.rating && (
-                        <div className="flex items-center gap-0.5 text-yellow-400 mt-1">
-                          {Array.from({ length: t.rating }).map((_, idx) => (
-                            <Star key={idx} size={10} fill="currentColor" stroke="none" />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-=======
         </div>
         <div className="px-6 py-4 border-t border-[#E8E0D8] bg-[#FFFBF7] flex justify-end gap-3">
           <button onClick={onClose} className="btn-outline px-5 py-2 border-[#E8E0D8] text-[#6B6B6B] hover:bg-white text-sm">
@@ -826,7 +682,6 @@ function WeatherOptModal({
             >
               Apply to Plan
             </button>
->>>>>>> Stashed changes
           )}
         </div>
       </div>

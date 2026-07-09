@@ -15,18 +15,10 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-<<<<<<< Updated upstream
   Plane, Bus, Train, Car, MapPin, TrendingUp, RefreshCw, 
   Compass, Map, ClipboardList, Search, Plus, 
-  Check, LogOut, Menu, X, Bell, History,
-  LayoutDashboard, Building2, Settings, User
-=======
-  Plane, MapPin, TrendingUp, RefreshCw, 
-  ClipboardList, Search, Plus, 
-  Check, LogOut, Menu, X, Bell,
-  LayoutDashboard, Building2, Settings, User,
-  CalendarDays, Users, Wallet, Share2, BookmarkPlus, Bus, Car, Compass, Map, Navigation
->>>>>>> Stashed changes
+  Check, LogOut, Menu, X, Bell, History, Settings, Wallet, 
+  CalendarDays, Users, LayoutDashboard, Building2, Share2, BookmarkPlus, User
 } from 'lucide-react'
 import UserMenu from '@/components/layout/UserMenu'
 
@@ -42,18 +34,16 @@ const BookingStatus = lazy(() => import('@/components/booking/BookingStatus'))
 const FeedbackModal = lazy(() => import('@/components/feedback/FeedbackModal'))
 const TripActions = lazy(() => import('@/components/actions/TripActions'))
 const LocationAutocomplete = lazy(() => import('@/components/ui/LocationAutocomplete'))
-<<<<<<< Updated upstream
 const BudgetOptimizerTab = lazy(() => import('@/components/optimizer/BudgetOptimizerTab'))
 const BusesPanel = lazy(() => import('@/components/transport/BusesPanel'))
-=======
-const BusesTab = lazy(() => import('@/components/transport/BusesTab'))
->>>>>>> Stashed changes
+
 const CarsTab = lazy(() => import('@/components/transport/CarsTab'))
 const TrainsPanel = lazy(() => import('@/components/transport/TrainsPanel'))
 const CurrencySelector = lazy(() => import('@/components/ui/CurrencySelector'))
 const OverviewTab = lazy(() => import('@/components/plan/OverviewTab'))
 const TransportTab = lazy(() => import('@/components/plan/TransportTab'))
 const HotelsTab = lazy(() => import('@/components/plan/HotelsTab'))
+const TripHistoryTab = lazy(() => import('@/components/history/TripHistoryTab'))
 
 // Helper for loading state
 const TabLoader = () => (
@@ -63,7 +53,6 @@ const TabLoader = () => (
   </div>
 )
 
-<<<<<<< Updated upstream
 // IMPORTANT: Every tab in TABS must have a matching render block
 // in the content area. Adding a tab without the content block
 // causes a blank screen. Bus tab was missing from TABS config.
@@ -82,22 +71,6 @@ const TABS = [
   { id: 'map', label: 'Map', icon: Map },
   { id: 'bookings', label: 'Bookings', icon: ClipboardList },
   { id: 'history', label: 'History', icon: History },
-=======
-// ── The 6 primary tabs shown in the nav bar ─────────────────────────────────
-// Travel   → maps to internal id 'transport' (flights, buses, cabs)
-// Stay     → maps to 'hotels'
-// Plan     → maps to 'itinerary'
-// Budget   → maps to 'optimizer'
-// Bookings → maps to 'bookings'
-const TABS = [
-  { id: 'overview',  label: 'Overview',  icon: LayoutDashboard },
-  { id: 'transport', label: 'Travel',    icon: Plane },
-  { id: 'hotels',   label: 'Stay',      icon: Building2 },
-  { id: 'itinerary',label: 'Plan',      icon: MapPin },
-  { id: 'explore',   label: 'Explore',   icon: Compass },
-  { id: 'map',       label: 'Route',     icon: Navigation },
-  { id: 'bookings', label: 'Bookings',  icon: ClipboardList },
->>>>>>> Stashed changes
 ]
 
 const isInternationalTrip = (from: string, to: string) => {
@@ -265,8 +238,6 @@ export default function PlanClient() {
             travelStyle: ctx.style || 'adventure',
           })
         })
-<<<<<<< Updated upstream
-=======
         setTrip({
           startLocation: ctx.from || '',
           destination: ctx.to || '',
@@ -281,7 +252,7 @@ export default function PlanClient() {
         })
         // Load values into form but do NOT auto-search. Let the user click search manually.
         // This prevents the app from automatically searching old trips like Hyderabad on every refresh.
->>>>>>> Stashed changes
+
       } catch (e) {}
     } else {
       // ── FRESH NAVIGATION (no prior session) ──
@@ -293,40 +264,27 @@ export default function PlanClient() {
         from: '', to: '', startDate: '', endDate: '',
         budget: '2000', travelers: '2', style: 'adventure',
         currency: user?.currency ?? 'INR',
+        rooms: '1', adults: '2', children: '0'
       })
       resultCacheRef.current = {}
       setTabCache({ overview: true })
     }
-<<<<<<< Updated upstream
-    Promise.resolve().then(() => {
-      setInitialized(true)
-    })
-  }, [setTrip, setProfile])
-=======
     setInitialized(true)
   }, [setTrip, setProfile]) // eslint-disable-line react-hooks/exhaustive-deps
->>>>>>> Stashed changes
+
 
   const runSearch = async (params?: any) => {
     const p = params || {
       from: searchForm.from, to: searchForm.to,
       startDate: searchForm.startDate, endDate: searchForm.endDate,
-<<<<<<< HEAD
-      budget: parseInt(searchForm.budget) || 2000,
-      travelers: parseInt(searchForm.travelers) || 2,
-      style: searchForm.style || 'adventure',
-<<<<<<< Updated upstream
-=======
       budget: parseInt(searchForm.budget),
       travelers: parseInt(searchForm.travelers),
       style: searchForm.style,
       rooms: parseInt(searchForm.rooms || '1'),
       adults: parseInt(searchForm.adults || '2'),
       children: parseInt(searchForm.children || '0'),
->>>>>>> staging
-=======
+
       preferences: userProfile?.preferences || [],
->>>>>>> Stashed changes
     }
     
     // Ensure numeric fields are valid and do not pass NaN or invalid values to the backend
@@ -336,7 +294,11 @@ export default function PlanClient() {
 
     if (!p.from || !p.to) return
 
-<<<<<<< HEAD
+    // Sync travelers (members) with adults + children to ensure total counts are correct across other sections
+    const totalGuests = (p.adults || 0) + (p.children || 0)
+    p.travelers = totalGuests || p.travelers || 2
+
+
     // ── BUDGET VALIDATION ──
     const days = (p.startDate && p.endDate) ? getDaysBetween(p.startDate, p.endDate) : 3
     const budgetInINR = convertToINR(p.budget, currency)
@@ -347,11 +309,7 @@ export default function PlanClient() {
       toast.error(`Your budget of ${formatPrice(budgetInINR, currency)} is too low. The minimum estimated budget for ${p.travelers} ${p.travelers === 1 ? 'person' : 'people'} for ${days} days is ${minRequiredFormatted}.`)
       return
     }
-=======
-    // Sync travelers (members) with adults + children to ensure total counts are correct across other sections
-    const totalGuests = (p.adults || 0) + (p.children || 0)
-    p.travelers = totalGuests || p.travelers || 2
->>>>>>> staging
+
 
     // Dismiss any active inputs (closes mobile keyboard and dropdowns instantly)
     if (document.activeElement instanceof HTMLElement) {
@@ -459,7 +417,6 @@ export default function PlanClient() {
         }),
         // Itinerary fetched in parallel
         fetchWithRetry(
-<<<<<<< HEAD
           () => {
             let daysCount = 3
             if (p.startDate && p.endDate) {
@@ -484,18 +441,7 @@ export default function PlanClient() {
             }, { signal })
           },
           { timeout: 20000, maxRetries: 1, label: 'Itinerary' }
-=======
-          () => tripAPI.generateItinerary({
-            destination: p.to,
-            days: p.startDate && p.endDate ? Math.max(1, Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / (1000 * 3600 * 24))) : 3,
-            budget: p.budget,
-            style: p.style,
-            preferences: [],
-            members: p.travelers,
-            startDate: p.startDate
-          }, { signal }),
-          { timeout: 40000, maxRetries: 2, label: 'Itinerary' }
->>>>>>> staging
+
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
           console.warn('[Itinerary] failed:', err.message)
@@ -719,7 +665,45 @@ export default function PlanClient() {
             <span className="font-bold text-[#EA580C] text-base tracking-tight hidden sm:block">TripSage</span>
           </button>
 
-<<<<<<< Updated upstream
+          {/* Trip metadata pill — only shown when a trip is active */}
+          {tripContext.destination ? (
+            <div className="relative hidden md:block">
+              <button
+                onClick={() => setShowEditTrip(true)}
+                className="flex items-center gap-1 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-1.5 text-sm divide-x divide-[#E8E0D8] hover:border-[#EA580C] hover:shadow-sm transition-all text-left"
+                title="Edit trip details"
+              >
+                <span className="pr-3 font-semibold text-[#1A1A1A]">
+                  {tripContext.startLocation || '—'}
+                  <span className="text-[#EA580C] mx-1.5">→</span>
+                  {tripContext.destination}
+                </span>
+                {tripDaysDisplay && (
+                  <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
+                    <CalendarDays size={13} className="text-[#9CA3AF]" />
+                    {tripDaysDisplay}d
+                    {tripContext.startDate && (
+                      <span className="text-[#9CA3AF]">· {formatDate(tripContext.startDate)}</span>
+                    )}
+                  </span>
+                )}
+                <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
+                  <Users size={13} className="text-[#9CA3AF]" />
+                  {userProfile?.members ?? 2}
+                </span>
+                {budgetDisplay && (
+                  <span className="pl-3 flex items-center gap-1.5 text-[#6B6B6B]">
+                    <Wallet size={13} className="text-[#9CA3AF]" />
+                    {budgetDisplay}
+                  </span>
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="hidden md:block" />
+          )}
+
+
           {/* Settings */}
           <button
             className="p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
@@ -762,45 +746,7 @@ export default function PlanClient() {
           <div className="hidden sm:block">
             <UserMenu onOpenNotifications={() => setShowNotifs(true)} />
           </div>
-=======
-          {/* Trip metadata pill — only shown when a trip is active */}
-          {tripContext.destination ? (
-            <div className="relative hidden md:block">
-              <button
-                onClick={() => setShowEditTrip(true)}
-                className="flex items-center gap-1 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-1.5 text-sm divide-x divide-[#E8E0D8] hover:border-[#EA580C] hover:shadow-sm transition-all text-left"
-                title="Edit trip details"
-              >
-                <span className="pr-3 font-semibold text-[#1A1A1A]">
-                  {tripContext.startLocation || '—'}
-                  <span className="text-[#EA580C] mx-1.5">→</span>
-                  {tripContext.destination}
-                </span>
-                {tripDaysDisplay && (
-                  <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
-                    <CalendarDays size={13} className="text-[#9CA3AF]" />
-                    {tripDaysDisplay}d
-                    {tripContext.startDate && (
-                      <span className="text-[#9CA3AF]">· {formatDate(tripContext.startDate)}</span>
-                    )}
-                  </span>
-                )}
-                <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
-                  <Users size={13} className="text-[#9CA3AF]" />
-                  {userProfile?.members ?? 2}
-                </span>
-                {budgetDisplay && (
-                  <span className="pl-3 flex items-center gap-1.5 text-[#6B6B6B]">
-                    <Wallet size={13} className="text-[#9CA3AF]" />
-                    {budgetDisplay}
-                  </span>
-                )}
-              </button>
-            </div>
-          ) : (
-            <div className="hidden md:block" />
-          )}
->>>>>>> Stashed changes
+
 
           {/* Right actions */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -852,28 +798,7 @@ export default function PlanClient() {
                 : <RefreshCw size={16} className="text-[#6B6B6B]" />}
             </button>
 
-            {/* Sign In / User */}
-            {isLoggedIn && user ? (
-              <div className="hidden sm:flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#EA580C] flex items-center justify-center text-white font-bold text-xs shrink-0">
-                  {user.name?.charAt(0).toUpperCase()}
-                </div>
-                <button
-                  onClick={() => { logout(); router.push('/auth') }}
-                  className="text-xs text-[#9CA3AF] hover:text-red-400 transition-colors"
-                  title="Sign out"
-                >
-                  <LogOut size={15} />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => router.push('/auth')}
-                className="flex items-center gap-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
-              >
-                <User size={14} /> Sign in
-              </button>
-            )}
+
 
             {/* Mobile hamburger */}
             <button className="sm:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -942,7 +867,6 @@ export default function PlanClient() {
         </div>
       )}
 
-<<<<<<< Updated upstream
       {/* SEARCH BAR */}
       {activeTab === 'overview' && (
         <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
@@ -991,8 +915,7 @@ export default function PlanClient() {
           </div>
         </div>
       )}
-=======
->>>>>>> Stashed changes
+
 
       {/* AI THINKING */}
       {aiThinking && (
@@ -1015,43 +938,6 @@ export default function PlanClient() {
         </div>
       )}
 
-<<<<<<< Updated upstream
-      {/* TABS */}
-      <div className="px-3 sm:px-4 max-w-7xl mx-auto w-full overflow-hidden box-border">
-        <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar w-full relative snap-x">
-          {TABS.filter(t => (t.id !== 'buses' || isIndianRoute) && (t.id !== 'trains' || isIndianRoute)).map(t => (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                activeTab === t.id
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'glass text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <t.icon size={18} className={`${activeTab === t.id ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--accent)]'} transition-colors`} />
-              {t.label}
-              {t.id === 'transport' && transport.length > 0 && (
-                <span className="badge badge-green text-[0.6rem] py-0 px-1">{transport.length}</span>
-              )}
-              {t.id === 'hotels' && hotels.length > 0 && (
-                <span className="badge badge-green text-[0.6rem] py-0 px-1">{hotels.length}</span>
-              )}
-              {t.id === 'buses' && buses.length > 0 && (
-                <span className="badge badge-green text-[0.6rem] py-0 px-1">{buses.length}</span>
-              )}
-              {t.id === 'trains' && trains.length > 0 && (
-                <span className="badge badge-green text-[0.6rem] py-0 px-1">{trains.length}</span>
-              )}
-              {t.id === 'history' && tripHistory.length > 0 && (
-                <span className="badge badge-amber text-[0.6rem] py-0 px-1">{tripHistory.length}</span>
-              )}
-              {t.id === 'return' && bookingStatus.returnStatus === 'CONFIRMED' && (
-                <span className="badge badge-green text-[0.6rem] py-0 px-1">✓</span>
-              )}
-            </button>
-          ))}
-=======
       {/* ── TAB BAR ──────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-[#E8E0D8] sticky top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1070,9 +956,9 @@ export default function PlanClient() {
                 >
                   <t.icon size={15} strokeWidth={isActive ? 2.5 : 2} />
                   {t.label}
-                  {t.id === 'transport' && mergedTransport.length > 0 && (
+                  {t.id === 'transport' && transport.length > 0 && (
                     <span className="ml-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full">
-                      {mergedTransport.length}
+                      {transport.length}
                     </span>
                   )}
                   {t.id === 'hotels' && hotels.length > 0 && (
@@ -1080,11 +966,30 @@ export default function PlanClient() {
                       {hotels.length}
                     </span>
                   )}
+                  {t.id === 'buses' && buses.length > 0 && (
+                    <span className="ml-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                      {buses.length}
+                    </span>
+                  )}
+                  {t.id === 'trains' && trains.length > 0 && (
+                    <span className="ml-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                      {trains.length}
+                    </span>
+                  )}
+                  {t.id === 'history' && tripHistory.length > 0 && (
+                    <span className="ml-0.5 text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-full">
+                      {tripHistory.length}
+                    </span>
+                  )}
+                  {t.id === 'return' && bookingStatus.returnStatus === 'CONFIRMED' && (
+                    <span className="ml-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                      ✓
+                    </span>
+                  )}
                 </button>
               )
             })}
           </div>
->>>>>>> Stashed changes
         </div>
       </div>
 
@@ -1121,7 +1026,6 @@ export default function PlanClient() {
               />
             </div>
           )}
-<<<<<<< Updated upstream
           
           {tabCache.trains && (
             <div className={activeTab === 'trains' ? 'block' : 'hidden'}>
@@ -1151,17 +1055,12 @@ export default function PlanClient() {
             </div>
           )}
           
-=======
 
-          {/* Stay (hotels) */}
->>>>>>> Stashed changes
           {tabCache.hotels && (
             <div className={activeTab === 'hotels' ? 'block' : 'hidden'}>
               <HotelsTab
                 hotels={hotels} loading={loading}
                 tripContext={tripContext} searchForm={searchForm}
-                budget={totalBudget} flightCostSpent={flightCostSpent}
-                nights={tripNights} currency={currency}
               />
             </div>
           )}
@@ -1184,8 +1083,6 @@ export default function PlanClient() {
               <BookingStatus />
             </div>
           )}
-<<<<<<< Updated upstream
-          
           {tabCache.history && (
             <div className={activeTab === 'history' ? 'block' : 'hidden'}>
               <TripHistoryTab
@@ -1213,13 +1110,12 @@ export default function PlanClient() {
                   toast.success('Itinerary restored!')
                 }}
               />
-=======
+            </div>
+          )}
 
-          {/* Hidden extras still accessible via OverviewTab CTAs */}
           {tabCache.explore && (
             <div className={activeTab === 'explore' ? 'block' : 'hidden'}>
               <ExploreSection destination={tripContext.destination} />
->>>>>>> Stashed changes
             </div>
           )}
           {tabCache.map && (

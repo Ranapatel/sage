@@ -8,7 +8,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useAuthStore } from '@/store/authStore'
 import { 
   Menu, User, Bookmark, Calendar, Image as ImageIcon, 
-  Wallet, Users, Settings, HelpCircle, LogOut, Bell, Globe
+  Wallet, Users, Settings, HelpCircle, LogOut, Bell, Globe, History
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -122,21 +122,29 @@ export default function UserMenu({ onOpenNotifications }: UserMenuProps) {
                 </div>
 
                 {/* Primary Group */}
-                <button onClick={() => navigateTo('/profile?tab=saved')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
-                  <Bookmark size={15} className="text-slate-400" />
-                  Wishlists
-                </button>
                 <button onClick={() => navigateTo('/dashboard')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
                   <Calendar size={15} className="text-slate-400" />
-                  Trips
+                  Dashboard
+                </button>
+                <button onClick={() => navigateTo('/profile?tab=personal')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
+                  <User size={15} className="text-slate-400" />
+                  Profile
+                </button>
+                <button onClick={() => navigateTo('/profile?tab=preferences')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
+                  <Settings size={15} className="text-slate-400" />
+                  Preferences
+                </button>
+                <button onClick={() => navigateTo('/profile?tab=saved')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
+                  <Bookmark size={15} className="text-slate-400" />
+                  Saved Content
+                </button>
+                <button onClick={() => navigateTo('/profile?tab=history')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
+                  <History size={15} className="text-slate-400" />
+                  Trip History
                 </button>
                 <button onClick={() => navigateTo('/profile?tab=memories')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
                   <ImageIcon size={15} className="text-slate-400" />
                   Memories
-                </button>
-                <button onClick={() => navigateTo('/profile?tab=preferences')} className="w-full text-left px-4.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 transition-colors">
-                  <User size={15} className="text-slate-400" />
-                  Profile Preferences
                 </button>
 
                 <div className="h-px bg-slate-100 my-1.5"></div>

@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import { trackEvent } from '@/lib/analytics'
+import { tripAPI } from '@/lib/api'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { useInView } from 'framer-motion'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import {
   MapPin, Calendar, ArrowRight, Plane, Shield, Plus, Minus, Info, ChevronRight, X
 } from 'lucide-react'
@@ -218,6 +221,10 @@ const FAQS = [
 
 export default function HomeClient() {
   const router = useRouter()
+  const isMobile = useIsMobile()
+  const isDesktop = !isMobile
+  const [reviews, setReviews] = useState<any[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(true)
   const { user, updateCurrency } = useAuthStore()
   const [form, setForm] = useState({
     from: '',
@@ -235,7 +242,6 @@ export default function HomeClient() {
   const [showPrefModal, setShowPrefModal] = useState(false)
 
   useEffect(() => {
-<<<<<<< Updated upstream
     let active = true
     const fetchReviews = async () => {
       try {
@@ -257,13 +263,8 @@ export default function HomeClient() {
   useEffect(() => {
     if (user?.currency && user.currency !== form.currency) {
       Promise.resolve().then(() => {
-        setForm(p => ({ ...p, currency: user.currency }))
+        setForm(p => ({ ...p, currency: user.currency as any }))
       })
-=======
-    sessionStorage.removeItem('tripContext')
-    if (user?.currency) {
-      setForm(p => ({ ...p, currency: user.currency as any }))
->>>>>>> Stashed changes
     }
   }, [user?.currency, form.currency])
 
@@ -273,7 +274,6 @@ export default function HomeClient() {
     setShowPrefModal(true)
   }
 
-<<<<<<< Updated upstream
   const [initialized, setInitialized] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const isFormInView = useInView(formRef, { amount: 0.1 })
@@ -304,9 +304,6 @@ export default function HomeClient() {
   useEffect(() => {
     Promise.resolve().then(() => setInitialized(true))
   }, [])
-
-=======
->>>>>>> Stashed changes
   return (
     <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] font-body selection:bg-orange-500/20 selection:text-[#EA580C] antialiased">
       <Navbar />

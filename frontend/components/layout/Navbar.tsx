@@ -2,21 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SignedIn, SignedOut, useUser, useClerk } from '@clerk/nextjs'
+import { SignedIn, SignedOut, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { trackEvent } from '@/lib/analytics'
-<<<<<<< Updated upstream
-import { Menu, X, ArrowRight, LogOut } from 'lucide-react'
+import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
 import UserMenu from './UserMenu'
-=======
-import { Menu, X, ArrowRight, LogOut, ChevronDown } from 'lucide-react'
->>>>>>> Stashed changes
 
 export default function Navbar() {
-  const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -38,7 +32,7 @@ export default function Navbar() {
               height={34}
               className="rounded-lg shadow-sm w-[34px] h-[34px] object-contain"
             />
-            <span className="font-display text-lg font-extrabold text-[#1A1A1A] tracking-tight hidden md:block">TripSage</span>
+            <span className="font-display text-lg font-extrabold text-[#1A1A1A] tracking-tight hidden md:block" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>TripSage</span>
           </Link>
         </div>
         
@@ -61,49 +55,16 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-          {isLoggedIn && user ? (
-=======
-          {mounted && isLoggedIn && user ? (
->>>>>>> Stashed changes
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="hidden sm:flex w-8 h-8 rounded-full bg-[#EA580C] items-center justify-center text-white text-xs font-bold">
-                {user.name?.charAt(0).toUpperCase()}
-              </div>
-<<<<<<< Updated upstream
-              <span className="text-sm font-semibold text-slate-900 hidden sm:block">{user.name}</span>
-              <Link href="/plan" className="hidden md:flex btn-primary whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-xl bg-blue-600 text-white font-bold">Dashboard</Link>
-              <button onClick={() => logout()} className="hidden sm:block text-slate-400 hover:text-red-400 transition-colors p-2" title="Logout"><LogOut size={18} /></button>
-=======
-          <div className="hidden sm:flex items-center gap-2 text-xs text-blue-600 font-medium">
-            <span className="live-dot bg-blue-600"></span>
-            <span>Real-time Engine</span>
-          </div>
-          
           <SignedIn>
             <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="hidden md:flex hover:text-blue-600 font-semibold transition-colors text-sm text-slate-600">Dashboard</Link>
+              <Link href="/plan" className="hidden md:flex whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
               <UserMenu />
->>>>>>> staging
             </div>
           </SignedIn>
           <SignedOut>
-            <Link href="/sign-in" className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center justify-center rounded-xl font-bold">Sign In</Link>
-            <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-blue-600 text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:opacity-90 transition-opacity">Plan Trip <ArrowRight size={14} /></Link>
+            <Link href="/sign-in" className="hidden sm:flex text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
+            <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={14} strokeWidth={1.5} /></Link>
           </SignedOut>
-=======
-              <span className="text-sm font-semibold text-[#1A1A1A] hidden sm:block">{user.name}</span>
-              <Link href="/plan" className="hidden md:flex whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
-              <button onClick={() => logout()} className="hidden sm:block text-[#6B6B6B] hover:text-red-500 transition-colors duration-200 p-2" title="Logout"><LogOut size={16} strokeWidth={1.5} /></button>
-            </div>
-          ) : (
-            <>
-              <Link href="/auth" className="hidden sm:flex text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
-              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={14} strokeWidth={1.5} /></Link>
-            </>
-          )}
->>>>>>> Stashed changes
           
           <button className="md:hidden p-1.5 sm:p-2 text-[#1A1A1A]" onClick={() => setMobileMenuOpen(true)}>
             <Menu size={20} strokeWidth={1.5} />
@@ -141,7 +102,6 @@ export default function Navbar() {
                 <Link href="/visa-guide" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Visa Guide</Link>
                 <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Blog</Link>
                 <div className="h-px bg-slate-100 my-4 mx-4"></div>
-<<<<<<< Updated upstream
                 <SignedIn>
                   <div className="flex flex-col gap-1 overflow-y-auto max-h-[60vh] pr-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mt-2 mb-1">Navigation</span>
@@ -173,12 +133,6 @@ export default function Navbar() {
                     >
                       Sign Out
                     </button>
-=======
-                {mounted && isLoggedIn && user ? (
-                  <div className="flex flex-col gap-2">
-                    <Link href="/plan" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-xl">Dashboard</Link>
-                    <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="flex items-center h-[52px] px-4 text-lg font-semibold text-red-500 hover:bg-red-50 rounded-xl text-left w-full">Logout</button>
->>>>>>> Stashed changes
                   </div>
                 </SignedIn>
                 <SignedOut>
@@ -192,6 +146,3 @@ export default function Navbar() {
     </>
   )
 }
-
-
-

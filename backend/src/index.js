@@ -81,9 +81,7 @@ app.use('/api/trips',         require('./routes/trips').default)
 
 app.use('/api/profile',       require('./modules/profile/profile.routes').default)
 app.use('/api/places',        require('./routes/places'))
-<<<<<<< HEAD
 app.use('/api/reviews',       require('./routes/reviews'))
-=======
 app.use('/api/hotels',        require('./routes/hotels'))
 app.use('/api/transport',     require('./routes/transport'))
 app.use('/api/train',         require('./routes/train'))
@@ -93,7 +91,6 @@ app.use('/api/bus',           require('./routes/bus'))
 app.use('/api/activities',    require('./routes/activities'))
 app.use('/api/payments',      require('./routes/payments'))
 app.use('/api/bookings',      require('./routes/activityBookings'))
->>>>>>> staging
 
 // Health check
 app.get('/health', (req, res) => {

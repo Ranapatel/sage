@@ -424,7 +424,7 @@ body {
   animation-delay: 0s !important;
 }
 
-<<<<<<< HEAD
+
 /* Hero section fade-up entrance animations */
 .hero-headline-fade {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -445,7 +445,7 @@ body {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
   opacity: 0;
 }
-=======
+
 /* ══════════════════════════════════════════════════════════════════════════════
    HOTEL CARD — Premium OTA Design System
    ══════════════════════════════════════════════════════════════════════════════ */
@@ -1513,4 +1513,4 @@ body {
 .spin { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .mt-6 { margin-top: 24px; }
->>>>>>> staging
+

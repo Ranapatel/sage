@@ -121,18 +121,12 @@ export default function LocationAutocomplete({
   // Sync external value changes (e.g. sessionStorage pre-fill on plan page)
   // Only updates the text — never triggers the dropdown
   useEffect(() => {
-<<<<<<< HEAD
     if (value !== lastSentValueRef.current) {
       setQuery(value)
       lastSentValueRef.current = value
       // Reset so a programmatic value change never opens the dropdown
       hasUserInteractedRef.current = false
     }
-=======
-    Promise.resolve().then(() => {
-      setQuery(value)
-    })
->>>>>>> staging
   }, [value])
 
   // Close dropdown on outside click
@@ -147,7 +141,6 @@ export default function LocationAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-<<<<<<< HEAD
   // ── Cleanup on unmount ──────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
@@ -180,12 +173,6 @@ export default function LocationAutocomplete({
     const cacheKey = trimmed.toLowerCase()
 
     // 1. Instant Cache Check
-=======
-  // ── Fetch suggestions from backend ──────────────────────────────────────────
-  const fetchSuggestions = useCallback(async (searchTerm: string) => {
-    // Serve from cache when available
-    const cacheKey = searchTerm.toLowerCase()
->>>>>>> staging
     if (queryCache.has(cacheKey)) {
       abortRef.current?.abort()
       if (timeoutRef.current) clearTimeout(timeoutRef.current)

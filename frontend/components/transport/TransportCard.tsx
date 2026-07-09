@@ -10,11 +10,8 @@ import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl, getLogoUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
-<<<<<<< Updated upstream
 import { useRequireAuth } from '@/hooks/useRequireAuth'
-=======
 import SageScoreBadge from '../ui/SageScoreBadge'
->>>>>>> Stashed changes
 
 interface Props {
   item: any

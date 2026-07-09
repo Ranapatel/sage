@@ -230,10 +230,9 @@ export const tripAPI = {
   saveProfile: (profile: any): Promise<ApiResponse<any>> =>
     API.post('/api/profile', profile),
 
-<<<<<<< HEAD
   getReviews: (): Promise<ApiResponse<any[]>> =>
     API.get('/api/reviews'),
-=======
+
   /**
    * Fetches ranked hotel recommendations from the Hotelbeds API.
    * Data is API-supplied only — no fabricated prices, ratings, or images.
@@ -292,7 +291,6 @@ export const tripAPI = {
     travelClass?: string
   }, config?: { signal?: AbortSignal }): Promise<{ trains: TrainOption[]; stationInfo: TrainStationInfo | null; isDomestic: boolean }> =>
     API.post('/api/train/search', params, config),
->>>>>>> staging
 }
 
 // ─── Auth API ─────────────────────────────────────────────────────────────────

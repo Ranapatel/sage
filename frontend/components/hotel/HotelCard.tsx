@@ -110,7 +110,6 @@ function HotelCard({ item, showDetail }: Props) {
     setTimeout(() => setSaving(false), 400)
   }, [item.id, isSaved, toggleSaveHotel])
 
-  // ── View Rooms ─────────────────────────────────────────────────────────────
   const handleViewRooms = useCallback(() => {
     setHotelDetailId(item.id)
     setBookingStatus({ hotelStatus: 'SELECTED', selectedHotel: item })
@@ -122,17 +121,8 @@ function HotelCard({ item, showDetail }: Props) {
       timestamp: new Date().toISOString(),
       read: false,
     })
-<<<<<<< HEAD
     toast.success('Hotel selected! Complete booking →')
-  }
-
-  const fallbackHotelImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'
-  const initialImage = React.useMemo(() => getOptimizedImageUrl(item.image || fallbackHotelImage, isMobile), [item.image, isMobile])
-  const [imgSrc, setImgSrc] = React.useState(initialImage)
-
-  React.useEffect(() => {
-    setImgSrc(initialImage)
-  }, [initialImage])
+  }, [item, displayPrice, setHotelDetailId, setBookingStatus, addNotification])
 
   // ── Source badge config ────────────────────────────────────────────────────
   const sourceBadge = (() => {
@@ -141,9 +131,6 @@ function HotelCard({ item, showDetail }: Props) {
  if (item.source === 'api_error') return { label: '️ Unavailable', cls: 'badge-red' }
     return null
   })()
-=======
-  }, [item, displayPrice, setBookingStatus, setHotelDetailId, addNotification])
->>>>>>> staging
 
   return (
     <div className="hotel-card" id={`hotel-card-${item.id}`}>
@@ -175,24 +162,6 @@ function HotelCard({ item, showDetail }: Props) {
           )}
         </div>
 
-<<<<<<< HEAD
-      {/* Hero image */}
-      <div className="relative h-48 overflow-hidden">
-        <Image 
-          src={imgSrc} 
-          alt={`Stay at ${item.name} - ${item.location}`} 
-          fill
-          className="object-cover hover:scale-105 transition-transform duration-500" 
-          sizes="(max-width: 768px) 100vw, 50vw"
-          unoptimized={imgSrc.includes('unsplash.com')}
-          onError={() => {
-            if (imgSrc !== fallbackHotelImage) {
-              setImgSrc(fallbackHotelImage)
-            }
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-=======
         {/* Nav arrows */}
         {images.length > 1 && (
           <>
@@ -200,7 +169,6 @@ function HotelCard({ item, showDetail }: Props) {
             <button className="hotel-carousel-btn next" onClick={goNext} aria-label="Next image">›</button>
           </>
         )}
->>>>>>> staging
 
         {/* Dot indicators */}
         {images.length > 1 && (
@@ -238,7 +206,6 @@ function HotelCard({ item, showDetail }: Props) {
         }} />
       </div>
 
-<<<<<<< Updated upstream
       {/* ── Content ─────────────────────────────────────────────────────── */}
       <div style={{ padding: '14px 16px 16px' }}>
 
@@ -265,66 +232,6 @@ function HotelCard({ item, showDetail }: Props) {
             <span className={`hotel-rating-pill ${ratingInfo.cls}`}>
               {item.rating.toFixed(1)} {ratingInfo.label}
             </span>
-=======
-      <div className="p-4 space-y-3">
-        {/* Name + Price */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 flex gap-3 items-start">
-            <div className="flex-shrink-0 mt-0.5">
-              <SageScoreBadge item={item} type="hotel" />
-            </div>
-            <h3 className="font-bold text-[var(--text-primary)] leading-tight">{item.name}</h3>
-          </div>
-          <div className="text-right flex-shrink-0">
-            {displayPrice ? (
-              <>
-                <div className="text-2xl font-black font-mono text-[var(--primary)] leading-tight">
-                  {displayPrice}
-                </div>
-                <div className="text-[0.65rem] text-[var(--text-muted)]">/night</div>
-              </>
-            ) : (
-              <div className="text-xs text-[var(--text-muted)] italic">Price on site</div>
-            )}
-          </div>
-        </div>
-
-
-
-        {/* Amenities from API */}
-        {showDetail && item.amenities?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {item.amenities.map((a: string, i: number) => (
-              <span key={i} className="badge badge-green text-[0.65rem]">{a}</span>
-            ))}
-          </div>
-        )}
-
-        {/* Offers from API */}
-        {showDetail && item.offers?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {item.offers.map((o: string, i: number) => (
- <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
-            ))}
-          </div>
-        )}
-
-        {/* CTA */}
-        <div className="flex gap-2 pt-1">
-          <a
-            href={item.bookingLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent('booking_click', { type: 'hotel', name: item.name, price: item.price })}
-            className="flex-1 text-center py-3 px-4 rounded-xl font-black text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
-          >
-            {item.source === 'affiliate_redirect' ? 'Search on Agoda →' : 'Book on Agoda →'}
-          </a>
-          {item.source === 'live' && (
-            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3">
-              Select
-            </button>
->>>>>>> Stashed changes
           )}
         </div>
 
