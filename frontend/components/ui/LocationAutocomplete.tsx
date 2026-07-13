@@ -26,73 +26,70 @@ interface LocationAutocompleteProps {
 }
 
 // ── Static local cities list for instant matching ────────────────────────────
-const LOCAL_CITIES = [
-  { name: 'Hyderabad, India', type: 'city' as const },
-  { name: 'Mumbai, India', type: 'city' as const },
-  { name: 'Delhi, India', type: 'city' as const },
-  { name: 'Bengaluru, India', type: 'city' as const },
-  { name: 'Chennai, India', type: 'city' as const },
-  { name: 'Kolkata, India', type: 'city' as const },
-  { name: 'Pune, India', type: 'city' as const },
-  { name: 'Goa, India', type: 'city' as const },
-  { name: 'Jaipur, India', type: 'city' as const },
-  { name: 'Kochi, India', type: 'city' as const },
-  { name: 'Bali, Indonesia', type: 'city' as const },
-  { name: 'Bangkok, Thailand', type: 'city' as const },
-  { name: 'Phuket, Thailand', type: 'city' as const },
-  { name: 'Singapore', type: 'city' as const },
-  { name: 'Kuala Lumpur, Malaysia', type: 'city' as const },
-  { name: 'Dubai, UAE', type: 'city' as const },
-  { name: 'Abu Dhabi, UAE', type: 'city' as const },
-  { name: 'London, United Kingdom', type: 'city' as const },
-  { name: 'Paris, France', type: 'city' as const },
-  { name: 'Barcelona, Spain', type: 'city' as const },
-  { name: 'Rome, Italy', type: 'city' as const },
-  { name: 'Amsterdam, Netherlands', type: 'city' as const },
-  { name: 'New York, USA', type: 'city' as const },
-  { name: 'Los Angeles, USA', type: 'city' as const },
-  { name: 'Tokyo, Japan', type: 'city' as const },
-  { name: 'Seoul, South Korea', type: 'city' as const },
-  { name: 'Sydney, Australia', type: 'city' as const },
-  { name: 'Melbourne, Australia', type: 'city' as const },
-  { name: 'Maldives', type: 'city' as const },
-  { name: 'Colombo, Sri Lanka', type: 'city' as const },
-  { name: 'Kathmandu, Nepal', type: 'city' as const },
-  { name: 'Hong Kong, China', type: 'city' as const },
-  { name: 'Istanbul, Turkey', type: 'city' as const },
-  { name: 'Cairo, Egypt', type: 'city' as const },
-  { name: 'Cape Town, South Africa', type: 'city' as const },
-  { name: 'Nairobi, Kenya', type: 'city' as const },
-  { name: 'Toronto, Canada', type: 'city' as const },
-  { name: 'Vancouver, Canada', type: 'city' as const },
-].map((c, i) => ({
+const LOCAL_CITIES_RAW = [
+  { name: 'Hyderabad, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Mumbai, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Delhi, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Bengaluru, India', type: 'city' as const, aliases: ['bangalore'] },
+  { name: 'Chennai, India', type: 'city' as const, aliases: ['madras'] },
+  { name: 'Kolkata, India', type: 'city' as const, aliases: ['calcutta'] },
+  { name: 'Pune, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Goa, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Jaipur, India', type: 'city' as const, aliases: ['rajasthan'] },
+  { name: 'Kochi, India', type: 'city' as const, aliases: ['kerala', 'keral', 'cochin'] },
+  { name: 'Agra, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Varanasi, India', type: 'city' as const, aliases: ['banaras', 'benaras', 'kashi'] },
+  { name: 'Udaipur, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Manali, India', type: 'city' as const, aliases: ['himachal'] },
+  { name: 'Shimla, India', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Srinagar, India', type: 'city' as const, aliases: ['kashmir'] },
+  { name: 'Leh, India', type: 'city' as const, aliases: ['ladakh', 'leh ladakh'] },
+  { name: 'Gangtok, India', type: 'city' as const, aliases: ['sikkim'] },
+  { name: 'Pondicherry, India', type: 'city' as const, aliases: ['puducherry'] },
+  { name: 'Ahmedabad, India', type: 'city' as const, aliases: ['gujarat'] },
+  { name: 'Thiruvananthapuram, India', type: 'city' as const, aliases: ['trivandrum'] },
+  { name: 'Guwahati, India', type: 'city' as const, aliases: ['assam'] },
+  { name: 'Bali, Indonesia', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Bangkok, Thailand', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Phuket, Thailand', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Singapore', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Kuala Lumpur, Malaysia', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Dubai, UAE', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Abu Dhabi, UAE', type: 'city' as const, aliases: [] as string[] },
+  { name: 'London, United Kingdom', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Paris, France', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Barcelona, Spain', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Rome, Italy', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Amsterdam, Netherlands', type: 'city' as const, aliases: [] as string[] },
+  { name: 'New York, USA', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Los Angeles, USA', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Tokyo, Japan', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Seoul, South Korea', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Sydney, Australia', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Melbourne, Australia', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Maldives', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Colombo, Sri Lanka', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Kathmandu, Nepal', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Hong Kong, China', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Istanbul, Turkey', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Cairo, Egypt', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Cape Town, South Africa', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Nairobi, Kenya', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Toronto, Canada', type: 'city' as const, aliases: [] as string[] },
+  { name: 'Vancouver, Canada', type: 'city' as const, aliases: [] as string[] },
+]
+
+const LOCAL_CITIES = LOCAL_CITIES_RAW.map((c, i) => ({
   id: `local_${i}`,
   name: c.name,
   type: c.type,
+  aliases: c.aliases,
 }))
-
-const POPULAR_FALLBACK_CITIES: Location[] = [
-  LOCAL_CITIES[0], // Hyderabad
-  LOCAL_CITIES[1], // Mumbai
-  LOCAL_CITIES[2], // Delhi
-  LOCAL_CITIES[3], // Bengaluru
-  LOCAL_CITIES[7], // Goa
-  LOCAL_CITIES[10], // Bali
-]
-
-const EXCLUDE_KEYWORDS = [
-  'sea', 'ocean', 'lake', 'mountain', 'river', 'gulf', 'bay', 'desert', 'forest', 'park',
-  'islands', 'island', 'region', 'province', 'district', 'county', 'state', 'hills', 'valley',
-  'canal', 'peak', 'canyon', 'peninsula', 'cape', 'reef', 'beach', 'plain', 'plateau', 'volcano'
-]
-
-function isCityOrAirport(name: string) {
-  const n = name.toLowerCase()
-  return !EXCLUDE_KEYWORDS.some(kw => n.includes(kw))
-}
 
 // ── Session-level cache — avoids redundant network requests ───────────────────
 const queryCache = new Map<string, Location[]>()
+// Throttle network-error logging so we only warn once per failure session
+let networkErrorLogged = false
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -188,10 +185,12 @@ export default function LocationAutocomplete({
       return
     }
 
-    // 2. Local Instant Search (Show matches instantly as they type)
-    const localMatches = LOCAL_CITIES.filter((c) =>
-      c.name.toLowerCase().includes(cacheKey) && isCityOrAirport(c.name)
-    ).slice(0, 6)
+    // 2. Local Instant Search (Show matches instantly as they type — also checks aliases)
+    const localMatches = LOCAL_CITIES.filter((c) => {
+      const nameMatch = c.name.toLowerCase().includes(cacheKey)
+      const aliasMatch = c.aliases.some(a => a.includes(cacheKey) || cacheKey.includes(a))
+      return nameMatch || aliasMatch
+    }).slice(0, 6)
 
     if (localMatches.length > 0) {
       setState({ status: 'success', data: localMatches })
@@ -239,7 +238,7 @@ export default function LocationAutocomplete({
       console.warn('[LocationAutocomplete] Request timed out. Showing fallback cities.')
       abortRef.current?.abort()
       setIsFetching(false)
-      setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
+      setState({ status: 'success', data: LOCAL_CITIES.slice(0, 6) })
       if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
     }, 5000)
 
@@ -263,10 +262,6 @@ export default function LocationAutocomplete({
       }
 
       const locations: Location[] = results
-        .filter((r: any) => {
-          const name = r.city || r.name || r.displayName || ''
-          return isCityOrAirport(name)
-        })
         .map((r: any) => {
           let displayName = ''
 
@@ -292,11 +287,16 @@ export default function LocationAutocomplete({
         })
 
       queryCache.set(cacheKey, locations)
+      networkErrorLogged = false // Reset on success
       setState({ status: 'success', data: locations })
       if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
     } catch (err: any) {
       if (err?.name === 'AbortError') return // Silently ignore cancelled requests
-      console.error('[LocationAutocomplete] fetch error:', err?.message)
+      // Throttle: only log once per failure session to avoid console spam
+      if (!networkErrorLogged) {
+        networkErrorLogged = true
+        console.warn('[LocationAutocomplete] Backend unavailable — using fallback cities.')
+      }
       
       // Clear timeout
       if (timeoutRef.current) {
@@ -306,7 +306,7 @@ export default function LocationAutocomplete({
 
       // If API fails and user is still interacting, show fallback cities
       if (isFocusedRef.current && hasUserInteractedRef.current) {
-        setState({ status: 'success', data: POPULAR_FALLBACK_CITIES })
+        setState({ status: 'success', data: LOCAL_CITIES.slice(0, 6) })
         setIsOpen(true)
       }
     } finally {
@@ -314,28 +314,6 @@ export default function LocationAutocomplete({
     }
   }, [])
 
-  // ── Debounced search trigger ─────────────────────────────────────────────────
-  useEffect(() => {
-    if (isSelectingRef.current) {
-      isSelectingRef.current = false
-      return
-    }
-
-    const trimmed = query.trim()
-    if (trimmed.length < 2) {
-      Promise.resolve().then(() => {
-        setState({ status: 'idle' })
-        setIsOpen(false)
-      })
-      return
-    }
-
-    const timer = setTimeout(() => {
-      fetchSuggestions(trimmed)
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [query, fetchSuggestions])
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 

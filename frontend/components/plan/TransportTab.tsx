@@ -4,11 +4,12 @@ import React, { memo, useMemo, useState } from 'react'
 import {
   Plane, Bus, Car, Clock, Wallet, Shield, Star,
   ArrowRight, Sparkles, CheckCircle2, AlertCircle,
-  TrendingUp, Zap, ChevronRight, ExternalLink,
+  TrendingUp, Zap, ChevronRight, ExternalLink, Train
 } from 'lucide-react'
 import { SYMBOLS } from '@/lib/currency'
 import { useTripStore } from '@/store/tripStore'
 import { trackEvent } from '@/lib/analytics'
+import TransportPlanner from '@/components/transport-intelligence/TransportPlanner'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,7 +23,7 @@ interface Props {
   currency?: string
 }
 
-type Segment = 'recommended' | 'flights' | 'buses' | 'cabs'
+type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-routes'
 
 // ─── Airline badge data ───────────────────────────────────────────────────────
 
@@ -373,14 +374,15 @@ function BestValueCard({
   from: string; to: string; topPick?: boolean
 }) {
   const score = useMemo(() => calcSageScore(item, allItems), [item, allItems])
-  const isFlight = item.type === 'flight' || (!item.type && item.departure)
+  const isFlight = item.type === 'flight' || (!item.type && item.departure && item.type !== 'train' && item.type !== 'bus' && item.type !== 'car' && item.type !== 'cab')
   const isBus = item.type === 'bus'
-  const Icon = isFlight ? Plane : isBus ? Bus : Car
-  const ctaText = isFlight ? 'See flight options' : isBus ? 'See bus options' : 'See rental options'
+  const isTrain = item.type === 'train'
+  const Icon = isFlight ? Plane : isBus ? Bus : isTrain ? Train : Car
+  const ctaText = isFlight ? 'See flight options' : isBus ? 'See bus options' : isTrain ? 'See train options' : 'See rental options'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
   const cleanName = item.name?.split('—')[0]?.trim() ?? 'Best Route'
-  const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : 'Rental/Cab'
+  const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
 
   const bgImg = isFlight ? getFlightBgImage(item) : null
 
@@ -512,13 +514,14 @@ function ComparisonCard({
   item: any; allItems: any[]; budget: number; symbol: string; locale: string; isTopPick: boolean
 }) {
   const score = useMemo(() => calcSageScore(item, allItems), [item, allItems])
-  const isFlight = item.type === 'flight' || (!item.type && item.departure)
+  const isFlight = item.type === 'flight' || (!item.type && item.departure && item.type !== 'train' && item.type !== 'bus' && item.type !== 'car' && item.type !== 'cab')
   const isBus = item.type === 'bus'
-  const Icon = isFlight ? Plane : isBus ? Bus : Car
-  const ctaText = isFlight ? 'See flight options' : isBus ? 'See bus options' : 'See rental options'
+  const isTrain = item.type === 'train'
+  const Icon = isFlight ? Plane : isBus ? Bus : isTrain ? Train : Car
+  const ctaText = isFlight ? 'See flight options' : isBus ? 'See bus options' : isTrain ? 'See train options' : 'See rental options'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor = item.rating >= 4.5 ? 'text-[#2563EB]' : item.rating >= 4 ? 'text-[#16A34A]' : 'text-[#6B6B6B]'
-  const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : 'Rental/Cab'
+  const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
 
   const bgImg = isFlight ? getFlightBgImage(item) : null
 
@@ -631,9 +634,9 @@ function ComparisonCard({
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
-function EmptyState({ type }: { type: string }) {
-  const Icon = type === 'flights' ? Plane : type === 'buses' ? Bus : Car
-  const labels = { flights: 'No flights found', buses: 'No buses found', cabs: 'No rental cars or cabs found' }
+function EmptyState({ type, onSwitch }: { type: string; onSwitch?: () => void }) {
+  const Icon = type === 'flights' ? Plane : type === 'buses' ? Bus : type === 'trains' ? Train : Car
+  const labels = { flights: 'No flights found', trains: 'No trains found', buses: 'No buses found', cabs: 'No rental cars or cabs found' }
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl p-16 flex flex-col items-center gap-4 text-center">
       <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] border border-[#FED7AA] flex items-center justify-center">
@@ -642,6 +645,18 @@ function EmptyState({ type }: { type: string }) {
       <div>
         <p className="text-[16px] font-bold text-[#1A1A1A] mb-1.5">{labels[type as keyof typeof labels] ?? 'No results'}</p>
         <p className="text-[13px] text-[#6B6B6B]">Try adjusting your route or dates.</p>
+        {onSwitch && (
+          <div className="mt-5">
+            <p className="text-[13px] text-slate-500 mb-3">Or, use our Multi-Modal Smart Route Planner to plan door-to-door transportation.</p>
+            <button
+              onClick={onSwitch}
+              className="h-10 px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-[13px] rounded-xl transition-all shadow-sm flex items-center gap-1.5 mx-auto"
+            >
+              <Sparkles size={14} />
+              Try Smart Route Planner
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -663,11 +678,12 @@ function TransportTab({
   const destCity = dest.split(',')[0].trim()
 
   // Split transport list by type
-  const { flights, buses, cabs } = useMemo(() => {
-    const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure))
+  const { flights, trains, buses, cabs } = useMemo(() => {
+    const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure && t.type !== 'train' && t.type !== 'bus' && t.type !== 'car' && t.type !== 'cab'))
+    const trains = transport.filter(t => t.type === 'train')
     const buses = transport.filter(t => t.type === 'bus')
     const cabs = transport.filter(t => t.type === 'car' || t.type === 'cab')
-    return { flights, buses, cabs }
+    return { flights, trains, buses, cabs }
   }, [transport])
 
   // Sage scores for "Top Pick" detection
@@ -677,43 +693,55 @@ function TransportTab({
     [flights]
   )
 
+  const scoredTrains = useMemo(() =>
+    trains.map(t => ({ ...t, _score: calcSageScore(t, trains) }))
+      .sort((a, b) => b._score - a._score),
+    [trains]
+  )
+
   const bestFlight = scoredFlights[0]
+  const bestTrain = scoredTrains[0]
   const bestBus = buses[0]
   const bestCab = cabs[0]
 
   // Best value card for current segment
   const bestForSegment = useMemo(() => {
     if (segment === 'flights') return bestFlight
+    if (segment === 'trains') return bestTrain
     if (segment === 'buses') return bestBus
     if (segment === 'cabs') return bestCab
     // Recommended: cross-compare best of each type
-    return [bestFlight, bestBus, bestCab]
+    return [bestFlight, bestTrain, bestBus, bestCab]
       .filter(Boolean)
       .sort((a, b) => (a?.price ?? Infinity) - (b?.price ?? Infinity))[0]
-  }, [segment, bestFlight, bestBus, bestCab])
+  }, [segment, bestFlight, bestTrain, bestBus, bestCab])
 
   // Cards for the comparison grid
   const gridItems = useMemo(() => {
     if (segment === 'flights') return scoredFlights.slice(1, 4)
+    if (segment === 'trains') return scoredTrains.slice(1, 4)
     if (segment === 'buses') return buses.slice(1, 4)
     if (segment === 'cabs') return cabs.slice(1, 4)
     // Recommended: one of each type
-    return [bestFlight, bestBus, bestCab].filter(Boolean)
-  }, [segment, scoredFlights, buses, cabs, bestFlight, bestBus, bestCab])
+    return [bestFlight, bestTrain, bestBus, bestCab].filter(Boolean)
+  }, [segment, scoredFlights, scoredTrains, buses, cabs, bestFlight, bestTrain, bestBus, bestCab])
 
   const allForScore = useMemo(() =>
-    segment === 'flights' ? flights : segment === 'buses' ? buses : segment === 'cabs' ? cabs : transport,
-    [segment, flights, buses, cabs, transport]
+    segment === 'flights' ? flights : segment === 'trains' ? trains : segment === 'buses' ? buses : segment === 'cabs' ? cabs : transport,
+    [segment, flights, trains, buses, cabs, transport]
   )
 
   const segments: { id: Segment; label: string; count?: number }[] = [
     { id: 'recommended', label: 'Recommended' },
+    { id: 'smart-routes', label: 'Smart Routes' },
     { id: 'flights', label: 'Flights', count: flights.length },
+    { id: 'trains', label: 'Trains', count: trains.length },
     { id: 'buses', label: 'Buses', count: buses.length },
     { id: 'cabs', label: 'Rental Cars / Cabs', count: cabs.length },
   ]
 
   const ctaText = segment === 'flights' ? 'See flight options'
+    : segment === 'trains' ? 'See train options'
     : segment === 'buses' ? 'See bus options'
     : segment === 'cabs' ? 'See rental options'
     : 'See all options'
@@ -774,8 +802,17 @@ function TransportTab({
           })}
         </div>
 
+        {/* ── SMART ROUTES (Transport Intelligence) ───────────────────── */}
+        {segment === 'smart-routes' && (
+          <TransportPlanner
+            defaultOrigin={from}
+            defaultDestination={dest}
+            defaultDate={searchForm?.startDate || ''}
+          />
+        )}
+
         {/* ── BEST VALUE CARD ────────────────────────────────────────────── */}
-        {loading ? (
+        {segment !== 'smart-routes' && (loading ? (
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -789,8 +826,11 @@ function TransportTab({
             topPick
           />
         ) : (
-          <EmptyState type={segment === 'recommended' ? 'flights' : segment} />
-        )}
+          <EmptyState
+            type={segment === 'recommended' ? 'flights' : segment}
+            onSwitch={segment === 'recommended' ? () => setSegment('smart-routes') : undefined}
+          />
+        ))}
 
         {/* ── COMPARISON GRID ────────────────────────────────────────────── */}
         {!loading && gridItems.length > 0 && (

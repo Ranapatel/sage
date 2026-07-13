@@ -11,6 +11,8 @@ import {
   ChevronDown, ChevronUp, Clock, Coins, Eye, Footprints
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import axios from 'axios'
+import RouteLayer from '@/components/maps/RouteLayer'
 
 interface Props {
   itinerary: any[]
@@ -105,7 +107,23 @@ const DOMESTIC_COORDS: Record<string, [number, number]> = {
   'london': [51.5074, -0.1278],
 }
 
-export default function MapView({ itinerary, hotels = [], tripContext, isActive = false, weather }: Props) {
+export default function MapView({ itinerary: rawItinerary, hotels = [], tripContext, isActive = false, weather }: Props) {
+  const itinerary = useMemo(() => {
+    if (!Array.isArray(rawItinerary)) return []
+    return rawItinerary.map(day => {
+      if (!day) return day
+      let places = day.places
+      if (!places || !Array.isArray(places)) {
+        const slots = day.slots || {}
+        places = [slots.morning, slots.afternoon, slots.evening, slots.night].filter(Boolean)
+      }
+      return {
+        ...day,
+        places: places || []
+      }
+    })
+  }, [rawItinerary])
+
   const { setItinerary } = useTripStore()
   
   const mapRef = useRef<HTMLDivElement>(null)
@@ -127,6 +145,7 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [searching, setSearching] = useState(false)
   const [selectedResult, setSelectedResult] = useState<any | null>(null)
+  const [routeGeometry, setRouteGeometry] = useState<any>(null)
 
   const currency = useAuthStore(state => state.user?.currency) || 'INR'
   const destination = tripContext?.destination || ''
@@ -270,29 +289,7 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
 
   // Helper to re-add sources and layers on style switches/fallbacks
   const addMapLayers = (mapInstance: any) => {
-    if (!mapInstance.getSource('route-source')) {
-      mapInstance.addSource('route-source', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] }
-      })
-    }
-
-    if (!mapInstance.getLayer('route-layer')) {
-      mapInstance.addLayer({
-        id: 'route-layer',
-        type: 'line',
-        source: 'route-source',
-        paint: {
-          'line-color': '#EA580C',
-          'line-width': 4,
-          'line-opacity': 0.8
-        },
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        }
-      })
-    }
+    // Layer management delegated to RouteLayer component
   }
 
   // Initialize mini preview map (Simple, accurate 2D map first)
@@ -303,9 +300,12 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
     import('maplibre-gl').then(maplibregl => {
       maplibreglRef.current = maplibregl
 
+      const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || '3ffd189110c8416c8e2c733950e9d50d'
+      const styleUrl = `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${apiKey}`
+
       map = new maplibregl.Map({
         container: mapRef.current!,
-        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        style: styleUrl,
         center: refCoords ? [refCoords[1], refCoords[0]] : [78.9629, 20.5937],
         zoom: refCoords ? 11 : 4,
         pitch: 0,
@@ -397,19 +397,47 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
       .map((p: any) => [p.coordinates[1], p.coordinates[0]] as [number, number]) // [lng, lat]
 
     // Set route path line
-    const source = map.getSource('route-source')
-    if (source) {
-      source.setData({
-        type: 'FeatureCollection',
-        features: coords.length > 1 ? [{
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: coords
-          },
-          properties: {}
-        }] : []
+    const validStops = dayPlaces.filter((p: any) => 
+      Array.isArray(p.coordinates) && 
+      p.coordinates.length === 2 && 
+      !isNaN(p.coordinates[0]) && 
+      !isNaN(p.coordinates[1])
+    ).filter((p: any, idx: number, arr: any[]) => {
+      if (idx === 0) return true
+      const prev = arr[idx - 1]
+      const latDiff = Math.abs(p.coordinates[0] - prev.coordinates[0])
+      const lngDiff = Math.abs(p.coordinates[1] - prev.coordinates[1])
+      return latDiff > 0.0001 || lngDiff > 0.0001
+    })
+
+    if (validStops.length >= 2) {
+      const waypoints = validStops.map((p: any) => ({
+        latitude: p.coordinates[0],
+        longitude: p.coordinates[1]
+      }))
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      
+      axios.post(`${apiBaseUrl}/api/location/route`, {
+        waypoints,
+        mode: 'walk'
       })
+      .then(response => {
+        if (response.data?.success && response.data?.route?.coordinates) {
+          setRouteGeometry({
+            type: 'LineString',
+            coordinates: response.data.route.coordinates
+          })
+        }
+      })
+      .catch(err => {
+        console.warn('[MapView] Routing API failed, falling back to straight line path:', err.message)
+        setRouteGeometry({
+          type: 'LineString',
+          coordinates: coords
+        })
+      })
+    } else {
+      setRouteGeometry(null)
     }
 
     // Add marker pins
@@ -756,172 +784,13 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
       </div>
 
       {/* Desktop / Responsive Split Layout */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 items-start font-sans">
         
-        {/* LEFT COLUMN: Timeline Movement Plan */}
-        <div className="flex-1 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#A1A1A1] px-1">Daily Route Timeline</h3>
-
-          <div className="relative pl-6 border-l-2 border-[#E8E0D8] space-y-6 ml-4 py-2">
-            {dailySegments.map((segment, idx) => {
-              
-              if (segment.type === 'stop') {
-                const stop = segment.data
-                const isStartOrEnd = stop.isStartNode || stop.isEndNode
-                const isSelected = selectedPlaceId === stop.placeIdx
-
-                return (
-                  <div 
-                    key={idx} 
-                    id={stop.placeIdx != null ? `stop-card-${stop.placeIdx}` : undefined}
-                    onClick={() => {
-                      if (stop.placeIdx != null && stop.coordinates) {
-                        setSelectedPlaceId(stop.placeIdx)
-                        mapInstanceRef.current?.flyTo({
-                          center: [stop.coordinates[1], stop.coordinates[0]],
-                          zoom: 15,
-                          duration: 800
-                        })
-                      }
-                    }}
-                    className={`relative p-4 rounded-xl border transition-all ${
-                      isStartOrEnd 
-                        ? 'bg-slate-50 border-slate-200' 
-                        : isSelected 
-                        ? 'bg-orange-50/10 border-[#EA580C] shadow-sm ring-1 ring-[#EA580C]/20' 
-                        : 'bg-white border-[#E8E0D8] hover:border-[#CBD5E1] cursor-pointer'
-                    }`}
-                  >
-                    {/* Circle Node Indicator */}
-                    <div className={`absolute -left-[33px] top-5 w-4 h-4 rounded-full border-2 bg-white flex items-center justify-center ${
-                      isStartOrEnd ? 'border-slate-400' : isSelected ? 'border-[#EA580C]' : 'border-[#CBD5E1]'
-                    }`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        isStartOrEnd ? 'bg-slate-400' : isSelected ? 'bg-[#EA580C]' : 'bg-[#CBD5E1]'
-                      }`} />
-                    </div>
-
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg border shrink-0 ${
-                          isStartOrEnd ? 'bg-slate-100 border-slate-200 text-slate-500' : 'bg-orange-50/10 border-orange-100 text-[#EA580C]'
-                        }`}>
-                          {renderCategoryIcon(stop.category, 16)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-bold text-[#A1A1A1] font-mono">{stop.time}</span>
-                            {!isStartOrEnd && (
-                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-50 text-slate-400 border uppercase font-mono tracking-wider">
-                                {stop.durationText}
-                              </span>
-                            )}
-                          </div>
-                          <h4 className={`text-xs font-bold mt-1 ${isStartOrEnd ? 'text-slate-500' : 'text-[#1A1A1A]'}`}>
-                            {stop.placeName.split('—')[0].trim()}
-                          </h4>
-                          {!isStartOrEnd && stop.description && (
-                            <p className="text-[10px] text-[#6B6B6B] mt-1 leading-relaxed line-clamp-2">
-                              {stop.description}
-                            </p>
-                          )}
-                          {!isStartOrEnd && stop.estimatedCost != null && (
-                            <p className="text-[10px] font-bold text-[#EA580C] mt-1.5 font-mono">
-                              Est. spend: {formatPrice(stop.estimatedCost, currency)}
-                            </p>
-                          )}
-
-                          {/* Warnings / Badges */}
-                          {!isStartOrEnd && stop.locationConfidence === 'unresolved' && (
-                            <div className="flex items-center gap-1 text-[9px] font-bold text-red-500 bg-red-50 border border-red-200 rounded px-1.5 py-0.5 mt-2.5 w-max">
-                              <AlertTriangle size={10} /> Location needs review
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Card Actions */}
-                      {!isStartOrEnd && (
-                        <div className="flex flex-col gap-1.5 shrink-0">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (stop.locationConfidence !== 'unresolved') {
-                                window.open(stop.mapsUrl, '_blank')
-                              } else {
-                                toast.error("Coordinate resolution required.")
-                              }
-                            }}
-                            disabled={stop.locationConfidence === 'unresolved'}
-                            className={`px-2.5 py-1.5 rounded-lg text-[9px] font-bold flex items-center gap-1 transition-colors ${
-                              stop.locationConfidence !== 'unresolved'
-                                ? 'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200'
-                                : 'text-slate-300 bg-slate-50 border border-slate-100 cursor-not-allowed'
-                            }`}
-                          >
-                            Open place <ExternalLink size={10} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setReplaceTarget({
-                                dayIdx: stop.dayIdx,
-                                placeIdx: stop.placeIdx,
-                                placeName: stop.placeName
-                              })
-                              setSearchQuery(stop.placeName.split('—')[0].trim())
-                              setShowReplaceModal(true)
-                            }}
-                            className="px-2.5 py-1.5 rounded-lg text-[9px] font-bold text-[#EA580C] bg-orange-50/50 hover:bg-orange-50 border border-orange-100 text-center"
-                          >
-                            Replace
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              } else {
-                // Render Travel Segment
-                const travel = segment.data
-                if (!travel) return null
-
-                return (
-                  <div key={idx} className="my-2 py-1 pl-4 relative group">
-                    {/* Tiny connector line highlight */}
-                    <div className="absolute -left-[25px] top-0 bottom-0 w-0.5 bg-orange-500/10 group-hover:bg-orange-500/40 transition-colors" />
-                    
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]">
-                      <div className="flex items-center gap-1.5 text-slate-700 font-semibold bg-white border border-slate-100 shadow-sm rounded-lg px-2.5 py-1">
-                        <Footprints size={12} className="text-[#EA580C]" />
-                        <span>{travel.mode} ({travel.distanceText})</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-slate-500 font-medium">
-                        <Clock size={12} />
-                        <span>{travel.time} mins</span>
-                      </div>
-                      {travel.cost > 0 && (
-                        <div className="flex items-center gap-1 text-[#EA580C] font-semibold">
-                          <Coins size={12} />
-                          <span>{formatPrice(travel.cost, currency)}</span>
-                        </div>
-                      )}
-                      <span className="text-[10px] text-slate-400 italic font-medium">{travel.note}</span>
-                    </div>
-                  </div>
-                )
-              }
-            })}
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: Route Intelligence Panel & Map Preview */}
-        <div className="w-full lg:w-[350px] shrink-0 space-y-5">
-          
-          {/* Small Map Preview Container */}
+        {/* Left Column: Full-Height Map */}
+        <div className="w-full lg:sticky lg:top-[124px] space-y-5">
           <div className="card p-3 overflow-hidden border border-[#E8E0D8] rounded-2xl bg-white shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#A1A1A1]">Route Map Preview</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#A1A1A1]">Route Map</span>
               <button 
                 onClick={handleResetView}
                 className="text-[10px] font-bold text-[#EA580C] hover:underline flex items-center gap-0.5"
@@ -930,8 +799,11 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
               </button>
             </div>
             
-            <div className="relative h-[200px] w-full bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+            <div className="relative h-[550px] w-full bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
               <div ref={mapRef} className="w-full h-full z-10"></div>
+              {mapInstanceRef.current && (
+                <RouteLayer map={mapInstanceRef.current} geometry={routeGeometry} />
+              )}
               {verifiedStopsCount === 0 && (
                 <div className="absolute inset-0 bg-slate-50/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-4 text-center">
                   <AlertTriangle className="text-red-500 mb-2 animate-bounce" size={24} />
@@ -939,6 +811,166 @@ export default function MapView({ itinerary, hotels = [], tripContext, isActive 
                   <p className="text-[10px] text-[#6B6B6B] mt-1 max-w-[200px]">Stops lack valid coordinates. Map preview hidden.</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Timeline & Route Intelligence */}
+        <div className="w-full space-y-5">
+          {/* Daily Route Timeline */}
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#A1A1A1] px-1">Daily Route Timeline</h3>
+
+            <div className="relative pl-6 border-l-2 border-[#E8E0D8] space-y-6 ml-4 py-2">
+              {dailySegments.map((segment, idx) => {
+                
+                if (segment.type === 'stop') {
+                  const stop = segment.data
+                  const isStartOrEnd = stop.isStartNode || stop.isEndNode
+                  const isSelected = selectedPlaceId === stop.placeIdx
+
+                  return (
+                    <div 
+                      key={idx} 
+                      id={stop.placeIdx != null ? `stop-card-${stop.placeIdx}` : undefined}
+                      onClick={() => {
+                        if (stop.placeIdx != null && stop.coordinates) {
+                          setSelectedPlaceId(stop.placeIdx)
+                          mapInstanceRef.current?.flyTo({
+                            center: [stop.coordinates[1], stop.coordinates[0]],
+                            zoom: 15,
+                            duration: 800
+                          })
+                        }
+                      }}
+                      className={`relative p-4 rounded-xl border transition-all ${
+                        isStartOrEnd 
+                          ? 'bg-slate-50 border-slate-200' 
+                          : isSelected 
+                          ? 'bg-orange-50/10 border-[#EA580C] shadow-sm ring-1 ring-[#EA580C]/20' 
+                          : 'bg-white border-[#E8E0D8] hover:border-[#CBD5E1] cursor-pointer'
+                      }`}
+                    >
+                      {/* Circle Node Indicator */}
+                      <div className={`absolute -left-[33px] top-5 w-4 h-4 rounded-full border-2 bg-white flex items-center justify-center ${
+                        isStartOrEnd ? 'border-slate-400' : isSelected ? 'border-[#EA580C]' : 'border-[#CBD5E1]'
+                      }`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${
+                          isStartOrEnd ? 'bg-slate-400' : isSelected ? 'bg-[#EA580C]' : 'bg-[#CBD5E1]'
+                        }`} />
+                      </div>
+
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-lg border shrink-0 ${
+                            isStartOrEnd ? 'bg-slate-100 border-slate-200 text-slate-500' : 'bg-orange-50/10 border-orange-100 text-[#EA580C]'
+                          }`}>
+                            {renderCategoryIcon(stop.category, 16)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-bold text-[#A1A1A1] font-mono">{stop.time}</span>
+                              {!isStartOrEnd && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-50 text-slate-400 border uppercase font-mono tracking-wider">
+                                  {stop.durationText}
+                                </span>
+                              )}
+                            </div>
+                            <h4 className={`text-xs font-bold mt-1 ${isStartOrEnd ? 'text-slate-500' : 'text-[#1A1A1A]'}`}>
+                              {stop.placeName.split('—')[0].trim()}
+                            </h4>
+                            {!isStartOrEnd && stop.description && (
+                              <p className="text-[10px] text-[#6B6B6B] mt-1 leading-relaxed line-clamp-2">
+                                {stop.description}
+                              </p>
+                            )}
+                            {!isStartOrEnd && stop.estimatedCost != null && (
+                              <p className="text-[10px] font-bold text-[#EA580C] mt-1.5 font-mono">
+                                Est. spend: {formatPrice(stop.estimatedCost, currency)}
+                              </p>
+                            )}
+
+                            {/* Warnings / Badges */}
+                            {!isStartOrEnd && stop.locationConfidence === 'unresolved' && (
+                              <div className="flex items-center gap-1 text-[9px] font-bold text-red-500 bg-red-50 border border-red-200 rounded px-1.5 py-0.5 mt-2.5 w-max">
+                                <AlertTriangle size={10} /> Location needs review
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Card Actions */}
+                        {!isStartOrEnd && (
+                          <div className="flex flex-col gap-1.5 shrink-0">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (stop.locationConfidence !== 'unresolved') {
+                                  window.open(stop.mapsUrl, '_blank')
+                                } else {
+                                  toast.error("Coordinate resolution required.")
+                                }
+                              }}
+                              disabled={stop.locationConfidence === 'unresolved'}
+                              className={`px-2.5 py-1.5 rounded-lg text-[9px] font-bold flex items-center gap-1 transition-colors ${
+                                stop.locationConfidence !== 'unresolved'
+                                  ? 'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200'
+                                  : 'text-slate-300 bg-slate-50 border border-slate-100 cursor-not-allowed'
+                              }`}
+                            >
+                              Open place <ExternalLink size={10} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setReplaceTarget({
+                                  dayIdx: stop.dayIdx,
+                                  placeIdx: stop.placeIdx,
+                                  placeName: stop.placeName
+                                })
+                                setSearchQuery(stop.placeName.split('—')[0].trim())
+                                setShowReplaceModal(true)
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg text-[9px] font-bold text-[#EA580C] bg-orange-50/50 hover:bg-orange-50 border border-orange-100 text-center"
+                            >
+                              Replace
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                } else {
+                  // Render Travel Segment
+                  const travel = segment.data
+                  if (!travel) return null
+
+                  return (
+                    <div key={idx} className="my-2 py-1 pl-4 relative group">
+                      {/* Tiny connector line highlight */}
+                      <div className="absolute -left-[25px] top-0 bottom-0 w-0.5 bg-orange-500/10 group-hover:bg-orange-500/40 transition-colors" />
+                      
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-slate-700 font-semibold bg-white border border-slate-100 shadow-sm rounded-lg px-2.5 py-1">
+                          <Footprints size={12} className="text-[#EA580C]" />
+                          <span>{travel.mode} ({travel.distanceText})</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-500 font-medium">
+                          <Clock size={12} />
+                          <span>{travel.time} mins</span>
+                        </div>
+                        {travel.cost > 0 && (
+                          <div className="flex items-center gap-1 text-[#EA580C] font-semibold">
+                            <Coins size={12} />
+                            <span>{formatPrice(travel.cost, currency)}</span>
+                          </div>
+                        )}
+                        <span className="text-[10px] text-slate-400 italic font-medium">{travel.note}</span>
+                      </div>
+                    </div>
+                  )
+                }
+              })}
             </div>
           </div>
 

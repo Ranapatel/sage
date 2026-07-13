@@ -471,13 +471,8 @@ function generateMockBuses(from, to, date, budget) {
 }
 
 async function searchBuses({ from, to, date }) {
-  // Only support Indian routes for the bus integration
-  const isSupported = (from || '').toLowerCase().includes('india') && (to || '').toLowerCase().includes('india')
-  
-  if (!isSupported) {
-    console.log(`[Buses] Route ${from} → ${to} not supported. Returning empty inventory.`)
-    return { success: true, results: [], searchUrl: '', meta: { cache: false, source: 'unsupported' } }
-  }
+  // Relaxed check for Indian routes (let NestJS service handle supported check)
+  const isSupported = true;
 
   const cacheKey = generateCacheKey('buses_v3', { from, to, date })
   const cached = await cacheGet(cacheKey)

@@ -51,20 +51,36 @@ module.exports = function setupSocket(io) {
 
       try {
         const fetchStart = Date.now()
+        const axios = require('axios');
         // Execute parallel requests for fast transport/hotel results
-        const [flightRes, hotelRes, busRes, carRes] = await Promise.allSettled([
+        const [flightRes, hotelRes, busRes, carRes, trainRes] = await Promise.allSettled([
           searchFlights({ from, to: destination, date: startDate, returnDate: endDate, travelers, budget }),
           searchHotels({ destination, checkin: startDate, checkout: endDate, members: travelers, budget }),
           searchBuses({ from, to: destination, date: startDate, budget }),
           searchCars({ destination, date: startDate, budget }),
+          (async () => {
+            const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
+            const response = await axios.post(`${nestUrl}/api/train/search`, {
+              departureCity: from,
+              destinationCity: destination,
+              departureDate: startDate,
+              passengers: travelers || 1,
+              travelClass: 'ALL'
+            });
+            return response.data;
+          })()
         ])
 
         const flights = flightRes.status === 'fulfilled' ? flightRes.value?.data || [] : []
         const hotels = hotelRes.status === 'fulfilled' ? hotelRes.value?.data || [] : []
         const buses = busRes.status === 'fulfilled' ? busRes.value?.data || [] : []
         const cars = carRes.status === 'fulfilled' ? carRes.value?.data || [] : []
+        
+        const trainEnvelope = trainRes.status === 'fulfilled' ? trainRes.value || {} : {}
+        const trains = Array.isArray(trainEnvelope.trains) ? trainEnvelope.trains : []
+
         const fetchLatency = Date.now() - fetchStart
-        console.log(`[Perf] Parallel APIs completed in ${fetchLatency}ms (Flights/Hotels/Buses/Cars)`)
+        console.log(`[Perf] Parallel APIs completed in ${fetchLatency}ms (Flights/Hotels/Buses/Cars/Trains)`)
 
         // Enrich images without blocking
         enrichHotelsWithImages(hotels, destination).catch(() => {})
@@ -73,7 +89,7 @@ module.exports = function setupSocket(io) {
         // Stream transport and hotel results immediately
         socket.emit('TRIP_STAGE', { 
           stage: 'transport', 
-          data: { flights, buses, cars }, 
+          data: { flights, buses, cars, trains }, 
           message: 'Transport options loaded' 
         })
         

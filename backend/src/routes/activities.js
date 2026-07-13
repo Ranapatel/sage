@@ -27,7 +27,7 @@ const { featureGate } = require('../activities/activityFeatureFlags')
 const { paymentStore }         = require('../models/Payment')
 const { writeAudit }           = require('../models/AuditLog')
 const { zodValidate }          = require('../middleware/validateRequest')
-const { authMiddleware }       = require('../middleware/authMiddleware')
+const { authMiddleware }       = require('../middleware/auth.middleware')
 const {
   activitySearchSchema,
   activityCacheSearchSchema,

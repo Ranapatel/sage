@@ -48,15 +48,39 @@ router.post('/generate', itineraryValidation, async (req, res) => {
     return res.json({ ...cached, meta: { ...cached.meta, requestId, cache: true } })
   }
 
+  const hasGoogleKey = process.env.GOOGLE_PLACES_API_KEY &&
+    process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key'
+
   try {
-    // 1. Generate itinerary via AI
-    const result = await generateItinerary({ destination, from, days, budget, currency, style, members, preferences, startDate })
+    let enrichedData;
+    let isHybrid = false;
 
-    if (!result.success) throw new Error('Itinerary generation failed')
+    if (hasGoogleKey) {
+      console.log('[Itinerary Route] Google Places API Key present. Running Hybrid Itinerary Engine...');
+      const { HybridItineraryService } = require('../services/googlePlaces');
+      enrichedData = await HybridItineraryService.generate({
+        destination,
+        from,
+        days,
+        budget,
+        currency,
+        style,
+        members,
+        preferences,
+        startDate
+      });
+      isHybrid = true;
+    } else {
+      console.log('[Itinerary Route] Google Places key not configured. Running legacy geocoded engine...');
+      // 1. Generate itinerary via AI
+      const result = await generateItinerary({ destination, from, days, budget, currency, style, members, preferences, startDate })
 
-    // 2. Enrich with real Google coordinates (non-blocking — falls back to AI coords if key missing)
-    const enrichedItinerary = await enrichItineraryWithRealCoords(result.data.itinerary, destination)
-    const enrichedData = { ...result.data, itinerary: enrichedItinerary }
+      if (!result.success) throw new Error('Itinerary generation failed')
+
+      // 2. Enrich with real Google coordinates (non-blocking — falls back to AI coords if key missing)
+      const enrichedItinerary = await enrichItineraryWithRealCoords(result.data.itinerary, destination)
+      enrichedData = { ...result.data, itinerary: enrichedItinerary }
+    }
 
     await cacheSet(cacheKey, { success: true, data: enrichedData })
     res.json({
@@ -65,8 +89,8 @@ router.post('/generate', itineraryValidation, async (req, res) => {
         timestamp: new Date().toISOString(),
         requestId,
         cache: false,
-        googleEnriched: !!process.env.GOOGLE_PLACES_API_KEY &&
-          process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key',
+        googleEnriched: hasGoogleKey,
+        isHybrid,
       },
       data: enrichedData,
       message: 'LIVE_UPDATE',

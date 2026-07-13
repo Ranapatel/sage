@@ -25,7 +25,11 @@ export class CitySlugService {
       );
     }
 
-    const normalized = query.toLowerCase().trim();
+    let cleanedQuery = query;
+    if (query.includes(',')) {
+      cleanedQuery = query.split(',')[0].trim();
+    }
+    const normalized = cleanedQuery.toLowerCase().trim();
 
     // 1. Check local seed map
     if (CITY_SLUG_MAP[normalized]) {
@@ -45,7 +49,7 @@ export class CitySlugService {
     }
 
     // If it's not in the supported seed map, throw CITY_NOT_FOUND with suggestions
-    const suggestions = this.getSuggestions(query);
+    const suggestions = this.getSuggestions(cleanedQuery);
     throw new HttpException(
       {
         status: 'error',
@@ -64,7 +68,11 @@ export class CitySlugService {
   resolveSlugSync(query: string): string {
     if (!query) return 'delhi';
 
-    const normalized = query.toLowerCase().trim();
+    let cleanedQuery = query;
+    if (query.includes(',')) {
+      cleanedQuery = query.split(',')[0].trim();
+    }
+    const normalized = cleanedQuery.toLowerCase().trim();
 
     // Check seed map
     if (CITY_SLUG_MAP[normalized]) {

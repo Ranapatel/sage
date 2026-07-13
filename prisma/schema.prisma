@@ -102,6 +102,7 @@ model Trip {
   Memory       Memory[]
   TravelPhoto  TravelPhoto[]
   User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PlaceVisitStatus PlaceVisitStatus[]
 }
 
 model User {
@@ -123,6 +124,8 @@ model User {
   UserProfile                            UserProfile?
   Wallet                                 Wallet?
   WalletTransaction                      WalletTransaction[]
+  UserLocation                           UserLocation[]
+  MapPreference                          MapPreference?
 }
 
 model UserProfile {
@@ -155,4 +158,109 @@ model WalletTransaction {
   reason    String
   createdAt DateTime @default(now())
   User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserLocation {
+  id        String   @id @default(uuid())
+  userId    String
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlaceVisitStatus {
+  id        String   @id @default(uuid())
+  tripId    String
+  placeId   String
+  status    String   // "completed" | "current" | "upcoming"
+  updatedAt DateTime @updatedAt
+  Trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, placeId])
+}
+
+model MapPreference {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  layers        String[]
+  transportMode String   @default("walk")
+  travelStyle   String   @default("adventure")
+  User          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TransportRoutes {
+  id             String   @id @default(uuid())
+  origin         String
+  destination    String
+  mode           String
+  serviceNumber  String?
+  operator       String
+  duration       String
+  price          Float
+  runsOn         String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TransportProviders {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  type        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Stations {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  city      String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+
+model BusStops {
+  id        String   @id @default(uuid())
+  name      String
+  city      String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+
+model RailwayStations {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  city      String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+
+model JourneyPlans {
+  id                   String   @id @default(uuid())
+  origin               String
+  destination          String
+  date                 String
+  totalDurationMinutes Int
+  totalCost            Float
+  transfers            Int
+  isDirect             Boolean
+  bookingUrl           String
+  aiExplanation        String?
+  createdAt            DateTime @default(now())
+}
+
+model UserSearchHistory {
+  id             String   @id @default(uuid())
+  userId         String?
+  origin         String
+  destination    String
+  searchDate     String
+  passengers     Int      @default(1)
+  rankPreference String   @default("balanced")
+  createdAt      DateTime @default(now())
 }

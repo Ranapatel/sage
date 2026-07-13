@@ -28,7 +28,11 @@ export class StationResolver {
       );
     }
 
-    const normalized = query.toLowerCase().trim();
+    let cleanedQuery = query;
+    if (query.includes(',')) {
+      cleanedQuery = query.split(',')[0].trim();
+    }
+    const normalized = cleanedQuery.toLowerCase().trim();
 
     // 1. Check local seed map first
     if (STATION_SEED_MAP[normalized]) {
@@ -55,7 +59,7 @@ export class StationResolver {
     // 3. Fallback to ERAIL public API
     try {
       const url = `https://erail.in/rail/getStations.aspx?StationCode=${encodeURIComponent(
-        query,
+        cleanedQuery,
       )}&DataSource=0&ApiVer=1&UserId=2&Response=JsonString`;
 
       const response = await fetch(url, {
@@ -112,7 +116,7 @@ export class StationResolver {
     }
 
     // 4. Fail and return suggestions
-    const suggestions = this.getSuggestions(query);
+    const suggestions = this.getSuggestions(cleanedQuery);
     throw new HttpException(
       {
         status: 'error',
@@ -131,11 +135,15 @@ export class StationResolver {
   resolveCodeSync(query: string): string {
     if (!query) return 'CSTM'; // Default fallback
 
-    const normalized = query.toLowerCase().trim();
+    let cleanedQuery = query;
+    if (query.includes(',')) {
+      cleanedQuery = query.split(',')[0].trim();
+    }
+    const normalized = cleanedQuery.toLowerCase().trim();
 
     // If query is already a valid code format, return it
-    if (/^[A-Z]{3,4}$/.test(query)) {
-      return query;
+    if (/^[A-Z]{3,4}$/.test(cleanedQuery)) {
+      return cleanedQuery.toUpperCase();
     }
 
     // Check local seed map

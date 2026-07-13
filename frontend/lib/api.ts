@@ -150,10 +150,10 @@ export interface VoucherData {
 // The response interceptor unwraps res.data, so all methods resolve to ApiResponse<T>.
 // We cast the axios instance to reflect this so callers get correct types.
 //
-// NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:4000 in dev).
+// NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:5000 in dev).
 // We also hard-code the local fallback so hot-reload works without a restart.
 const _API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -221,9 +221,22 @@ export const tripAPI = {
 
   getExplorePlaces: (destination: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/places/${encodeURIComponent(destination)}`),
-
-
-
+  optimizeRoute: (params: {
+    places: any[]
+    preferences?: string[]
+    travelStyle?: string
+    tripId?: string
+    dayNumber?: number
+    trigger?: string
+  }): Promise<ApiResponse<{
+    optimizedPlaces: any[]
+    wasOptimized: boolean
+    totalDistanceKm: number
+    estimatedTimeMinutes: number
+    creditsUsed: number
+    reason: string
+  }>> =>
+    API.post('/api/location/route/optimize', params),
   getNotifications: (sessionId: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/notifications/${sessionId}`),
 
@@ -291,6 +304,19 @@ export const tripAPI = {
     travelClass?: string
   }, config?: { signal?: AbortSignal }): Promise<{ trains: TrainOption[]; stationInfo: TrainStationInfo | null; isDomestic: boolean }> =>
     API.post('/api/train/search', params, config),
+
+  /**
+   * Transport Intelligence: Multi-modal door-to-door journey planning.
+   * Searches direct trains/buses and finds alternative routes via hubs.
+   */
+  planTransport: (params: {
+    origin: string
+    destination: string
+    date: string
+    passengers?: number
+    rankPreference?: 'fastest' | 'cheapest' | 'comfort' | 'balanced'
+  }, config?: { signal?: AbortSignal }): Promise<ApiResponse<any>> =>
+    API.post('/api/transport-intelligence/plan', params, config),
 }
 
 // ─── Auth API ─────────────────────────────────────────────────────────────────

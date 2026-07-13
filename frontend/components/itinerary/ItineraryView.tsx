@@ -1,5 +1,5 @@
 'use client'
-import React, { memo, useState, useEffect, useCallback, useRef } from 'react'
+import React, { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { resolvePlaceImage, type PlaceImageResult } from '@/lib/placeImageResolver'
@@ -22,6 +22,7 @@ import toast from 'react-hot-toast'
 
 import { useTripStore } from '@/store/tripStore'
 import { tripAPI } from '@/lib/api'
+import TravelMemories from '@/components/photos/TravelMemories'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -235,9 +236,10 @@ function deriveDayPace(places: Place[]): { label: string; color: string; desc: s
 // ─── Build Google Maps route URL ─────────────────────────────────────────────
 
 function buildRouteUrl(places: Place[], destination?: string): string {
+  if (!places || !Array.isArray(places)) return ''
   const waypoints = places
     .map(p => {
-      if (Array.isArray(p.coordinates) && p.coordinates.length === 2 && !isNaN(Number(p.coordinates[0]))) {
+      if (p && Array.isArray(p.coordinates) && p.coordinates.length === 2 && !isNaN(Number(p.coordinates[0]))) {
         return `${Number(p.coordinates[0])},${Number(p.coordinates[1])}`
       }
       return encodeURIComponent(p.name + (destination ? ` ${destination}` : ''))
@@ -620,7 +622,9 @@ const DayIntelligencePanel = memo(({
   onAddFood,
   onLocalExp,
   onSaveDay,
-  onShareDay
+  onShareDay,
+  onOptimizeRoute,
+  isOptimizing = false
 }: {
   day: Day
   dayIndex: number
@@ -631,6 +635,8 @@ const DayIntelligencePanel = memo(({
   onLocalExp?: (idx: number) => void
   onSaveDay?: (idx: number) => void
   onShareDay?: () => void
+  onOptimizeRoute?: (idx: number) => void
+  isOptimizing?: boolean
 }) => {
   const pace = deriveDayPace(day.places)
 
@@ -743,6 +749,23 @@ const DayIntelligencePanel = memo(({
 
         {/* Action buttons */}
         <div className="space-y-2">
+          <button
+            onClick={() => onOptimizeRoute?.(dayIndex)}
+            disabled={isOptimizing || day.places.length <= 2}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: '#0284C7', boxShadow: '0 2px 10px rgba(2,132,199,0.25)' }}
+          >
+            {isOptimizing ? (
+              <>
+                <RefreshCw size={14} className="animate-spin" /> Optimizing...
+              </>
+            ) : (
+              <>
+                <Zap size={14} /> Optimize Stop Order
+              </>
+            )}
+          </button>
+
           <a
             href={routeUrl}
             target="_blank"
@@ -847,12 +870,102 @@ function ItineraryLoadingSkeleton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-function ItineraryView({ itinerary, loading, destination, onRegenerate }: Props) {
+function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegenerate }: Props) {
+  const itinerary = useMemo(() => {
+    if (!Array.isArray(rawItinerary)) return []
+    return rawItinerary.map(day => {
+      if (!day) return day
+      let places = day.places
+      if (!places || !Array.isArray(places)) {
+        const slots = day.slots || {}
+        places = [slots.morning, slots.afternoon, slots.evening, slots.night].filter(Boolean)
+      }
+      return {
+        ...day,
+        places: places || []
+      }
+    })
+  }, [rawItinerary])
+
   const [activeDay, setActiveDay] = useState(0)
   const isMobile = useIsMobile()
   const daySelectorRef = useRef<HTMLDivElement>(null)
   
   const { setItinerary } = useTripStore()
+  const [isOptimizing, setIsOptimizing] = useState(false)
+
+  const handleOptimizeRoute = useCallback(async (dayIndex: number) => {
+    const currentDay = itinerary[dayIndex]
+    if (!currentDay) return
+    if (currentDay.places.length <= 2) {
+      toast.error("At least 3 stops are required to run route optimization.")
+      return
+    }
+
+    setIsOptimizing(true)
+    const toastId = toast.loading("Optimizing itinerary route...")
+
+    try {
+      const tripId = useTripStore.getState().currentTripId || 'temp-trip'
+      const userProfile = useTripStore.getState().userProfile
+      
+      const requestPlaces = currentDay.places.map((p, idx) => ({
+        name: p.name,
+        latitude: p.coordinates ? p.coordinates[0] : 0,
+        longitude: p.coordinates ? p.coordinates[1] : 0,
+        orderIndex: idx,
+        category: p.category
+      }))
+
+      const response = await tripAPI.optimizeRoute({
+        places: requestPlaces,
+        preferences: userProfile?.preferences || [],
+        travelStyle: userProfile?.travelStyle || 'relaxed',
+        tripId,
+        dayNumber: dayIndex + 1,
+        trigger: 'user_requested'
+      })
+
+      if (response?.success && response?.data) {
+        const { optimizedPlaces, wasOptimized, totalDistanceKm, estimatedTimeMinutes, reason } = response.data
+        
+        if (wasOptimized) {
+          const placeMap = new Map(currentDay.places.map(p => [p.name.toLowerCase(), p]))
+          
+          const reorderedPlaces = optimizedPlaces.map(opt => {
+            const original = placeMap.get(opt.name.toLowerCase())
+            return {
+              ...(original || {}),
+              name: opt.name,
+              category: opt.category || original?.category || '',
+              coordinates: [opt.latitude, opt.longitude],
+              orderIndex: opt.orderIndex
+            } as Place
+          })
+
+          const newItinerary = itinerary.map((d, idx) => 
+            idx === dayIndex ? { ...d, places: reorderedPlaces } : d
+          )
+          setItinerary(newItinerary as any)
+          
+          let successMsg = "Route optimized successfully!"
+          if (totalDistanceKm > 0) {
+            successMsg += ` (Distance: ${totalDistanceKm} km)`
+          }
+          toast.success(successMsg, { id: toastId })
+        } else {
+          toast.success(reason || "Route is already fully optimized.", { id: toastId })
+        }
+      } else {
+        throw new Error("Invalid optimization response")
+      }
+    } catch (err: any) {
+      console.error("Optimization failed:", err)
+      toast.error(err.message || "Failed to optimize route. Please try again.", { id: toastId })
+    } finally {
+      setIsOptimizing(false)
+    }
+  }, [itinerary, setItinerary])
 
   // Clamp activeDay within bounds whenever itinerary changes
   useEffect(() => {
@@ -1150,6 +1263,12 @@ function ItineraryView({ itinerary, loading, destination, onRegenerate }: Props)
             </div>
           )}
 
+          {/* ── Travel Memories (Photo Upload) ───────────────────────────────── */}
+          <TravelMemories
+            tripId={useTripStore.getState().currentTripId || ''}
+            dayNumber={currentDay.day}
+          />
+
           {/* Mobile: inline quick actions */}
           {isMobile && currentDay.places.length > 0 && (
             <div
@@ -1157,6 +1276,23 @@ function ItineraryView({ itinerary, loading, destination, onRegenerate }: Props)
               style={{ background: '#FFFFFF', border: '1px solid #E8E0D8' }}
             >
               <p className="text-xs font-bold uppercase tracking-widest text-[#A1A1AA]">Quick Actions</p>
+              <button
+                onClick={() => handleOptimizeRoute(activeDay)}
+                disabled={isOptimizing || currentDay.places.length <= 2}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: '#0284C7' }}
+              >
+                {isOptimizing ? (
+                  <>
+                    <RefreshCw size={15} className="animate-spin" /> Optimizing...
+                  </>
+                ) : (
+                  <>
+                    <Zap size={15} /> Optimize Stop Order
+                  </>
+                )}
+              </button>
+
               <a
                 href={routeUrl}
                 target="_blank"
@@ -1205,6 +1341,8 @@ function ItineraryView({ itinerary, loading, destination, onRegenerate }: Props)
             onLocalExp={handleAddLocalExp}
             onSaveDay={handleSaveDay}
             onShareDay={handleShareDay}
+            onOptimizeRoute={handleOptimizeRoute}
+            isOptimizing={isOptimizing}
           />
         </div>
       </div>

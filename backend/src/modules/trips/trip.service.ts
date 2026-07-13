@@ -13,6 +13,11 @@ export class TripService {
             dayNumber: 'asc'
           }
         },
+        itineraryPlaces: {
+          orderBy: {
+            orderIndex: 'asc'
+          }
+        },
         travelPhotos: true,
       },
       orderBy: {
@@ -41,6 +46,16 @@ export class TripService {
         endTime?: string
         category?: string
       }[]
+    }[]
+    itineraryPlaces?: {
+      dayNumber: number
+      name: string
+      category?: string
+      latitude: number
+      longitude: number
+      visitTime?: string
+      duration?: string
+      orderIndex: number
     }[]
     travelPhotos?: {
       imageUrl: string
@@ -74,9 +89,22 @@ export class TripService {
             } : undefined,
           })),
         } : undefined,
+        itineraryPlaces: data.itineraryPlaces ? {
+          create: data.itineraryPlaces.map(place => ({
+            dayNumber: place.dayNumber,
+            name: place.name,
+            category: place.category,
+            latitude: place.latitude,
+            longitude: place.longitude,
+            visitTime: place.visitTime,
+            duration: place.duration,
+            orderIndex: place.orderIndex,
+          })),
+        } : undefined,
         travelPhotos: data.travelPhotos ? {
           create: data.travelPhotos.map(photo => ({
             userId,
+            originalUrl: photo.imageUrl,
             imageUrl: photo.imageUrl,
             caption: photo.caption,
           })),
@@ -88,6 +116,7 @@ export class TripService {
             activities: true,
           },
         },
+        itineraryPlaces: true,
         travelPhotos: true,
       },
     })

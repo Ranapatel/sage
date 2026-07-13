@@ -1,4 +1,23 @@
+// Load TS register first so .js route files can `require()` .ts middleware.
+// Must come before any other require that might load a .ts file.
+require('./register')
+
 require('dotenv').config()
+
+// ── Production environment guards ─────────────────────────────────────────────
+// Refuse to start in production without critical secrets. Auth bypasses
+// discovered in the Phase-0 audit (NODE_ENV=development fallbacks) cannot
+// be exercised in production if the server refuses to boot.
+if (process.env.NODE_ENV === 'production') {
+  const PROD_REQUIRED = ['CLERK_SECRET_KEY', 'DATABASE_URL']
+  const missing = PROD_REQUIRED.filter((k) => !process.env[k])
+  if (missing.length > 0) {
+    console.error(
+      `[TripSage] ❌ Refusing to start in production: missing required env vars: ${missing.join(', ')}`
+    )
+    process.exit(1)
+  }
+}
 
 process.on('uncaughtException', (err) => {
   console.error('[TripSage] 💥 Uncaught Exception:', err.message)
@@ -22,7 +41,7 @@ const morgan        = require('morgan')
 const rateLimit     = require('express-rate-limit')
 
 // ── Validate required env vars ────────────────────────────────────────────────
-const REQUIRED_ENV = ['GROQ_API_KEY', 'DB_URL', 'RAPIDAPI_KEY']
+const REQUIRED_ENV = ['GROQ_API_KEY', 'DB_URL', 'RAPIDAPI_KEY', 'GEOAPIFY_API_KEY']
 const missing = REQUIRED_ENV.filter(k => !process.env[k])
 if (missing.length > 0) {
   console.warn(`[TripSage] ⚠️  Missing env vars: ${missing.join(', ')} — running in DEMO mode`)
@@ -81,6 +100,7 @@ app.use('/api/trips',         require('./routes/trips').default)
 
 app.use('/api/profile',       require('./modules/profile/profile.routes').default)
 app.use('/api/places',        require('./routes/places'))
+app.use('/api/places',        require('./routes/placesIntegration').default)
 app.use('/api/reviews',       require('./routes/reviews'))
 app.use('/api/hotels',        require('./routes/hotels'))
 app.use('/api/transport',     require('./routes/transport'))
@@ -91,6 +111,15 @@ app.use('/api/bus',           require('./routes/bus'))
 app.use('/api/activities',    require('./routes/activities'))
 app.use('/api/payments',      require('./routes/payments'))
 app.use('/api/bookings',      require('./routes/activityBookings'))
+
+// Geocoding
+app.use('/api/location',      require('./routes/location.routes').default)
+
+// Travel Photos (Phase 1 — Photo Upload System)
+app.use('/api/photos',        require('./modules/photos/photo.routes').default)
+
+// Transport Intelligence Module (Multi-Modal Journey Planning)
+app.use('/api/transport-intelligence', require('./modules/transport-intelligence/transportIntelligence.routes').default)
 
 // Health check
 app.get('/health', (req, res) => {
@@ -107,6 +136,7 @@ app.get('/health', (req, res) => {
       rapidapi:   !!process.env.RAPIDAPI_KEY,
       hotelbeds:  getCredentialStatus(),
       razorpay:   !!process.env.RAZORPAY_KEY_ID,
+      geoapify:   !!process.env.GEOAPIFY_API_KEY,
     },
   })
 })
@@ -165,7 +195,7 @@ function createAndListen(port) {
   // Socket.IO setup
   require('./services/socketService')(io)
 
-  server.listen(port)
+  server.listen(port, '0.0.0.0')
 
   server.once('listening', () => {
     activePort = port

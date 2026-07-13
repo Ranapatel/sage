@@ -145,10 +145,10 @@ export default function PlanClient() {
     })
   }, [activeTab])
 
-  // Merge flights, buses, and cars for TransportTab
+  // Merge flights, buses, cars, and trains for TransportTab
   const mergedTransport = useMemo(() => {
-    return [...transport, ...buses, ...cars]
-  }, [transport, buses, cars])
+    return [...transport, ...buses, ...cars, ...trains]
+  }, [transport, buses, cars, trains])
 
   // ── RESULT CACHE: keyed by search params so same query never re-fetches ──
   const resultCacheRef = useRef<Record<string, {

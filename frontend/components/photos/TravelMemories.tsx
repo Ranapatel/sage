@@ -1,0 +1,429 @@
+'use client'
+
+import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import { Camera, Upload, X, Trash2, ImageIcon, Loader2, AlertCircle, Check } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { usePhotoApi, type Photo } from '@/lib/photoApi'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+
+const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface UploadProgress {
+  fileName: string
+  progress: number
+  status: 'uploading' | 'processing' | 'done' | 'error'
+  error?: string
+}
+
+interface TravelMemoriesProps {
+  tripId: string
+  itineraryDayId?: string
+  dayNumber?: number
+}
+
+// ─── Component ──────────────────────────────────────────────────────────────
+
+export default function TravelMemories({
+  tripId,
+  itineraryDayId,
+  dayNumber,
+}: TravelMemoriesProps) {
+  const { isSignedIn } = useAuth()
+  const { requireAuth } = useRequireAuth()
+  const photoApi = usePhotoApi()
+
+  const [photos, setPhotos] = useState<Photo[]>([])
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState<UploadProgress[]>([])
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // ── Load photos ───────────────────────────────────────────────────────────
+
+  const loadPhotos = useCallback(async () => {
+    if (!tripId || !itineraryDayId) {
+      setLoading(false)
+      return
+    }
+    try {
+      setLoading(true)
+      const data = await photoApi.getPhotos(tripId, itineraryDayId)
+      setPhotos(data)
+    } catch (err: any) {
+      // Silently fail — don't bother user if photos can't load
+      console.error('[TravelMemories] Load error:', err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [tripId, itineraryDayId])
+
+  useEffect(() => {
+    loadPhotos()
+  }, [loadPhotos])
+
+  // ── File Validation ───────────────────────────────────────────────────────
+
+  const validateFile = (file: File): string | null => {
+    if (!ALLOWED_FORMATS.includes(file.type.toLowerCase())) {
+      return `${file.name}: Unsupported format. Use JPG, PNG, WEBP, or HEIC.`
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return `${file.name}: File exceeds 10MB limit.`
+    }
+    return null
+  }
+
+  // ── Upload Flow ───────────────────────────────────────────────────────────
+
+  const handleFiles = useCallback(
+    (files: FileList | File[]) => {
+      requireAuth(async () => {
+        const fileArray = Array.from(files)
+        if (fileArray.length === 0) return
+
+        // Validate all files first
+        const errors = fileArray.map(validateFile).filter(Boolean)
+        if (errors.length > 0) {
+          errors.forEach((e) => toast.error(e))
+        }
+
+        const validFiles = fileArray.filter((f) => !validateFile(f))
+        if (validFiles.length === 0) return
+
+        // Upload each file
+        for (const file of validFiles) {
+          const uploadId = `${file.name}-${Date.now()}`
+
+          setUploading((prev) => [
+            ...prev,
+            { fileName: file.name, progress: 0, status: 'uploading' },
+          ])
+
+          try {
+            // Step 1: Get presigned upload URL
+            const { uploadUrl, fileKey } = await photoApi.generateUploadUrl({
+              tripId,
+              itineraryDayId,
+              dayNumber,
+              fileName: file.name,
+              fileType: file.type,
+              fileSize: file.size,
+            })
+
+            // Step 2: Upload to R2 directly
+            await photoApi.uploadToR2(uploadUrl, file, (percent) => {
+              setUploading((prev) =>
+                prev.map((u) =>
+                  u.fileName === file.name && u.status === 'uploading'
+                    ? { ...u, progress: percent }
+                    : u
+                )
+              )
+            })
+
+            // Step 3: Update status to processing
+            setUploading((prev) =>
+              prev.map((u) =>
+                u.fileName === file.name ? { ...u, status: 'processing', progress: 100 } : u
+              )
+            )
+
+            // Step 4: Save photo record (backend processes image)
+            const savedPhoto = await photoApi.savePhoto({
+              tripId,
+              itineraryDayId,
+              dayNumber,
+              fileKey,
+              metadata: { fileName: file.name, fileType: file.type },
+            })
+
+            // Step 5: Add to photos list
+            setPhotos((prev) => [savedPhoto, ...prev])
+
+            // Step 6: Mark as done
+            setUploading((prev) =>
+              prev.map((u) =>
+                u.fileName === file.name ? { ...u, status: 'done' } : u
+              )
+            )
+
+            toast.success(`${file.name} uploaded!`)
+          } catch (err: any) {
+            setUploading((prev) =>
+              prev.map((u) =>
+                u.fileName === file.name
+                  ? { ...u, status: 'error', error: err.message }
+                  : u
+              )
+            )
+            toast.error(`Failed to upload ${file.name}: ${err.message}`)
+          }
+        }
+
+        // Clear completed uploads after 2 seconds
+        setTimeout(() => {
+          setUploading((prev) => prev.filter((u) => u.status !== 'done' && u.status !== 'error'))
+        }, 2000)
+      })
+    },
+    [tripId, itineraryDayId, dayNumber, photoApi, requireAuth]
+  )
+
+  // ── Drag & Drop ───────────────────────────────────────────────────────────
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragOver(false)
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files)
+      }
+    },
+    [handleFiles]
+  )
+
+  // ── Delete Photo ──────────────────────────────────────────────────────────
+
+  const handleDelete = useCallback(
+    (photoId: string) => {
+      requireAuth(async () => {
+        setDeletingId(photoId)
+        try {
+          await photoApi.deletePhoto(photoId)
+          setPhotos((prev) => prev.filter((p) => p.id !== photoId))
+          toast.success('Photo deleted')
+        } catch (err: any) {
+          toast.error(err.message || 'Failed to delete photo')
+        } finally {
+          setDeletingId(null)
+        }
+      })
+    },
+    [photoApi, requireAuth]
+  )
+
+  // ── Don't render if no trip/day ───────────────────────────────────────────
+
+  if (!tripId || (!itineraryDayId && !dayNumber)) {
+    return null
+  }
+
+  return (
+    <div className="mt-6">
+      {/* ── Section Header ─────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 mb-3">
+        <Camera size={16} className="text-[#EA580C]" />
+        <h3 className="text-sm font-bold text-[#1A1A1A]">Travel Memories</h3>
+        {photos.length > 0 && (
+          <span className="text-xs text-[#A1A1AA]">({photos.length})</span>
+        )}
+      </div>
+
+      {/* ── Upload Area ────────────────────────────────────────────────────── */}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={`
+          relative rounded-xl border-2 border-dashed cursor-pointer
+          transition-all duration-200
+          ${isDragOver
+            ? 'border-[#EA580C] bg-[#FFF7ED]'
+            : 'border-[#E8E0D8] bg-[#FFFFFF] hover:border-[#FED7AA] hover:bg-[#FFFBF7]'
+          }
+        `}
+        style={{ minHeight: photos.length === 0 && uploading.length === 0 ? 80 : 48 }}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,image/heic"
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files) handleFiles(e.target.files)
+            e.target.value = '' // Reset for re-upload
+          }}
+        />
+
+        <div className="flex items-center justify-center gap-2 py-3 px-4">
+          {photos.length === 0 && uploading.length === 0 ? (
+            <>
+              <Upload size={18} className="text-[#EA580C]" />
+              <span className="text-sm text-[#6B6B6B]">
+                <span className="font-semibold text-[#EA580C]">Upload Photos</span>
+                {' '}or drag & drop
+              </span>
+              <span className="text-[10px] text-[#A1A1AA] hidden sm:inline">
+                JPG, PNG, WEBP, HEIC · max 10MB
+              </span>
+            </>
+          ) : (
+            <>
+              <Upload size={14} className="text-[#EA580C]" />
+              <span className="text-xs text-[#6B6B6B]">Add more photos</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ── Upload Progress ────────────────────────────────────────────────── */}
+      {uploading.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {uploading.map((u, i) => (
+            <div
+              key={`${u.fileName}-${i}`}
+              className="flex items-center gap-3 p-2.5 rounded-lg"
+              style={{ background: '#FFFBF7', border: '1px solid #E8E0D8' }}
+            >
+              <div className="flex-shrink-0">
+                {u.status === 'uploading' && (
+                  <Loader2 size={16} className="text-[#EA580C] animate-spin" />
+                )}
+                {u.status === 'processing' && (
+                  <Loader2 size={16} className="text-blue-500 animate-spin" />
+                )}
+                {u.status === 'done' && <Check size={16} className="text-green-500" />}
+                {u.status === 'error' && <AlertCircle size={16} className="text-red-500" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-[#1A1A1A] truncate">{u.fileName}</p>
+                {u.status === 'uploading' && (
+                  <div className="mt-1 h-1 rounded-full bg-[#E8E0D8] overflow-hidden">
+                    <div
+                      className="h-full bg-[#EA580C] transition-all duration-300"
+                      style={{ width: `${u.progress}%` }}
+                    />
+                  </div>
+                )}
+                {u.status === 'processing' && (
+                  <p className="text-[10px] text-blue-500 mt-0.5">Processing image...</p>
+                )}
+                {u.status === 'error' && (
+                  <p className="text-[10px] text-red-500 mt-0.5">{u.error}</p>
+                )}
+              </div>
+              {u.status === 'uploading' && (
+                <span className="text-[10px] font-semibold text-[#6B6B6B]">{u.progress}%</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Photo Grid ─────────────────────────────────────────────────────── */}
+      {loading ? (
+        <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="aspect-square rounded-lg animate-pulse"
+              style={{ background: '#F0EBE4' }}
+            />
+          ))}
+        </div>
+      ) : photos.length > 0 ? (
+        <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+          {photos.map((photo) => (
+            <div
+              key={photo.id}
+              className="relative group aspect-square rounded-lg overflow-hidden cursor-pointer"
+              style={{ background: '#F0EBE4' }}
+              onClick={() => setLightboxPhoto(photo)}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo.thumbnailUrl || photo.originalUrl}
+                alt={photo.locationName || 'Travel photo'}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                loading="lazy"
+              />
+              {/* Delete button overlay */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleDelete(photo.id)
+                }}
+                disabled={deletingId === photo.id}
+                className="absolute top-1 right-1 p-1.5 rounded-full bg-black/60 text-white
+                  opacity-0 group-hover:opacity-100 transition-opacity
+                  hover:bg-red-500 disabled:opacity-50"
+                title="Delete photo"
+              >
+                {deletingId === photo.id ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Trash2 size={12} />
+                )}
+              </button>
+              {/* Featured badge */}
+              {photo.isFeatured && (
+                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[8px] font-bold">
+                  Featured
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {/* ── Empty State ────────────────────────────────────────────────────── */}
+      {!loading && photos.length === 0 && uploading.length === 0 && (
+        <div className="mt-2 flex items-center gap-2 text-[#A1A1AA]">
+          <ImageIcon size={14} />
+          <p className="text-xs">No photos yet. Upload to capture your travel memories!</p>
+        </div>
+      )}
+
+      {/* ── Lightbox ───────────────────────────────────────────────────────── */}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <button
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20"
+            onClick={() => setLightboxPhoto(null)}
+          >
+            <X size={24} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxPhoto.originalUrl}
+            alt={lightboxPhoto.locationName || 'Travel photo'}
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+          {lightboxPhoto.locationName && (
+            <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-lg">
+              {lightboxPhoto.locationName}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

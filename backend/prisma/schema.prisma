@@ -26,6 +26,8 @@ model User {
   profile            UserProfile?
   wallet             Wallet?
   walletTransactions WalletTransaction[]
+  userLocations      UserLocation[]
+  mapPreference      MapPreference?
 }
 
 model Trip {
@@ -40,21 +42,67 @@ model Trip {
   status        String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  optimizedAt   DateTime?      // Last time route optimization ran
+  optimizationHash String?     // Hash of place coords at last optimization (prevents duplicate calls)
   itineraryDays ItineraryDay[]
+  itineraryPlaces ItineraryPlace[]
+  itineraryRoutes ItineraryRoute[]
+  routeMatrixCaches RouteMatrixCache[]
   memories      Memory[]
   travelPhotos  TravelPhoto[]
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placeVisitStatuses PlaceVisitStatus[]
+}
+
+model ItineraryPlace {
+  id          String   @id @default(uuid())
+  tripId      String
+  dayNumber   Int
+  name        String
+  category    String?
+  latitude    Float
+  longitude   Float
+  visitTime   String?
+  duration    String?
+  orderIndex  Int
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+model ItineraryRoute {
+  id            String   @id @default(uuid())
+  tripId        String
+  dayNumber     Int
+  startPlaceId  String
+  endPlaceId    String
+  distance      Float
+  duration      Int
+  transportMode String
+  geometry      String   @db.Text
+  createdAt     DateTime @default(now())
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+model RouteMatrixCache {
+  id            String   @id @default(uuid())
+  tripId        String
+  dayNumber     Int
+  locationsHash String   @unique
+  matrixData    String   @db.Text
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
 }
 
 model ItineraryDay {
-  id          String     @id @default(uuid())
+  id          String        @id @default(uuid())
   tripId      String
   dayNumber   Int
   title       String
   description String?
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime      @default(now())
   activities  Activity[]
-  trip        Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  photos      TravelPhoto[]
+  trip        Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
 }
 
 model Activity {
@@ -71,14 +119,29 @@ model Activity {
 }
 
 model TravelPhoto {
-  id        String   @id @default(uuid())
-  tripId    String
-  userId    String
-  imageUrl  String
-  caption   String?
-  createdAt DateTime @default(now())
-  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String         @id @default(uuid())
+  userId         String
+  tripId         String
+  itineraryDayId String?
+  originalUrl    String
+  thumbnailUrl   String?
+  imageUrl       String?        // Legacy field — kept for backward compat with trip.service.ts
+  caption        String?
+  fileSize       Int?
+  fileType       String?
+  locationName   String?
+  latitude       Float?
+  longitude      Float?
+  isFeatured     Boolean        @default(false)
+  rewardStatus   String         @default("NONE")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  trip           Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itineraryDay   ItineraryDay?  @relation(fields: [itineraryDayId], references: [id], onDelete: SetNull)
+
+  @@index([tripId, itineraryDayId])
+  @@index([userId])
 }
 
 model UserProfile {
@@ -155,4 +218,109 @@ model Referral {
   reward         Float  @default(0.0)
   referredUser   User   @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: Cascade)
   referrer       User   @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+}
+
+model UserLocation {
+  id        String   @id @default(uuid())
+  userId    String
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlaceVisitStatus {
+  id        String   @id @default(uuid())
+  tripId    String
+  placeId   String
+  status    String   // "completed" | "current" | "upcoming"
+  updatedAt DateTime @updatedAt
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, placeId])
+}
+
+model MapPreference {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  layers        String[]
+  transportMode String   @default("walk")
+  travelStyle   String   @default("adventure")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TransportRoutes {
+  id             String   @id @default(uuid())
+  origin         String
+  destination    String
+  mode           String
+  serviceNumber  String?
+  operator       String
+  duration       String
+  price          Float
+  runsOn         String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TransportProviders {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  type        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Stations {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  city      String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+
+model BusStops {
+  id        String   @id @default(uuid())
+  name      String
+  city      String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+
+model RailwayStations {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  city      String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+
+model JourneyPlans {
+  id                   String   @id @default(uuid())
+  origin               String
+  destination          String
+  date                 String
+  totalDurationMinutes Int
+  totalCost            Float
+  transfers            Int
+  isDirect             Boolean
+  bookingUrl           String
+  aiExplanation        String?
+  createdAt            DateTime @default(now())
+}
+
+model UserSearchHistory {
+  id             String   @id @default(uuid())
+  userId         String?
+  origin         String
+  destination    String
+  searchDate     String
+  passengers     Int      @default(1)
+  rankPreference String   @default("balanced")
+  createdAt      DateTime @default(now())
 }

@@ -15,7 +15,7 @@ const bookingService = require('../activities/activitiesBookingService')
 const reconciliationService = require('../activities/activitiesReconciliationService')
 const { writeAudit } = require('../models/AuditLog')
 const { zodValidate } = require('../middleware/validateRequest')
-const { authMiddleware } = require('../middleware/authMiddleware')
+const { authMiddleware } = require('../middleware/auth.middleware')
 const { cancellationSchema, bookingListSchema } = require('../activities/activitiesValidator')
 const { bookingMutationLimiter } = require('../middleware/rateLimitMiddleware')
 

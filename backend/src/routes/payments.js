@@ -17,7 +17,7 @@ const router     = express.Router()
 const razorpay   = require('../services/razorpayService')
 const { writeAudit } = require('../models/AuditLog')
 const { zodValidate } = require('../middleware/validateRequest')
-const { authMiddleware } = require('../middleware/authMiddleware')
+const { authMiddleware } = require('../middleware/auth.middleware')
 const { createPaymentOrderSchema } = require('../activities/activitiesValidator')
 const { paymentLimiter } = require('../middleware/rateLimitMiddleware')
 

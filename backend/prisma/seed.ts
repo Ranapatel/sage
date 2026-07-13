@@ -133,6 +133,7 @@ async function main() {
           {
             userId: user.id,
             imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
+            originalUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
             caption: 'Eiffel Tower at Dusk',
           },
         ],
@@ -190,6 +191,51 @@ async function main() {
     }
   })
   console.log('[Prisma Seed] Seeded referral status:', referral.status)
+
+  // 10. Seed Transport Providers
+  await prisma.transportProviders.createMany({
+    data: [
+      { name: 'MakeMyTrip', type: 'train' },
+      { name: 'RedBus', type: 'bus' },
+      { name: 'Uber', type: 'cab' },
+      { name: 'Air India', type: 'flight' }
+    ]
+  }).catch(e => console.warn('[Prisma Seed] TransportProviders seed skipped:', e.message))
+
+  // 11. Seed Stations and RailwayStations
+  await prisma.stations.createMany({
+    data: [
+      { name: 'Secunderabad Junction', code: 'SC', city: 'Hyderabad' },
+      { name: 'Hubballi Junction', code: 'UBL', city: 'Hubballi' },
+      { name: 'Madgaon Junction', code: 'MAO', city: 'Goa' },
+      { name: 'Kanyakumari', code: 'CAPE', city: 'Kanyakumari' }
+    ]
+  }).catch(e => console.warn('[Prisma Seed] Stations seed skipped:', e.message))
+
+  await prisma.railwayStations.createMany({
+    data: [
+      { name: 'Secunderabad Junction', code: 'SC', city: 'Hyderabad' },
+      { name: 'Hubballi Junction', code: 'UBL', city: 'Hubballi' },
+      { name: 'Madgaon Junction', code: 'MAO', city: 'Goa' }
+    ]
+  }).catch(e => console.warn('[Prisma Seed] RailwayStations seed skipped:', e.message))
+
+  // 12. Seed BusStops
+  await prisma.busStops.createMany({
+    data: [
+      { name: 'Hubli Bus Terminal', city: 'Hubballi' },
+      { name: 'Gokarna Bus Stand', city: 'Gokarna' },
+      { name: 'Goa Beach Stop', city: 'Goa' }
+    ]
+  }).catch(e => console.warn('[Prisma Seed] BusStops seed skipped:', e.message))
+
+  // 13. Seed TransportRoutes
+  await prisma.transportRoutes.createMany({
+    data: [
+      { origin: 'Hyderabad', destination: 'Hubballi', mode: 'train', serviceNumber: '17003', operator: 'Express Train', duration: '8h 00m', price: 450, runsOn: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] },
+      { origin: 'Hubballi', destination: 'Gokarna', mode: 'bus', serviceNumber: 'Bus-UBL-GKN', operator: 'KSRTC', duration: '3h 00m', price: 200, runsOn: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] }
+    ]
+  }).catch(e => console.warn('[Prisma Seed] TransportRoutes seed skipped:', e.message))
 
   console.log('[Prisma Seed] Seeding completed successfully.')
 }

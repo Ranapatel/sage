@@ -188,6 +188,23 @@ async function photonGeocode(placeName, cityContext = '') {
 }
 
 async function geocodePlace(placeName, cityContext = '') {
+  try {
+    const { GeoapifyGeocodingService } = require('./geoapifyGeocoding.service')
+    const geoapifyRes = await GeoapifyGeocodingService.geocodePlace(placeName, cityContext)
+    if (geoapifyRes) {
+      return {
+        lat: geoapifyRes.latitude,
+        lng: geoapifyRes.longitude,
+        placeId: geoapifyRes.placeId,
+        formattedAddress: geoapifyRes.formatted_address,
+        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName + ', ' + cityContext)}`,
+        source: 'geoapify',
+      }
+    }
+  } catch (err) {
+    console.warn(`[Places] Geoapify failed for "${placeName}": ${err.message}`)
+  }
+
   const google = await googleGeocode(placeName, cityContext)
   if (google) return google
   
