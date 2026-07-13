@@ -217,8 +217,8 @@ railway up
 
 ## 📞 Support
 
-- Email: support@tripsage.ai
-- Website: https://tripsage.ai
+- Email: rana@tripsage.in
+- Website: https://tripsage.in
 
 ---
 
