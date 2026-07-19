@@ -150,10 +150,10 @@ export interface VoucherData {
 // The response interceptor unwraps res.data, so all methods resolve to ApiResponse<T>.
 // We cast the axios instance to reflect this so callers get correct types.
 //
-// NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:5000 in dev).
+// NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:4000 in dev).
 // We also hard-code the local fallback so hot-reload works without a restart.
 const _API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -186,6 +186,7 @@ export const tripAPI = {
     from: string; to: string; startDate: string; endDate?: string
     budget?: number; travelers?: number; style?: string
     rooms?: number; adults?: number; children?: number
+    isMultiCity?: boolean; stops?: Array<{ city: string; nights: number }>
   }, config?: { signal?: AbortSignal }): Promise<ApiResponse<SearchData>> =>
     API.post('/api/search', params, config),
 
@@ -198,6 +199,7 @@ export const tripAPI = {
   generateItinerary: (params: {
     destination: string; days: number; budget: number; currency?: string
     style: string; preferences: string[]; members: number; startDate?: string
+    isMultiCity?: boolean; stops?: Array<{ city: string; nights: number }>
   }, config?: { signal?: AbortSignal }): Promise<ApiResponse<ItineraryData>> =>
     API.post('/api/itinerary/generate', params, config),
 
@@ -245,6 +247,12 @@ export const tripAPI = {
 
   getReviews: (): Promise<ApiResponse<any[]>> =>
     API.get('/api/reviews'),
+
+  saveTrip: (tripData: any): Promise<ApiResponse<any>> =>
+    API.post('/api/trips', tripData),
+
+  getUserTrips: (): Promise<ApiResponse<any[]>> =>
+    API.get('/api/trips'),
 
   /**
    * Fetches ranked hotel recommendations from the Hotelbeds API.

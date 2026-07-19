@@ -1,5 +1,6 @@
 const axios = require('axios')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { resolvePlaceImage } = require('./placeImageService')
 
 // ── In-memory cache (fast path, resets on restart) ──────────────────────────
 const memCache = new Map()
@@ -227,20 +228,37 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
     const enrichedPlaces = []
     for (const place of day.places) {
       const geo = await geocodePlace(place.name, destination)
+
+      const lat = geo?.lat ?? null
+      const lng = geo?.lng ?? null
+
+      // Resolve a real image for this place (Wikipedia → Flickr → Wikimedia geo)
+      // Only fetch if place doesn't already have a verified image URL
+      let imageUrl = place.image || null
+      if (!imageUrl) {
+        imageUrl = await resolvePlaceImage(place.name, destination, lat, lng)
+      }
+
       enrichedPlaces.push(geo ? {
         ...place,
-        coordinates: [geo.lat, geo.lng],
+        coordinates: [lat, lng],
         placeId: geo.placeId,
         formattedAddress: geo.formattedAddress,
         googleMapsUrl: geo.googleMapsUrl,
         coordSource: geo.source,
-      } : { ...place, coordSource: 'ai_estimated' })
+        image: imageUrl,
+      } : {
+        ...place,
+        coordSource: 'ai_estimated',
+        image: imageUrl,
+      })
     }
     enriched.push({ ...day, places: enrichedPlaces })
   }
 
   const real = enriched.flatMap(d => d.places).filter(p => p.coordSource !== 'ai_estimated').length
-  console.log(`[Places] ✅ ${real}/${total} places geocoded`)
+  const imaged = enriched.flatMap(d => d.places).filter(p => p.image).length
+  console.log(`[Places] ✅ ${real}/${total} places geocoded | 🖼️ ${imaged}/${total} places have images`)
   return enriched
 }
 

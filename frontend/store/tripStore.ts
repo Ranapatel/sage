@@ -22,6 +22,8 @@ export interface TripContext {
   startDate: string
   endDate: string
   currentDay: number
+  isMultiCity?: boolean
+  stops?: Array<{ city: string; nights: number }>
 }
 
 export interface TransportOption {
@@ -204,6 +206,8 @@ export interface TripRecord {
   budget: number
   style: string
   members: number
+  isMultiCity?: boolean
+  stops?: Array<{ city: string; nights: number }>
 }
 
 interface TripStore {
@@ -287,6 +291,8 @@ const initialTrip: TripContext = {
   startDate: '',
   endDate: '',
   currentDay: 1,
+  isMultiCity: false,
+  stops: [],
 }
 
 const initialBooking: BookingStatus = {
@@ -432,7 +438,8 @@ export const useTripStore = create<TripStore>()(
       },
 
       addTripToHistory: (record) => set((s) => ({
-        tripHistory: [record, ...s.tripHistory.filter(t => t.tripId !== record.tripId)],
+        // Cap at 10 most recent trips to prevent localStorage bloat (Audit C4)
+        tripHistory: [record, ...s.tripHistory.filter(t => t.tripId !== record.tripId)].slice(0, 10),
       })),
 
       cancelHotelBooking: async (bookingId) => {

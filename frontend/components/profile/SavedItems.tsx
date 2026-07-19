@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
-import { Trash2, ExternalLink, HeartCrack } from 'lucide-react'
+import { Trash2, ExternalLink, Heart } from 'lucide-react'
 
 interface SavedItemData {
   id: string
@@ -21,7 +21,7 @@ export default function SavedItems() {
   const fetchSavedItems = async () => {
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.get(`${apiUrl}/api/profile/saved`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -37,14 +37,17 @@ export default function SavedItems() {
   }
 
   useEffect(() => {
-    fetchSavedItems()
+    const load = async () => {
+      await fetchSavedItems()
+    }
+    load()
   }, [])
 
   const handleDelete = async (id: string) => {
     const delToast = toast.loading('Removing bookmark...')
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.delete(`${apiUrl}/api/profile/saved/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -63,17 +66,17 @@ export default function SavedItems() {
   const getTypeConfig = (type: string) => {
     switch (type) {
       case 'hotel':
-        return { label: 'Hotel', icon: '🏨', color: 'badge-green', link: '/plan' }
+        return { label: 'Hotel', icon: '🏨', badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/plan' }
       case 'destination':
-        return { label: 'Destination', icon: '🗺️', color: 'badge-amber', link: '/' }
+        return { label: 'Destination', icon: '🗺️', badgeClass: 'text-[#EA580C] bg-orange-50 border-orange-200', link: '/' }
       case 'activity':
-        return { label: 'Activity', icon: '⚡', color: 'badge-red', link: '/plan' }
+        return { label: 'Activity', icon: '⚡', badgeClass: 'text-red-700 bg-red-50 border-red-200', link: '/plan' }
       case 'itinerary':
-        return { label: 'Itinerary', icon: '📅', color: 'badge-green', link: '/plan' }
+        return { label: 'Itinerary', icon: '📅', badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/plan' }
       case 'restaurant':
-        return { label: 'Restaurant', icon: '🍽️', color: 'badge-amber', link: '/plan' }
+        return { label: 'Restaurant', icon: '🍽️', badgeClass: 'text-[#EA580C] bg-orange-50 border-orange-200', link: '/plan' }
       default:
-        return { label: 'Item', icon: '📍', color: 'badge-green', link: '/' }
+        return { label: 'Item', icon: '📍', badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/' }
     }
   }
 
@@ -89,10 +92,10 @@ export default function SavedItems() {
 
   if (items.length === 0) {
     return (
-      <div className="card p-12 text-center bg-slate-950/40 border border-slate-800 rounded-3xl">
-        <div className="text-5xl mb-4">🤍</div>
-        <h3 className="font-bold text-white mb-2">No bookmarks saved yet</h3>
-        <p className="text-slate-400 text-xs max-w-sm mx-auto">
+      <div className="card p-12 text-center bg-white border border-[#E8E0D8] rounded-3xl">
+        <Heart className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+        <h3 className="font-bold text-[#1A1A1A] mb-2">No bookmarks saved yet</h3>
+        <p className="text-slate-500 text-xs mb-6 max-w-sm mx-auto">
           Explore destinations, flight packages, and hotel rate structures to save them to your account.
         </p>
       </div>
@@ -100,12 +103,12 @@ export default function SavedItems() {
   }
 
   return (
-    <div className="card p-6 md:p-8 bg-slate-950/40 border border-slate-800 rounded-3xl relative overflow-hidden shadow-2xl space-y-6">
+    <div className="card p-6 md:p-8 bg-white border border-[#E8E0D8] rounded-3xl relative overflow-hidden shadow-sm space-y-6">
       <div>
-        <h2 className="text-lg font-black text-white flex items-center gap-2">
+        <h2 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
           💖 Saved Content
         </h2>
-        <p className="text-slate-400 text-xs mt-1">
+        <p className="text-slate-500 text-xs mt-1">
           Access your catalog of bookmarked flights, hotels, activities, and itineraries.
         </p>
       </div>
@@ -116,18 +119,18 @@ export default function SavedItems() {
           return (
             <div
               key={item.id}
-              className="flex items-center justify-between p-4 rounded-2xl border border-slate-800 bg-slate-900/40 hover:border-slate-700/80 transition-all duration-300 shadow-md group"
+              className="flex items-center justify-between p-4 rounded-2xl border border-[#E8E0D8] bg-[#FFFBF7]/40 hover:border-[#EA580C]/40 hover:bg-white transition-all duration-300 shadow-sm group"
             >
               <div className="flex items-center gap-4">
-                <div className="text-2xl bg-slate-800/80 p-3 rounded-xl border border-slate-700/50">
+                <div className="text-2xl bg-white border border-[#E8E0D8] p-3 rounded-xl shadow-sm">
                   {config.icon}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white capitalize leading-tight">
+                <div className="text-left">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-[#1A1A1A] capitalize leading-tight">
                       {item.referenceId.replace(/_/g, ' ')}
                     </span>
-                    <span className={`badge ${config.color} text-[0.6rem] font-black uppercase tracking-wider`}>
+                    <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${config.badgeClass}`}>
                       {config.label}
                     </span>
                   </div>
@@ -140,14 +143,14 @@ export default function SavedItems() {
               <div className="flex items-center gap-2">
                 <a
                   href={config.link}
-                  className="flex items-center justify-center p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/50 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  className="flex items-center justify-center p-2 rounded-xl bg-[#FFFBF7] border border-[#E8E0D8] text-slate-600 hover:text-[#EA580C] hover:border-[#EA580C]/40 transition-all cursor-pointer shadow-sm"
                   title="View details"
                 >
                   <ExternalLink size={14} />
                 </a>
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className="flex items-center justify-center p-2 rounded-xl bg-red-950/20 border border-red-900/30 text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-all cursor-pointer"
+                  className="flex items-center justify-center p-2 rounded-xl bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition-all cursor-pointer shadow-sm"
                   title="Remove bookmark"
                 >
                   <Trash2 size={14} />

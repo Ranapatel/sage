@@ -5,18 +5,21 @@ import {
   Plane, Building2, MapPin, Wallet, Sparkles,
   ArrowRight, Check, Home, Info, Share2, Bookmark,
   Sun, CloudRain, CloudSun, ShieldAlert, ChevronDown, ChevronUp,
-  ExternalLink, Calendar, Clock, Briefcase, AlertTriangle, AlertCircle, X
+  ExternalLink, Calendar, Clock, Briefcase, AlertTriangle, AlertCircle, X, FileDown
 } from 'lucide-react'
 import { SYMBOLS } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { useTripStore } from '@/store/tripStore'
 import { getDaysBetween, formatDate } from '@/lib/utils'
+import { getVisaInfo } from '@/lib/visaData'
 import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
 
-// ─── Destination background images ───────────────────────────────────────────
+// â”€â”€â”€ Destination background images â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Curated Unsplash photos keyed by lowercase destination city name.
 // Falls back to a generic travel photo when city not found.
 
@@ -68,7 +71,7 @@ function getDestinationImage(destination: string): string {
   return partialKey ? DESTINATION_IMAGES[partialKey] : FALLBACK_IMAGE
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface Props {
   transport: any[]
@@ -87,7 +90,7 @@ interface Props {
   onSave: () => void
 }
 
-// ─── Skeleton shimmer ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function Skeleton({ className = '' }: { className?: string }) {
   return (
@@ -107,7 +110,7 @@ function Skeleton({ className = '' }: { className?: string }) {
   )
 }
 
-// ─── Budget math ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Budget math â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function useBudgetBreakdown(budget: number, nights: number, travelers: number, currency: string) {
   return useMemo(() => {
@@ -115,7 +118,7 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
     const locale = currency === 'INR' ? 'en-IN' : 'en-US'
     const fmt = (n: number) => `${sym}${Math.round(n).toLocaleString(locale)}`
 
-    // Realistic proportions summing to ~85% — leaves a 15% buffer for incidentals
+    // Realistic proportions summing to ~85% â€” leaves a 15% buffer for incidentals
     const travel = Math.round(budget * 0.40)
     const stay = Math.round(budget * 0.25)
     const activities = Math.round(budget * 0.20)
@@ -132,26 +135,100 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
   }, [budget, nights, travelers, currency])
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
+  const POPULAR = ['Goa', 'Manali', 'Bali', 'Dubai', 'Singapore', 'Kerala', 'Jaipur', 'Bangkok']
+  const FEATURES = [
+    { icon: 'âœˆï¸', label: 'Live Flights' },
+    { icon: 'ðŸ¨', label: 'Real Hotels' },
+    { icon: 'ðŸ¤–', label: 'AI Itinerary' },
+    { icon: 'ðŸŒ¤ï¸', label: 'Live Weather' },
+    { icon: 'ðŸš‚', label: 'Trains & Buses' },
+    { icon: 'ðŸ’°', label: 'Budget AI' },
+  ]
+
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center space-y-5 max-w-sm mx-auto px-4">
-      <div className="w-14 h-14 rounded-2xl bg-[#FFF3ED] flex items-center justify-center">
-        <MapPin size={26} className="text-[#EA580C]" />
+    <div className="max-w-2xl mx-auto px-4 py-10 text-center space-y-8">
+
+      {/* Hero icon with pulse ring */}
+      <div className="flex justify-center">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-orange-100 animate-ping opacity-30 scale-150" />
+          <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#F97316] flex items-center justify-center shadow-lg shadow-orange-200">
+            <span className="text-4xl">ðŸŒ</span>
+          </div>
+        </div>
       </div>
-      <div>
-        <h2 className="text-lg font-bold text-[#1A1A1A] mb-1.5">Plan your next trip</h2>
-        <p className="text-sm text-[#6B6B6B] leading-relaxed">
-          Fill in your route, dates, and budget above — then hit{' '}
-          <span className="text-[#EA580C] font-semibold">Search</span> to generate your Living Trip Board.
+
+      {/* Headline */}
+      <div className="space-y-3">
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] leading-tight">
+          Where are you headed?
+        </h2>
+        <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-md mx-auto">
+          Fill in your <span className="text-[#EA580C] font-semibold">From</span>,{' '}
+          <span className="text-[#EA580C] font-semibold">To</span>, dates, and budget above â€” then hit{' '}
+          <span className="inline-flex items-center gap-1 text-[#EA580C] font-bold bg-orange-50 px-2 py-0.5 rounded-lg">
+            ðŸ” Search
+          </span>{' '}
+          to generate your complete trip board.
         </p>
       </div>
+
+      {/* Feature chips */}
+      <div className="flex flex-wrap justify-center gap-2">
+        {FEATURES.map(f => (
+          <span
+            key={f.label}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E8E0D8] rounded-full text-[13px] font-semibold text-[#4B4B4B] shadow-sm"
+          >
+            <span>{f.icon}</span> {f.label}
+          </span>
+        ))}
+      </div>
+
+      {/* Popular destinations */}
+      <div className="space-y-3">
+        <p className="text-[12px] font-black text-[#9CA3AF] uppercase tracking-widest">Popular destinations</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {POPULAR.map(city => (
+            <button
+              key={city}
+              className="px-4 py-2 bg-[#FFFBF7] border border-[#E8E0D8] hover:border-[#EA580C] hover:bg-orange-50 hover:text-[#EA580C] rounded-xl text-[13px] font-semibold text-[#4B4B4B] transition-all active:scale-[0.97]"
+              onClick={() => {
+                // Scroll to search and hint the destination
+                const toInput = document.querySelector<HTMLInputElement>('input[placeholder="To..."]')
+                if (toInput) {
+                  toInput.focus()
+                  toInput.value = city
+                  toInput.dispatchEvent(new Event('input', { bubbles: true }))
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            >
+              {city}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Arrow pointing up to search */}
+      <div className="flex flex-col items-center gap-2 text-[#9CA3AF]">
+        <div className="flex flex-col items-center gap-1 animate-bounce">
+          <div className="w-px h-8 bg-gradient-to-t from-[#EA580C] to-transparent" />
+          <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="rotate-180 text-[#EA580C]">
+            <path d="M1 7L6 2L11 7" stroke="#EA580C" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <p className="text-[12px] font-medium">Search is up there â†‘</p>
+      </div>
+
     </div>
   )
 }
 
-// ─── LEFT: Trip Mood Panel ────────────────────────────────────────────────────
+// â”€â”€â”€ LEFT: Trip Mood Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function TripMoodPanel({ weather, remaining, fmt, loading }: { weather: any; remaining: number; fmt: (n: number) => string; loading: boolean }) {
   const rows = [
@@ -188,7 +265,7 @@ function TripMoodPanel({ weather, remaining, fmt, loading }: { weather: any; rem
 }
 
 
-// ─── LEFT: Journey Flow — vertical timeline ───────────────────────────────────
+// â”€â”€â”€ LEFT: Journey Flow â€” vertical timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const FLOW_STEPS = [
   { label: 'Origin', status: 'Ready', done: true },
@@ -247,7 +324,7 @@ function JourneyFlowVertical({ loading }: { loading: boolean }) {
   )
 }
 
-// ─── CENTER: Trip Story Card ──────────────────────────────────────────────────
+// â”€â”€â”€ CENTER: Trip Story Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function TripStoryCard({
   loading, perPerson, budget, sym, fmt, travelers, destination, onFlights, onAdjust
@@ -255,13 +332,13 @@ function TripStoryCard({
   loading: boolean; perPerson: number; budget: number; sym: string; fmt: (n: number) => string
   travelers: number; destination: string; onFlights: () => void; onAdjust: () => void
 }) {
-  const locale = sym === '₹' ? 'en-IN' : 'en-US'
+  const locale = sym === 'â‚¹' ? 'en-IN' : 'en-US'
   const imgUrl = getDestinationImage(destination)
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
 
-      {/* ── Destination hero image with dark gradient overlay (desktop) ── */}
+      {/* â”€â”€ Destination hero image with dark gradient overlay (desktop) â”€â”€ */}
       <div
         className="relative w-full hidden lg:block"
         style={{ height: 220 }}
@@ -273,7 +350,7 @@ function TripStoryCard({
           className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: loading ? 'brightness(0.5) blur(2px)' : 'brightness(0.72)' }}
         />
-        {/* Dark gradient — bottom fade so content below is on white */}
+        {/* Dark gradient â€” bottom fade so content below is on white */}
         <div
           className="absolute inset-0"
           style={{
@@ -311,7 +388,7 @@ function TripStoryCard({
                   className="text-[28px] font-bold text-white leading-none drop-shadow-sm"
                   style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
                 >
-                  {sym}{perPerson > 0 ? Math.round(perPerson).toLocaleString(locale) : '—'}
+                  {sym}{perPerson > 0 ? Math.round(perPerson).toLocaleString(locale) : 'â€”'}
                 </span>
                 <span className="text-[13px] text-white/75 mb-0.5">/person est.</span>
               </div>
@@ -320,7 +397,7 @@ function TripStoryCard({
         </div>
       </div>
 
-      {/* ── White content area below image ── */}
+      {/* â”€â”€ White content area below image â”€â”€ */}
       <div className="p-6 pt-5">
         {/* Reason */}
         {loading ? (
@@ -330,7 +407,7 @@ function TripStoryCard({
           </div>
         ) : (
           <p className="text-[14px] text-[#6B6B6B] italic leading-relaxed mb-5">
-            Fast route with a well-located stay — leaves room for food, local travel, and activities.
+            Fast route with a well-located stay â€” leaves room for food, local travel, and activities.
           </p>
         )}
 
@@ -356,7 +433,7 @@ function TripStoryCard({
         </div>
       </div>
 
-      {/* ── Mobile: image top panel ── */}
+      {/* â”€â”€ Mobile: image top panel â”€â”€ */}
       <div
         className="lg:hidden relative w-full overflow-hidden"
         style={{ height: 160, borderRadius: '16px 16px 0 0' }}
@@ -384,7 +461,7 @@ function TripStoryCard({
                   Flight + budget-friendly stay
                 </p>
                 <p className="text-[22px] font-bold text-white leading-none" style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}>
-                  {sym}{perPerson > 0 ? Math.round(perPerson).toLocaleString(locale) : '—'}
+                  {sym}{perPerson > 0 ? Math.round(perPerson).toLocaleString(locale) : 'â€”'}
                   <span className="text-[12px] font-normal text-white/70 ml-1">/person</span>
                 </p>
               </>
@@ -397,7 +474,7 @@ function TripStoryCard({
 }
 
 
-// ─── RIGHT: Budget Compass ────────────────────────────────────────────────────
+// â”€â”€â”€ RIGHT: Budget Compass â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BudgetCompass({
   loading, budget, totalEstimated, remaining, travel, stay, activities, pctUsed, fmt, sym
@@ -477,7 +554,7 @@ function BudgetCompass({
   )
 }
 
-// ─── MOBILE: Horizontal Mood Pills ───────────────────────────────────────────
+// â”€â”€â”€ MOBILE: Horizontal Mood Pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function MobileMoodPills({ loading, remaining, fmt }: { loading: boolean; remaining: number; fmt: (n: number) => string }) {
   const pills = [
@@ -520,7 +597,7 @@ function WeatherForecastModal({
         <div className="px-6 py-4 border-b border-[#E8E0D8] flex items-center justify-between bg-[#FFFBF7]">
           <h3 className="font-bold text-[#1A1A1A] text-lg flex items-center gap-2">
             <CloudSun className="text-[#EA580C]" size={20} />
-            <span>Weather Forecast — {destinationCity}</span>
+            <span>Weather Forecast â€” {destinationCity}</span>
           </h3>
           <button onClick={onClose} className="p-1.5 hover:bg-[#E8E0D8] rounded-lg transition-colors text-[#6B6B6B]">
             <X size={20} />
@@ -531,9 +608,9 @@ function WeatherForecastModal({
           <div className="flex items-center gap-6 pb-4 border-b border-[#F5F5F4]">
             <div className="text-6xl text-[#EA580C]"><CloudSun size={56} /></div>
             <div>
-              <p className="text-3xl font-bold text-[#1A1A1A] font-mono">{weather.temperature}°C</p>
+              <p className="text-3xl font-bold text-[#1A1A1A] font-mono">{weather.temperature}Â°C</p>
               <p className="text-sm font-semibold text-[#6B6B6B] mt-0.5">{weather.condition}</p>
-              <p className="text-xs text-[#9CA3AF] mt-0.5">Feels like {weather.feelsLike || weather.temperature}°C</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5">Feels like {weather.feelsLike || weather.temperature}Â°C</p>
             </div>
           </div>
 
@@ -563,7 +640,7 @@ function WeatherForecastModal({
                     <span className="font-semibold text-[#1A1A1A]">{f.date}</span>
                     <span className="text-[#6B6B6B]">{f.condition}</span>
                     <span className="font-mono font-semibold">
-                      <span className="text-red-500">{f.high}°</span> / <span className="text-blue-500">{f.low}°</span>
+                      <span className="text-red-500">{f.high}Â°</span> / <span className="text-blue-500">{f.low}Â°</span>
                     </span>
                   </div>
                 ))}
@@ -643,7 +720,7 @@ function WeatherOptModal({
           ) : success ? (
             <div className="space-y-4">
               <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
-                ✓
+                âœ“
               </div>
               <div>
                 <h4 className="font-bold text-lg text-[#1A1A1A]">Optimization Complete!</h4>
@@ -717,7 +794,7 @@ function VisaGuidanceModal({
             {isInternational ? (
               <span className="flex items-center gap-2">
                 <ShieldAlert className="text-[#EA580C]" size={20} />
-                <span>Visa Guidance — {visaConfig?.country}</span>
+                <span>Visa Guidance â€” {visaConfig?.country}</span>
               </span>
             ) : (
               <span className="flex items-center gap-2">
@@ -890,7 +967,7 @@ function WeatherReadinessCard({
   }
 
   const destinationCity = destination.split(',')[0].trim()
-  const displayDates = datesText ? datesText.split('·')[0].trim() : ''
+  const displayDates = datesText ? datesText.split('Â·')[0].trim() : ''
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-sm flex flex-col justify-between h-full text-left">
@@ -901,7 +978,7 @@ function WeatherReadinessCard({
             <CloudSun className="text-[#EA580C] shrink-0" size={20} />
             <div>
               <h3 className="text-[15px] font-bold text-[#1A1A1A] leading-tight">Weather Readiness</h3>
-              <p className="text-[11px] text-[#6B6B6B] mt-0.5">{destinationCity} · {displayDates}</p>
+              <p className="text-[11px] text-[#6B6B6B] mt-0.5">{destinationCity} Â· {displayDates}</p>
             </div>
           </div>
           <span
@@ -921,7 +998,7 @@ function WeatherReadinessCard({
           <div>
             <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wide">Temp Range</p>
             <p className="text-[16px] font-bold text-[#1A1A1A] font-mono mt-0.5">
-              {weather.temperature}°C
+              {weather.temperature}Â°C
             </p>
           </div>
           <div>
@@ -1034,7 +1111,7 @@ function VisaReadinessCard({
               <Plane className="text-[#EA580C]" size={20} />
               <div>
                 <h3 className="text-[15px] font-bold text-[#1A1A1A] leading-tight">Travel Readiness</h3>
-                <p className="text-[11px] text-[#6B6B6B] mt-0.5">{startCity} → {destinationCity}</p>
+                <p className="text-[11px] text-[#6B6B6B] mt-0.5">{startCity} â†’ {destinationCity}</p>
               </div>
             </div>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wider text-[#16A34A] bg-[#F0FDF4] border-[#BBF7D0]">
@@ -1098,7 +1175,7 @@ function VisaReadinessCard({
             <ShieldAlert className="text-[#EA580C]" size={20} />
             <div>
               <h3 className="text-[15px] font-bold text-[#1A1A1A] leading-tight">Visa Readiness</h3>
-              <p className="text-[11px] text-[#6B6B6B] mt-0.5">Indian Passport → {visaConfig.country}</p>
+              <p className="text-[11px] text-[#6B6B6B] mt-0.5">Indian Passport â†’ {visaConfig.country}</p>
             </div>
           </div>
           <span
@@ -1184,8 +1261,144 @@ function VisaReadinessCard({
   )
 }
 
+function TransitComparisonCard({
+  transport,
+  loading,
+  onTabChange,
+  fmt,
+}: {
+  transport: any[]
+  loading: boolean
+  onTabChange: (tab: string) => void
+  fmt: (price: number) => string
+}) {
+  const comparisonData = useMemo(() => {
+    if (!transport || transport.length === 0) return []
 
-// ─── ROOT COMPONENT ───────────────────────────────────────────────────────────
+    const modes = ['flight', 'train', 'bus', 'car'] as const
+    const labelMap = { flight: 'Flight', train: 'Train', bus: 'Bus', car: 'Cab/Car' }
+    const iconMap = { flight: '✈️', train: '🚆', bus: '🚌', car: '🚗' }
+
+    return modes.map(mode => {
+      const options = transport.filter(t => t.type === mode)
+      if (options.length === 0) return null
+
+      // Cheapest option (min price)
+      const cheapest = options.reduce((min, cur) => cur.price < min.price ? cur : min, options[0])
+      
+      // Fast duration parsed or calculated
+      const getDurationMinutes = (durationStr: string) => {
+        let mins = 0
+        const hMatch = durationStr.match(/(\d+)\s*h/)
+        const mMatch = durationStr.match(/(\d+)\s*m/)
+        if (hMatch) mins += parseInt(hMatch[1]) * 60
+        if (mMatch) mins += parseInt(mMatch[1])
+        return mins || 99999
+      }
+      const fastest = options.reduce((fast, cur) => {
+        const curMins = getDurationMinutes(cur.duration || '')
+        const fastMins = getDurationMinutes(fast.duration || '')
+        return curMins < fastMins ? cur : fast
+      }, options[0])
+
+      return {
+        type: mode,
+        label: labelMap[mode],
+        icon: iconMap[mode],
+        price: cheapest.price,
+        duration: fastest.duration || 'N/A',
+        cheapestOption: cheapest,
+        fastestOption: fastest
+      }
+    }).filter(Boolean) as Array<{
+      type: 'flight' | 'train' | 'bus' | 'car'
+      label: string
+      icon: string
+      price: number
+      duration: string
+    }>
+  }, [transport])
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-sm space-y-3 text-left">
+        <Skeleton className="h-5 w-1/3" />
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+    )
+  }
+
+  if (comparisonData.length === 0) return null
+
+  const cheapestPrice = Math.min(...comparisonData.map(d => d.price))
+  const parseDuration = (dStr: string) => {
+    let mins = 0
+    const hMatch = dStr.match(/(\d+)\s*h/)
+    const mMatch = dStr.match(/(\d+)\s*m/)
+    if (hMatch) mins += parseInt(hMatch[1]) * 60
+    if (mMatch) mins += parseInt(mMatch[1])
+    return mins || 99999
+  }
+  const fastestDuration = Math.min(...comparisonData.map(d => parseDuration(d.duration)))
+
+  return (
+    <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-sm text-left">
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="text-[#EA580C]" size={20} />
+        <div>
+          <h3 className="text-[15px] font-bold text-[#1A1A1A] leading-tight">Transit Mode Comparison</h3>
+          <p className="text-[11px] text-[#6B6B6B] mt-0.5">Cheapest & fastest transit options side-by-side</p>
+        </div>
+      </div>
+
+      <div className="divide-y divide-slate-100">
+        {comparisonData.map((item) => {
+          let badgeText = ''
+          let badgeColor = 'text-slate-600 bg-slate-50 border-slate-200'
+          if (item.price === cheapestPrice) {
+            badgeText = 'Cheapest'
+            badgeColor = 'text-[#16A34A] bg-[#F0FDF4] border-[#BBF7D0]'
+          } else if (parseDuration(item.duration) === fastestDuration) {
+            badgeText = 'Fastest'
+            badgeColor = 'text-[#0284C7] bg-[#F0F9FF] border-[#BAE6FD]'
+          } else if (item.type === 'train') {
+            badgeText = 'Eco-Friendly'
+            badgeColor = 'text-[#0D9488] bg-[#F0FDFA] border-[#CCFBF1]'
+          }
+
+          return (
+            <div
+              key={item.type}
+              onClick={() => onTabChange(item.type === 'flight' ? 'transport' : item.type === 'train' ? 'trains' : item.type === 'bus' ? 'buses' : 'cars')}
+              className="flex items-center justify-between py-2.5 hover:bg-slate-50/50 px-1 rounded-lg transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">{item.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold text-[#1A1A1A]">{item.label}</p>
+                  <p className="text-[11px] text-[#8E8E93]">{item.duration}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                {badgeText && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor} uppercase tracking-wider`}>
+                    {badgeText}
+                  </span>
+                )}
+                <span className="text-sm font-bold text-[#1A1A1A]">{fmt(item.price)}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+
+
+// â”€â”€â”€ ROOT COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function OverviewTab({
   transport, hotels, weather, itinerary, bookingStatus,
@@ -1204,6 +1417,63 @@ function OverviewTab({
   const [optSuccess, setOptSuccess] = useState(false)
   const [packExpanded, setPackExpanded] = useState(false)
   const [docsExpanded, setDocsExpanded] = useState(false)
+  const [pdfGenerating, setPdfGenerating] = useState(false)
+
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById('trip-board-overview')
+    if (!element) {
+      toast.error("Trip board contents not found for export.")
+      return
+    }
+
+    setPdfGenerating(true)
+    const loadToast = toast.loading("Generating your travel plan PDF...")
+
+    try {
+      // Setup high DPI options for crisp text rendering
+      const options = {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FFFBF7',
+        logging: false
+      }
+
+      const canvas = await html2canvas(element, options)
+      const imgData = canvas.toDataURL('image/png')
+
+      // Calculate A4 page dimensions
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const imgWidth = 210 // A4 width in mm
+      const pageHeight = 295 // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+
+      let position = 0
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      const destName = (tripContext.destination || destination || 'MyTrip').split(',')[0].trim().replace(/\s+/g, '_')
+      pdf.save(`${destName}_Itinerary_TripSage.pdf`)
+      toast.dismiss(loadToast)
+      toast.success("PDF downloaded successfully!")
+    } catch (err) {
+      console.error(err)
+      toast.dismiss(loadToast)
+      toast.error("Could not generate PDF.")
+    } finally {
+      setPdfGenerating(false)
+    }
+  }
+
 
   const destClean = (tripContext.destination || destination || '').toLowerCase()
   const domesticCities = [
@@ -1214,98 +1484,7 @@ function OverviewTab({
 
   const visaConfig = useMemo(() => {
     if (!isInternational) return null
-
-    let country = 'International'
-    let visaStatus = 'Visa required'
-    let processingTime = '3-7 working days'
-    let officialLink = 'https://www.vfsglobal.com/'
-    let docs = ['Passport (valid > 6 months)', 'Return flight tickets', 'Accommodation reservation', 'Sufficient travel funds']
-    let caution = 'Check specific visa rules before finalizing non-refundable bookings.'
-    let badge = 'Check required'
-    let badgeColor = '#EA580C'
-    let badgeBg = '#FFF7ED'
-    let badgeBorder = '#FED7AA'
-
-    if (destClean.includes('bali') || destClean.includes('indonesia')) {
-      country = 'Indonesia'
-      visaStatus = 'Visa on Arrival / E-VOA'
-      processingTime = 'Instant (E-VOA online: 1-2 days)'
-      officialLink = 'https://molina.imigrasi.go.id/'
-      docs = ['Passport (valid > 6 months)', 'Return flight ticket', 'Hotel booking confirmation', 'Electronic Customs Declaration (E-CD)']
-      caution = 'Passport must be valid for at least 6 months from arrival date. Safe to book flights.'
-      badge = 'Ready'
-      badgeColor = '#16A34A'
-      badgeBg = '#F0FDF4'
-      badgeBorder = '#BBF7D0'
-    } else if (destClean.includes('dubai') || destClean.includes('uae') || destClean.includes('emirates')) {
-      country = 'UAE (Dubai)'
-      visaStatus = 'Pre-arranged E-Visa required'
-      processingTime = '2-4 working days'
-      officialLink = 'https://smart.gdrfad.gov.ae/'
-      docs = ['Passport (valid > 6 months)', 'Passport-size photo (white background)', 'Confirmed return flight ticket', 'Hotel booking']
-      caution = 'Apply for E-Visa at least 7 days before departure. Avoid booking non-refundable stays.'
-      badge = 'Action needed'
-      badgeColor = '#DC2626'
-      badgeBg = '#FEF2F2'
-      badgeBorder = '#FCA5A5'
-    } else if (destClean.includes('singapore')) {
-      country = 'Singapore'
-      visaStatus = 'E-Visa required'
-      processingTime = '3-5 working days'
-      officialLink = 'https://www.ica.gov.sg/'
-      docs = ['Passport (valid > 6 months)', 'SG Arrival Card (SGAC) with Electronic Health Declaration', 'Confirmed return ticket', 'Hotel booking', 'Sufficient funds']
-      caution = 'Visa application should be submitted 2 weeks before entry. Ensure SG Arrival Card is filled within 3 days prior to arrival.'
-      badge = 'Action needed'
-      badgeColor = '#DC2626'
-      badgeBg = '#FEF2F2'
-      badgeBorder = '#FCA5A5'
-    } else if (destClean.includes('thailand') || destClean.includes('bangkok') || destClean.includes('phuket') || destClean.includes('krabi')) {
-      country = 'Thailand'
-      visaStatus = 'Visa-free entry (current exemption)'
-      processingTime = 'Instant on arrival'
-      officialLink = 'https://www.consular.go.th/'
-      docs = ['Passport (valid > 6 months)', 'Confirmed return ticket (within 30 days)', 'Proof of accommodation', 'Proof of funds (10,000 THB per person)']
-      caution = 'Ensure return flight is within the allowed visa-free duration. Safe to book.'
-      badge = 'Ready'
-      badgeColor = '#16A34A'
-      badgeBg = '#F0FDF4'
-      badgeBorder = '#BBF7D0'
-    } else if (destClean.includes('maldives')) {
-      country = 'Maldives'
-      visaStatus = 'Visa on Arrival (30 Days)'
-      processingTime = 'Instant on arrival'
-      officialLink = 'https://imuga.immigration.gov.mv/'
-      docs = ['Passport (valid > 6 months)', 'IMUGA Traveler Declaration (submit within 96 hours of arrival)', 'Confirmed return ticket', 'Pre-paid hotel booking', 'Sufficient funds']
-      caution = 'Must fill out the online IMUGA traveler declaration form before departure.'
-      badge = 'Ready'
-      badgeColor = '#16A34A'
-      badgeBg = '#F0FDF4'
-      badgeBorder = '#BBF7D0'
-    } else if (destClean.includes('paris') || destClean.includes('rome') || destClean.includes('barcelona') || destClean.includes('amsterdam') || destClean.includes('prague') || destClean.includes('europe')) {
-      country = 'Schengen Area'
-      visaStatus = 'Embassy Schengen Visa required'
-      processingTime = '15-20 working days'
-      officialLink = 'https://visa.vfsglobal.com/'
-      docs = ['Passport (valid > 6 months)', 'Schengen Application form', 'Travel medical insurance (min €30,000 coverage)', 'Detailed daily itinerary', 'Confirmed flight itinerary & hotel bookings', 'Bank statements (last 3-6 months)', 'NOC from employer / ITR']
-      caution = 'Schengen visas take up to 3-4 weeks to process. Apply early. Do not make fully non-refundable bookings.'
-      badge = 'Action needed'
-      badgeColor = '#DC2626'
-      badgeBg = '#FEF2F2'
-      badgeBorder = '#FCA5A5'
-    } else if (destClean.includes('london') || destClean.includes('uk') || destClean.includes('united kingdom')) {
-      country = 'United Kingdom'
-      visaStatus = 'Standard Visitor Visa required'
-      processingTime = '15-25 working days'
-      officialLink = 'https://visa.vfsglobal.com/'
-      docs = ['Passport (valid > 6 months)', 'UK visa application form', 'Financial proof (bank statements, pay slips)', 'NOC / Proof of employment', 'Accommodation details', 'Detailed itinerary']
-      caution = 'UK Visitor Visas take substantial processing time (around 3 weeks). Book only with flexible cancellation policies.'
-      badge = 'Action needed'
-      badgeColor = '#DC2626'
-      badgeBg = '#FEF2F2'
-      badgeBorder = '#FCA5A5'
-    }
-
-    return { country, visaStatus, processingTime, officialLink, docs, caution, badge, badgeColor, badgeBg, badgeBorder }
+    return getVisaInfo(destClean)
   }, [isInternational, destClean])
 
   const weatherConfig = useMemo(() => {
@@ -1382,18 +1561,25 @@ function OverviewTab({
   }
 
   // Formatted trip metadata
-  const routeText = tripContext.startLocation && tripContext.destination
-    ? `${tripContext.startLocation} → ${tripContext.destination}`
-    : tripContext.destination || destination || 'Your Trip'
+  const routeText = useMemo(() => {
+    if (tripContext.isMultiCity && tripContext.stops && tripContext.stops.length > 0) {
+      const stopCities = tripContext.stops.map(s => s.city.split(',')[0].trim()).join(' → ')
+      const origin = (tripContext.startLocation || 'Origin').split(',')[0].trim()
+      return `${origin} → ${stopCities} → ${origin}`
+    }
+    return tripContext.startLocation && tripContext.destination
+      ? `${tripContext.startLocation.split(',')[0].trim()} → ${tripContext.destination.split(',')[0].trim()}`
+      : tripContext.destination || destination || 'Your Trip'
+  }, [tripContext.isMultiCity, tripContext.stops, tripContext.startLocation, tripContext.destination, destination])
 
   const datesText = tripContext.startDate && tripContext.endDate
-    ? `${formatDate(tripContext.startDate)} – ${formatDate(tripContext.endDate)} · ${days}d`
+    ? `${formatDate(tripContext.startDate)} â€“ ${formatDate(tripContext.endDate)} Â· ${days}d`
     : null
 
   const budgetDisplay = budget > 0 ? `${sym}${Math.round(budget).toLocaleString(locale)}` : null
 
   return (
-    <>
+    <div id="trip-board-overview">
       {/* Shimmer keyframe */}
       <style>{`
         @keyframes shimmer {
@@ -1404,7 +1590,7 @@ function OverviewTab({
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
 
-      {/* ── DESKTOP LAYOUT ──────────────────────────────────────────────── */}
+      {/* â”€â”€ DESKTOP LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="hidden lg:block">
 
         {/* Desktop trip header */}
@@ -1419,22 +1605,34 @@ function OverviewTab({
             {(datesText || travelers || budgetDisplay) && (
               <p className="text-[14px] text-[#6B6B6B] mt-0.5 flex items-center justify-center gap-3 flex-wrap">
                 {datesText && <span>{datesText}</span>}
-                {travelers && <span>· {travelers} traveler{travelers > 1 ? 's' : ''}</span>}
-                {budgetDisplay && <span>· {budgetDisplay}</span>}
+                {travelers && <span>Â· {travelers} traveler{travelers > 1 ? 's' : ''}</span>}
+                {budgetDisplay && <span>Â· {budgetDisplay}</span>}
               </p>
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
+              onClick={handleDownloadPDF}
+              disabled={pdfGenerating}
+              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors flex items-center justify-center cursor-pointer"
+              title="Download PDF"
+            >
+              {pdfGenerating ? (
+                <span className="w-4 h-4 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span className="text-[13px] font-bold text-[#6B6B6B] flex items-center gap-1.5"><FileDown size={16} /> Export</span>
+              )}
+            </button>
+            <button
               onClick={onShare}
-              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors"
+              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors cursor-pointer"
               title="Share"
             >
               <Share2 size={16} strokeWidth={1.5} className="text-[#6B6B6B]" />
             </button>
             <button
               onClick={onSave}
-              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors"
+              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors cursor-pointer"
               title="Save"
             >
               <Bookmark size={16} strokeWidth={1.5} className="text-[#6B6B6B]" />
@@ -1469,6 +1667,14 @@ function OverviewTab({
               destination={tripContext.destination || destination || ''}
               onFlights={() => onTabChange('transport')}
               onAdjust={() => onTabChange('optimizer')}
+            />
+
+            {/* Transit Comparison Widget */}
+            <TransitComparisonCard
+              transport={transport}
+              loading={loading}
+              onTabChange={onTabChange}
+              fmt={fmt}
             />
 
             {/* Premium Readiness Cards Section */}
@@ -1521,14 +1727,14 @@ function OverviewTab({
         </div>
       </div>
 
-      {/* ── MOBILE LAYOUT ───────────────────────────────────────────────── */}
+      {/* â”€â”€ MOBILE LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="lg:hidden pb-[140px]">
 
         {/* Compact mobile header */}
         <div className="px-4 mb-4">
           <div className="flex items-center justify-between">
             <p className="text-[18px] font-semibold text-[#1A1A1A] truncate flex-1 mr-3" style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}>
-              {tripContext.destination || destination || 'Your Trip'}
+              {routeText}
             </p>
             {budgetDisplay && (
               <span className="text-[15px] font-bold text-[#EA580C] shrink-0">{budgetDisplay}</span>
@@ -1536,7 +1742,7 @@ function OverviewTab({
           </div>
           {(datesText || travelers) && (
             <p className="text-[13px] text-[#6B6B6B] mt-0.5">
-              {datesText}{datesText && travelers ? ' · ' : ''}{travelers ? `${travelers} traveler${travelers > 1 ? 's' : ''}` : ''}
+              {datesText}{datesText && travelers ? ' Â· ' : ''}{travelers ? `${travelers} traveler${travelers > 1 ? 's' : ''}` : ''}
             </p>
           )}
         </div>
@@ -1558,6 +1764,16 @@ function OverviewTab({
             destination={tripContext.destination || destination || ''}
             onFlights={() => onTabChange('transport')}
             onAdjust={() => onTabChange('optimizer')}
+          />
+        </div>
+
+        {/* Mobile Transit Comparison Widget */}
+        <div className="px-4 mb-4">
+          <TransitComparisonCard
+            transport={transport}
+            loading={loading}
+            onTabChange={onTabChange}
+            fmt={fmt}
           />
         </div>
 
@@ -1631,27 +1847,26 @@ function OverviewTab({
         </div>
       </div>
 
-      {/* ── MOBILE STICKY BOTTOM ─────────────────────────────────────────── */}
+      {/* â”€â”€ MOBILE STICKY BOTTOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="lg:hidden fixed bottom-[60px] left-0 right-0 z-40 px-4 pb-3 pt-4 bg-gradient-to-t from-[#FFFBF7] via-[#FFFBF7]/95 to-transparent">
         <button
           onClick={() => onTabChange('transport')}
           className="w-full h-[52px] bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[15px] rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 transition-colors"
         >
-          See flight options <ArrowRight size={16} />
+          See transport options <ArrowRight size={16} />
         </button>
       </div>
 
-      {/* ── MOBILE BOTTOM NAV ─────────────────────────────────────────────── */}
+      {/* â”€â”€ MOBILE BOTTOM NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E0D8] z-50 h-[60px] flex items-center"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {[
           { id: 'overview', label: 'Overview', Icon: Home },
-          { id: 'transport', label: 'Travel', Icon: Plane },
+          { id: 'transport', label: 'Transport', Icon: Plane },
           { id: 'hotels', label: 'Stay', Icon: Building2 },
           { id: 'itinerary', label: 'Plan', Icon: MapPin },
-          { id: 'optimizer', label: 'Budget', Icon: Wallet },
         ].map(({ id, label, Icon }) => {
           const isActive = id === 'overview'
           return (
@@ -1713,7 +1928,7 @@ function OverviewTab({
           }}
         />
       )}
-    </>
+    </div>
   )
 }
 

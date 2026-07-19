@@ -43,7 +43,7 @@ export default function Memories() {
   const fetchMemories = async () => {
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.get(`${apiUrl}/api/profile/memories`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -63,36 +63,35 @@ export default function Memories() {
   }, [])
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const delToast = toast.loading('Deleting memory...')
+    e.stopPropagation() // Prevent triggering active photo click
+    const deleteToast = toast.loading('Deleting memory...')
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.delete(`${apiUrl}/api/profile/memories/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (response.data?.success) {
-        toast.success('Memory deleted!', { id: delToast })
-        setMemories((prev) => prev.filter((m) => m.id !== id))
+        toast.success('Memory deleted successfully!', { id: deleteToast })
+        fetchMemories()
       } else {
-        toast.error(response.data?.message || 'Failed to delete memory.', { id: delToast })
+        toast.error(response.data?.message || 'Failed to delete memory.', { id: deleteToast })
       }
     } catch (err: any) {
       console.error('Error deleting memory:', err)
-      toast.error(err.response?.data?.message || err.message || 'Failed to delete memory.', { id: delToast })
+      toast.error(err.response?.data?.message || err.message || 'Failed to delete memory.', { id: deleteToast })
     }
   }
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title) return toast.error('Please enter a memory title')
-    
+    if (!title.trim()) return toast.error('Please enter a title')
     setSubmitting(true)
     const createToast = toast.loading('Uploading memory...')
 
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
       const response = await axios.post(
         `${apiUrl}/api/profile/memories`,
@@ -137,28 +136,28 @@ export default function Memories() {
   }
 
   return (
-    <div className="card p-6 md:p-8 bg-slate-950/40 border border-slate-800 rounded-3xl relative overflow-hidden shadow-2xl space-y-6">
+    <div className="card p-6 md:p-8 bg-white border border-[#E8E0D8] rounded-3xl relative overflow-hidden shadow-sm space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h2 className="text-lg font-black text-white flex items-center gap-2">
+          <h2 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
             📷 Travel Memories
           </h2>
-          <p className="text-slate-400 text-xs mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Capture, organize, and store your favorite moments from your journeys.
           </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-[0.98] cursor-pointer"
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs rounded-xl shadow transition-transform active:scale-[0.98] cursor-pointer"
         >
           <Plus size={14} /> Add Memory
         </button>
       </div>
 
       {memories.length === 0 ? (
-        <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl bg-slate-900/10">
-          <Film className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-300">No memories recorded</h3>
+        <div className="text-center py-12 border border-dashed border-[#E8E0D8] rounded-2xl bg-[#FFFBF7]/40">
+          <Film className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-slate-700">No memories recorded</h3>
           <p className="text-slate-500 text-xs mt-1 max-w-xs mx-auto">
             Upload images and share travel captions to keep a digital log of your wanderlust.
           </p>
@@ -173,7 +172,7 @@ export default function Memories() {
               <div
                 key={memory.id}
                 onClick={() => setActivePhotoUrl(photoUrl)}
-                className="group relative h-48 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/40 cursor-pointer shadow-md"
+                className="group relative h-48 rounded-2xl overflow-hidden border border-[#E8E0D8] bg-slate-50 cursor-pointer shadow-sm"
               >
                 <Image
                   src={photoUrl}
@@ -183,28 +182,28 @@ export default function Memories() {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   unoptimized
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent flex flex-col justify-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/30 to-transparent flex flex-col justify-end p-4">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="text-xs font-black text-white leading-tight truncate">
                       {memory.title}
                     </h3>
                     <button
                       onClick={(e) => handleDelete(memory.id, e)}
-                      className="p-1.5 rounded-lg bg-red-950/50 hover:bg-red-900/60 border border-red-900/20 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="p-1.5 rounded-lg bg-red-900/80 hover:bg-red-800 border border-red-700 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <Trash2 size={12} />
                     </button>
                   </div>
                   
                   {memory.location && (
-                    <div className="flex items-center gap-1 mt-1 text-[0.65rem] text-slate-300">
-                      <MapPin size={10} className="text-blue-500" />
+                    <div className="flex items-center gap-1 mt-1 text-[0.65rem] text-slate-200">
+                      <MapPin size={10} className="text-[#EA580C]" />
                       <span>{memory.location}</span>
                     </div>
                   )}
 
                   {memory.description && (
-                    <p className="text-[0.65rem] text-slate-400 mt-1 line-clamp-1 italic">
+                    <p className="text-[0.65rem] text-slate-300 mt-1 line-clamp-1 italic">
                       "{memory.description}"
                     </p>
                   )}
@@ -217,58 +216,58 @@ export default function Memories() {
 
       {/* Upload Memory Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md bg-slate-950 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md bg-white border border-[#E8E0D8] rounded-3xl p-6 shadow-2xl flex flex-col">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
             >
               <X size={20} />
             </button>
 
-            <div className="mb-4">
-              <h3 className="text-lg font-black text-white">📸 Add New Travel Memory</h3>
-              <p className="text-slate-400 text-xs mt-0.5">Save a moment from your trip.</p>
+            <div className="mb-4 text-left">
+              <h3 className="text-lg font-black text-[#1A1A1A]">📸 Add New Travel Memory</h3>
+              <p className="text-slate-500 text-xs mt-0.5">Save a moment from your trip.</p>
             </div>
 
-            <form onSubmit={handleCreate} className="space-y-4">
+            <form onSubmit={handleCreate} className="space-y-4 text-left">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">Memory Title</label>
+                <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">Memory Title</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Scuba diving in Maldives"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-white border border-[#E8E0D8] rounded-xl px-4 py-2.5 text-xs text-[#1A1A1A] focus:outline-none focus:border-[#EA580C]"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">Location</label>
+                <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">Location</label>
                 <input
                   type="text"
                   placeholder="e.g. Grand Island, Goa"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-white border border-[#E8E0D8] rounded-xl px-4 py-2.5 text-xs text-[#1A1A1A] focus:outline-none focus:border-[#EA580C]"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">Caption/Description</label>
+                <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">Caption/Description</label>
                 <input
                   type="text"
                   placeholder="What was special about this moment?"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-white border border-[#E8E0D8] rounded-xl px-4 py-2.5 text-xs text-[#1A1A1A] focus:outline-none focus:border-[#EA580C]"
                 />
               </div>
 
               {/* Photo Preset Selector */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">Choose Card Photo</label>
+                <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">Choose Card Photo</label>
                 <div className="grid grid-cols-4 gap-2">
                   {PRESET_PHOTOS.map((photo, i) => (
                     <button
@@ -276,7 +275,7 @@ export default function Memories() {
                       type="button"
                       onClick={() => setSelectedPhoto(photo)}
                       className={`relative h-12 rounded-lg overflow-hidden border-2 cursor-pointer ${
-                        selectedPhoto === photo ? 'border-blue-500' : 'border-slate-800'
+                        selectedPhoto === photo ? 'border-[#EA580C]' : 'border-[#E8E0D8]'
                       }`}
                     >
                       <Image src={photo} alt={`preset-${i}`} fill className="object-cover" unoptimized />
@@ -289,14 +288,14 @@ export default function Memories() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-800"
+                  className="px-4 py-2.5 bg-[#FFFBF7] border border-[#E8E0D8] text-slate-700 font-bold text-xs rounded-xl hover:bg-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/10 disabled:opacity-60"
+                  className="px-5 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs rounded-xl shadow shadow-orange-500/10 disabled:opacity-60"
                 >
                   {submitting ? 'Saving...' : 'Upload Memory'}
                 </button>

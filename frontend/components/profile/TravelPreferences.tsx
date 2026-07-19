@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
+import { Sliders, Sparkles, Utensils, Heart } from 'lucide-react'
 
 interface TravelPreferenceData {
   travelStyle: string | null
@@ -98,7 +99,7 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
 
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
       const payload = {
         travelStyle: formData.travelStyle || null,
@@ -127,13 +128,19 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
     }
   }
 
+  const selectClass =
+    'w-full bg-white border border-[#E8E0D8] rounded-2xl px-4 py-3 text-xs font-medium text-[#1A1A1A] focus:outline-none focus:border-[#EA580C] transition-colors cursor-pointer'
+
   return (
-    <div className="card p-6 md:p-8 bg-slate-950/40 border border-slate-800 rounded-3xl relative overflow-hidden shadow-2xl">
+    <div className="card p-6 md:p-8 bg-white border border-[#E8E0D8] rounded-3xl relative overflow-hidden shadow-sm">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+
       <div className="mb-6">
-        <h2 className="text-lg font-black text-white flex items-center gap-2">
-          ⚙️ Travel Preferences
+        <h2 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
+          <Sliders size={18} className="text-[#EA580C]" /> Travel Preferences
         </h2>
-        <p className="text-slate-400 text-xs mt-1">
+        <p className="text-slate-500 text-xs mt-1">
           Customize your recommendations and trip generation options.
         </p>
       </div>
@@ -142,14 +149,14 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Travel Style */}
           <div className="flex flex-col gap-2">
-            <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">
               Travel Style
             </label>
             <select
               name="travelStyle"
               value={formData.travelStyle || ''}
               onChange={handleSelectChange}
-              className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              className={selectClass}
             >
               <option value="">Choose a style</option>
               <option value="adventure">🎒 Adventure & Backpacker</option>
@@ -164,14 +171,14 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
 
           {/* Budget Range */}
           <div className="flex flex-col gap-2">
-            <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">
               Budget Range
             </label>
             <select
               name="budgetRange"
               value={formData.budgetRange || ''}
               onChange={handleSelectChange}
-              className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              className={selectClass}
             >
               <option value="">Select budget tier</option>
               <option value="low">Budget (Low)</option>
@@ -182,14 +189,14 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
 
           {/* Accommodation preference */}
           <div className="flex flex-col gap-2">
-            <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">
               Preferred Accommodation
             </label>
             <select
               name="accommodationPreference"
               value={formData.accommodationPreference || ''}
               onChange={handleSelectChange}
-              className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              className={selectClass}
             >
               <option value="">Select accommodation</option>
               <option value="hotel">🏨 Hotel</option>
@@ -202,14 +209,14 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
 
           {/* Trip Duration Preference */}
           <div className="flex flex-col gap-2">
-            <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">
               Typical Trip Duration
             </label>
             <select
               name="tripDuration"
               value={formData.tripDuration || ''}
               onChange={handleSelectChange}
-              className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              className={selectClass}
             >
               <option value="">Select typical duration</option>
               <option value="weekend">Weekend (2-3 Days)</option>
@@ -220,12 +227,17 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
           </div>
         </div>
 
+        <div className="border-t border-[#E8E0D8] my-4" />
+
         {/* Interests Selector */}
         <div className="flex flex-col gap-2">
-          <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
-            Interests & Travel Themes
-          </label>
-          <div className="flex flex-wrap gap-2 mt-1">
+          <div className="flex items-center gap-2 mb-1">
+            <Heart size={14} className="text-[#EA580C]" />
+            <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">
+              Interests & Travel Themes
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {INTERESTS_OPTIONS.map((interest) => {
               const selected = formData.interests.includes(interest)
               return (
@@ -235,8 +247,8 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
                   onClick={() => handleInterestToggle(interest)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                     selected
-                      ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/10'
-                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#EA580C] border-[#EA580C] text-white shadow-sm shadow-orange-500/10'
+                      : 'bg-[#FFFBF7] border-[#E8E0D8] text-slate-600 hover:text-[#1A1A1A] hover:bg-white'
                   }`}
                 >
                   {interest}
@@ -246,12 +258,17 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
           </div>
         </div>
 
+        <div className="border-t border-[#E8E0D8] my-4" />
+
         {/* Food Preferences Selector */}
         <div className="flex flex-col gap-2">
-          <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
-            Dietary & Food Preferences
-          </label>
-          <div className="flex flex-wrap gap-2 mt-1">
+          <div className="flex items-center gap-2 mb-1">
+            <Utensils size={14} className="text-[#EA580C]" />
+            <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">
+              Dietary & Food Preferences
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {FOOD_OPTIONS.map((food) => {
               const selected = formData.foodPreference.includes(food)
               return (
@@ -261,8 +278,8 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
                   onClick={() => handleFoodToggle(food)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                     selected
-                      ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-500/10'
-                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#EA580C] border-[#EA580C] text-white shadow-sm shadow-orange-500/10'
+                      : 'bg-[#FFFBF7] border-[#E8E0D8] text-slate-600 hover:text-[#1A1A1A] hover:bg-white'
                   }`}
                 >
                   {food}
@@ -272,13 +289,19 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
           </div>
         </div>
 
-        <div className="flex justify-end pt-3 border-t border-slate-800/80">
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-4 border-t border-[#E8E0D8]">
+          <div className="text-[10px] text-slate-500 font-semibold flex items-center gap-1.5">
+            <Sparkles size={11} className="text-[#EA580C]" />
+            Preferences power AI itinerary recommendations
+          </div>
+          
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-60 text-white font-bold text-xs rounded-2xl shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-2 px-6 py-3 bg-[#EA580C] hover:bg-[#C2410C] disabled:opacity-60 text-white font-bold text-xs rounded-2xl shadow-lg shadow-orange-500/10 active:scale-[0.98] transition-all cursor-pointer"
           >
-            {loading ? 'Saving Preferences...' : 'Save Travel Preferences'}
+            {loading ? 'Saving preferences...' : 'Save Travel Preferences'}
           </button>
         </div>
       </form>

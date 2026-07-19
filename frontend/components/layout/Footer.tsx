@@ -111,7 +111,7 @@ export default function Footer() {
           <div className="max-w-sm">
             <div className="flex items-center gap-3 mb-6">
               <img
-                src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
+                src="/logo.png"
                 alt="TripSage"
                 width={40}
                 height={40}
@@ -153,7 +153,7 @@ export default function Footer() {
                     className="hover:text-[#EA580C] transition-colors text-left flex items-center gap-2 group"
                     suppressHydrationWarning
                   >
-                    <link.icon size={16} className="text-[#6B6B6B] group-hover:text-[#EA580C] transition-colors" />
+                    <link.icon size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
                     {link.title}
                   </button>
                 ))}
@@ -166,25 +166,25 @@ export default function Footer() {
                   href="https://www.instagram.com/tripsage_?igsh=NDBzdWhzejgwaDh1"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2"
+                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2 group"
                 >
-                  <Instagram size={16} /> Instagram
+                  <Instagram size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" /> Instagram
                 </a>
                 <a
                   href="https://x.com/SageTrip8016?s=20"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2"
+                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2 group"
                 >
-                  <X size={16} /> X (Twitter)
+                  <X size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" /> X (Twitter)
                 </a>
                 <a
                   href="https://www.linkedin.com/company/tripsage/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2"
+                  className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2 group"
                 >
-                  <Linkedin size={16} /> LinkedIn
+                  <Linkedin size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" /> LinkedIn
                 </a>
               </div>
             </div>

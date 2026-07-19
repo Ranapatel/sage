@@ -67,8 +67,8 @@ const nextConfig = {
     ]
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
-    NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+    NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000',
   },
   reactStrictMode: false,
   devIndicators: {
@@ -88,4 +88,22 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+// Wrap with Sentry only when the DSN is configured
+// This way, builds without a Sentry DSN continue to work normally
+const hasSentryDSN = !!process.env.NEXT_PUBLIC_SENTRY_DSN
+
+if (hasSentryDSN) {
+  const { withSentryConfig } = require('@sentry/nextjs')
+  module.exports = withSentryConfig(nextConfig, {
+    // Suppress noisy Sentry build output
+    silent: true,
+    // Disable source map upload until DSN is configured
+    disableServerWebpackPlugin: false,
+    disableClientWebpackPlugin: false,
+    widenClientFileUpload: true,
+    // Automatically tree-shake Sentry logger
+    hideSourceMaps: true,
+  })
+} else {
+  module.exports = nextConfig
+}

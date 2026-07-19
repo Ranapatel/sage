@@ -6,20 +6,90 @@ const MODEL = 'llama-3.3-70b-versatile'
 /**
  * Generate AI-powered itinerary using Groq LLaMA3
  */
-async function generateItinerary({ destination, from, days, budget, currency = 'INR', style, preferences, members, startDate }) {
+async function generateItinerary({ destination, from, days, budget, currency = 'INR', style, preferences, members, startDate, isMultiCity = false, stops = [] }) {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
     console.warn('[TripSage] GROQ_API_KEY missing — generating mock itinerary');
-    return { success: true, data: getMockItinerary({ destination, days, budget, members, startDate }) };
+    return { success: true, data: getMockItinerary({ destination, days, budget, members, startDate, isMultiCity, stops }) };
   }
 
   const currencySymbol = currency === 'INR' ? 'Rs.' : currency
   const budgetDisplay = `${currencySymbol}${Number(budget).toLocaleString('en-IN')} ${currency}`
-  // Strip country suffix for cleaner AI references ("Bangkok, Thailand" -> "Bangkok")
-  const destinationCity = destination.split(',')[0].trim()
   const originCity = from ? from.split(',')[0].trim() : null
 
-  const systemPrompt = `You are TripSage, a professional AI travel planner.
+  let systemPrompt = ''
+  let userPrompt = ''
+
+  if (isMultiCity && stops.length > 0) {
+    const stopsListText = stops.map((s, idx) => `Stop ${idx + 1}: ${s.city} (staying ${s.nights} nights)`).join('\n')
+    const stopCities = stops.map(s => s.city.split(',')[0].trim())
+    const totalNights = stops.reduce((sum, s) => sum + s.nights, 0)
+
+    systemPrompt = `You are TripSage, an expert AI travel planner specializing in multi-city sequential journeys.
+Your job: generate a precise, day-by-day itinerary connecting multiple cities.
+
+CRITICAL LOCATION RULES — NEVER VIOLATE:
+1. SEQUENTIAL CITIES: The traveler will visit these cities in order:
+${stopsListText}
+2. SEGMENT STAYS:
+   - For each city, all places, activities, restaurants, and hotels generated for its respective days MUST be physically located in that city.
+   - Do NOT mix attractions from different cities on the same day.
+3. PLACE NAME FORMAT: Each place name MUST follow this exact format:
+   "[Specific Attraction Name] — [Neighborhood/District], [Current Stop City]"
+   CORRECT examples:
+   - "Chatuchak Weekend Market — Northern Bangkok, Bangkok" (if in Bangkok)
+   - "Marine Drive — South Mumbai, Mumbai" (if in Mumbai)
+4. COORDINATES: GPS coordinates must be REAL coordinates inside the active stop city for that day.
+5. DESCRIPTIONS: Must reference local landmarks or context specific to the active city.
+6. TRANSITIONS: Explicitly include travel transition activities (e.g. "Flight/Train to {Next City}") at the start of days when the traveler switches cities.
+
+OTHER RULES:
+- Return ONLY valid JSON, no explanations, no markdown.
+- Optimize for: total budget ${budgetDisplay}, style ${style}, group size ${members}.
+- Sum of all estimatedCost values MUST NOT exceed ${budgetDisplay}.`
+
+    userPrompt = `Generate a sequential multi-city itinerary for a trip starting in ${originCity || 'unspecified'} on ${startDate || 'unspecified'}.
+Stops list:
+${stopsListText}
+
+Total days: ${totalNights} days.
+Travel style: ${style}
+Group size: ${members} people.
+Preferences: ${preferences?.join(', ') || 'general sightseeing'}
+
+Return JSON in this exact schema:
+{
+  "itinerary": [
+    {
+      "day": 1,
+      "date": "YYYY-MM-DD",
+      "places": [
+        {
+          "name": "[Specific Attraction Name] — [Neighborhood], [Current Stop City]",
+          "time": "09:00",
+          "category": "culture|nature|dining|activity|transport|shopping|accommodation",
+          "coordinates": [latitude, longitude],
+          "description": "Brief description mentioning local city context, under 100 chars",
+          "estimatedCost": 20
+        }
+      ]
+    }
+  ],
+  "totalEstimatedCost": 500,
+  "budgetBreakdown": {
+    "flightsEstimate": 0,
+    "hotelsEstimate": 0,
+    "foodEstimate": 0,
+    "activitiesEstimate": 0,
+    "remainingBudget": 0
+  },
+  "budgetWarning": null,
+  "tips": ["Tip 1 about this multi-city route", "Tip 2"]
+}`
+  } else {
+    // Single city mode
+    const destinationCity = destination.split(',')[0].trim()
+    systemPrompt = `You are TripSage, a professional AI travel planner.
 Your job: generate a precise, day-by-day itinerary ONLY for the destination city.
 
 CRITICAL LOCATION RULES — NEVER VIOLATE:
@@ -44,7 +114,7 @@ OTHER RULES:
 - Times must be logical and sequential per day
 - CRITICAL: Total budget is strictly ${budgetDisplay}. Every recommendation MUST stay within this total budget.`
 
-  const userPrompt = `Generate a ${days}-day travel itinerary for a trip TO ${destinationCity}.
+    userPrompt = `Generate a ${days}-day travel itinerary for a trip TO ${destinationCity}.
 Origin (departure city, DO NOT include in itinerary): ${originCity || 'unspecified'}
 Destination (ALL activities MUST be here): ${destinationCity}
 Starting date: ${startDate || 'unspecified'}. Use realistic YYYY-MM-DD strings for the "date" field.
@@ -88,6 +158,7 @@ Return JSON in this exact schema:
   "budgetWarning": null,
   "tips": ["Tip 1 specific to ${destinationCity}", "Tip 2"]
 }`
+  }
 
   try {
     const response = await axios.post(GROQ_API_URL, {
@@ -125,7 +196,7 @@ Return JSON in this exact schema:
     console.warn('[Groq AI] Falling back to mock itinerary due to API failure.')
     return {
       success: true,
-      data: getMockItinerary({ destination, days, budget, members, startDate }),
+      data: getMockItinerary({ destination, days, budget, members, startDate, isMultiCity, stops }),
       meta: {
         fallback: true,
         error: `Failed to generate real AI itinerary: ${errorMsg}`
@@ -321,23 +392,43 @@ Rules:
 /**
  * Generates a high-quality mock itinerary for DEMO mode
  */
-function getMockItinerary({ destination, days, budget, members, startDate }) {
+function getMockItinerary({ destination, days, budget, members, startDate, isMultiCity = false, stops = [] }) {
   const start = startDate ? new Date(startDate) : new Date();
   const itinerary = [];
-  const city = destination.split(',')[0].trim()
 
-  const activityTemplates = [
-    { name: `Morning Walking Tour — ${city} Old Town`, category: 'culture', desc: `Discover historic streets and local life in ${city}'s old quarter.` },
-    { name: `Local Street Food Experience — ${city} Night Market`, category: 'dining', desc: `Savoring authentic flavors at highly-rated ${city} street stalls.` },
-    { name: `${city} City Museum — Cultural District`, category: 'culture', desc: `Discovering art, history and heritage at ${city}'s premier museum.` },
-    { name: `Nature Reserve & Gardens — ${city} Outskirts`, category: 'nature', desc: `Enjoying scenic views and fresh air in ${city}'s green spaces.` },
-    { name: `${city} Local Market Shopping — Central Bazaar`, category: 'shopping', desc: `Exploring local markets and boutiques for unique ${city} finds.` },
-    { name: `Sunset Viewpoint — ${city} Hilltop District`, category: 'activity', desc: `Panoramic views of ${city} as the day ends. Best spot for photos.` }
-  ];
+  let totalDays = days
+  if (isMultiCity && stops.length > 0) {
+    totalDays = stops.reduce((sum, s) => sum + s.nights, 0)
+  }
 
-  for (let i = 1; i <= days; i++) {
+  // Helper to find which stop applies to day index (1-based)
+  const getActiveStopCity = (dayIndex) => {
+    if (!isMultiCity || stops.length === 0) {
+      return destination.split(',')[0].trim()
+    }
+    let accumulatedDays = 0
+    for (const stop of stops) {
+      accumulatedDays += stop.nights
+      if (dayIndex <= accumulatedDays) {
+        return stop.city.split(',')[0].trim()
+      }
+    }
+    return stops[stops.length - 1].city.split(',')[0].trim()
+  }
+
+  for (let i = 1; i <= totalDays; i++) {
     const currentDate = new Date(start);
     currentDate.setDate(start.getDate() + i - 1);
+    const activeCity = getActiveStopCity(i)
+
+    const activityTemplates = [
+      { name: `Morning Walking Tour — ${activeCity} Old Town`, category: 'culture', desc: `Discover historic streets and local life in ${activeCity}'s old quarter.` },
+      { name: `Local Street Food Experience — ${activeCity} Night Market`, category: 'dining', desc: `Savoring authentic flavors at highly-rated ${activeCity} street stalls.` },
+      { name: `${activeCity} City Museum — Cultural District`, category: 'culture', desc: `Discovering art, history and heritage at ${activeCity}'s premier museum.` },
+      { name: `Nature Reserve & Gardens — ${activeCity} Outskirts`, category: 'nature', desc: `Enjoying scenic views and fresh air in ${activeCity}'s green spaces.` },
+      { name: `${activeCity} Local Market Shopping — Central Bazaar`, category: 'shopping', desc: `Exploring local markets and boutiques for unique ${activeCity} finds.` },
+      { name: `Sunset Viewpoint — ${activeCity} Hilltop District`, category: 'activity', desc: `Panoramic views of ${activeCity} as the day ends. Best spot for photos.` }
+    ];
     
     const places = [];
     const numPlaces = Math.floor(Math.random() * 2) + 2; // 2-3 places per day
@@ -350,7 +441,7 @@ function getMockItinerary({ destination, days, budget, members, startDate }) {
         category: template.category,
         coordinates: [20.0 + Math.random(), 70.0 + Math.random()],
         description: template.desc,
-        estimatedCost: Math.floor((budget / (days * (numPlaces || 1))) * 0.8)
+        estimatedCost: Math.floor((budget / (totalDays * (numPlaces || 1))) * 0.8)
       });
     }
 
@@ -361,12 +452,14 @@ function getMockItinerary({ destination, days, budget, members, startDate }) {
     });
   }
 
+  const primaryCity = isMultiCity && stops.length > 0 ? stops[0].city.split(',')[0].trim() : destination.split(',')[0].trim()
+
   return {
     itinerary,
     totalEstimatedCost: Math.floor(budget * 0.9),
     tips: [
-      `Book local transport in ${city} in advance for better rates.`,
-      `Try ${city} street food for an authentic local experience.`,
+      `Book local transport in ${primaryCity} in advance for better rates.`,
+      `Try local street food for an authentic regional experience.`,
       'Carry a power bank for long exploration days.'
     ]
   };

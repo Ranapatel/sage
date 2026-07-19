@@ -28,24 +28,12 @@ interface AuthStore {
   restoreSession: () => Promise<void>
 }
 
-// In Phase 1 foundation, we provide a mock logged-in user so the rest of the application
-// compiles and runs without the old login flow. This will be replaced with Clerk later.
-const MOCK_USER: AuthUser = {
-  id: 'demo-user-id',
-  name: 'Demo Traveler',
-  email: 'demo@tripsage.ai',
-  currency: 'INR',
-  country: 'India',
-  preferences: {},
-  trips: [],
-}
-
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
-      user: MOCK_USER,
-      token: 'mock-jwt-token',
-      isLoggedIn: true,
+      user: null,
+      token: null,
+      isLoggedIn: false,
       loading: false,
       error: null,
 
@@ -70,8 +58,13 @@ export const useAuthStore = create<AuthStore>()(
         set({ loading: true })
         set({
           user: {
-            ...MOCK_USER,
+            id: 'legacy-user',
+            name: email.split('@')[0],
             email,
+            currency: 'INR',
+            country: 'India',
+            preferences: {},
+            trips: [],
           },
           isLoggedIn: true,
           loading: false,
@@ -99,9 +92,7 @@ export const useAuthStore = create<AuthStore>()(
       clearError: () => set({ error: null }),
 
       restoreSession: async () => {
-        if (!get().user) {
-          set({ user: MOCK_USER, isLoggedIn: true })
-        }
+        // No-op: Clerk manages the primary session. Legacy store sessions persist via zustand/persist.
       },
     }),
     {

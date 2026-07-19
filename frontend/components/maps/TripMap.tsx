@@ -200,7 +200,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
             // Save user location to backend
             const token = getAuthToken()
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
             axios
               .post(
                 `${apiBaseUrl}/api/location/user-location`,
@@ -278,7 +278,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       } catch {}
 
       try {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         const response = await axios.get(`${apiBaseUrl}/api/location/visit-status/${tripId}`)
         if (response.data?.success && Array.isArray(response.data?.data)) {
           const fetchedStatuses: Record<string, 'completed' | 'current' | 'upcoming'> = {}
@@ -311,7 +311,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       } catch {}
 
       try {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         await axios.post(`${apiBaseUrl}/api/location/visit-status`, {
           tripId,
           placeId,
@@ -369,7 +369,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
       for (const layer of activeLayers) {
         try {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
           const res = await axios.post(`${apiBaseUrl}/api/location/nearby`, {
             latitude: searchCoords[0],
             longitude: searchCoords[1],
@@ -452,7 +452,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
     const searchCoords = userCoords || (validPlaces.length > 0 ? validPlaces[0].coordinates : null)
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.post(`${apiBaseUrl}/api/location/assistant`, {
         message: userMsg,
         latitude: searchCoords ? searchCoords[0] : 0,
@@ -609,7 +609,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       if (validPlaces.length >= 2) {
         setLoadingRoute(true)
         try {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
           const waypoints = validPlaces.map((p) => ({
             latitude: p.coordinates[0],
             longitude: p.coordinates[1],

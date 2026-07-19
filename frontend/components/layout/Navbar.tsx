@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SignedIn, SignedOut, useClerk } from '@clerk/nextjs'
+import { useUser, useClerk } from '@clerk/nextjs'
+import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { trackEvent } from '@/lib/analytics'
@@ -11,7 +12,10 @@ import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
 import UserMenu from './UserMenu'
 
 export default function Navbar() {
+  const { isSignedIn: isClerkSignedIn } = useUser()
   const { signOut } = useClerk()
+  const { isLoggedIn: isStoreLoggedIn, logout: storeLogout } = useAuthStore()
+  const isSignedIn = isClerkSignedIn || isStoreLoggedIn
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -26,7 +30,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
             <img
-              src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
+              src="/logo.png"
               alt="TripSage"
               width={34}
               height={34}
@@ -45,7 +49,7 @@ export default function Navbar() {
           {/* Support Dropdown */}
           <div className="relative group py-2">
             <button suppressHydrationWarning className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
-              Support <ChevronDown size={12} strokeWidth={1.5} />
+              Support <ChevronDown size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
             </button>
             <div className="absolute left-0 mt-1 w-36 bg-white border border-[#E8E0D8] rounded-lg shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 py-1">
               <Link href="/support" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Support Center</Link>
@@ -55,19 +59,20 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
-          <SignedIn>
+          {isSignedIn ? (
             <div className="flex items-center gap-4">
-              <Link href="/plan" className="hidden md:flex whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
+              <Link href="/dashboard" className="hidden md:flex whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
               <UserMenu />
             </div>
-          </SignedIn>
-          <SignedOut>
-            <Link href="/sign-in" className="hidden sm:flex text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
-            <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={14} strokeWidth={1.5} /></Link>
-          </SignedOut>
+          ) : (
+            <>
+              <Link href="/sign-in" className="hidden sm:flex text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
+              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={16} strokeWidth={1.5} className="text-white" /></Link>
+            </>
+          )}
           
           <button className="md:hidden p-1.5 sm:p-2 text-[#1A1A1A]" onClick={() => setMobileMenuOpen(true)}>
-            <Menu size={20} strokeWidth={1.5} />
+            <Menu size={16} strokeWidth={1.5} className="text-[#1C1917]" />
           </button>
         </div>
       </nav>
@@ -91,7 +96,7 @@ export default function Navbar() {
             >
               <div className="flex justify-end mb-8">
                 <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-[#57534E] hover:text-[#1C1917]">
-                  <X size={20} strokeWidth={1.5} />
+                  <X size={16} strokeWidth={1.5} className="text-[#57534E] hover:text-[#1C1917] transition-colors" />
                 </button>
               </div>
               <div className="flex flex-col gap-2">
@@ -102,7 +107,7 @@ export default function Navbar() {
                 <Link href="/visa-guide" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Visa Guide</Link>
                 <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Blog</Link>
                 <div className="h-px bg-slate-100 my-4 mx-4"></div>
-                <SignedIn>
+                {isSignedIn ? (
                   <div className="flex flex-col gap-1 overflow-y-auto max-h-[60vh] pr-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mt-2 mb-1">Navigation</span>
                     <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[46px] px-4 text-sm font-semibold text-blue-600 hover:bg-blue-50 rounded-xl">Dashboard</Link>
@@ -122,22 +127,25 @@ export default function Navbar() {
                     <div className="h-px bg-slate-100 my-2 mx-4"></div>
                     <button 
                       onClick={async () => { 
-                        setMobileMenuOpen(false); 
-                        const outToast = toast.loading('Signing out...');
-                        await signOut(() => {
-                          toast.success('Signed out successfully!', { id: outToast });
-                          router.replace('/');
-                        });
+                        setMobileMenuOpen(false)
+                        const outToast = toast.loading('Signing out...')
+                        try {
+                          await signOut()
+                          storeLogout()
+                          toast.success('Signed out!', { id: outToast })
+                          router.replace('/')
+                        } catch {
+                          toast.error('Error signing out', { id: outToast })
+                        }
                       }} 
                       className="flex items-center text-left h-[46px] px-4 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl cursor-pointer bg-transparent border-none w-full"
                     >
                       Sign Out
                     </button>
                   </div>
-                </SignedIn>
-                <SignedOut>
+                ) : (
                   <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-xl">Sign In</Link>
-                </SignedOut>
+                )}
               </div>
             </motion.div>
           </>

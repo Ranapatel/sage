@@ -106,7 +106,7 @@ export default function PlaceDetailsModal({
     // 3. Fallback: geocode via backend search API
     console.log(`[PlaceDetailsModal] Place "${place.name}" is missing coordinates. Fetching from backend...`);
     Promise.resolve().then(() => setIsGeocoding(true));
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     axios
       .get(`${apiBaseUrl}/api/itinerary/places/search`, {
         params: {

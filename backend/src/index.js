@@ -51,14 +51,20 @@ if (missing.length > 0) {
 const app = express()
 
 const allowedOrigin = (origin, callback) => {
-  if (!origin) return callback(null, true) // curl / Postman
+  if (!origin) return callback(null, true) // curl / Postman / server-side
   if (process.env.NODE_ENV !== 'production') return callback(null, true) // allow all in dev
-  if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) return callback(null, true)
-  if (origin === 'https://tripsage.in' || origin === 'https://www.tripsage.in') return callback(null, true)
-  if (process.env.CORS_ORIGIN === '*') return callback(null, true)
-  if (process.env.CORS_ORIGIN && origin === process.env.CORS_ORIGIN) return callback(null, true)
-  if (origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com') ||
-      origin.endsWith('.railway.app') || origin.endsWith('.netlify.app')) return callback(null, true)
+
+  // Production: explicit allowlist only
+  const allowed = [
+    'https://tripsage.in',
+    'https://www.tripsage.in',
+  ]
+  // Allow override via env var (e.g. staging preview URLs)
+  if (process.env.CORS_ORIGIN) allowed.push(process.env.CORS_ORIGIN)
+
+  if (allowed.includes(origin)) return callback(null, true)
+
+  // Block everything else in production
   callback(new Error(`CORS: origin '${origin}' not allowed`))
 }
 
@@ -122,7 +128,28 @@ app.use('/api/photos',        require('./modules/photos/photo.routes').default)
 app.use('/api/transport-intelligence', require('./modules/transport-intelligence/transportIntelligence.routes').default)
 
 // Health check
-app.get('/health', (req, res) => {
+// Health check
+app.get('/health', async (req, res) => {
+  const checkPortStatus = (port) => new Promise((resolve) => {
+    const socket = new (require('net').Socket)()
+    socket.setTimeout(800)
+    socket.once('connect', () => { socket.destroy(); resolve('healthy'); })
+    socket.once('timeout', () => { socket.destroy(); resolve('timeout'); })
+    socket.once('error', () => { socket.destroy(); resolve('unreachable'); })
+    socket.connect(port, '127.0.0.1')
+  })
+
+  let transportStatus = nestServiceStatus
+  if (process.env.SPAWN_NEST !== 'false') {
+    const portProbe = await checkPortStatus(4001)
+    if (portProbe === 'healthy') {
+      transportStatus = 'healthy'
+    } else {
+      // Fall back to process state if port is blocked
+      transportStatus = nestServiceStatus === 'starting' ? 'starting' : 'unhealthy'
+    }
+  }
+
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -137,6 +164,7 @@ app.get('/health', (req, res) => {
       hotelbeds:  getCredentialStatus(),
       razorpay:   !!process.env.RAZORPAY_KEY_ID,
       geoapify:   !!process.env.GEOAPIFY_API_KEY,
+      transportMicroservice: transportStatus,
     },
   })
 })
@@ -202,6 +230,15 @@ function createAndListen(port) {
     httpServer = server
     ioServer   = io
     console.log(`[TripSage] 🚀 Server running on port ${port}`)
+    
+    // Start background price watcher
+    try {
+      const { startPriceWatcher } = require('./workers/priceWatcher')
+      startPriceWatcher()
+    } catch (err) {
+      console.warn('[TripSage] ⚠️ Could not start Price Watcher:', err.message)
+    }
+
     if (port !== parseInt(process.env.PORT || '4000', 10)) {
       console.warn(`[TripSage] ⚠️  Original port was busy — using ${port}. Update PORT in .env if needed.`)
     }
@@ -223,6 +260,7 @@ function createAndListen(port) {
 const { spawn } = require('child_process');
 const path = require('path');
 let nestProcess = null;
+let nestServiceStatus = process.env.SPAWN_NEST === 'false' ? 'disabled' : 'starting';
 
 function startNestService() {
   if (process.env.SPAWN_NEST === 'false') {
@@ -245,7 +283,13 @@ function startNestService() {
   });
 
   nestProcess.on('error', (err) => {
+    nestServiceStatus = 'failed_to_start';
     console.error('[TripSage] 💥 Failed to start NestJS transport service:', err.message);
+  });
+
+  nestProcess.on('exit', (code, signal) => {
+    nestServiceStatus = code === 0 ? 'stopped' : 'crashed';
+    console.warn(`[TripSage] ⚠️  NestJS transport microservice exited with code: ${code}, signal: ${signal}`);
   });
 }
 
@@ -278,4 +322,8 @@ function shutdown(signal) {
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 process.on('SIGINT',  () => shutdown('SIGINT'))
 
-module.exports = { app }
+function getSocketIO() {
+  return ioServer
+}
+
+module.exports = { app, getSocketIO }

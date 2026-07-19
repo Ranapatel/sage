@@ -25,6 +25,7 @@ model User {
   trips              Trip[]
   profile            UserProfile?
   wallet             Wallet?
+  priceWatches       PriceWatch[]
   walletTransactions WalletTransaction[]
   userLocations      UserLocation[]
   mapPreference      MapPreference?

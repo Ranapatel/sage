@@ -38,7 +38,7 @@ export default function RideButton({
     setIsLoading(true);
     try {
       // POST payload validation
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const response = await axios.post(`${apiBaseUrl}/api/transport/uber`, payload);
 
       console.log('[RideButton] Response JSON received:', response.data);

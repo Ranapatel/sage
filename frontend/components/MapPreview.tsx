@@ -59,8 +59,9 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
 
         mapInstanceRef.current = map;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
+        const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || '3ffd189110c8416c8e2c733950e9d50d';
+        L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=${apiKey}`, {
+          attribution: 'Powered by Geoapify | © OpenStreetMap contributors',
         }).addTo(map);
 
         // Custom marker icon

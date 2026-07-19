@@ -10,6 +10,7 @@ import { tripAPI } from '@/lib/api'
 import { fetchWithRetry } from '@/lib/fetchWithRetry'
 import { formatDate, getDaysBetween } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
+import { useUser } from '@clerk/nextjs'
 import { SYMBOLS, formatPrice, ALL_CURRENCIES, convertToINR } from '@/lib/currency'
 import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
@@ -59,18 +60,12 @@ const TabLoader = () => (
 // Trains panel was returning null during idle/loading state.
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'transport', label: 'Flights', icon: Plane },
-  { id: 'trains', label: 'Trains', icon: Train },
-  { id: 'buses', label: 'Buses', icon: Bus },
-  { id: 'cars', label: 'Cabs', icon: Car },
-  { id: 'hotels', label: 'Hotels', icon: Building2 },
+  { id: 'transport', label: 'Transport', icon: Plane },
+  { id: 'hotels', label: 'Stay', icon: Building2 },
   { id: 'itinerary', label: 'Itinerary', icon: MapPin },
-  { id: 'optimizer', label: 'Optimizer', icon: TrendingUp },
-  { id: 'return', label: 'Return', icon: RefreshCw },
   { id: 'explore', label: 'Explore', icon: Compass },
   { id: 'map', label: 'Map', icon: Map },
   { id: 'bookings', label: 'Bookings', icon: ClipboardList },
-  { id: 'history', label: 'History', icon: History },
 ]
 
 const isInternationalTrip = (from: string, to: string) => {
@@ -113,6 +108,8 @@ export default function PlanClient() {
     completeTrip, startNewTrip, reset, addTripToHistory
   } = useTripStore()
   const { user, isLoggedIn, logout, updateCurrency } = useAuthStore()
+  const { isSignedIn: isClerkSignedIn } = useUser()
+  const isSignedIn = isClerkSignedIn || isLoggedIn
 
   const [activeTab, setActiveTab] = useState('overview')
   const [showNotifs, setShowNotifs] = useState(false)
@@ -121,9 +118,13 @@ export default function PlanClient() {
   const [showFeedback, setShowFeedback] = useState(false)
   const [showEditTrip, setShowEditTrip] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false)
+  const [showNewTripConfirm, setShowNewTripConfirm] = useState(false)
   const [searchForm, setSearchForm] = useState({
     from: '', to: '', startDate: '', endDate: '', budget: '2000', travelers: '2', style: 'adventure', currency: 'INR',
-    rooms: '1', adults: '2', children: '0'
+    rooms: '1', adults: '2', children: '0',
+    isMultiCity: false,
+    stops: [{ city: '', nights: 2 }, { city: '', nights: 3 }] as Array<{ city: string; nights: number }>
   })
 
   // Active currency: user's saved currency, or form's selected currency, or default INR
@@ -225,6 +226,8 @@ export default function PlanClient() {
             rooms: ctx.rooms || '1',
             adults: ctx.adults || '2',
             children: ctx.children || '0',
+            isMultiCity: ctx.isMultiCity || false,
+            stops: ctx.stops || [{ city: '', nights: 2 }, { city: '', nights: 3 }]
           })
           setTrip({
             startLocation: ctx.from || '',
@@ -264,7 +267,9 @@ export default function PlanClient() {
         from: '', to: '', startDate: '', endDate: '',
         budget: '2000', travelers: '2', style: 'adventure',
         currency: user?.currency ?? 'INR',
-        rooms: '1', adults: '2', children: '0'
+        rooms: '1', adults: '2', children: '0',
+        isMultiCity: false,
+        stops: [{ city: '', nights: 2 }, { city: '', nights: 3 }]
       })
       resultCacheRef.current = {}
       setTabCache({ overview: true })
@@ -275,16 +280,32 @@ export default function PlanClient() {
 
   const runSearch = async (params?: any) => {
     const p = params || {
-      from: searchForm.from, to: searchForm.to,
-      startDate: searchForm.startDate, endDate: searchForm.endDate,
+      from: searchForm.from,
+      to: searchForm.isMultiCity ? searchForm.stops.map(s => s.city).filter(Boolean).join(', ') : searchForm.to,
+      startDate: searchForm.startDate,
+      endDate: searchForm.endDate,
       budget: parseInt(searchForm.budget),
       travelers: parseInt(searchForm.travelers),
       style: searchForm.style,
       rooms: parseInt(searchForm.rooms || '1'),
       adults: parseInt(searchForm.adults || '2'),
       children: parseInt(searchForm.children || '0'),
-
+      isMultiCity: searchForm.isMultiCity,
+      stops: searchForm.stops,
       preferences: userProfile?.preferences || [],
+    }
+
+    if (p.isMultiCity) {
+      if (!p.stops || p.stops.filter((s: any) => s.city).length === 0) {
+        toast.error("Please add at least one stop city.")
+        return
+      }
+      const totalNights = p.stops.reduce((sum: number, s: any) => sum + (s.nights || 2), 0)
+      if (p.startDate) {
+        const d = new Date(p.startDate)
+        d.setDate(d.getDate() + totalNights)
+        p.endDate = d.toISOString().split('T')[0]
+      }
     }
     
     // Ensure numeric fields are valid and do not pass NaN or invalid values to the backend
@@ -376,6 +397,8 @@ export default function PlanClient() {
       destination: p.to,
       startDate: p.startDate,
       endDate: p.endDate,
+      isMultiCity: p.isMultiCity,
+      stops: p.stops,
     })
 
     setProfile({
@@ -400,8 +423,10 @@ export default function PlanClient() {
             rooms: p.rooms,
             adults: p.adults,
             children: p.children,
+            isMultiCity: p.isMultiCity,
+            stops: p.stops,
           }, { signal }),
-          { timeout: 10000, maxRetries: 2, label: 'Search' }
+          { timeout: 25000, maxRetries: 2, label: 'Search' }
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
           throw err
@@ -437,7 +462,9 @@ export default function PlanClient() {
               style: p.style,
               preferences: p.preferences || [],
               members: p.travelers,
-              startDate: p.startDate
+              startDate: p.startDate,
+              isMultiCity: p.isMultiCity,
+              stops: p.stops,
             }, { signal })
           },
           { timeout: 20000, maxRetries: 1, label: 'Itinerary' }
@@ -529,36 +556,90 @@ export default function PlanClient() {
   }, [searchForm, userProfile, getCacheKey, runSearch])
 
   const handleShareTrip = useCallback(() => {
-    const url = typeof window !== 'undefined' ? window.location.href : 'TripSage Plan'
-    navigator.clipboard.writeText(url)
-      .then(() => toast.success("Share link copied to clipboard!"))
-      .catch(() => toast.error("Could not copy link."))
-  }, [])
+    const destination = tripContext.destination || 'my trip'
+    const shareText = `Check out my ${destination} trip plan on TripSage! 🌍✈️`
+    const shareUrl = `https://tripsage.in/plan`
 
-  const handleSaveTrip = useCallback(() => {
+    // Use native Web Share API on mobile devices (shows OS share sheet)
+    if (navigator.share) {
+      navigator.share({ title: `TripSage – ${destination} Trip`, text: shareText, url: shareUrl })
+        .catch(() => {}) // user cancelled — no error needed
+      return
+    }
+
+    // Desktop fallback — copy the TripSage plan URL with a clear note
+    navigator.clipboard.writeText(`${shareText}\n${shareUrl}`)
+      .then(() => toast.success('Link copied! Note: your friend will need to plan their own trip — personal itineraries aren\'t shared yet.', { duration: 5000 }))
+      .catch(() => toast.error('Could not copy link.'))
+  }, [tripContext.destination])
+
+  const handleSaveTrip = useCallback(async () => {
     if (!tripContext.destination) {
       toast.error("No active trip to save.")
       return
     }
-    
-    // Construct trip history record to append
-    const record: TripRecord = {
-      tripId: Date.now().toString(),
+
+    const record = {
       destination: tripContext.destination,
-      startLocation: tripContext.startLocation,
-      dates: { start: tripContext.startDate, end: tripContext.endDate },
-      bookings: {},
-      itinerary: itinerary as any,
-      status: 'completed',
-      createdAt: new Date().toISOString(),
-      budget: userProfile.budget,
-      style: userProfile.travelStyle,
-      members: userProfile.members
+      title: `Trip to ${tripContext.destination}`,
+      startDate: tripContext.startDate,
+      endDate: tripContext.endDate,
+      budget: Number(userProfile.budget || 0),
+      travelers: Number(userProfile.members || 1),
+      status: 'PLANNED',
+      itineraryDays: (itinerary || []).map((day: any, idx: number) => ({
+        dayNumber: idx + 1,
+        title: day.title || `Day ${idx + 1}`,
+        description: day.description || '',
+        activities: (day.activities || []).map((act: any) => ({
+          name: act.name,
+          description: act.description || '',
+          location: act.location || '',
+          startTime: act.startTime ? new Date(act.startTime).toISOString() : null,
+          endTime: act.endTime ? new Date(act.endTime).toISOString() : null,
+          category: act.category || 'Sightseeing'
+        }))
+      })),
+      itineraryPlaces: (hotels || []).map((hotel: any, idx: number) => ({
+        dayNumber: 1,
+        name: hotel.name,
+        latitude: hotel.latitude || 0,
+        longitude: hotel.longitude || 0,
+        orderIndex: idx,
+        category: 'Hotel'
+      }))
     }
-    
-    addTripToHistory(record)
-    toast.success("Trip plan saved to your profile history!")
-  }, [tripContext, userProfile, itinerary, addTripToHistory])
+
+    try {
+      if (isSignedIn) {
+        // Real database save
+        const response = await tripAPI.saveTrip(record)
+        if (response.success) {
+          toast.success("Trip saved to your profile!")
+        } else {
+          throw new Error(response.message || "Failed to save to database")
+        }
+      } else {
+        // Fallback to local storage (Zustand)
+        addTripToHistory({
+          tripId: Date.now().toString(),
+          destination: tripContext.destination,
+          startLocation: tripContext.startLocation,
+          dates: { start: tripContext.startDate, end: tripContext.endDate },
+          bookings: {},
+          itinerary: itinerary as any,
+          status: 'completed',
+          createdAt: new Date().toISOString(),
+          budget: userProfile.budget,
+          style: userProfile.travelStyle,
+          members: userProfile.members
+        })
+        toast.success("Saved to browser! Log in to sync across devices.")
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Could not save trip.")
+    }
+  }, [tripContext, userProfile, itinerary, hotels, isSignedIn, addTripToHistory])
 
   // Listen to real-time socket data as supplementary updates
   // (price drops, weather alerts — search results come from REST now)
@@ -596,8 +677,8 @@ export default function PlanClient() {
   // Total budget in display currency
   const totalBudget = userProfile.budget || 0
 
-  const handleNewTripClick = useCallback(() => {
-    // 1. Clear searchForm state to empty placeholders in React state
+  // The actual reset — called either directly (no active trip) or after confirm
+  const executeNewTrip = useCallback(() => {
     setSearchForm({
       from: '',
       to: '',
@@ -609,28 +690,29 @@ export default function PlanClient() {
       currency: currency,
       rooms: '1',
       adults: '2',
-      children: '0'
+      children: '0',
+      isMultiCity: false,
+      stops: [{ city: '', nights: 2 }, { city: '', nights: 3 }]
     })
-
-    // 2. Clear all store values via store action
     startNewTrip()
-
-    // 3. Clear resultCacheRef cache completely to prevent previous search data from loading
     resultCacheRef.current = {}
-
-    // 4. Force tabCache to reset to only 'overview' so nothing is pre-rendered or cached
     setTabCache({ overview: true })
-
-    // 5. Navigate to overview tab instantly
     setActiveTab('overview')
-
-    // 6. Clear session and local storage keys for tripContext and tripsage-store
+    setMoreSheetOpen(false)
+    setMobileMenuOpen(false)
     sessionStorage.removeItem('tripContext')
     localStorage.removeItem('tripsage-store')
-
-    // Show instant feedback
     toast.success('Ready to plan your new trip!')
   }, [startNewTrip, currency])
+
+  const handleNewTripClick = useCallback(() => {
+    // Only show confirmation if there is an active trip with real data to lose
+    if (tripContext.destination) {
+      setShowNewTripConfirm(true)
+    } else {
+      executeNewTrip()
+    }
+  }, [tripContext.destination, executeNewTrip])
 
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -656,113 +738,92 @@ export default function PlanClient() {
       <header className="bg-white border-b border-[#E8E0D8] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between gap-4">
 
-          {/* Logo */}
-          <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
-            <img
-              src="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
-              alt="TripSage" width={28} height={28} className="rounded-md shrink-0 object-contain"
-            />
-            <span className="font-bold text-[#EA580C] text-base tracking-tight hidden sm:block">TripSage</span>
-          </button>
-
-          {/* Trip metadata pill — only shown when a trip is active */}
-          {tripContext.destination ? (
-            <div className="relative hidden md:block">
-              <button
-                onClick={() => setShowEditTrip(true)}
-                className="flex items-center gap-1 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-1.5 text-sm divide-x divide-[#E8E0D8] hover:border-[#EA580C] hover:shadow-sm transition-all text-left"
-                title="Edit trip details"
-              >
-                <span className="pr-3 font-semibold text-[#1A1A1A]">
-                  {tripContext.startLocation || '—'}
-                  <span className="text-[#EA580C] mx-1.5">→</span>
-                  {tripContext.destination}
-                </span>
-                {tripDaysDisplay && (
-                  <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
-                    <CalendarDays size={13} className="text-[#9CA3AF]" />
-                    {tripDaysDisplay}d
-                    {tripContext.startDate && (
-                      <span className="text-[#9CA3AF]">· {formatDate(tripContext.startDate)}</span>
-                    )}
-                  </span>
-                )}
-                <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B]">
-                  <Users size={13} className="text-[#9CA3AF]" />
-                  {userProfile?.members ?? 2}
-                </span>
-                {budgetDisplay && (
-                  <span className="pl-3 flex items-center gap-1.5 text-[#6B6B6B]">
-                    <Wallet size={13} className="text-[#9CA3AF]" />
-                    {budgetDisplay}
-                  </span>
-                )}
-              </button>
-            </div>
-          ) : (
-            <div className="hidden md:block" />
-          )}
-
-
-          {/* Settings */}
-          <button
-            className="p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
-            onClick={() => toast.success('Settings opened')}
-            title="Settings"
-          >
-            <Settings size={18} className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" />
-          </button>
-
-          {/* Currency selector */}
-          <Suspense fallback={null}>
-            <CurrencySelector
-              value={currency}
-              onChange={val => {
-                updateCurrency(val as any)
-                setSearchForm(p => ({ ...p, currency: val }))
-              }}
-              className="hidden sm:block min-w-[140px]"
-            />
-          </Suspense>
-
-          {tripStatus === 'planning' || tripStatus === 'active' ? (
-            <button
-              onClick={() => { completeTrip(); setShowFeedback(true) }}
-              disabled={itinerary.length === 0}
-              className="btn-outline py-2 px-3 text-xs border-green-500/50 text-green-400 hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed hidden sm:block"
-            >
-              <Check size={14} /> Complete
+          {/* Left Section: Logo & Metadata */}
+          <div className="flex items-center gap-4 min-w-0">
+            {/* Logo */}
+            <button onClick={() => router.push('/')} className="flex items-center gap-2 shrink-0">
+              <img
+                src="/logo.png"
+                alt="TripSage" width={28} height={28} className="rounded-md shrink-0 object-contain"
+              />
+              <span className="font-bold text-[#EA580C] text-base tracking-tight hidden sm:block">TripSage</span>
             </button>
-          ) : (
-            <button
-              onClick={handleNewTripClick}
-              className="btn-outline py-2 px-3 text-xs border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10 hidden sm:block"
-            >
-              <Plus size={14} /> New Trip
-            </button>
-          )}
 
-          {/* User avatar / login */}
-          <div className="hidden sm:block">
-            <UserMenu onOpenNotifications={() => setShowNotifs(true)} />
+            {/* Trip metadata pill — only shown when a trip is active */}
+            {tripContext.destination ? (
+              <div className="relative hidden md:block min-w-0">
+                <button
+                  onClick={() => setShowEditTrip(true)}
+                  className="flex items-center gap-1 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-1.5 text-sm divide-x divide-[#E8E0D8] hover:border-[#EA580C] hover:shadow-sm transition-all text-left"
+                  title="Edit trip details"
+                >
+                  <span className="pr-3 font-semibold text-[#1A1A1A] truncate">
+                    {tripContext.startLocation || '—'}
+                    <span className="text-[#EA580C] mx-1.5">→</span>
+                    {tripContext.destination}
+                  </span>
+                  {tripDaysDisplay && (
+                    <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B] shrink-0">
+                      <CalendarDays size={13} className="text-[#9CA3AF]" />
+                      {tripDaysDisplay}d
+                      {tripContext.startDate && (
+                        <span className="text-[#9CA3AF]">· {formatDate(tripContext.startDate)}</span>
+                      )}
+                    </span>
+                  )}
+                  <span className="px-3 flex items-center gap-1.5 text-[#6B6B6B] shrink-0">
+                    <Users size={13} className="text-[#9CA3AF]" />
+                    {userProfile?.members ?? 2}
+                  </span>
+                  {budgetDisplay && (
+                    <span className="pl-3 flex items-center gap-1.5 text-[#6B6B6B] shrink-0">
+                      <Wallet size={13} className="text-[#9CA3AF]" />
+                      {budgetDisplay}
+                    </span>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="hidden md:block" />
+            )}
           </div>
 
-
-          {/* Right actions */}
+          {/* Right Section: Actions */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Currency */}
+            {/* Currency selector (single instance) */}
             <Suspense fallback={null}>
               <CurrencySelector
                 value={currency}
-                onChange={val => { updateCurrency(val as any); setSearchForm(p => ({ ...p, currency: val })) }}
-                className="hidden lg:block min-w-[130px]"
+                onChange={val => {
+                  updateCurrency(val as any)
+                  setSearchForm(p => ({ ...p, currency: val }))
+                }}
+                className="hidden sm:block min-w-[130px]"
               />
             </Suspense>
+
+            {/* Complete / New Trip Button */}
+            {tripStatus === 'planning' || tripStatus === 'active' ? (
+              <button
+                onClick={() => { completeTrip(); setShowFeedback(true) }}
+                disabled={itinerary.length === 0}
+                className="btn-outline flex items-center gap-1 py-1.5 px-3 text-xs border-green-500/50 text-green-400 hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed hidden sm:flex rounded-lg transition-all"
+              >
+                <Check size={14} /> Complete
+              </button>
+            ) : (
+              <button
+                onClick={handleNewTripClick}
+                className="btn-outline flex items-center gap-1 py-1.5 px-3 text-xs border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10 hidden sm:flex rounded-lg transition-all"
+              >
+                <Plus size={14} /> New Trip
+              </button>
+            )}
 
             {/* Share */}
             <button
               onClick={handleShareTrip}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#6B6B6B] border border-[#E8E0D8] rounded-lg hover:bg-[#FFFBF7] transition-colors active:scale-95"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#6B6B6B] border border-[#E8E0D8] rounded-lg hover:bg-[#FFFBF7] transition-colors active:scale-95"
             >
               <Share2 size={14} /> Share
             </button>
@@ -770,7 +831,7 @@ export default function PlanClient() {
             {/* Save */}
             <button
               onClick={handleSaveTrip}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#6B6B6B] border border-[#E8E0D8] rounded-lg hover:bg-[#FFFBF7] transition-colors active:scale-95"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#6B6B6B] border border-[#E8E0D8] rounded-lg hover:bg-[#FFFBF7] transition-colors active:scale-95"
             >
               <BookmarkPlus size={14} /> Save
             </button>
@@ -779,6 +840,7 @@ export default function PlanClient() {
             <button
               className="relative p-2 rounded-lg hover:bg-[#F5F5F4] transition-colors"
               onClick={() => setShowNotifs(!showNotifs)}
+              title="Notifications"
             >
               <Bell size={17} className="text-[#6B6B6B]" />
               {unreadCount > 0 && (
@@ -798,7 +860,19 @@ export default function PlanClient() {
                 : <RefreshCw size={16} className="text-[#6B6B6B]" />}
             </button>
 
+            {/* Settings */}
+            <button
+              className="p-2 rounded-lg hover:bg-[#F5F5F4] transition-colors hidden sm:block"
+              onClick={() => router.push('/profile?tab=settings')}
+              title="Settings"
+            >
+              <Settings size={17} className="text-[#6B6B6B]" />
+            </button>
 
+            {/* User avatar / login */}
+            <div className="hidden sm:block">
+              <UserMenu />
+            </div>
 
             {/* Mobile hamburger */}
             <button className="sm:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -871,47 +945,201 @@ export default function PlanClient() {
       {activeTab === 'overview' && (
         <div className="px-3 sm:px-4 py-4 max-w-7xl mx-auto w-full box-border">
           <div className="glass rounded-xl p-3 sm:p-4 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-9 gap-2.5 sm:gap-3">
-              <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." disabled />}>
-                <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
-                  onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
-              </Suspense>
-              <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="To..." disabled />}>
-                <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
-                  onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
-              </Suspense>
-              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
-                onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
-              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
-                onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
-              <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" value={searchForm.budget}
-                onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
-              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.rooms}
-                onChange={e => setSearchForm(p => ({ ...p, rooms: e.target.value }))}>
-                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Room{n>1?'s':''}</option>)}
-              </select>
-              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.adults}
-                onChange={e => {
-                  const val = e.target.value;
-                  setSearchForm(p => ({ ...p, adults: val, travelers: String(Number(val) + Number(p.children)) }));
-                }}>
-                {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} Adult{n>1?'s':''}</option>)}
-              </select>
-              <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.children}
-                onChange={e => {
-                  const val = e.target.value;
-                  setSearchForm(p => ({ ...p, children: val, travelers: String(Number(p.adults) + Number(val)) }));
-                }}>
-                {[0,1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} Child{n===1?'':'ren'}</option>)}
-              </select>
+            
+            {/* Mode Selector Toggle */}
+            <div className="flex items-center gap-4 mb-3 pb-2 border-b border-slate-100/50">
               <button
-                onClick={() => runSearch()}
-                className="btn-primary w-full py-2.5 text-[13px] sm:text-sm"
-                disabled={loading}
+                type="button"
+                onClick={() => setSearchForm(p => ({ ...p, isMultiCity: false }))}
+                className={`text-[11px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${!searchForm.isMultiCity ? 'bg-[#EA580C] text-white' : 'text-[#6B6B6B] hover:bg-slate-100'}`}
               >
-                {loading ? '...' : <><Search size={16} /> Search</>}
+                Single Destination
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchForm(p => ({ ...p, isMultiCity: true }))}
+                className={`text-[11px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${searchForm.isMultiCity ? 'bg-[#EA580C] text-white' : 'text-[#6B6B6B] hover:bg-slate-100'}`}
+              >
+                Multi-City Stops
               </button>
             </div>
+
+            {!searchForm.isMultiCity ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-9 gap-2.5 sm:gap-3">
+                <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." disabled />}>
+                  <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
+                    onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
+                </Suspense>
+                <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="To..." disabled />}>
+                  <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="To..." value={searchForm.to}
+                    onChange={val => setSearchForm(p => ({ ...p, to: val }))} />
+                </Suspense>
+                <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
+                  onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
+                <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.endDate}
+                  onChange={e => setSearchForm(p => ({ ...p, endDate: e.target.value }))} />
+                <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" min="0" step="100" value={searchForm.budget}
+                  onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
+                <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.style}
+                  onChange={e => setSearchForm(p => ({ ...p, style: e.target.value }))}>
+                  <option value="adventure">🏕️ Adventure</option>
+                  <option value="budget">💰 Budget</option>
+                  <option value="luxury">✨ Luxury</option>
+                  <option value="cultural">🏛️ Cultural</option>
+                  <option value="family">👨‍👩‍👧 Family</option>
+                  <option value="honeymoon">💑 Honeymoon</option>
+                  <option value="solo">🎒 Solo</option>
+                </select>
+                <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.rooms}
+                  onChange={e => setSearchForm(p => ({ ...p, rooms: e.target.value }))}>
+                  {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Room{n>1?'s':''}</option>)}
+                </select>
+                <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.adults}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setSearchForm(p => ({ ...p, adults: val, travelers: String(Number(val) + Number(p.children)) }));
+                  }}>
+                  {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} Adult{n>1?'s':''}</option>)}
+                </select>
+                <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.children}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setSearchForm(p => ({ ...p, children: val, travelers: String(Number(p.adults) + Number(val)) }));
+                  }}>
+                  {[0,1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} Child{n===1?'':'ren'}</option>)}
+                </select>
+                <button
+                  onClick={() => runSearch()}
+                  className="btn-primary w-full py-2.5 text-[13px] sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={loading}
+                >
+                  {loading
+                    ? <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Planning...</>
+                    : <><Search size={16} />Search</>}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Row 1: Origin, Date, Budget, Style */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                  <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder="From..." disabled />}>
+                    <LocationAutocomplete className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder="From..." value={searchForm.from}
+                      onChange={val => setSearchForm(p => ({ ...p, from: val }))} />
+                  </Suspense>
+                  
+                  <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" type="date" value={searchForm.startDate}
+                    onChange={e => setSearchForm(p => ({ ...p, startDate: e.target.value }))} />
+
+                  <input className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" placeholder={`Budget ${SYMBOLS[currency] || '$'}`} type="number" min="0" step="100" value={searchForm.budget}
+                    onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
+
+                  <select className="input-field text-[13px] sm:text-sm w-full !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.style}
+                    onChange={e => setSearchForm(p => ({ ...p, style: e.target.value }))}>
+                    <option value="adventure">🏕️ Adventure</option>
+                    <option value="budget">💰 Budget</option>
+                    <option value="luxury">✨ Luxury</option>
+                    <option value="cultural">🏛️ Cultural</option>
+                    <option value="family">👨‍👩‍👧 Family</option>
+                    <option value="honeymoon">💑 Honeymoon</option>
+                    <option value="solo">🎒 Solo</option>
+                  </select>
+
+                  <div className="flex gap-2">
+                    <select className="input-field text-[13px] sm:text-sm w-1/3 !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.rooms}
+                      onChange={e => setSearchForm(p => ({ ...p, rooms: e.target.value }))}>
+                      {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Room{n>1?'s':''}</option>)}
+                    </select>
+                    <select className="input-field text-[13px] sm:text-sm w-1/3 !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.adults}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setSearchForm(p => ({ ...p, adults: val, travelers: String(Number(val) + Number(p.children)) }));
+                      }}>
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} Ad{n>1?'s':''}</option>)}
+                    </select>
+                    <select className="input-field text-[13px] sm:text-sm w-1/3 !bg-white/50 !border-slate-200/60 focus:!bg-white transition-all" value={searchForm.children}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setSearchForm(p => ({ ...p, children: val, travelers: String(Number(p.adults) + Number(val)) }));
+                      }}>
+                      {[0,1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} Ch{n===1?'':'s'}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Row 2: Dynamic Stops */}
+                <div className="space-y-2 border-t border-slate-100/50 pt-3">
+                  <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider block">Destinations / Stops</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {searchForm.stops.map((stop, index) => (
+                      <div key={index} className="flex gap-2 items-center bg-slate-50/50 border border-slate-100 rounded-lg p-2">
+                        <div className="flex-1">
+                          <Suspense fallback={<input className="input-field text-[13px] sm:text-sm w-full" placeholder={`Stop ${index + 1}...`} disabled />}>
+                            <LocationAutocomplete 
+                              className="input-field text-[13px] sm:text-sm w-full !bg-white !border-slate-200/60 focus:!bg-white transition-all" 
+                              placeholder={`Stop ${index + 1}...`} 
+                              value={stop.city}
+                              onChange={val => {
+                                const newStops = [...searchForm.stops]
+                                newStops[index].city = val
+                                setSearchForm(p => ({ ...p, stops: newStops }))
+                              }} 
+                            />
+                          </Suspense>
+                        </div>
+                        <select
+                          className="input-field text-[13px] sm:text-sm !w-24 !bg-white !border-slate-200/60 focus:!bg-white transition-all"
+                          value={stop.nights}
+                          onChange={e => {
+                            const newStops = [...searchForm.stops]
+                            newStops[index].nights = parseInt(e.target.value)
+                            setSearchForm(p => ({ ...p, stops: newStops }))
+                          }}
+                        >
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(n => (
+                            <option key={n} value={n}>{n} night{n === 1 ? '' : 's'}</option>
+                          ))}
+                        </select>
+                        {searchForm.stops.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newStops = searchForm.stops.filter((_, idx) => idx !== index)
+                              setSearchForm(p => ({ ...p, stops: newStops }))
+                            }}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <X size={16} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Row 3: Action Buttons */}
+                <div className="flex justify-between items-center border-t border-slate-100/50 pt-3">
+                  <button
+                    type="button"
+                    disabled={searchForm.stops.length >= 5}
+                    onClick={() => setSearchForm(p => ({ ...p, stops: [...p.stops, { city: '', nights: 2 }] }))}
+                    className="btn-secondary text-[12px] py-1.5 px-3 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  >
+                    <Plus size={14} /> Add Destination
+                  </button>
+
+                  <button
+                    onClick={() => runSearch()}
+                    className="btn-primary py-2 px-6 text-[13px] sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                    disabled={loading}
+                  >
+                    {loading
+                      ? <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Planning...</>
+                      : <><Search size={16} />Plan Multi-City Trip</>}
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}
@@ -941,6 +1169,9 @@ export default function PlanClient() {
       {/* ── TAB BAR ──────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-[#E8E0D8] sticky top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Fade-right hint shows on mobile to indicate more tabs to scroll */}
+          <div className="relative">
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent z-10 sm:hidden" />
           <div className="flex gap-0 overflow-x-auto hide-scrollbar">
             {TABS.map(t => {
               const isActive = activeTab === t.id
@@ -990,6 +1221,7 @@ export default function PlanClient() {
               )
             })}
           </div>
+          </div>
         </div>
       </div>
 
@@ -999,20 +1231,41 @@ export default function PlanClient() {
 
           {/* Overview */}
           <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
-            <OverviewTab
-              transport={transport} hotels={hotels}
-              weather={weather} itinerary={itinerary}
-              bookingStatus={bookingStatus}
-              destination={tripContext.destination}
-              loading={loading}
-              onTabChange={setActiveTab}
-              tripStatus={tripStatus}
-              tripHistory={tripHistory}
-              onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
-              onNewTrip={handleNewTripClick}
-              onShare={handleShareTrip}
-              onSave={handleSaveTrip}
-            />
+            {/* Welcome empty state — shown when user hasn't searched yet */}
+            {tripStatus !== 'active' && !loading && !tripContext.destination ? (
+              <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+                <div className="w-20 h-20 rounded-full bg-[#FFF4EC] flex items-center justify-center mb-6 shadow-sm">
+                  <span className="text-4xl">✈️</span>
+                </div>
+                <h2 className="text-2xl font-bold text-[#1A1A1A] mb-3" style={{ fontFamily: 'Instrument Serif, serif' }}>
+                  Where are you going?
+                </h2>
+                <p className="text-[#6B6B6B] text-sm max-w-xs mb-6 leading-relaxed">
+                  Fill in your destination, dates, and budget above — TripSage AI will plan your entire trip in seconds.
+                </p>
+                <div className="flex flex-col gap-2 text-[13px] text-[#A1A1AA]">
+                  <span>🤖 AI-generated itinerary</span>
+                  <span>✈️ Cheapest flights comparison</span>
+                  <span>🏨 Hotel recommendations</span>
+                  <span>🗺️ Day-by-day route planning</span>
+                </div>
+              </div>
+            ) : (
+              <OverviewTab
+                transport={mergedTransport} hotels={hotels}
+                weather={weather} itinerary={itinerary}
+                bookingStatus={bookingStatus}
+                destination={tripContext.destination}
+                loading={loading}
+                onTabChange={setActiveTab}
+                tripStatus={tripStatus}
+                tripHistory={tripHistory}
+                onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
+                onNewTrip={handleNewTripClick}
+                onShare={handleShareTrip}
+                onSave={handleSaveTrip}
+              />
+            )}
           </div>
 
           {/* Travel (flights) */}
@@ -1023,28 +1276,6 @@ export default function PlanClient() {
                 tripContext={tripContext} searchForm={searchForm}
                 budget={totalBudget} hotelCostSpent={hotelCostSpent}
                 currency={currency}
-              />
-            </div>
-          )}
-          
-          {tabCache.trains && (
-            <div className={activeTab === 'trains' ? 'block' : 'hidden'}>
-              <TrainsPanel
-                origin={tripContext.startLocation}
-                destination={tripContext.destination}
-                date={tripContext.startDate}
-                passengers={userProfile.members || 1}
-              />
-            </div>
-          )}
-          
-          {tabCache.buses && (
-            <div className={activeTab === 'buses' ? 'block' : 'hidden'}>
-              <BusesPanel
-                origin={tripContext.startLocation}
-                destination={tripContext.destination}
-                date={tripContext.startDate}
-                passengers={userProfile.members || 1}
               />
             </div>
           )}
@@ -1098,7 +1329,9 @@ export default function PlanClient() {
                     currency: currency,
                     rooms: '1',
                     adults: String(record.members || 2),
-                    children: '0'
+                    children: '0',
+                    isMultiCity: record.isMultiCity || false,
+                    stops: record.stops || [{ city: '', nights: 2 }, { city: '', nights: 3 }]
                   })
                   startNewTrip()
                   setActiveTab('overview')
@@ -1172,7 +1405,7 @@ export default function PlanClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">Budget ({SYMBOLS[currency] || '$'})</label>
-                  <input className="input-field w-full" type="number" value={searchForm.budget} onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
+                  <input className="input-field w-full" type="number" min="0" step="100" value={searchForm.budget} onChange={e => setSearchForm(p => ({ ...p, budget: e.target.value }))} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">Travelers</label>
@@ -1191,12 +1424,64 @@ export default function PlanClient() {
                 className="btn-primary px-6 py-2.5 flex items-center gap-2"
                 disabled={loading}
               >
-                {loading ? '...' : <><RefreshCw size={16} /> Update Trip</>}
+                {loading
+                  ? <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Updating...</>
+                  : <><RefreshCw size={16} />Update Trip</>}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* ── NEW TRIP CONFIRMATION DIALOG ──────────────────────────────── */}
+      <AnimatePresence>
+        {showNewTripConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowNewTripConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Icon */}
+              <div className="flex flex-col items-center pt-8 pb-4 px-6 text-center">
+                <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mb-4">
+                  <Plus size={28} className="text-[#EA580C]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#1A1A1A]">Start a New Trip?</h3>
+                <p className="text-sm text-[#6B6B6B] mt-2 leading-relaxed">
+                  Your current plan for{' '}
+                  <span className="font-semibold text-[#1A1A1A]">{tripContext.destination}</span>{' '}
+                  will be cleared. This cannot be undone.
+                </p>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-3 px-6 pb-6 pt-2">
+                <button
+                  onClick={() => setShowNewTripConfirm(false)}
+                  className="flex-1 py-3 rounded-xl border border-[#E8E0D8] text-[#6B6B6B] font-semibold text-sm hover:bg-[#F5F5F4] transition-colors"
+                >
+                  Keep Current
+                </button>
+                <button
+                  onClick={() => { setShowNewTripConfirm(false); executeNewTrip() }}
+                  className="flex-1 py-3 rounded-xl bg-[#EA580C] text-white font-bold text-sm hover:bg-[#C2410C] transition-colors"
+                >
+                  Start New Trip
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── MOBILE BOTTOM NAV ─────────────────────────────────────────────── */}
       <nav
@@ -1206,16 +1491,15 @@ export default function PlanClient() {
         <div className="flex items-center justify-around h-[60px]">
           {([
             { id: 'overview',  label: 'Overview',  icon: LayoutDashboard },
-            { id: 'transport', label: 'Travel',     icon: Plane },
+            { id: 'transport', label: 'Transport', icon: Plane },
             { id: 'hotels',    label: 'Stay',       icon: Building2 },
             { id: 'itinerary', label: 'Plan',       icon: MapPin },
-            { id: 'optimizer', label: 'Budget',     icon: Wallet },
           ] as const).map(t => {
             const isActive = activeTab === t.id
             return (
               <button
                 key={t.id}
-                onClick={() => { setActiveTab(t.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => { setActiveTab(t.id); setMoreSheetOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className={`flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-colors ${
                   isActive ? 'text-[#EA580C]' : 'text-[#9CA3AF]'
                 }`}
@@ -1228,8 +1512,80 @@ export default function PlanClient() {
               </button>
             )
           })}
+
+          {/* More button — opens bottom sheet with all remaining tabs */}
+          <button
+            onClick={() => setMoreSheetOpen(o => !o)}
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-colors ${
+              moreSheetOpen ? 'text-[#EA580C]' : 'text-[#9CA3AF]'
+            }`}
+          >
+            {moreSheetOpen && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#EA580C] rounded-b-full" />
+            )}
+            <Menu size={20} strokeWidth={moreSheetOpen ? 2.5 : 1.75} />
+            <span className="text-[9px] font-bold uppercase tracking-wide">More</span>
+          </button>
         </div>
       </nav>
+
+      {/* ── MORE TABS BOTTOM SHEET ──────────────────────────────────────── */}
+      <AnimatePresence>
+        {moreSheetOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="md:hidden fixed inset-0 bg-black/40 z-[998]"
+              onClick={() => setMoreSheetOpen(false)}
+            />
+            {/* Sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="md:hidden fixed bottom-[60px] left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-[999] overflow-hidden"
+              style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            >
+              {/* Handle */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1 bg-[#E8E0D8] rounded-full" />
+              </div>
+              <p className="text-[11px] font-black text-[#9CA3AF] uppercase tracking-widest px-5 pb-2">More Features</p>
+              <div className="grid grid-cols-3 gap-1 px-3 pb-5">
+                {([
+                  { id: 'explore',  label: 'Explore',  icon: Compass },
+                  { id: 'map',      label: 'Map',      icon: Map },
+                  { id: 'bookings', label: 'Bookings', icon: ClipboardList },
+                ] as const).map(t => {
+                  const isActive = activeTab === t.id
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setActiveTab(t.id)
+                        setMoreSheetOpen(false)
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className={`flex flex-col items-center justify-center gap-2 py-4 rounded-xl transition-all ${
+                        isActive
+                          ? 'bg-orange-50 text-[#EA580C]'
+                          : 'text-[#6B6B6B] hover:bg-[#F5F5F4]'
+                      }`}
+                    >
+                      <t.icon size={22} strokeWidth={isActive ? 2.5 : 1.75} />
+                      <span className="text-[10px] font-bold">{t.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

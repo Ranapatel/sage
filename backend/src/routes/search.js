@@ -11,7 +11,7 @@ const axios = require('axios')
 // Input validation
 const searchValidation = [
   body('from').trim().notEmpty().isLength({ max: 100 }).escape(),
-  body('to').trim().notEmpty().isLength({ max: 100 }).escape(),
+  body('to').optional({ checkFalsy: true }).isLength({ max: 200 }).escape(),
   body('startDate').optional({ checkFalsy: true }).isISO8601(),
   body('endDate').optional({ checkFalsy: true }).isISO8601(),
   body('budget').optional({ checkFalsy: true }).isFloat({ min: 0, max: 10000000 }).toFloat(),
@@ -20,7 +20,15 @@ const searchValidation = [
   body('rooms').optional({ checkFalsy: true }).isInt({ min: 1, max: 10 }).toInt(),
   body('adults').optional({ checkFalsy: true }).isInt({ min: 1, max: 20 }).toInt(),
   body('children').optional({ checkFalsy: true }).isInt({ min: 0, max: 20 }).toInt(),
+  body('isMultiCity').optional().isBoolean(),
+  body('stops').optional().isArray(),
 ]
+
+const addDays = (dateStr, days) => {
+  const d = new Date(dateStr)
+  d.setDate(d.getDate() + days)
+  return d.toISOString().split('T')[0]
+}
 
 // POST /api/search — Parallel search orchestration
 router.post('/', searchValidation, async (req, res) => {
@@ -33,14 +41,97 @@ router.post('/', searchValidation, async (req, res) => {
   const {
     from, to, startDate, endDate,
     budget = 2000, travelers = 2, style = 'adventure',
-    rooms = 1, adults = 2, children = 0
+    rooms = 1, adults = 2, children = 0,
+    isMultiCity = false, stops = []
   } = req.body
 
   const requestId = uuidv4()
   const timestamp = new Date().toISOString()
 
   try {
-    // Execute all searches in parallel — each with 10s timeout and 2 retries
+    if (isMultiCity && stops.length > 0) {
+      console.log(`[Search Route] Orchestrating Multi-City trip from ${from} with stops:`, stops);
+
+      // 1. Build flight search promises for each leg (including return to origin)
+      const flightPromises = []
+      let legStart = startDate
+      for (let i = 0; i < stops.length; i++) {
+        const origin = i === 0 ? from : stops[i - 1].city
+        const dest = stops[i].city
+        const date = legStart
+
+        flightPromises.push(
+          fetchWithRetry(
+            () => searchFlights({ from: origin, to: dest, date, travelers, budget }),
+            { timeout: 10000, maxRetries: 2, label: `Flights-Leg-${i + 1}` }
+          ).catch(() => ({ data: [], meta: { source: 'error' } }))
+        )
+        legStart = addDays(legStart, stops[i].nights)
+      }
+      // Add return flight to origin
+      flightPromises.push(
+        fetchWithRetry(
+          () => searchFlights({ from: stops[stops.length - 1].city, to: from, date: legStart, travelers, budget }),
+          { timeout: 10000, maxRetries: 2, label: 'Flights-Leg-Return' }
+        ).catch(() => ({ data: [], meta: { source: 'error' } }))
+      )
+
+      // 2. Build hotel search promises for each stop
+      let hotelStart = startDate
+      const hotelPromises = stops.map((stop, idx) => {
+        const checkin = hotelStart
+        const checkout = addDays(checkin, stop.nights)
+        hotelStart = checkout // forward dates for next check-in
+        return fetchWithRetry(
+          () => searchHotels({ destination: stop.city, checkin, checkout, members: travelers, budget, rooms, adults, children }),
+          { timeout: 10000, maxRetries: 2, label: `Hotels-${stop.city}` }
+        ).catch(() => ({ data: [], meta: { source: 'error' } }))
+      })
+
+      // Run flight legs, hotel queries, and first-stop weather in parallel
+      const [flightsResults, hotelsResults, weatherResult] = await Promise.all([
+        Promise.all(flightPromises),
+        Promise.all(hotelPromises),
+        fetchWithRetry(
+          () => getWeather(stops[0].city),
+          { timeout: 10000, maxRetries: 2, label: 'Weather-Stop-1' }
+        ).catch(() => ({ data: null }))
+      ])
+
+      // Flatten and merge transport options
+      const transport = flightsResults.reduce((acc, curr) => acc.concat(curr.data || []), [])
+      // Flatten and merge hotel options
+      const hotels = hotelsResults.reduce((acc, curr) => acc.concat(curr.data || []), [])
+      const weather = weatherResult.data || null
+
+      // Enrich with real images
+      const targetEnrichCity = stops[0].city
+      const [enrichedHotels, enrichedFlights] = await Promise.all([
+        enrichHotelsWithImages(hotels, targetEnrichCity).catch(() => hotels),
+        enrichFlightsWithImages(transport, targetEnrichCity).catch(() => transport),
+      ])
+
+      return res.json({
+        success: true,
+        meta: { timestamp, requestId, cache: false, flightSource: 'multi', hotelSource: 'multi' },
+        data: {
+          transport: enrichedFlights,
+          hotels: enrichedHotels,
+          buses: [],
+          busSearchUrl: '',
+          cars: [],
+          weather,
+          trains: [],
+          trainSearchUrl: '',
+          trainStationInfo: null,
+          isTrainDomestic: false
+        },
+        message: 'LIVE_UPDATE',
+        error: null,
+      })
+    }
+
+    // Single city fallback (existing path)
     const [flightResult, hotelResult, busResult, carResult, weatherResult, trainResult] = await Promise.all([
       fetchWithRetry(
         () => searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
@@ -86,12 +177,12 @@ router.post('/', searchValidation, async (req, res) => {
     const cars = carResult.data || []
     const weather = weatherResult.data || null
 
-    // Unwrap bus service envelope: { results: [...], searchUrl: "..." }
+    // Unwrap bus service envelope
     const busEnvelope = busResult || {}
     const buses = Array.isArray(busEnvelope.results) ? busEnvelope.results : (Array.isArray(busResult) ? busResult : [])
     const busSearchUrl = busEnvelope.searchUrl || ''
 
-    // Unwrap train service envelope: { results: [...], stationInfo: {...}, isDomestic: bool, searchUrl: "..." }
+    // Unwrap train service envelope
     const trainEnvelope = trainResult || {}
     const trains = Array.isArray(trainEnvelope.results) ? trainEnvelope.results : (Array.isArray(trainEnvelope.trains) ? trainEnvelope.trains : (Array.isArray(trainResult) ? trainResult : []))
     const trainStationInfo = trainEnvelope.stationInfo || null
@@ -101,7 +192,7 @@ router.post('/', searchValidation, async (req, res) => {
     const flightSource = flightResult.meta?.source || 'error'
     const hotelSource = hotelResult.meta?.source || 'error'
 
-    // Enrich with real Unsplash images (non-blocking — falls back silently)
+    // Enrich with images
     const [enrichedHotels, enrichedFlights] = await Promise.all([
       enrichHotelsWithImages(hotels, to).catch(() => hotels),
       enrichFlightsWithImages(transport, to).catch(() => transport),

@@ -15,7 +15,7 @@ export default function KeepAlive() {
     
     const pingBackend = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         await fetch(`${backendUrl}/ping`);
       } catch (e) {
         // Silently fail if backend is down

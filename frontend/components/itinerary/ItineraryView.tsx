@@ -238,7 +238,7 @@ function deriveDayPace(places: Place[]): { label: string; color: string; desc: s
 function buildRouteUrl(places: Place[], destination?: string): string {
   if (!places || !Array.isArray(places)) return ''
   const waypoints = places
-    .map(p => {
+    .map((p: Place) => {
       if (p && Array.isArray(p.coordinates) && p.coordinates.length === 2 && !isNaN(Number(p.coordinates[0]))) {
         return `${Number(p.coordinates[0])},${Number(p.coordinates[1])}`
       }
@@ -268,11 +268,31 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
   const [imgError, setImgError]       = useState(false)
   const resolvedRef = useRef(false)
 
-  // Kick off resolver once per card
+  // Kick off resolver once per card.
+  // If backend already enriched place.image (Wikipedia/Flickr), use it directly
+  // and skip the expensive frontend resolver entirely.
   useEffect(() => {
     if (resolvedRef.current) return
     resolvedRef.current = true
 
+    // ── Fast path: backend pre-fetched image ─────────────────────────────────
+    if (place.image && typeof place.image === 'string' && place.image.startsWith('http')) {
+      setImgLoaded(false)
+      setImgError(false)
+      setImageResult({
+        imageUrl: place.image,
+        source: 'curated',
+        confidence: 'exact',
+        attribution: null,
+        attributionUrl: null,
+        license: null,
+        altText: place.name,
+        showAsBackground: true,
+      })
+      return
+    }
+
+    // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
     const hasCoords =
       Array.isArray(place.coordinates) &&
       place.coordinates.length === 2 &&
@@ -297,7 +317,7 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         altText: place.name, showAsBackground: false,
       })
     })
-  }, [place.name, place.category, destination, place.coordinates])
+  }, [place.name, place.image, place.category, destination, place.coordinates])
 
   const hasCoords = Array.isArray(place.coordinates)
     && place.coordinates.length === 2
@@ -873,7 +893,7 @@ function ItineraryLoadingSkeleton() {
 function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegenerate }: Props) {
   const itinerary = useMemo(() => {
     if (!Array.isArray(rawItinerary)) return []
-    return rawItinerary.map(day => {
+    return rawItinerary.map((day: any) => {
       if (!day) return day
       let places = day.places
       if (!places || !Array.isArray(places)) {
@@ -909,7 +929,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
       const tripId = useTripStore.getState().currentTripId || 'temp-trip'
       const userProfile = useTripStore.getState().userProfile
       
-      const requestPlaces = currentDay.places.map((p, idx) => ({
+      const requestPlaces = currentDay.places.map((p: any, idx: number) => ({
         name: p.name,
         latitude: p.coordinates ? p.coordinates[0] : 0,
         longitude: p.coordinates ? p.coordinates[1] : 0,
@@ -930,14 +950,14 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
         const { optimizedPlaces, wasOptimized, totalDistanceKm, estimatedTimeMinutes, reason } = response.data
         
         if (wasOptimized) {
-          const placeMap = new Map(currentDay.places.map(p => [p.name.toLowerCase(), p]))
+          const placeMap = new Map(currentDay.places.map((p: any) => [p.name.toLowerCase(), p]))
           
           const reorderedPlaces = optimizedPlaces.map(opt => {
             const original = placeMap.get(opt.name.toLowerCase())
             return {
-              ...(original || {}),
+              ...(original || {} as any),
               name: opt.name,
-              category: opt.category || original?.category || '',
+              category: opt.category || (original as any)?.category || '',
               coordinates: [opt.latitude, opt.longitude],
               orderIndex: opt.orderIndex
             } as Place
@@ -1060,7 +1080,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
       const res = await tripAPI.getActivities(destination || '', stopToReplace.category)
       const alternatives = res?.data || []
       
-      const existingNames = new Set(currentDay.places.map(p => p.name.toLowerCase()))
+      const existingNames = new Set(currentDay.places.map((p: any) => p.name.toLowerCase()))
       const candidates = alternatives.filter(alt => !existingNames.has(alt.name?.toLowerCase()))
       
       if (candidates.length === 0) {
@@ -1249,7 +1269,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
             </div>
           ) : (
             <div className="space-y-1">
-              {currentDay.places.map((place, i) => (
+              {currentDay.places.map((place: any, i: number) => (
                 <StopCard
                   key={`${activeDay}-${i}-${place.name}`}
                   place={place}

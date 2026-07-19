@@ -10,6 +10,8 @@ import { SYMBOLS } from '@/lib/currency'
 import { useTripStore } from '@/store/tripStore'
 import { trackEvent } from '@/lib/analytics'
 import TransportPlanner from '@/components/transport-intelligence/TransportPlanner'
+import TrainsPanel from '@/components/transport/TrainsPanel'
+import BusesPanel from '@/components/transport/BusesPanel'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -811,8 +813,28 @@ function TransportTab({
           />
         )}
 
+        {/* ── TRAINS PANEL ───────────────────────────────────────────── */}
+        {segment === 'trains' && (
+          <TrainsPanel
+            origin={from}
+            destination={dest}
+            date={searchForm?.startDate || ''}
+            passengers={userProfile.members || 1}
+          />
+        )}
+
+        {/* ── BUSES PANEL ────────────────────────────────────────────── */}
+        {segment === 'buses' && (
+          <BusesPanel
+            origin={from}
+            destination={dest}
+            date={searchForm?.startDate || ''}
+            passengers={userProfile.members || 1}
+          />
+        )}
+
         {/* ── BEST VALUE CARD ────────────────────────────────────────────── */}
-        {segment !== 'smart-routes' && (loading ? (
+        {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && (loading ? (
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -833,7 +855,7 @@ function TransportTab({
         ))}
 
         {/* ── COMPARISON GRID ────────────────────────────────────────────── */}
-        {!loading && gridItems.length > 0 && (
+        {segment !== 'trains' && segment !== 'buses' && !loading && gridItems.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-[#1A1A1A]">
@@ -861,7 +883,7 @@ function TransportTab({
         )}
 
         {/* Skeleton grid while loading */}
-        {loading && (
+        {segment !== 'trains' && segment !== 'buses' && loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => <SkeletonCompactCard key={i} />)}
           </div>

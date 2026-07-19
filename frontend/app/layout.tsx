@@ -24,7 +24,8 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: 'https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png',
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png',
+        url: '/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage - AI Trip Planner',
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
-    images: ['https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png'],
+    images: ['/logo.png'],
     creator: '@tripsage',
   },
   robots: {
@@ -72,11 +73,6 @@ const softwareSchema = {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": "12400"
   }
 };
 
@@ -109,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="preload"
-          href="https://res.cloudinary.com/dob5llmb2/image/upload/v1778407506/Primary.JPEG.Logo_1_o0h85v.png"
+          href="/logo.png"
           as="image"
         />
         <link
@@ -145,14 +141,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-2F49Z4DK2H', { send_page_view: true });
-          `}
-        </Script>
-
-        {/* Temporary Debug Logging for API URLs */}
-        <Script id="debug-env" strategy="afterInteractive">
-          {`
-            console.log('[DEBUG] NEXT_PUBLIC_API_URL:', '${process.env.NEXT_PUBLIC_API_URL}');
-            console.log('[DEBUG] NEXT_PUBLIC_SOCKET_URL:', '${process.env.NEXT_PUBLIC_SOCKET_URL}');
           `}
         </Script>
 
