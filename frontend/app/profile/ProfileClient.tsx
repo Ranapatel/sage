@@ -160,6 +160,13 @@ function ProfilePageContent() {
     fetchProfileData()
   }, [user, isLoaded, isStoreLoggedIn])
 
+  // ── Auth guard — redirect unauthenticated visitors ──────────────────────────
+  useEffect(() => {
+    if (isLoaded && !user && !isStoreLoggedIn) {
+      router.replace('/sign-in')
+    }
+  }, [isLoaded, user, isStoreLoggedIn, router])
+
   // ── Loading gate: wait for Clerk to initialise ──────────────────────────────
   if (!isLoaded) {
     return (
@@ -170,9 +177,7 @@ function ProfilePageContent() {
     )
   }
 
-  // ── Auth guard — redirect unauthenticated visitors ──────────────────────────
   if (!user && !isStoreLoggedIn) {
-    router.replace('/sign-in')
     return null
   }
 
