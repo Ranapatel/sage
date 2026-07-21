@@ -19,9 +19,9 @@ const itineraryValidation = [
   body('style').customSanitizer(val => {
     if (typeof val !== 'string') return 'adventure';
     const clean = val.trim().toLowerCase();
-    const allowed = ['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business'];
+    const allowed = ['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business', 'honeymoon'];
     return allowed.includes(clean) ? clean : 'adventure';
-  }).isIn(['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business']),
+  }).isIn(['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business', 'honeymoon']),
   body('members').customSanitizer(val => {
     const parsed = parseInt(val, 10);
     return isNaN(parsed) || parsed < 1 || parsed > 20 ? 2 : parsed;

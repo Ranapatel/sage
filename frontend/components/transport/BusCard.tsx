@@ -1,11 +1,12 @@
 'use client'
 
 import React, { memo } from 'react'
-import { Bus, Star, ExternalLink, Shield } from 'lucide-react'
+import { Bus, Star, ExternalLink, Shield, Share2 } from 'lucide-react'
 import { trackEvent } from '@/lib/analytics'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { handleUniversalShare } from '../plan/TransportTab'
 
 export interface BusClassResult {
   id: string
@@ -151,21 +152,45 @@ function BusCard({ bus }: BusCardProps) {
       </div>
 
       {/* Pricing and Booking CTA */}
-      <div className="flex items-center justify-between gap-3 p-5 pt-3 border-t border-slate-100 bg-slate-50/30">
+      <div className="flex items-center justify-between gap-3 p-5 pt-3 border-t border-slate-100 bg-[#FFFBF7]/60">
         <div className="text-left">
+          {bus.seatsLeft !== null && bus.seatsLeft > 0 && bus.seatsLeft <= 5 ? (
+            <span className="text-[10px] font-bold text-red-500 animate-pulse block mb-1">
+              Only {bus.seatsLeft} seats left!
+            </span>
+          ) : bus.seatsLeft !== null && bus.seatsLeft > 0 ? (
+            <span className="text-[9px] text-orange-600 font-bold block mb-1 uppercase tracking-wide">
+              {bus.seatsLeft} seats remaining
+            </span>
+          ) : null}
           <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
             Fare Estimate
           </span>
-          <span className="text-base font-black text-blue-600 tracking-tight mt-0.5 block leading-none">
+          <span className="text-lg font-black text-slate-800 tracking-tight mt-0.5 block leading-none">
             {bus.fare ? formatPrice(bus.fare, currency) : '—'}
           </span>
         </div>
 
         <button
           onClick={handleBook}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white transition-colors whitespace-nowrap shadow-md shadow-blue-500/10 ml-auto cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl font-bold text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all whitespace-nowrap shadow-md shadow-orange-500/10 ml-auto cursor-pointer active:scale-95 animate-fade-in"
         >
-          Book on MakeMyTrip <ExternalLink size={12} />
+          Book Seat on MakeMyTrip <ExternalLink size={12} />
+        </button>
+
+        <button
+          onClick={() => handleUniversalShare({
+            name: bus.operator,
+            price: bus.fare,
+            departure: bus.departure,
+            arrival: bus.arrival,
+            duration: bus.duration,
+            bookingLink: bus.bookingUrl
+          })}
+          title="Share option"
+          className="h-[42px] w-[42px] border border-[#E8E0D8] hover:border-[#D0C8C0] text-[#6B6B6B] hover:bg-[#F5F5F4] rounded-xl flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer"
+        >
+          <Share2 size={18} />
         </button>
       </div>
     </div>

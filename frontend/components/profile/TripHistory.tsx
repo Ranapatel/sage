@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
-import { Calendar, Users, DollarSign, ArrowRight } from 'lucide-react'
+import { Calendar, Users, DollarSign, ArrowRight, Plane, History } from 'lucide-react'
 import Link from 'next/link'
 
 interface TripData {
@@ -71,7 +71,9 @@ export default function TripHistory() {
   if (trips.length === 0) {
     return (
       <div className="card p-12 text-center bg-white border border-[#E8E0D8] rounded-3xl">
-        <div className="text-5xl mb-4">✈️</div>
+        <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center mx-auto mb-4 text-[#EA580C]">
+          <Plane size={24} />
+        </div>
         <h3 className="font-bold text-[#1A1A1A] mb-2">No trips planned yet</h3>
         <p className="text-slate-500 text-xs mb-6 max-w-sm mx-auto">
           Start your adventure with TripSage! Generate an AI itinerary, look up transport rates, and book hotels.
@@ -91,7 +93,8 @@ export default function TripHistory() {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h2 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
-            📅 Trip History
+            <History className="text-[#EA580C]" size={20} />
+            <span>Trip History</span>
           </h2>
           <p className="text-slate-500 text-xs mt-1">
             Browse through your generated, current, and previous travel itineraries.

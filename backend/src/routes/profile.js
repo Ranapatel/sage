@@ -7,7 +7,7 @@ const profiles = new Map()
 router.post('/', [
   body('budget').optional().isFloat({ min: 0, max: 100000 }),
   body('currency').optional().isLength({ max: 5 }),
-  body('travelStyle').optional().isIn(['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business']),
+  body('travelStyle').optional().isIn(['adventure', 'luxury', 'budget', 'family', 'romantic', 'cultural', 'business', 'honeymoon']),
   body('members').optional().isInt({ min: 1, max: 20 }),
 ], async (req, res) => {
   const errors = validationResult(req)

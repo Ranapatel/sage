@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
-import { Trash2, ExternalLink, Heart } from 'lucide-react'
+import { Trash2, ExternalLink, Heart, Building2, Compass, Zap, CalendarDays, Utensils, MapPin } from 'lucide-react'
 
 interface SavedItemData {
   id: string
@@ -66,17 +66,17 @@ export default function SavedItems() {
   const getTypeConfig = (type: string) => {
     switch (type) {
       case 'hotel':
-        return { label: 'Hotel', icon: '🏨', badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/plan' }
+        return { label: 'Hotel', icon: <Building2 size={14} className="text-emerald-600" />, badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/plan' }
       case 'destination':
-        return { label: 'Destination', icon: '🗺️', badgeClass: 'text-[#EA580C] bg-orange-50 border-orange-200', link: '/' }
+        return { label: 'Destination', icon: <Compass size={14} className="text-[#EA580C]" />, badgeClass: 'text-[#EA580C] bg-orange-50 border-orange-200', link: '/' }
       case 'activity':
-        return { label: 'Activity', icon: '⚡', badgeClass: 'text-red-700 bg-red-50 border-red-200', link: '/plan' }
+        return { label: 'Activity', icon: <Zap size={14} className="text-red-600" />, badgeClass: 'text-red-700 bg-red-50 border-red-200', link: '/plan' }
       case 'itinerary':
-        return { label: 'Itinerary', icon: '📅', badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/plan' }
+        return { label: 'Itinerary', icon: <CalendarDays size={14} className="text-emerald-600" />, badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/plan' }
       case 'restaurant':
-        return { label: 'Restaurant', icon: '🍽️', badgeClass: 'text-[#EA580C] bg-orange-50 border-orange-200', link: '/plan' }
+        return { label: 'Restaurant', icon: <Utensils size={14} className="text-[#EA580C]" />, badgeClass: 'text-[#EA580C] bg-orange-50 border-orange-200', link: '/plan' }
       default:
-        return { label: 'Item', icon: '📍', badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/' }
+        return { label: 'Item', icon: <MapPin size={14} className="text-emerald-600" />, badgeClass: 'text-green-700 bg-green-50 border-green-200', link: '/' }
     }
   }
 

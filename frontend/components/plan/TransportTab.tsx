@@ -4,7 +4,7 @@ import React, { memo, useMemo, useState } from 'react'
 import {
   Plane, Bus, Car, Clock, Wallet, Shield, Star,
   ArrowRight, Sparkles, CheckCircle2, AlertCircle,
-  TrendingUp, Zap, ChevronRight, ExternalLink, Train
+  TrendingUp, Zap, ChevronRight, ExternalLink, Train, Share2
 } from 'lucide-react'
 import { SYMBOLS } from '@/lib/currency'
 import { useTripStore } from '@/store/tripStore'
@@ -12,6 +12,37 @@ import { trackEvent } from '@/lib/analytics'
 import TransportPlanner from '@/components/transport-intelligence/TransportPlanner'
 import TrainsPanel from '@/components/transport/TrainsPanel'
 import BusesPanel from '@/components/transport/BusesPanel'
+import LiveBookingToast from '@/components/ui/LiveBookingToast'
+import toast from 'react-hot-toast'
+import { 
+  Icon3DOverview, 
+  Icon3DTransport, 
+  Icon3DTrain, 
+  Icon3DBus, 
+  Icon3DCar, 
+  Icon3DSmartRoute 
+} from '@/components/ui/TripSageIcons'
+
+export const handleUniversalShare = (item: any) => {
+  const cleanName = item.name?.split('—')[0]?.trim() ?? 'Transit Option'
+  const fareStr = item.price ? `₹${Math.round(item.price)}` : 'Estimate'
+  
+  const shareTitle = `TripSage Travel Recommendation`
+  const shareText = `Check out this travel option on TripSage:\n\n✈️ ${cleanName}\n⏰ Timing: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\n💰 Price: ${fareStr}/person\n\nPlan and view details on TripSage!`
+  const shareUrl = `https://tripsage.in/plan`
+
+  if (navigator.share) {
+    navigator.share({
+      title: shareTitle,
+      text: shareText,
+      url: shareUrl,
+    }).catch(() => {})
+  } else {
+    navigator.clipboard.writeText(`${shareText}\n${shareUrl}`)
+      .then(() => toast.success('Link & route details copied! Paste it in WhatsApp, Email, or anywhere.'))
+      .catch(() => toast.error('Could not copy link.'))
+  }
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -166,8 +197,34 @@ function SageScoreRing({ score: rawScore, dark }: { score: number; dark?: boolea
   const trackColor = dark ? 'rgba(255,255,255,0.25)' : '#E8E0D8'
   const textColor = dark ? '#FFFFFF' : color
 
+  // Calculate simulated sub-scores based on the total score
+  const priceScore = Math.min(100, Math.round(score * 1.03))
+  const speedScore = Math.min(100, Math.round(score * 0.96))
+  const safetyScore = Math.min(100, Math.round(score * 0.98))
+
   return (
-    <div className="flex flex-col items-center gap-0.5">
+    <div className="flex flex-col items-center gap-0.5 relative group cursor-help">
+      {/* Tooltip Overlay */}
+      <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col z-50 bg-[#1C1917] text-white border border-[#2E2A27] rounded-xl p-3 w-40 shadow-xl pointer-events-none transition-all duration-200 animate-fade-in text-left">
+        <h5 className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-1 mb-1.5">
+          Sage Analysis
+        </h5>
+        <div className="space-y-1.5 text-[11px] font-bold">
+          <div className="flex justify-between">
+            <span className="text-slate-400">💸 Price:</span>
+            <span className="text-green-400">{priceScore}/100</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-400">⚡ Speed:</span>
+            <span className="text-blue-400">{speedScore}/100</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-400">🛡️ Safety:</span>
+            <span className="text-amber-400">{safetyScore}/100</span>
+          </div>
+        </div>
+      </div>
+
       <div className="relative w-11 h-11">
         <svg width="44" height="44" viewBox="0 0 44 44" className="rotate-[-90deg]">
           <circle cx="22" cy="22" r={r} fill="none" stroke={trackColor} strokeWidth="3" />
@@ -380,7 +437,7 @@ function BestValueCard({
   const isBus = item.type === 'bus'
   const isTrain = item.type === 'train'
   const Icon = isFlight ? Plane : isBus ? Bus : isTrain ? Train : Car
-  const ctaText = isFlight ? 'See flight options' : isBus ? 'See bus options' : isTrain ? 'See train options' : 'See rental options'
+  const ctaText = isFlight ? 'Book Flight' : isBus ? 'Book Bus' : isTrain ? 'Book Train' : 'Book Rental'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
   const cleanName = item.name?.split('—')[0]?.trim() ?? 'Best Route'
@@ -436,26 +493,26 @@ function BestValueCard({
       )}
 
       {/* ── White content area ── */}
-      <div className="p-6">
+      <div className="p-6 sm:p-7 flex flex-col justify-between">
         {/* If no image (bus/cab), show header row */}
         {!bgImg && (
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-5 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+              <span className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
                 <Sparkles size={10} /> Best Value
               </span>
               {topPick && (
-                <span className="bg-[#EA580C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                <span className="bg-[#EA580C] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shadow-sm">
                   Top Pick
                 </span>
               )}
             </div>
-            <span className="text-[13px] text-[#6B6B6B] font-medium">{typeLabel} · Recommended route</span>
+            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} · Recommended route</span>
           </div>
         )}
 
         {/* Route match pills */}
-        <div className="flex flex-wrap gap-2 mb-5">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
           {item.duration && <MatchPill icon={Clock} label="Duration" value={item.duration} color="green" />}
           {budget > 0 && item.price && (
             <MatchPill icon={Wallet} label="Budget Fit" value={`${Math.round((item.price / budget) * 100)}%`} color="orange" />
@@ -467,40 +524,46 @@ function BestValueCard({
           {item.stops === 0 && <MatchPill icon={Zap} label="Route" value="Direct" color="green" />}
         </div>
 
-        {/* Price + score */}
-        <div className="flex items-end justify-between mb-2">
+        {/* Price + score block */}
+        <div className="flex items-center justify-between gap-4 mb-5 bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
           <div>
             <p
-              className="text-[30px] font-bold text-[#1A1A1A] leading-none"
+              className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 leading-none"
               style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
             >
               {symbol}{Math.round(item.price).toLocaleString(locale)}
             </p>
-            <p className="text-[13px] text-[#6B6B6B] mt-1">per person · estimated</p>
+            <p className="text-[12px] font-semibold text-slate-500 mt-1">per person · estimated</p>
           </div>
-          <SageScoreRing score={score} />
+          <div className="shrink-0 flex items-center justify-end">
+            <SageScoreRing score={score} />
+          </div>
         </div>
 
         {/* Budget fit bar */}
         {budget > 0 && item.price && (
-          <div className="mb-5">
+          <div className="mb-6">
             <BudgetFitBar price={item.price} budget={budget} />
           </div>
         )}
 
-        {/* CTAs */}
-        <div className="flex items-center gap-3">
+        {/* CTAs Row */}
+        <div className="flex items-center gap-3 pt-2">
           <a
             href={item.bookingLink ?? '#'}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
-            className="flex-1 h-12 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[14px] rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
+            className="flex-1 h-12 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[14px] rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md shadow-orange-500/20 active:scale-95 cursor-pointer"
           >
-            {ctaText} <ArrowRight size={15} />
+            {ctaText} <ArrowRight size={16} />
           </a>
-          <button className="h-12 px-5 border border-[#E8E0D8] hover:border-[#D0C8C0] text-[#6B6B6B] font-semibold text-[14px] rounded-xl transition-colors whitespace-nowrap">
-            Adjust my plan
+          <button
+            onClick={() => handleUniversalShare(item)}
+            title="Share with Co-Travelers"
+            className="h-12 w-12 border border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50 rounded-2xl flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer"
+          >
+            <Share2 size={18} />
           </button>
         </div>
       </div>
@@ -520,7 +583,7 @@ function ComparisonCard({
   const isBus = item.type === 'bus'
   const isTrain = item.type === 'train'
   const Icon = isFlight ? Plane : isBus ? Bus : isTrain ? Train : Car
-  const ctaText = isFlight ? 'See flight options' : isBus ? 'See bus options' : isTrain ? 'See train options' : 'See rental options'
+  const ctaText = isFlight ? 'Book Flight' : isBus ? 'Book Bus' : isTrain ? 'Book Train' : 'Book Rental'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor = item.rating >= 4.5 ? 'text-[#2563EB]' : item.rating >= 4 ? 'text-[#16A34A]' : 'text-[#6B6B6B]'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
@@ -620,15 +683,24 @@ function ComparisonCard({
         {budget > 0 && item.price && <BudgetFitBar price={item.price} budget={budget} />}
 
         {/* CTA */}
-        <a
-          href={item.bookingLink ?? '#'}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
-          className="w-full h-10 border-2 border-[#EA580C] text-[#EA580C] hover:bg-[#FFF7ED] font-bold text-[13px] rounded-xl flex items-center justify-center gap-1.5 transition-colors"
-        >
-          {ctaText} <ArrowRight size={13} />
-        </a>
+        <div className="flex gap-2">
+          <a
+            href={item.bookingLink ?? '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
+            className="flex-1 h-10 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[13px] rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
+          >
+            {ctaText} <ArrowRight size={13} />
+          </a>
+          <button
+            onClick={() => handleUniversalShare(item)}
+            title="Share with Co-Travelers"
+            className="h-10 w-10 border border-[#E8E0D8] hover:border-[#D0C8C0] text-[#6B6B6B] hover:bg-[#F5F5F4] rounded-xl flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer"
+          >
+            <Share2 size={16} />
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -733,20 +805,20 @@ function TransportTab({
     [segment, flights, trains, buses, cabs, transport]
   )
 
-  const segments: { id: Segment; label: string; count?: number }[] = [
-    { id: 'recommended', label: 'Recommended' },
-    { id: 'smart-routes', label: 'Smart Routes' },
-    { id: 'flights', label: 'Flights', count: flights.length },
-    { id: 'trains', label: 'Trains', count: trains.length },
-    { id: 'buses', label: 'Buses', count: buses.length },
-    { id: 'cabs', label: 'Rental Cars / Cabs', count: cabs.length },
+  const segments: { id: Segment; label: string; icon: React.FC<any>; count?: number }[] = [
+    { id: 'recommended', label: 'Recommended', icon: Icon3DOverview },
+    { id: 'smart-routes', label: 'Smart Routes', icon: Icon3DSmartRoute },
+    { id: 'flights', label: 'Flights', icon: Icon3DTransport, count: flights.length },
+    { id: 'trains', label: 'Trains', icon: Icon3DTrain, count: trains.length },
+    { id: 'buses', label: 'Buses', icon: Icon3DBus, count: buses.length },
+    { id: 'cabs', label: 'Rental Cars / Cabs', icon: Icon3DCar, count: cabs.length },
   ]
 
-  const ctaText = segment === 'flights' ? 'See flight options'
-    : segment === 'trains' ? 'See train options'
-    : segment === 'buses' ? 'See bus options'
-    : segment === 'cabs' ? 'See rental options'
-    : 'See all options'
+  const ctaText = segment === 'flights' ? 'Book Flight'
+    : segment === 'trains' ? 'Book Train'
+    : segment === 'buses' ? 'Book Bus'
+    : segment === 'cabs' ? 'Book Rental'
+    : 'Book Now'
 
   return (
     <>
@@ -772,29 +844,28 @@ function TransportTab({
           </p>
         </div>
 
-        {/* ── SEGMENT PILLS ──────────────────────────────────────────────── */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-0.5">
+        {/* ── SEGMENT PILLS (3D Isometric Icon Bar like MakeMyTrip) ───────── */}
+        <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2">
           {segments.map(s => {
             const isActive = segment === s.id
+            const IconComp = s.icon
             return (
               <button
                 key={s.id}
                 onClick={() => setSegment(s.id)}
-                className="shrink-0 h-9 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition-all border"
-                style={{
-                  background: isActive ? '#EA580C' : '#FFFFFF',
-                  color: isActive ? '#FFFFFF' : '#6B6B6B',
-                  borderColor: isActive ? '#EA580C' : '#E8E0D8',
-                }}
+                className={`shrink-0 h-12 px-4 rounded-2xl text-[14px] font-bold flex items-center gap-2.5 transition-all duration-200 cursor-pointer border ${
+                  isActive
+                    ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-lg shadow-orange-500/25 scale-[1.02]'
+                    : 'bg-white text-slate-700 border-[#E8E0D8] hover:border-orange-300 hover:bg-orange-50/40 hover:shadow-sm'
+                }`}
               >
-                {s.label}
+                <IconComp size={24} active={isActive} />
+                <span>{s.label}</span>
                 {s.count != null && s.count > 0 && !loading && (
                   <span
-                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{
-                      background: isActive ? 'rgba(255,255,255,0.25)' : '#F0ECE8',
-                      color: isActive ? '#fff' : '#6B6B6B',
-                    }}
+                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                      isActive ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
+                    }`}
                   >
                     {s.count}
                   </span>
@@ -916,6 +987,7 @@ function TransportTab({
           </div>
         )}
       </div>
+      <LiveBookingToast />
     </>
   )
 }

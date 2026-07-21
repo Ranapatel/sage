@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Clock, Star, MapPin, ChevronDown, ChevronUp, ExternalLink, Shield } from 'lucide-react'
+import { Clock, Star, MapPin, ChevronDown, ChevronUp, ExternalLink, Shield, Share2 } from 'lucide-react'
 import { trackEvent } from '@/lib/analytics'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
+import { handleUniversalShare } from '../plan/TransportTab'
 
 interface TrainClassFare {
   classCode: string
@@ -308,12 +309,29 @@ export default function TrainCard({ train }: TrainCardProps) {
             <div className="text-slate-400 text-[10px]">
               Last Checked: {train.lastUpdated ? new Date(train.lastUpdated).toLocaleTimeString() : new Date().toLocaleTimeString()} &bull; Partner: MakeMyTrip railways
             </div>
-            <button
-              onClick={handleBookClick}
-              className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl font-bold text-sm bg-orange-600 text-white hover:bg-orange-700 transition-colors shadow-lg shadow-orange-600/10 cursor-pointer animate-fade-in"
-            >
-              Book {activeClassCode} on MakeMyTrip <ExternalLink size={14} />
-            </button>
+            <div className="flex gap-2.5 items-center">
+              <button
+                onClick={handleBookClick}
+                className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl font-bold text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-lg shadow-orange-600/10 cursor-pointer animate-fade-in active:scale-95"
+              >
+                Book {activeClassCode} on MakeMyTrip <ExternalLink size={14} />
+              </button>
+
+              <button
+                onClick={() => handleUniversalShare({
+                  name: `${train.trainNumber} - ${train.trainName}`,
+                  price: activePrice,
+                  departure: train.departureTime,
+                  arrival: train.arrivalTime,
+                  duration: train.duration,
+                  bookingLink: train.bookingUrl
+                })}
+                title="Share option"
+                className="h-[46px] w-[46px] border border-[#E8E0D8] hover:border-[#D0C8C0] text-[#6B6B6B] hover:bg-[#F5F5F4] rounded-xl flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer"
+              >
+                <Share2 size={20} />
+              </button>
+            </div>
           </div>
         </div>
       )}

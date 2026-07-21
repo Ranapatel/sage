@@ -25,7 +25,15 @@ export function BusesPanel({
   date,
   passengers = 1,
 }: BusesPanelProps) {
-  const [state, setState] = useState<PanelState>({ status: 'loading' });
+  const [state, setState] = useState<PanelState>(() => {
+    if (origin && destination && date) {
+      return { status: 'loading' }
+    }
+    return {
+      status: 'empty',
+      searchUrl: "https://www.makemytrip.com/bus-tickets/",
+    }
+  });
 
   useEffect(() => {
     let active = true;
@@ -67,9 +75,13 @@ export function BusesPanel({
     if (origin && destination && date) {
       load();
     } else {
-      setState({
-        status: 'empty',
-        searchUrl: "https://www.makemytrip.com/bus-tickets/",
+      Promise.resolve().then(() => {
+        if (active) {
+          setState({
+            status: 'empty',
+            searchUrl: "https://www.makemytrip.com/bus-tickets/",
+          });
+        }
       });
     }
 
@@ -121,7 +133,7 @@ export function BusesPanel({
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-1.5 w-full py-3 px-6 rounded-xl font-bold text-sm bg-[#E8461E] text-white hover:opacity-90 transition-opacity whitespace-nowrap shadow-md shadow-red-500/10"
             >
-              Search on MakeMyTrip <ExternalLink size={14} />
+              Book Bus on MakeMyTrip <ExternalLink size={14} />
             </a>
           </div>
         </div>
@@ -143,7 +155,7 @@ export function BusesPanel({
         rel="noopener noreferrer"
         className="text-center font-bold text-xs text-[var(--primary)] hover:underline py-3 block bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl hover:bg-slate-50 transition-colors"
       >
-        View all buses on MakeMyTrip →
+        Book Tickets on MakeMyTrip →
       </a>
     </div>
   );

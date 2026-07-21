@@ -166,13 +166,22 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text-primary);
-  padding: 14px 18px;
+  padding: 8px 14px;
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   width: 100%;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+select.input-field,
+input.input-field[class*="h-"],
+select.input-field[class*="h-"] {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: normal !important;
 }
 
 .input-field:hover {

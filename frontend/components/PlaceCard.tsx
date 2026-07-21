@@ -2,7 +2,7 @@
 
 import React, { memo, useState, useEffect } from 'react';
 import Image from 'next/image';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Plane, Compass, Utensils, Landmark, Trees, Zap, ShoppingBag, Building2 } from 'lucide-react';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -17,16 +17,18 @@ const CATEGORY_COLORS: Record<string, string> = {
   accommodation: 'bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-950/20 dark:text-sky-400 dark:border-sky-900/30',
 };
 
-const CATEGORY_ICONS: Record<string, string> = {
-  transport: '🚀',
-  explore: '🗺️',
-  dining: '🍽️',
-  culture: '🏛️',
-  nature: '🌿',
-  activity: '⚡',
-  shopping: '🛍️',
-  accommodation: '🏨',
-};
+function renderCategoryIcon(category: string) {
+  const cat = category?.toLowerCase() || ''
+  if (cat === 'transport') return <Plane size={20} className="text-emerald-600" />
+  if (cat === 'explore') return <Compass size={20} className="text-amber-600" />
+  if (cat === 'dining') return <Utensils size={20} className="text-rose-600" />
+  if (cat === 'culture') return <Landmark size={20} className="text-indigo-600" />
+  if (cat === 'nature') return <Trees size={20} className="text-teal-600" />
+  if (cat === 'activity') return <Zap size={20} className="text-orange-600" />
+  if (cat === 'shopping') return <ShoppingBag size={20} className="text-violet-600" />
+  if (cat === 'accommodation') return <Building2 size={20} className="text-sky-600" />
+  return <MapPin size={20} className="text-slate-500" />
+}
 
 const CATEGORY_QUERIES: Record<string, string> = {
   transport: 'airport travel journey',
@@ -178,8 +180,8 @@ function PlaceCard({ place, destinationName, onClick }: PlaceCardProps) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <span className="text-2xl flex-shrink-0 bg-zinc-50 dark:bg-zinc-800 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/80 transition-transform group-hover:scale-105">
-            {CATEGORY_ICONS[place.category] || '📍'}
+          <span className="flex-shrink-0 bg-zinc-50 dark:bg-zinc-800 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80 transition-transform group-hover:scale-105 flex items-center justify-center">
+            {renderCategoryIcon(place.category)}
           </span>
           <div className="flex-1 min-w-0 mt-0.5">
             <h3 className="font-bold text-zinc-900 dark:text-zinc-50 text-sm leading-tight group-hover:text-[var(--primary)] transition-colors">

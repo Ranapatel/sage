@@ -116,15 +116,26 @@ export interface HotelOption {
 
 export interface ItineraryDay {
   day: number
-  date: string
+  date?: string
+  theme?: string
+  weather?: any
+  foodNote?: string
+  budgetNote?: string
   places: {
     name: string
-    time: string
+    time?: string
     category: string
-    coordinates: [number, number]
-    description: string
+    coordinates?: [number, number] | number[]
+    description?: string
+    duration?: string
+    estimatedSpend?: string
+    travelTimeFromPrev?: string
+    whyItFits?: string
     image?: string
+    smartLabels?: string[]
+    [key: string]: any
   }[]
+  [key: string]: any
 }
 
 export interface WeatherData {

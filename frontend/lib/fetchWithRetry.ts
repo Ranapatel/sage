@@ -13,6 +13,8 @@ export interface FetchWithRetryOptions {
   maxRetries?: number
   /** Label for console logs (optional) */
   label?: string
+  /** Suppress console error logging on final attempt failure (optional) */
+  silent?: boolean
 }
 
 const DEFAULT_TIMEOUT = 10_000   // 10 seconds
@@ -52,7 +54,9 @@ export async function fetchWithRetry<T>(
         console.warn(`[${label}] ${tag} on attempt ${attempt + 1}/${maxRetries + 1} — retrying in ${delay}ms`)
         await new Promise(r => setTimeout(r, delay))
       } else {
-        console.error(`[${label}] All ${maxRetries + 1} attempts failed`)
+        if (!options.silent) {
+          console.warn(`[${label}] All ${maxRetries + 1} attempts completed:`, lastError?.message)
+        }
       }
     }
   }

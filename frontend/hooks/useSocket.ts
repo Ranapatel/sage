@@ -27,13 +27,15 @@ export function useSocket() {
   const { setConnected, setTransport, setHotels, setBuses, setCars, setTrains, setItinerary, setWeather, addNotification, setLoading, setError } = useTripStore()
 
   useEffect(() => {
+    let errorLogged = false
+
     const socketInstance = io(getSocketUrl(), {
-      transports: ['websocket', 'polling'],   // polling as fallback
+      transports: ['polling', 'websocket'],   // Start with polling, upgrade to websocket smoothly
       withCredentials: true,
       reconnection: true,
-      reconnectionAttempts: 10,              // retry up to 10 times
-      reconnectionDelay: 1000,              // start with 1s
-      reconnectionDelayMax: 15000,          // cap at 15s (exponential backoff)
+      reconnectionAttempts: 5,               // Limit retry attempts
+      reconnectionDelay: 3000,               // 3s delay to prevent rapid loop
+      reconnectionDelayMax: 15000,           // cap at 15s
       timeout: 10000,
     })
 
@@ -42,13 +44,17 @@ export function useSocket() {
 
     socketInstance.on('connect', () => {
       setConnected(true)
+      errorLogged = false
       console.log('[TripSage] Socket connected:', socketInstance.id)
     })
 
     socketInstance.on('connect_error', (err) => {
       setConnected(false)
-      console.warn('[TripSage] Socket connect error:', err.message)
-      toast.error('Connection issue — retrying...', { id: 'socket-error', duration: 3000 })
+      // Only log once on initial failure to prevent browser console log spamming
+      if (!errorLogged) {
+        console.warn('[TripSage] Socket backend connection pending/retrying:', err.message)
+        errorLogged = true
+      }
     })
 
     socketInstance.on('reconnect', (attempt: number) => {

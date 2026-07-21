@@ -159,13 +159,13 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
               className={selectClass}
             >
               <option value="">Choose a style</option>
-              <option value="adventure">🎒 Adventure & Backpacker</option>
-              <option value="luxury">💎 Luxury & Premium</option>
-              <option value="budget">💰 Budget Friendly</option>
-              <option value="family">👨‍👩‍👧‍👦 Family Vacation</option>
-              <option value="romantic">❤️ Romantic & Honeymoon</option>
-              <option value="cultural">🏛️ Cultural & Historical</option>
-              <option value="relaxation">🏖️ Relaxation & Leisure</option>
+              <option value="adventure">Adventure & Outdoors</option>
+              <option value="luxury">Luxury & Premium</option>
+              <option value="budget">Budget Friendly</option>
+              <option value="family">Family Vacation</option>
+              <option value="romantic">Romantic & Honeymoon</option>
+              <option value="cultural">Cultural & Historical</option>
+              <option value="relaxation">Relaxation & Leisure</option>
             </select>
           </div>
 
@@ -199,11 +199,11 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
               className={selectClass}
             >
               <option value="">Select accommodation</option>
-              <option value="hotel">🏨 Hotel</option>
-              <option value="resort">🌴 Resort</option>
-              <option value="hostel">🎒 Hostel</option>
-              <option value="homestay">🏡 Homestay/Villa</option>
-              <option value="camp">⛺ Camp/Glamping</option>
+              <option value="hotel">Hotel</option>
+              <option value="resort">Resort</option>
+              <option value="hostel">Hostel</option>
+              <option value="homestay">Homestay / Villa</option>
+              <option value="camp">Camp / Glamping</option>
             </select>
           </div>
 

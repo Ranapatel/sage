@@ -4,6 +4,7 @@ import React, { memo } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import Image from 'next/image'
 import { trackEvent } from '@/lib/analytics'
+import { Car } from 'lucide-react'
 
 function CarsTab() {
   const { cars, loading, tripContext } = useTripStore()
@@ -28,7 +29,7 @@ function CarsTab() {
     <div className="space-y-4 animate-fade-in">
       {/* Info banner */}
       <div className="glass rounded-xl p-4 border border-[var(--border)] flex items-start gap-3">
- <span className="text-2xl">️</span>
+        <Car size={24} className="text-[#EA580C] shrink-0 mt-0.5" />
         <div>
           <p className="font-semibold text-sm text-[var(--text-primary)]">Real-time car rental search</p>
           <p className="text-xs text-[var(--text-muted)] mt-1">

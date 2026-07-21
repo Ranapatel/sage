@@ -146,71 +146,6 @@ export default function LocationAutocomplete({
     }
   }, [])
 
-  // ── Debounced search trigger ─────────────────────────────────────────────────
-  useEffect(() => {
-    // Skip search if user just selected from dropdown
-    if (isSelectingRef.current) {
-      isSelectingRef.current = false
-      return
-    }
-
-    // CRITICAL: never search or open dropdown unless user actively typed
-    if (!hasUserInteractedRef.current || !isFocusedRef.current) return
-
-    const trimmed = query.trim()
-    if (trimmed.length < 2) {
-      setState({ status: 'idle' })
-      setIsOpen(false)
-      setIsFetching(false)
-      abortRef.current?.abort()
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      return
-    }
-
-    const cacheKey = trimmed.toLowerCase()
-
-    // 1. Instant Cache Check
-    if (queryCache.has(cacheKey)) {
-      abortRef.current?.abort()
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      setIsFetching(false)
-
-      const cached = queryCache.get(cacheKey)!
-      setState(
-        cached.length > 0
-          ? { status: 'success', data: cached }
-          : { status: 'empty' }
-      )
-      setIsOpen(true)
-      return
-    }
-
-    // 2. Local Instant Search (Show matches instantly as they type — also checks aliases)
-    const localMatches = LOCAL_CITIES.filter((c) => {
-      const nameMatch = c.name.toLowerCase().includes(cacheKey)
-      const aliasMatch = c.aliases.some(a => a.includes(cacheKey) || cacheKey.includes(a))
-      return nameMatch || aliasMatch
-    }).slice(0, 6)
-
-    if (localMatches.length > 0) {
-      setState({ status: 'success', data: localMatches })
-      setIsOpen(true)
-    } else {
-      setState({ status: 'loading' })
-      setIsOpen(true)
-    }
-
-    // 3. Debounce API call (300ms)
-    const timer = setTimeout(() => {
-      fetchSuggestions(trimmed)
-    }, 300)
-
-    return () => {
-      clearTimeout(timer)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
-
   // ── Fetch suggestions from backend ──────────────────────────────────────────
   const fetchSuggestions = useCallback(async (searchTerm: string) => {
     const cacheKey = searchTerm.toLowerCase()
@@ -313,6 +248,77 @@ export default function LocationAutocomplete({
       setIsFetching(false)
     }
   }, [])
+
+  // ── Debounced search trigger ─────────────────────────────────────────────────
+  useEffect(() => {
+    // Skip search if user just selected from dropdown
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
+      return
+    }
+
+    // CRITICAL: never search or open dropdown unless user actively typed
+    if (!hasUserInteractedRef.current || !isFocusedRef.current) return
+
+    const trimmed = query.trim()
+    if (trimmed.length < 2) {
+      Promise.resolve().then(() => {
+        setState({ status: 'idle' })
+        setIsOpen(false)
+        setIsFetching(false)
+      })
+      abortRef.current?.abort()
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      return
+    }
+
+    const cacheKey = trimmed.toLowerCase()
+
+    // 1. Instant Cache Check
+    if (queryCache.has(cacheKey)) {
+      abortRef.current?.abort()
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      setIsFetching(false)
+
+      const cached = queryCache.get(cacheKey)!
+      Promise.resolve().then(() => {
+        setState(
+          cached.length > 0
+            ? { status: 'success', data: cached }
+            : { status: 'empty' }
+        )
+        setIsOpen(true)
+      })
+      return
+    }
+
+    // 2. Local Instant Search (Show matches instantly as they type — also checks aliases)
+    const localMatches = LOCAL_CITIES.filter((c) => {
+      const nameMatch = c.name.toLowerCase().includes(cacheKey)
+      const aliasMatch = c.aliases.some(a => a.includes(cacheKey) || cacheKey.includes(a))
+      return nameMatch || aliasMatch
+    }).slice(0, 6)
+
+    Promise.resolve().then(() => {
+      if (localMatches.length > 0) {
+        setState({ status: 'success', data: localMatches })
+        setIsOpen(true)
+      } else {
+        setState({ status: 'loading' })
+        setIsOpen(true)
+      }
+    })
+
+    // 3. Debounce API call (300ms)
+    const timer = setTimeout(() => {
+      fetchSuggestions(trimmed)
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
 
 
   // ── Handlers ─────────────────────────────────────────────────────────────────

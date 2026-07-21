@@ -1590,73 +1590,14 @@ function OverviewTab({
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
 
-      {/* â”€â”€ DESKTOP LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* DESKTOP LAYOUT */}
       <div className="hidden lg:block">
 
-        {/* Desktop trip header */}
-        <div className="bg-white border border-[#E8E0D8] rounded-xl px-6 py-4 mb-5 shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex items-center gap-4">
-          <div className="flex-1 min-w-0 text-center">
-            <p
-              className="text-[18px] font-semibold text-[#1A1A1A] truncate"
-              style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)', fontWeight: 600 }}
-            >
-              {routeText}
-            </p>
-            {(datesText || travelers || budgetDisplay) && (
-              <p className="text-[14px] text-[#6B6B6B] mt-0.5 flex items-center justify-center gap-3 flex-wrap">
-                {datesText && <span>{datesText}</span>}
-                {travelers && <span>Â· {travelers} traveler{travelers > 1 ? 's' : ''}</span>}
-                {budgetDisplay && <span>Â· {budgetDisplay}</span>}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleDownloadPDF}
-              disabled={pdfGenerating}
-              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors flex items-center justify-center cursor-pointer"
-              title="Download PDF"
-            >
-              {pdfGenerating ? (
-                <span className="w-4 h-4 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <span className="text-[13px] font-bold text-[#6B6B6B] flex items-center gap-1.5"><FileDown size={16} /> Export</span>
-              )}
-            </button>
-            <button
-              onClick={onShare}
-              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors cursor-pointer"
-              title="Share"
-            >
-              <Share2 size={16} strokeWidth={1.5} className="text-[#6B6B6B]" />
-            </button>
-            <button
-              onClick={onSave}
-              className="p-2 rounded-lg border border-[#E8E0D8] hover:bg-[#FFFBF7] transition-colors cursor-pointer"
-              title="Save"
-            >
-              <Bookmark size={16} strokeWidth={1.5} className="text-[#6B6B6B]" />
-            </button>
-            <button
-              onClick={() => onTabChange('transport')}
-              className="ml-1 bg-[#EA580C] hover:bg-[#C2410C] text-white text-[13px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
-            >
-              See flight options <ArrowRight size={13} />
-            </button>
-          </div>
-        </div>
+        {/* Two-column Apple/Google Dashboard Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* Three-column layout */}
-        <div className="grid gap-5" style={{ gridTemplateColumns: '240px 1fr 280px' }}>
-
-          {/* LEFT */}
-          <div className="space-y-0">
-            <TripMoodPanel weather={weather} remaining={remaining} fmt={fmt} loading={loading} />
-            <JourneyFlowVertical loading={loading} />
-          </div>
-
-          {/* CENTER */}
-          <div className="space-y-5">
+          {/* MAIN (LEFT 8 COLS) */}
+          <div className="lg:col-span-8 space-y-6">
             <TripStoryCard
               loading={loading}
               perPerson={perPerson}
@@ -1678,7 +1619,7 @@ function OverviewTab({
             />
 
             {/* Premium Readiness Cards Section */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <WeatherReadinessCard
                 weather={weather}
                 datesText={datesText}
@@ -1708,8 +1649,8 @@ function OverviewTab({
             </div>
           </div>
 
-          {/* RIGHT */}
-          <div>
+          {/* ASIDE (RIGHT 4 COLS) */}
+          <div className="lg:col-span-4 space-y-5">
             <BudgetCompass
               loading={loading}
               budget={budget}
@@ -1722,6 +1663,8 @@ function OverviewTab({
               fmt={fmt}
               sym={sym}
             />
+            <TripMoodPanel weather={weather} remaining={remaining} fmt={fmt} loading={loading} />
+            <JourneyFlowVertical loading={loading} />
           </div>
 
         </div>

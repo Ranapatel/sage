@@ -96,10 +96,10 @@ const quickActions = [
 
 export default function OverviewDashboard({ stats, onTabChange }: OverviewDashboardProps) {
   const statCards = [
-    { label: 'Trips Created', value: stats.tripsCreated, icon: '📅' },
-    { label: 'Countries', value: stats.countriesVisited, icon: '🗺️' },
-    { label: 'Memories', value: stats.memoriesUploaded, icon: '📷' },
-    { label: 'Sage Points', value: stats.walletBalance.toLocaleString(), icon: '🪙' },
+    { label: 'Trips Created', value: stats.tripsCreated, icon: <Calendar size={18} className="text-[#EA580C]" /> },
+    { label: 'Countries', value: stats.countriesVisited, icon: <Compass size={18} className="text-blue-600" /> },
+    { label: 'Memories', value: stats.memoriesUploaded, icon: <ImageIcon size={18} className="text-emerald-600" /> },
+    { label: 'Sage Points', value: stats.walletBalance.toLocaleString(), icon: <Wallet size={18} className="text-amber-500" /> },
   ]
 
   return (

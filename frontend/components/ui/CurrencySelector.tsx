@@ -39,14 +39,13 @@ export default function CurrencySelector({ value, onChange, className = '' }: Cu
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="input-field flex items-center justify-between text-left"
+        className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-between gap-2 text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-sm active:scale-95"
       >
-        <span className="truncate">
-          <span className="font-mono text-[var(--primary)] mr-2">{selectedSymbol}</span>
-          <span className="font-semibold">{value}</span>
-          <span className="text-[var(--text-muted)] ml-2">— {selectedName}</span>
+        <span className="flex items-center gap-1.5 truncate">
+          <span className="text-[#EA580C] font-mono text-xs font-extrabold">{selectedSymbol}</span>
+          <span className="font-extrabold text-slate-800">{value}</span>
         </span>
-        <ChevronDown size={16} className={`transition-transform duration-200 text-[var(--text-muted)] ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown size={14} className={`transition-transform duration-200 text-slate-400 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

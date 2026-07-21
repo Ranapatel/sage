@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
+import { CalendarDays, Globe, Camera, Coins } from 'lucide-react'
 
 interface ProfileHeaderProps {
   user: {
@@ -74,10 +75,10 @@ export default function ProfileHeader({ user, stats }: ProfileHeaderProps) {
         {/* Dynamic statistics counts */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full md:w-auto">
           {[
-            { label: 'Trips', val: stats.tripsCreated, icon: '📅' },
-            { label: 'Countries', val: stats.countriesVisited, icon: '🗺️' },
-            { label: 'Memories', val: stats.memoriesUploaded, icon: '📷' },
-            { label: 'Sage Points', val: stats.walletBalance, icon: '🪙' },
+            { label: 'Trips', val: stats.tripsCreated, icon: <CalendarDays size={16} className="text-[#EA580C]" /> },
+            { label: 'Countries', val: stats.countriesVisited, icon: <Globe size={16} className="text-blue-600" /> },
+            { label: 'Memories', val: stats.memoriesUploaded, icon: <Camera size={16} className="text-emerald-600" /> },
+            { label: 'Sage Points', val: stats.walletBalance, icon: <Coins size={16} className="text-amber-500" /> },
           ].map((item, idx) => (
             <div
               key={idx}
