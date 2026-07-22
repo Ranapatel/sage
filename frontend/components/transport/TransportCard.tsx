@@ -52,154 +52,105 @@ function TransportCard({ item, showDetail }: Props) {
     setBannerSrc(initialBanner)
   }, [initialBanner])
 
-  // ── Source badge config ────────────────────────────────────────────────────
-  const sourceBadge = (() => {
- if (item.source === 'live') return { label: 'Live Price', cls: 'bg-green-600/90' }
- if (item.source === 'affiliate_redirect') return { label: 'Search Live', cls: 'bg-blue-600/90' }
- if (item.source === 'api_error') return { label: '️ API Error', cls: 'bg-red-600/90' }
-    return null
-  })()
-
   return (
-    <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)]/10">
+    <div className="bg-white rounded-2xl border border-slate-200 hover:border-orange-500/50 hover:shadow-lg transition-all duration-300 p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden group">
 
-      {/* Flight image banner */}
-      {item.image && (
-        <div className="relative h-28 overflow-hidden">
+      {/* LEFT: Carrier Logo & Airline Name */}
+      <div className="flex items-center gap-3.5 w-full md:w-1/4 shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-slate-50 p-2 flex items-center justify-center relative border border-slate-200/60 shrink-0">
           <Image
-            src={bannerSrc}
-            alt={`Flight from ${item.departure || 'origin'} to ${item.arrival || 'destination'}`}
+            src={logoError ? '/logos/default-airline.svg' : logoSrc}
+            alt={`${item.name} logo`}
             fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            unoptimized={bannerSrc.includes('unsplash.com')}
+            className="object-contain p-1"
             onError={() => {
-              if (bannerSrc !== fallbackFlightImage) {
-                setBannerSrc(fallbackFlightImage)
+              if (!logoError) {
+                setLogoError(true)
+                setLogoSrc('/logos/default-airline.svg')
               }
             }}
+            unoptimized={!logoError && !logoSrc.startsWith('/')}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-
-          {/* Airline logo + name overlay */}
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-3">
-            {item.logo && (
-              <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-lg flex-shrink-0 relative">
-                <Image
-                  src={logoError ? '/logos/default-airline.svg' : logoSrc}
-                  alt={`${item.name} logo`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain p-1"
-                  onError={() => {
-                    if (!logoError) {
-                      setLogoError(true)
-                      setLogoSrc('/logos/default-airline.svg')
-                    }
-                  }}
-                  unoptimized={!logoError && !logoSrc.startsWith('/')}
-                />
-              </div>
-            )}
-            <div>
-              <div className="text-white font-bold text-sm leading-tight">
-                {item.name?.split('—')[0]?.trim()}
-              </div>
-              <div className="text-white/70 text-xs mt-0.5">
-                {item.location && <div className="font-semibold">{item.location}</div>}
-                {(item.departure || item.arrival || item.duration) && (
-                  <div className="mt-0.5">
-                    {[item.departure, item.arrival].filter(Boolean).join(' → ')}
-                    {item.duration && ` · ${item.duration}`}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Source + stops badges */}
-          <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-            {sourceBadge && (
-              <span className={`${sourceBadge.cls} text-white text-[0.6rem] font-bold px-2 py-0.5 rounded-full`}>
-                {sourceBadge.label}
-              </span>
-            )}
-            {item.stops === 0 && (
-              <span className="bg-blue-600/90 text-white text-[0.6rem] font-bold px-2 py-0.5 rounded-full">
-                Non-stop
-              </span>
-            )}
-          </div>
         </div>
-      )}
+        <div>
+          <h4 className="font-extrabold text-slate-900 text-sm leading-tight group-hover:text-[#EA580C] transition-colors">
+            {item.name?.split('—')[0]?.trim()}
+          </h4>
+          <p className="text-slate-500 text-xs font-medium mt-0.5">
+            {item.location || 'Economy Class'}
+          </p>
+        </div>
+      </div>
 
-      <div className="p-4">
-        {/* Flight details row */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <SageScoreBadge item={item} type="flight" />
-            <div className="flex items-center gap-2 flex-wrap">
-              {item.liveStatus && (
-                <span className={`badge text-[0.65rem] ${item.liveStatus === 'Live' ? 'badge-green' : 'badge-amber'}`}>
-                  {item.liveStatus}
-                </span>
-              )}
-              {item.rating != null && (
-                <span className="text-xs text-[var(--text-muted)]">{item.rating}</span>
-              )}
-              {item.stops != null && (
-                <span className="text-xs text-[var(--text-muted)]">
-                  {item.stops === 0 ? '️ Direct' : `${item.stops} stop${item.stops > 1 ? 's' : ''}`}
-                </span>
-              )}
+      {/* CENTER: Flight Timeline & Duration Bar */}
+      <div className="flex-1 w-full flex items-center justify-center gap-4 px-2">
+        <div className="text-center min-w-[55px]">
+          <span className="text-base font-black text-slate-900 block leading-tight">
+            {item.departure || '06:00'}
+          </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            DEP
+          </span>
+        </div>
+
+        {/* Duration Timeline Bar */}
+        <div className="flex-1 max-w-[180px] flex flex-col items-center">
+          <span className="text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+            <span>{item.duration || '2h 15m'}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+            <span className="text-emerald-700 font-extrabold">{item.stops === 0 ? 'Non-stop' : `${item.stops} stop`}</span>
+          </span>
+          <div className="w-full flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full border-2 border-[#EA580C] bg-white shrink-0" />
+            <div className="flex-1 h-[2px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 relative">
+              <span className="text-[10px] absolute -top-3 left-1/2 -translate-x-1/2 text-[#EA580C]">✈</span>
             </div>
-          </div>
-
-          {/* Price — only shown when real */}
-          <div className="text-right flex-shrink-0">
-            {displayPrice ? (
-              <>
-                <div className="text-xl font-black font-mono text-[var(--primary)] leading-tight">
-                  {displayPrice}
-                </div>
-                <div className="text-[0.65rem] text-[var(--text-muted)]">per person · economy</div>
-              </>
-            ) : (
-              <div className="text-xs text-[var(--text-muted)] italic">Price on booking site</div>
-            )}
+            <div className="w-2 h-2 rounded-full bg-[#EA580C] shrink-0" />
           </div>
         </div>
 
-        {/* Offers (from API only) */}
-        {showDetail && item.offers?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {item.offers.map((o: string, i: number) => (
- <span key={i} className="badge badge-amber text-[0.65rem]">️ {o}</span>
-            ))}
-          </div>
-        )}
+        <div className="text-center min-w-[55px]">
+          <span className="text-base font-black text-slate-900 block leading-tight">
+            {item.arrival || '08:15'}
+          </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            ARR
+          </span>
+        </div>
+      </div>
 
-        {/* CTA */}
-        <div className="mt-3 flex items-center gap-2">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault()
-              requireAuth(() => {
-                trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })
-                window.open(item.bookingLink, '_blank', 'noopener,noreferrer')
-              })()
-            }}
-            className="flex-1 text-center py-2.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-md shadow-[var(--primary)]/30"
-          >
-            {item.source === 'affiliate_redirect' ? 'Search Live Prices →' : 'Book Now →'}
-          </a>
-          {item.source === 'live' && (
-            <button onClick={handleSelect} className="btn-outline text-sm py-2 px-3">
-              Select
-            </button>
+      {/* RIGHT: SageScore + Price + CTA Button */}
+      <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end shrink-0 border-t md:border-t-0 border-slate-100 pt-3 md:pt-0">
+        <SageScoreBadge item={item} type="flight" />
+
+        <div className="text-right">
+          {displayPrice ? (
+            <>
+              <span className="text-xl font-black text-[#EA580C] block leading-tight">
+                {displayPrice}
+              </span>
+              <span className="text-[11px] font-medium text-slate-400 block">
+                per person
+              </span>
+            </>
+          ) : (
+            <span className="text-xs font-semibold text-slate-400 italic">Check Live</span>
           )}
         </div>
+
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault()
+            requireAuth(() => {
+              trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })
+              window.open(item.bookingLink, '_blank', 'noopener,noreferrer')
+            })()
+          }}
+          className="px-5 py-2.5 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all duration-200 shrink-0"
+        >
+          {item.source === 'affiliate_redirect' ? 'Search Live →' : 'Book Flight →'}
+        </a>
       </div>
     </div>
   )

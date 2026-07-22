@@ -4,7 +4,7 @@ import React, { memo } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import Image from 'next/image'
 import { trackEvent } from '@/lib/analytics'
-import { Car } from 'lucide-react'
+import { Car, ShieldCheck } from 'lucide-react'
 
 function CarsTab() {
   const { cars, loading, tripContext } = useTripStore()
@@ -13,13 +13,12 @@ function CarsTab() {
     return (
       <div className="space-y-3">
         {[1, 2].map(i => (
-          <div key={i} className="h-32 bg-[var(--border)] rounded-xl animate-pulse" />
+          <div key={i} className="h-24 bg-slate-100 rounded-2xl animate-pulse" />
         ))}
       </div>
     )
   }
 
-  // ── Affiliate redirect card (no real search API available) ────────────────
   const affiliateEntry = cars?.find((c: any) => c.source === 'affiliate_redirect')
   const destination    = tripContext?.destination || ''
   const redirectUrl    = affiliateEntry?.bookingLink ||
@@ -27,57 +26,49 @@ function CarsTab() {
 
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Info banner */}
-      <div className="glass rounded-xl p-4 border border-[var(--border)] flex items-start gap-3">
-        <Car size={24} className="text-[#EA580C] shrink-0 mt-0.5" />
-        <div>
-          <p className="font-semibold text-sm text-[var(--text-primary)]">Real-time car rental search</p>
-          <p className="text-xs text-[var(--text-muted)] mt-1">
-            Live car rental availability, pricing and free cancellation options are fetched directly from DiscoverCars —
-            a trusted car rental aggregator. Click below to search in real-time.
-          </p>
-        </div>
-      </div>
-
-      {/* DiscoverCars CTA card */}
-      <div className="card overflow-hidden border border-[var(--border)] hover:border-[var(--primary)] transition-all">
-        <div className="relative h-32 overflow-hidden">
-          <Image
-            src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80"
-            alt="Search Rental Cars on TripSage"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            unoptimized
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2">
- <div className="text-white font-bold text-lg">Search Rental Cars</div>
-            <div className="text-white/70 text-sm mt-1">
-              {destination ? `In ${destination.split(',')[0]}` : 'Enter your destination to search'}
+      {/* DiscoverCars Horizontal Sleek Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 hover:border-orange-500/50 hover:shadow-lg transition-all duration-300 p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 group">
+        
+        {/* LEFT: Car Icon & Destination */}
+        <div className="flex items-center gap-4 w-full md:w-1/3 shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-orange-100/70 p-3 flex items-center justify-center text-[#EA580C] shrink-0 border border-orange-200/50">
+            <Car size={28} strokeWidth={2.2} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="font-extrabold text-slate-900 text-base leading-tight group-hover:text-[#EA580C] transition-colors">
+                Rental Cabs & Self-Drive
+              </h4>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+                DiscoverCars
+              </span>
             </div>
-          </div>
-          <div className="absolute top-3 right-3">
-            <span className="bg-[#16a085] text-white text-xs font-bold px-2 py-1 rounded-lg">
-              DiscoverCars
-            </span>
+            <p className="text-slate-500 text-xs font-medium mt-1">
+              {destination ? `Available in ${destination.split(',')[0]}` : 'Live Real-time Cab & Car Search'}
+            </p>
           </div>
         </div>
 
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-3 text-xs text-[var(--text-muted)]">
-            <span className="badge badge-green">Free Cancellation</span>
-            <span className="badge badge-amber">Live Availability</span>
-            <span className="badge badge-green">No Hidden Fees</span>
-          </div>
+        {/* CENTER: Features & Free Cancellation */}
+        <div className="flex items-center gap-3 text-xs text-slate-600 flex-wrap justify-center">
+          <span className="bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+            <ShieldCheck size={14} className="text-emerald-600" /> Free Cancellation
+          </span>
+          <span className="bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-full">
+            No Hidden Fees
+          </span>
+        </div>
+
+        {/* RIGHT: Action CTA Button */}
+        <div className="shrink-0 w-full md:w-auto">
           <a
             href={redirectUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent('booking_click', { type: 'car', name: 'DiscoverCars', source: 'affiliate_redirect' })}
-            className="w-full text-center block py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[#16a085] to-[#1abc9c] text-white hover:opacity-90 transition-opacity shadow-md"
+            className="w-full md:w-auto block text-center px-6 py-3 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all duration-200"
           >
-            Search Live Car Rentals on DiscoverCars →
+            Search Rental Cabs →
           </a>
         </div>
       </div>

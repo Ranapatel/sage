@@ -214,7 +214,7 @@ function HotelCard({ item, showDetail }: Props) {
           <h3 style={{
             fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.3,
             color: 'var(--text-primary)',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+            overflow: 'hidden'
           }}>
             {item.name}
           </h3>

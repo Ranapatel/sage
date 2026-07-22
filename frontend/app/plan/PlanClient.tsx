@@ -2,6 +2,7 @@
 
 import { useState, useEffect, lazy, Suspense, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Image from 'next/image'
 import { useTripStore, type HotelOption, type TransportOption, type TripRecord } from '@/store/tripStore'
 import { isIndianTrip } from '@/lib/indianCities'
@@ -820,17 +821,23 @@ export default function PlanClient() {
     <div className="flex min-h-screen" style={{ background: '#FFFBF7', fontFamily: 'var(--font-plus-jakarta), Inter, sans-serif' }}>
       
       {/* ── DESKTOP LEFT SIDEBAR ────────────────────────────────────────── */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#E8E0D8] shrink-0 sticky top-0 h-screen p-6 box-border">
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-8 cursor-pointer" onClick={() => router.push('/')}>
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#EA580C] to-[#F97316] flex items-center justify-center text-white font-bold shrink-0 shadow-md shadow-orange-500/20">
-            <Plane size={18} className="text-white" strokeWidth={2.2} />
-          </div>
-          <span className="font-extrabold text-slate-800 text-lg tracking-tight">TripSage <span className="text-[#EA580C]">AI</span></span>
-        </div>
+      <aside className="hidden lg:flex flex-col w-36 bg-white border-r border-[#E8E0D8] shrink-0 sticky top-0 h-screen p-4 box-border">
+        {/* Brand Logo (Logo Beside Text) */}
+        <Link href="/" className="flex items-center justify-center gap-2 mb-6 cursor-pointer group">
+          <img
+            src="/logo.png"
+            alt="TripSage"
+            width={32}
+            height={32}
+            className="rounded-lg shadow-xs w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-105"
+          />
+          <span className="font-extrabold text-[#1A1A1A] text-base tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            TripSage
+          </span>
+        </Link>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-2.5 overflow-y-auto hide-scrollbar py-1">
           {TABS.map(t => {
             const isActive = activeTab === t.id
             const IconComp = t.icon
@@ -838,29 +845,30 @@ export default function PlanClient() {
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer group ${
+                className={`w-full flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all duration-200 cursor-pointer group relative ${
                   isActive
-                    ? 'bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/5 text-[#EA580C] shadow-sm border border-orange-500/20'
+                    ? 'bg-gradient-to-b from-orange-50 via-orange-100/40 to-amber-50 text-[#EA580C] shadow-sm border border-orange-200/80 ring-1 ring-orange-400/20'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                 }`}
               >
-                {/* 3D Custom Icon Badge */}
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0 ${
-                  isActive 
-                    ? 'bg-white shadow-md shadow-orange-500/15 scale-105 ring-2 ring-orange-400/30' 
-                    : 'bg-slate-100/70 group-hover:bg-white group-hover:shadow-sm'
-                }`}>
-                  <IconComp size={28} active={isActive} />
+                {/* 2.5D Floating Vector Illustration (TOP) */}
+                <div className="flex items-center justify-center p-1 transition-all duration-300 transform group-hover:scale-110">
+                  <IconComp size={38} active={isActive} />
                 </div>
 
-                <span className="flex-grow text-left text-[14px] tracking-tight">{t.label}</span>
+                {/* Text Label (BOTTOM - DIRECTLY BELOW ICON) */}
+                <span className="text-[12px] font-extrabold tracking-tight mt-1.5 text-center leading-tight">
+                  {t.label}
+                </span>
+
+                {/* Badge Counter */}
                 {t.id === 'transport' && transport.length > 0 && (
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isActive ? 'bg-[#EA580C] text-white' : 'bg-orange-100 text-orange-600'}`}>
+                  <span className="absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-full bg-[#EA580C] text-white shadow-xs">
                     {transport.length}
                   </span>
                 )}
                 {t.id === 'hotels' && hotels.length > 0 && (
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isActive ? 'bg-[#EA580C] text-white' : 'bg-orange-100 text-orange-600'}`}>
+                  <span className="absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-full bg-[#EA580C] text-white shadow-xs">
                     {hotels.length}
                   </span>
                 )}
