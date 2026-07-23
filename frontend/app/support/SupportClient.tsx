@@ -8,8 +8,8 @@ import toast from 'react-hot-toast'
 
 const FAQS = [
   { q: 'How does TripSage generate itineraries?', a: 'TripSage uses an advanced AI planner to analyze your budget, travel style, group type, and preferences to generate personalized day-by-day itineraries in real-time.' },
-  { q: 'Are the flight and hotel prices real?', a: 'Yes! Prices are fetched in real-time from travel APIs via RapidAPI. However, prices can change frequently, so we recommend booking quickly when you find a good deal.' },
-  { q: 'How does booking work?', a: 'TripSage supports direct hotel bookings processed on our platform. For flight and other transport reservations, we redirect you to trusted partners like Skyscanner.' },
+  { q: 'Are the hotel prices real?', a: 'Yes! Prices are fetched in real-time from travel APIs. However, prices can change frequently, so we recommend booking quickly when you find a good deal.' },
+  { q: 'How does booking work?', a: 'TripSage supports direct hotel bookings processed on our platform. Ground transport options provide direct routing or links to partner sites.' },
   { q: 'Is my data stored?', a: 'TripSage follows a minimal data storage policy. Your trip preferences are stored in your session for real-time optimization. We do not resell personal data.' },
   { q: 'What if weather alerts or notifications are wrong?', a: 'Weather data is sourced from live APIs and updated regularly. While we aim for accuracy, always verify critical information from official sources before traveling.' },
   { q: 'Can I export my itinerary?', a: 'Yes! From the Itinerary tab, you can export your day-by-day plan as a PDF or share it with your travel group via a link.' },
@@ -17,14 +17,13 @@ const FAQS = [
 
 const BOT_RESPONSES: Record<string, string> = {
   default: "Thanks for reaching out! Our team typically replies within a few minutes. How can I help you with your trip today?",
-  flight: "For flight issues, please share your booking reference and departure date. We'll check the latest status with our travel partners.",
   hotel: "For hotel queries, share your booking ID and check-in date. We'll coordinate directly with the property.",
-  refund: "Refund requests are handled by the third-party provider you booked through (e.g. Booking.com, Skyscanner). We can help you find the right contact.",
- itinerary: "AI itineraries can be regenerated anytime! Go to the Plan tab and click Refresh. Need a custom change? Describe what you'd like.",
+  refund: "Refund requests are handled by the third-party provider you booked through (e.g. Booking.com). We can help you find the right contact.",
+  itinerary: "AI itineraries can be regenerated anytime! Go to the Plan tab and click Refresh. Need a custom change? Describe what you'd like.",
   cancel: "Cancellation policies depend on the booking platform. We recommend checking the booking confirmation email for your provider's policy.",
- hi: "Hey there! I'm the TripSage support bot. Ask me anything about your trip, bookings, or the app!",
- hello: "Hello! How can I assist your travel journey today?",
- help: "I can help with:️ Flights · Hotels · Itineraries · Refunds · Cancellations ·️ Weather. What do you need?",
+  hi: "Hey there! I'm the TripSage support bot. Ask me anything about your trip, bookings, or the app!",
+  hello: "Hello! How can I assist your travel journey today?",
+  help: "I can help with: Hotels · Trains · Buses · Itineraries · Refunds · Cancellations · Weather. What do you need?",
 }
 
 function getBotReply(msg: string): string {

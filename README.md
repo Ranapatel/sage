@@ -17,7 +17,7 @@
 | **Database** | MongoDB Atlas |
 | **Cache** | Redis Cloud |
 | **AI** | Groq (LLaMA3-70B) |
-| **Travel APIs** | RapidAPI (Flights, Hotels, Activities, Buses) |
+| **Travel APIs** | Travelport TripServices (Flights), Hotelbeds (Hotels) |
 | **Images** | Unsplash + Google Places |
 | **Weather** | OpenWeatherMap |
 | **Deployment** | Vercel (frontend) + Railway/Render (backend) |
@@ -172,7 +172,6 @@ score = (0.4 × affordability) + (0.3 × rating) + (0.3 × relevance)
 
 | Partner | Platform |
 |---|---|
-| Flights | Skyscanner |
 | Hotels | Booking.com |
 | Activities | Viator |
 | Buses | RedBus |
@@ -217,7 +216,11 @@ railway up
 
 ## 📞 Support
 
+<<<<<<< HEAD
 - Email: rana@tripsage.in
+=======
+- Email: support@tripsage.in
+>>>>>>> e444a81 (Save local changes)
 - Website: https://tripsage.in
 
 ---

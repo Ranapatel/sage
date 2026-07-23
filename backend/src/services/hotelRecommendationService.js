@@ -327,7 +327,8 @@ async function recommendHotels({ destination, checkin, checkout, members = 2, bu
     throw new Error('Hotel data service returned an invalid response')
   }
 
-  const rawHotels = result.data
+  const { enrichHotelsWithImages } = require('./imageService')
+  const rawHotels = await enrichHotelsWithImages(result.data, destination).catch(() => result.data)
   if (rawHotels.length === 0) {
     return {
       success: true,

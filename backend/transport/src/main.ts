@@ -1,10 +1,20 @@
 import { NestFactory } from '@nestjs/core';
+import { config as loadDotenv } from 'dotenv';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { TravelportConfigService } from './modules/flights/infrastructure/travelport/client/travelport-config.service';
 
 async function bootstrap() {
+  // Loads backend/transport/.env if it exists. Existing shell env wins.
+  loadDotenv();
+
   const app = await NestFactory.create(AppModule);
+
+  // Fail fast on missing Travelport production credentials before accepting traffic.
+  // validateOrThrow() logs the masked client ID / base URL / PCC and exits non-zero
+  // if any required env var is empty.
+  app.get(TravelportConfigService).validateOrThrow();
 
   // Enable CORS
   app.enableCors({

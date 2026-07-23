@@ -1,9 +1,18 @@
 const express = require('express')
 const router = express.Router()
 const { body, validationResult } = require('express-validator')
-const { searchFlights, searchHotels, searchBuses, searchCars } = require('../services/travelService')
+const { searchHotels, searchBuses, searchCars, searchFlights } = require('../services/travelService')
 const { getWeather } = require('../services/weatherService')
-const { enrichHotelsWithImages, enrichFlightsWithImages } = require('../services/imageService')
+let enrichHotelsWithImages = async (hotels) => hotels;
+try {
+  enrichHotelsWithImages = require('../services/imageService').enrichHotelsWithImages;
+} catch (e) {
+  try {
+    enrichHotelsWithImages = require('../services/imageService.ts').enrichHotelsWithImages;
+  } catch (e2) {
+    console.warn('[search.js] Could not load imageService:', e2.message);
+  }
+}
 const { v4: uuidv4 } = require('uuid')
 const { fetchWithRetry } = require('../utils/fetchWithRetry')
 const axios = require('axios')
@@ -49,6 +58,7 @@ router.post('/', searchValidation, async (req, res) => {
   const timestamp = new Date().toISOString()
 
   try {
+<<<<<<< HEAD
     if (isMultiCity && stops.length > 0) {
       console.log(`[Search Route] Orchestrating Multi-City trip from ${from} with stops:`, stops);
 
@@ -137,21 +147,25 @@ router.post('/', searchValidation, async (req, res) => {
         () => searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
         { timeout: 10000, maxRetries: 2, label: 'Flights' }
       ).catch(() => ({ data: [], meta: { source: 'error' } })),
+=======
+    // Execute all searches in parallel — fast 4s timeout per provider to prevent cascading client timeouts
+    const [hotelResult, busResult, carResult, weatherResult, trainResult, flightResult] = await Promise.all([
+>>>>>>> e444a81 (Save local changes)
       fetchWithRetry(
         () => searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget, rooms, adults, children }),
-        { timeout: 10000, maxRetries: 2, label: 'Hotels' }
+        { timeout: 4000, maxRetries: 1, label: 'Hotels' }
       ).catch(() => ({ data: [], meta: { source: 'error' } })),
       fetchWithRetry(
         () => searchBuses({ from, to, date: startDate, budget }),
-        { timeout: 10000, maxRetries: 2, label: 'Buses' }
+        { timeout: 4000, maxRetries: 1, label: 'Buses' }
       ).catch(() => ({ data: [] })),
       fetchWithRetry(
         () => searchCars({ destination: to, date: startDate, budget }),
-        { timeout: 10000, maxRetries: 2, label: 'Cars' }
+        { timeout: 4000, maxRetries: 1, label: 'Cars' }
       ).catch(() => ({ data: [] })),
       fetchWithRetry(
         () => getWeather(to),
-        { timeout: 10000, maxRetries: 2, label: 'Weather' }
+        { timeout: 4000, maxRetries: 1, label: 'Weather' }
       ).catch(() => ({ data: null })),
       fetchWithRetry(
         async () => {
@@ -162,20 +176,24 @@ router.post('/', searchValidation, async (req, res) => {
             departureDate: startDate,
             passengers: travelers || 1,
             travelClass: 'ALL'
-          });
+          }, { timeout: 3000 });
           return response.data;
         },
-        { timeout: 10000, maxRetries: 2, label: 'Trains' }
+        { timeout: 4000, maxRetries: 0, label: 'Trains' }
       ).catch((err) => {
-        console.error('[Search Route] Train search failed:', err.message);
+        console.warn('[Search Route] Train search fallback:', err.message);
         return [];
       }),
+      fetchWithRetry(
+        () => searchFlights({ from, to, date: startDate, budget, travelers }),
+        { timeout: 5000, maxRetries: 1, label: 'Flights' }
+      ).catch(() => ({ data: [] })),
     ])
 
-    const transport = flightResult.data || []
     const hotels = hotelResult.data || []
     const cars = carResult.data || []
     const weather = weatherResult.data || null
+    const flights = flightResult.data || []
 
     // Unwrap bus service envelope
     const busEnvelope = busResult || {}
@@ -189,20 +207,32 @@ router.post('/', searchValidation, async (req, res) => {
     const trainSearchUrl = trainEnvelope.searchUrl || ''
     const isTrainDomestic = trainEnvelope.isDomestic !== undefined ? trainEnvelope.isDomestic : (trains.length > 0 || !!trainSearchUrl)
 
-    const flightSource = flightResult.meta?.source || 'error'
     const hotelSource = hotelResult.meta?.source || 'error'
 
+<<<<<<< HEAD
     // Enrich with images
     const [enrichedHotels, enrichedFlights] = await Promise.all([
       enrichHotelsWithImages(hotels, to).catch(() => hotels),
       enrichFlightsWithImages(transport, to).catch(() => transport),
     ])
+=======
+    // Combine all multi-modal ground and flight transport into unified transport list
+    const transport = [...flights, ...trains, ...buses, ...cars]
+
+    // Enrich with real images — capped at 3s so slow image APIs never delay search output
+    const enrichedHotels = await Promise.race([
+      enrichHotelsWithImages(hotels, to),
+      new Promise((resolve) => setTimeout(() => resolve(hotels), 3000)),
+    ]).catch(() => hotels)
+>>>>>>> e444a81 (Save local changes)
 
     res.json({
       success: true,
-      meta: { timestamp, requestId, cache: false, flightSource, hotelSource },
+      meta: { timestamp, requestId, cache: false, hotelSource },
       data: {
-        transport: enrichedFlights,
+        transport,
+        flights,
+        flightError: flightResult.error || null,
         hotels: enrichedHotels,
         buses,
         busSearchUrl,
@@ -211,7 +241,7 @@ router.post('/', searchValidation, async (req, res) => {
         trains,
         trainSearchUrl,
         trainStationInfo,
-        isTrainDomestic
+        isTrainDomestic,
       },
       message: 'LIVE_UPDATE',
       error: null,

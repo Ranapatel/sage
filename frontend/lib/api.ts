@@ -221,6 +221,12 @@ export const tripAPI = {
   getActivities: (destination: string, params?: any): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/activities/${encodeURIComponent(destination)}`, { params }),
 
+  getRestaurants: (destination: string, params?: any): Promise<ApiResponse<any[]>> =>
+    API.get(`/api/explore/restaurants/${encodeURIComponent(destination)}`, { params }),
+
+  getPlaceDetails: (placeId: string): Promise<ApiResponse<any>> =>
+    API.get(`/api/explore/details/${encodeURIComponent(placeId)}`),
+
   getExplorePlaces: (destination: string): Promise<ApiResponse<any[]>> =>
     API.get(`/api/explore/places/${encodeURIComponent(destination)}`),
   optimizeRoute: (params: {

@@ -272,6 +272,7 @@ export type TripWhereInput = {
   Memory?: Prisma.MemoryListRelationFilter
   TravelPhoto?: Prisma.TravelPhotoListRelationFilter
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusListRelationFilter
 }
 
 export type TripOrderByWithRelationInput = {
@@ -290,6 +291,7 @@ export type TripOrderByWithRelationInput = {
   Memory?: Prisma.MemoryOrderByRelationAggregateInput
   TravelPhoto?: Prisma.TravelPhotoOrderByRelationAggregateInput
   User?: Prisma.UserOrderByWithRelationInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusOrderByRelationAggregateInput
 }
 
 export type TripWhereUniqueInput = Prisma.AtLeast<{
@@ -311,6 +313,7 @@ export type TripWhereUniqueInput = Prisma.AtLeast<{
   Memory?: Prisma.MemoryListRelationFilter
   TravelPhoto?: Prisma.TravelPhotoListRelationFilter
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusListRelationFilter
 }, "id">
 
 export type TripOrderByWithAggregationInput = {
@@ -364,6 +367,7 @@ export type TripCreateInput = {
   Memory?: Prisma.MemoryCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutTripInput
   User: Prisma.UserCreateNestedOneWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusCreateNestedManyWithoutTripInput
 }
 
 export type TripUncheckedCreateInput = {
@@ -381,6 +385,7 @@ export type TripUncheckedCreateInput = {
   ItineraryDay?: Prisma.ItineraryDayUncheckedCreateNestedManyWithoutTripInput
   Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedCreateNestedManyWithoutTripInput
 }
 
 export type TripUpdateInput = {
@@ -398,6 +403,7 @@ export type TripUpdateInput = {
   Memory?: Prisma.MemoryUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutTripNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUpdateManyWithoutTripNestedInput
 }
 
 export type TripUncheckedUpdateInput = {
@@ -415,6 +421,7 @@ export type TripUncheckedUpdateInput = {
   ItineraryDay?: Prisma.ItineraryDayUncheckedUpdateManyWithoutTripNestedInput
   Memory?: Prisma.MemoryUncheckedUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedUpdateManyWithoutTripNestedInput
 }
 
 export type TripCreateManyInput = {
@@ -616,6 +623,20 @@ export type TripUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.TripScalarWhereInput | Prisma.TripScalarWhereInput[]
 }
 
+export type TripCreateNestedOneWithoutPlaceVisitStatusInput = {
+  create?: Prisma.XOR<Prisma.TripCreateWithoutPlaceVisitStatusInput, Prisma.TripUncheckedCreateWithoutPlaceVisitStatusInput>
+  connectOrCreate?: Prisma.TripCreateOrConnectWithoutPlaceVisitStatusInput
+  connect?: Prisma.TripWhereUniqueInput
+}
+
+export type TripUpdateOneRequiredWithoutPlaceVisitStatusNestedInput = {
+  create?: Prisma.XOR<Prisma.TripCreateWithoutPlaceVisitStatusInput, Prisma.TripUncheckedCreateWithoutPlaceVisitStatusInput>
+  connectOrCreate?: Prisma.TripCreateOrConnectWithoutPlaceVisitStatusInput
+  upsert?: Prisma.TripUpsertWithoutPlaceVisitStatusInput
+  connect?: Prisma.TripWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TripUpdateToOneWithWhereWithoutPlaceVisitStatusInput, Prisma.TripUpdateWithoutPlaceVisitStatusInput>, Prisma.TripUncheckedUpdateWithoutPlaceVisitStatusInput>
+}
+
 export type TripCreateWithoutItineraryDayInput = {
   id: string
   destination: string
@@ -630,6 +651,7 @@ export type TripCreateWithoutItineraryDayInput = {
   Memory?: Prisma.MemoryCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutTripInput
   User: Prisma.UserCreateNestedOneWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusCreateNestedManyWithoutTripInput
 }
 
 export type TripUncheckedCreateWithoutItineraryDayInput = {
@@ -646,6 +668,7 @@ export type TripUncheckedCreateWithoutItineraryDayInput = {
   updatedAt: Date | string
   Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedCreateNestedManyWithoutTripInput
 }
 
 export type TripCreateOrConnectWithoutItineraryDayInput = {
@@ -678,6 +701,7 @@ export type TripUpdateWithoutItineraryDayInput = {
   Memory?: Prisma.MemoryUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutTripNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUpdateManyWithoutTripNestedInput
 }
 
 export type TripUncheckedUpdateWithoutItineraryDayInput = {
@@ -694,6 +718,7 @@ export type TripUncheckedUpdateWithoutItineraryDayInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Memory?: Prisma.MemoryUncheckedUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedUpdateManyWithoutTripNestedInput
 }
 
 export type TripCreateWithoutMemoryInput = {
@@ -710,6 +735,7 @@ export type TripCreateWithoutMemoryInput = {
   ItineraryDay?: Prisma.ItineraryDayCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutTripInput
   User: Prisma.UserCreateNestedOneWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusCreateNestedManyWithoutTripInput
 }
 
 export type TripUncheckedCreateWithoutMemoryInput = {
@@ -726,6 +752,7 @@ export type TripUncheckedCreateWithoutMemoryInput = {
   updatedAt: Date | string
   ItineraryDay?: Prisma.ItineraryDayUncheckedCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedCreateNestedManyWithoutTripInput
 }
 
 export type TripCreateOrConnectWithoutMemoryInput = {
@@ -758,6 +785,7 @@ export type TripUpdateWithoutMemoryInput = {
   ItineraryDay?: Prisma.ItineraryDayUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutTripNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUpdateManyWithoutTripNestedInput
 }
 
 export type TripUncheckedUpdateWithoutMemoryInput = {
@@ -774,6 +802,7 @@ export type TripUncheckedUpdateWithoutMemoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ItineraryDay?: Prisma.ItineraryDayUncheckedUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedUpdateManyWithoutTripNestedInput
 }
 
 export type TripCreateWithoutTravelPhotoInput = {
@@ -790,6 +819,7 @@ export type TripCreateWithoutTravelPhotoInput = {
   ItineraryDay?: Prisma.ItineraryDayCreateNestedManyWithoutTripInput
   Memory?: Prisma.MemoryCreateNestedManyWithoutTripInput
   User: Prisma.UserCreateNestedOneWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusCreateNestedManyWithoutTripInput
 }
 
 export type TripUncheckedCreateWithoutTravelPhotoInput = {
@@ -806,6 +836,7 @@ export type TripUncheckedCreateWithoutTravelPhotoInput = {
   updatedAt: Date | string
   ItineraryDay?: Prisma.ItineraryDayUncheckedCreateNestedManyWithoutTripInput
   Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedCreateNestedManyWithoutTripInput
 }
 
 export type TripCreateOrConnectWithoutTravelPhotoInput = {
@@ -838,6 +869,7 @@ export type TripUpdateWithoutTravelPhotoInput = {
   ItineraryDay?: Prisma.ItineraryDayUpdateManyWithoutTripNestedInput
   Memory?: Prisma.MemoryUpdateManyWithoutTripNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUpdateManyWithoutTripNestedInput
 }
 
 export type TripUncheckedUpdateWithoutTravelPhotoInput = {
@@ -854,6 +886,7 @@ export type TripUncheckedUpdateWithoutTravelPhotoInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ItineraryDay?: Prisma.ItineraryDayUncheckedUpdateManyWithoutTripNestedInput
   Memory?: Prisma.MemoryUncheckedUpdateManyWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedUpdateManyWithoutTripNestedInput
 }
 
 export type TripCreateWithoutUserInput = {
@@ -870,6 +903,7 @@ export type TripCreateWithoutUserInput = {
   ItineraryDay?: Prisma.ItineraryDayCreateNestedManyWithoutTripInput
   Memory?: Prisma.MemoryCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusCreateNestedManyWithoutTripInput
 }
 
 export type TripUncheckedCreateWithoutUserInput = {
@@ -886,6 +920,7 @@ export type TripUncheckedCreateWithoutUserInput = {
   ItineraryDay?: Prisma.ItineraryDayUncheckedCreateNestedManyWithoutTripInput
   Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutTripInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutTripInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedCreateNestedManyWithoutTripInput
 }
 
 export type TripCreateOrConnectWithoutUserInput = {
@@ -931,6 +966,90 @@ export type TripScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Trip"> | Date | string
 }
 
+export type TripCreateWithoutPlaceVisitStatusInput = {
+  id: string
+  destination: string
+  title: string
+  startDate: Date | string
+  endDate: Date | string
+  budget: number
+  travelers: number
+  status: string
+  createdAt?: Date | string
+  updatedAt: Date | string
+  ItineraryDay?: Prisma.ItineraryDayCreateNestedManyWithoutTripInput
+  Memory?: Prisma.MemoryCreateNestedManyWithoutTripInput
+  TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutTripInput
+  User: Prisma.UserCreateNestedOneWithoutTripInput
+}
+
+export type TripUncheckedCreateWithoutPlaceVisitStatusInput = {
+  id: string
+  userId: string
+  destination: string
+  title: string
+  startDate: Date | string
+  endDate: Date | string
+  budget: number
+  travelers: number
+  status: string
+  createdAt?: Date | string
+  updatedAt: Date | string
+  ItineraryDay?: Prisma.ItineraryDayUncheckedCreateNestedManyWithoutTripInput
+  Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutTripInput
+  TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutTripInput
+}
+
+export type TripCreateOrConnectWithoutPlaceVisitStatusInput = {
+  where: Prisma.TripWhereUniqueInput
+  create: Prisma.XOR<Prisma.TripCreateWithoutPlaceVisitStatusInput, Prisma.TripUncheckedCreateWithoutPlaceVisitStatusInput>
+}
+
+export type TripUpsertWithoutPlaceVisitStatusInput = {
+  update: Prisma.XOR<Prisma.TripUpdateWithoutPlaceVisitStatusInput, Prisma.TripUncheckedUpdateWithoutPlaceVisitStatusInput>
+  create: Prisma.XOR<Prisma.TripCreateWithoutPlaceVisitStatusInput, Prisma.TripUncheckedCreateWithoutPlaceVisitStatusInput>
+  where?: Prisma.TripWhereInput
+}
+
+export type TripUpdateToOneWithWhereWithoutPlaceVisitStatusInput = {
+  where?: Prisma.TripWhereInput
+  data: Prisma.XOR<Prisma.TripUpdateWithoutPlaceVisitStatusInput, Prisma.TripUncheckedUpdateWithoutPlaceVisitStatusInput>
+}
+
+export type TripUpdateWithoutPlaceVisitStatusInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  destination?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  budget?: Prisma.FloatFieldUpdateOperationsInput | number
+  travelers?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ItineraryDay?: Prisma.ItineraryDayUpdateManyWithoutTripNestedInput
+  Memory?: Prisma.MemoryUpdateManyWithoutTripNestedInput
+  TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutTripNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutTripNestedInput
+}
+
+export type TripUncheckedUpdateWithoutPlaceVisitStatusInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  destination?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  budget?: Prisma.FloatFieldUpdateOperationsInput | number
+  travelers?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ItineraryDay?: Prisma.ItineraryDayUncheckedUpdateManyWithoutTripNestedInput
+  Memory?: Prisma.MemoryUncheckedUpdateManyWithoutTripNestedInput
+  TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutTripNestedInput
+}
+
 export type TripCreateManyUserInput = {
   id: string
   destination: string
@@ -958,6 +1077,7 @@ export type TripUpdateWithoutUserInput = {
   ItineraryDay?: Prisma.ItineraryDayUpdateManyWithoutTripNestedInput
   Memory?: Prisma.MemoryUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUpdateManyWithoutTripNestedInput
 }
 
 export type TripUncheckedUpdateWithoutUserInput = {
@@ -974,6 +1094,7 @@ export type TripUncheckedUpdateWithoutUserInput = {
   ItineraryDay?: Prisma.ItineraryDayUncheckedUpdateManyWithoutTripNestedInput
   Memory?: Prisma.MemoryUncheckedUpdateManyWithoutTripNestedInput
   TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutTripNestedInput
+  PlaceVisitStatus?: Prisma.PlaceVisitStatusUncheckedUpdateManyWithoutTripNestedInput
 }
 
 export type TripUncheckedUpdateManyWithoutUserInput = {
@@ -998,12 +1119,14 @@ export type TripCountOutputType = {
   ItineraryDay: number
   Memory: number
   TravelPhoto: number
+  PlaceVisitStatus: number
 }
 
 export type TripCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ItineraryDay?: boolean | TripCountOutputTypeCountItineraryDayArgs
   Memory?: boolean | TripCountOutputTypeCountMemoryArgs
   TravelPhoto?: boolean | TripCountOutputTypeCountTravelPhotoArgs
+  PlaceVisitStatus?: boolean | TripCountOutputTypeCountPlaceVisitStatusArgs
 }
 
 /**
@@ -1037,6 +1160,13 @@ export type TripCountOutputTypeCountTravelPhotoArgs<ExtArgs extends runtime.Type
   where?: Prisma.TravelPhotoWhereInput
 }
 
+/**
+ * TripCountOutputType without action
+ */
+export type TripCountOutputTypeCountPlaceVisitStatusArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PlaceVisitStatusWhereInput
+}
+
 
 export type TripSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1054,6 +1184,7 @@ export type TripSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Memory?: boolean | Prisma.Trip$MemoryArgs<ExtArgs>
   TravelPhoto?: boolean | Prisma.Trip$TravelPhotoArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  PlaceVisitStatus?: boolean | Prisma.Trip$PlaceVisitStatusArgs<ExtArgs>
   _count?: boolean | Prisma.TripCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["trip"]>
 
@@ -1107,6 +1238,7 @@ export type TripInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Memory?: boolean | Prisma.Trip$MemoryArgs<ExtArgs>
   TravelPhoto?: boolean | Prisma.Trip$TravelPhotoArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  PlaceVisitStatus?: boolean | Prisma.Trip$PlaceVisitStatusArgs<ExtArgs>
   _count?: boolean | Prisma.TripCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TripIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1123,6 +1255,7 @@ export type $TripPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Memory: Prisma.$MemoryPayload<ExtArgs>[]
     TravelPhoto: Prisma.$TravelPhotoPayload<ExtArgs>[]
     User: Prisma.$UserPayload<ExtArgs>
+    PlaceVisitStatus: Prisma.$PlaceVisitStatusPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1534,6 +1667,7 @@ export interface Prisma__TripClient<T, Null = never, ExtArgs extends runtime.Typ
   Memory<T extends Prisma.Trip$MemoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trip$MemoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   TravelPhoto<T extends Prisma.Trip$TravelPhotoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trip$TravelPhotoArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TravelPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  PlaceVisitStatus<T extends Prisma.Trip$PlaceVisitStatusArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trip$PlaceVisitStatusArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlaceVisitStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2044,6 +2178,30 @@ export type Trip$TravelPhotoArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.TravelPhotoScalarFieldEnum | Prisma.TravelPhotoScalarFieldEnum[]
+}
+
+/**
+ * Trip.PlaceVisitStatus
+ */
+export type Trip$PlaceVisitStatusArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PlaceVisitStatus
+   */
+  select?: Prisma.PlaceVisitStatusSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PlaceVisitStatus
+   */
+  omit?: Prisma.PlaceVisitStatusOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PlaceVisitStatusInclude<ExtArgs> | null
+  where?: Prisma.PlaceVisitStatusWhereInput
+  orderBy?: Prisma.PlaceVisitStatusOrderByWithRelationInput | Prisma.PlaceVisitStatusOrderByWithRelationInput[]
+  cursor?: Prisma.PlaceVisitStatusWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PlaceVisitStatusScalarFieldEnum | Prisma.PlaceVisitStatusScalarFieldEnum[]
 }
 
 /**

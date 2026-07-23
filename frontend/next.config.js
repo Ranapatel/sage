@@ -8,13 +8,13 @@ const nextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'maps.googleapis.com' },
+      { protocol: 'https', hostname: 'places.googleapis.com' },
       { protocol: 'https', hostname: '*.booking.com' },
       { protocol: 'https', hostname: '*.expedia.com' },
       { protocol: 'https', hostname: 'logos-world.net' },
       { protocol: 'https', hostname: '*.agoda.com' },
       { protocol: 'https', hostname: 'agoda.com' },
       { protocol: 'https', hostname: 'www.google.com' },
-      { protocol: 'https', hostname: 'images.kiwi.com' },
       // Hotelbeds Giata CDN — hotel photos (required for certification)
       { protocol: 'https', hostname: 'photos.hotelbeds.com' },
       // Wikimedia Commons & Wikipedia thumbnails (free, open-licensed)

@@ -149,7 +149,7 @@ Return JSON in this exact schema:
   ],
   "totalEstimatedCost": 500,
   "budgetBreakdown": {
-    "flightsEstimate": 0,
+    "transportEstimate": 0,
     "hotelsEstimate": 0,
     "foodEstimate": 0,
     "activitiesEstimate": 0,
@@ -331,63 +331,7 @@ IMPORTANT: All prices must be in Indian Rupees (₹). Do NOT use the $ symbol or
 
 
 
-/**
- * AI-powered realistic flight price estimation using Groq
- */
-async function estimateFlightPrices({ from, to, date, travelers = 1, budget }) {
-  const apiKey = process.env.GROQ_API_KEY
-  if (!apiKey) return null
 
-  const prompt = `You are a flight pricing expert. Estimate realistic economy class flight prices in INR for this route.
-
-Route: ${from} → ${to}
-Date: ${date || 'next month'}
-Travelers: ${travelers}
-Budget hint: ₹${budget || 'any'}
-
-Return ONLY this JSON (no explanation, no markdown):
-{
-  "flights": [
-    { "airline": "IndiGo", "price": 4200, "departure": "06:00", "arrival": "08:15", "duration": "2h 15m", "stops": 0, "class": "Economy" },
-    { "airline": "Air India", "price": 5100, "departure": "09:30", "arrival": "11:45", "duration": "2h 15m", "stops": 0, "class": "Economy" },
-    { "airline": "SpiceJet", "price": 3800, "departure": "13:15", "arrival": "15:30", "duration": "2h 15m", "stops": 0, "class": "Economy" },
-    { "airline": "Vistara", "price": 6200, "departure": "16:00", "arrival": "18:20", "duration": "2h 20m", "stops": 0, "class": "Economy" },
-    { "airline": "Akasa Air", "price": 3500, "departure": "19:45", "arrival": "22:00", "duration": "2h 15m", "stops": 0, "class": "Economy" }
-  ]
-}
-
-Rules:
-- All prices must be in INR (Indian Rupees)
-- Domestic flights: ₹2,500 - ₹15,000
-- International flights (outside India): ₹15,000 - ₹80,000
-- Prices must be realistic market rates, NOT inflated
-- Use real airlines that actually operate this route`
-
-  try {
-    const response = await axios.post(GROQ_API_URL, {
-      model: MODEL,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 600,
-      temperature: 0.1,
-    }, {
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      timeout: 8000,
-    })
-
-    const content = response.data.choices[0]?.message?.content
-    const jsonMatch = content?.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) return null
-
-    const parsed = JSON.parse(jsonMatch[0])
-    if (!Array.isArray(parsed?.flights) || parsed.flights.length === 0) return null
-
-    console.log(`[Groq] ✅ AI estimated ${parsed.flights.length} flight prices for ${from} → ${to}`)
-    return parsed.flights
-  } catch (err) {
-    console.warn('[Groq] Flight price estimation failed:', err.message)
-    return null
-  }
-}
 
 /**
  * Generates a high-quality mock itinerary for DEMO mode
@@ -579,5 +523,5 @@ function generateMockPlaces(destination) {
   ]
 }
 
-module.exports = { generateItinerary, getRecommendations, optimizeBudget, estimateFlightPrices, getExplorePlaces, generateMockPlaces }
+module.exports = { generateItinerary, getRecommendations, optimizeBudget, getExplorePlaces, generateMockPlaces }
 

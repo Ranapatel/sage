@@ -367,8 +367,8 @@ const FAQS = [
     a: 'While we support planning for global routes, our blueprint destinations are highly optimized for direct bookings, itineraries, and visa requirements.',
   },
   {
-    q: 'Does TripSage handle flight booking cancellations?',
-    a: 'TripSage is a planning assistant. All flights and stays are booked directly with partners (like Skyscanner, Booking.com, etc.), and cancellations are handled by those platforms.',
+    q: 'Does TripSage handle booking cancellations?',
+    a: 'TripSage is a planning assistant. Stays and partner options are booked directly with official providers (such as Hotelbeds, Booking.com, etc.), and cancellations are managed according to each provider’s terms.',
   },
 ]
 
@@ -376,8 +376,6 @@ export default function HomeClient() {
   const router = useRouter()
   const isMobile = useIsMobile()
   const isDesktop = !isMobile
-  const [reviews, setReviews] = useState<any[]>([])
-  const [reviewsLoading, setReviewsLoading] = useState(true)
   const { user, updateCurrency } = useAuthStore()
   const [form, setForm] = useState({
     from: '',
@@ -406,24 +404,6 @@ export default function HomeClient() {
       ref.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     }
   }
-
-  useEffect(() => {
-    let active = true
-    const fetchReviews = async () => {
-      try {
-        const res = await tripAPI.getReviews()
-        if (active && res.success && Array.isArray(res.data)) {
-          setReviews(res.data)
-        }
-      } catch (err) {
-        console.error('Error fetching reviews:', err)
-      } finally {
-        if (active) setReviewsLoading(false)
-      }
-    }
-    fetchReviews()
-    return () => { active = false }
-  }, [])
 
   // Sync currency from auth store if user logs in after mount
   useEffect(() => {

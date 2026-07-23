@@ -69,7 +69,13 @@ const allowedOrigin = (origin, callback) => {
 }
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
-app.use(helmet({ contentSecurityPolicy: false }))
+// crossOriginResourcePolicy MUST be "cross-origin": frontend (e.g. :3000) and
+// API (:5000) are different origins. Helmet's default "same-origin" CORP causes
+// browsers to block the response body → Axios "Network Error" on every API call.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}))
 app.use(compression())
 app.use(cors({ origin: allowedOrigin, credentials: true }))
 app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '10kb' }))
@@ -117,10 +123,10 @@ app.use('/api/transport',     require('./routes/transport'))
 app.use('/api/train',         require('./routes/train'))
 app.use('/api/bus',           require('./routes/bus'))
 
-// ── Activities booking funnel ─────────────────────────────────────────────────
-app.use('/api/activities',    require('./routes/activities'))
-app.use('/api/payments',      require('./routes/payments'))
-app.use('/api/bookings',      require('./routes/activityBookings'))
+// Travelport Flights Integration (Phase 1)
+app.use('/api/travelport/flights', require('./modules/travelport').default)
+
+// Payments route removed (was only used for Activities booking)
 
 // Geocoding
 app.use('/api/location',      require('./routes/location.routes').default)

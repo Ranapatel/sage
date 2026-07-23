@@ -40,6 +40,8 @@ interface Place {
   whyItFits?: string
   coordinates?: [number, number] | number[]
   image?: string
+  photoUrl?: string
+  isAiIllustration?: boolean
   smartLabels?: string[]
 }
 
@@ -53,6 +55,7 @@ interface Day {
   budgetNote?: string
   localTip?: string
   bestStartTime?: string
+  slots?: any
 }
 
 interface Props {
@@ -278,6 +281,7 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
     if (resolvedRef.current) return
     resolvedRef.current = true
 
+<<<<<<< HEAD
     // ── Fast path: backend pre-fetched image ─────────────────────────────────
     if (place.image && typeof place.image === 'string' && place.image.startsWith('http')) {
       setImgLoaded(false)
@@ -287,6 +291,14 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         source: 'curated',
         confidence: 'exact',
         attribution: null,
+=======
+    if (place.image || place.photoUrl) {
+      setImageResult({
+        imageUrl: place.image || place.photoUrl || null,
+        source: 'wikidata', // show as exact match
+        confidence: 'exact',
+        attribution: place.isAiIllustration ? 'AI Illustration' : null,
+>>>>>>> e444a81 (Save local changes)
         attributionUrl: null,
         license: null,
         altText: place.name,
@@ -295,7 +307,10 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
       return
     }
 
+<<<<<<< HEAD
     // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
+=======
+>>>>>>> e444a81 (Save local changes)
     const hasCoords =
       Array.isArray(place.coordinates) &&
       place.coordinates.length === 2 &&
@@ -320,7 +335,11 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         altText: place.name, showAsBackground: false,
       })
     })
+<<<<<<< HEAD
   }, [place.name, place.image, place.category, destination, place.coordinates])
+=======
+  }, [place.name, place.category, destination, place.coordinates, place.image, place.photoUrl, place.isAiIllustration])
+>>>>>>> e444a81 (Save local changes)
 
   const hasCoords = Array.isArray(place.coordinates)
     && place.coordinates.length === 2
@@ -487,8 +506,19 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
               {React.cloneElement(fallbackStyle.icon as React.ReactElement, { size: 10, className: 'mr-0.5' })} {meta.label}
             </span>
 
-            {/* Right badge: area chip OR smart label OR verified image notice */}
-            {isAreaImage ? (
+            {/* Right badge: Illustration label OR area chip OR smart label OR verified image notice */}
+            {place.isAiIllustration || (imageResult as any)?.isAiIllustration ? (
+              <span
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-semibold backdrop-blur-sm"
+                style={{
+                  background: 'rgba(234,88,12,0.85)',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                🔮 Illustration
+              </span>
+            ) : isAreaImage ? (
               <span
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-semibold backdrop-blur-sm"
                 style={{

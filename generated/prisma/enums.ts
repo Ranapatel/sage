@@ -9,7 +9,42 @@
 * 🟢 You can import this file directly.
 */
 
+export const BookingStatus = {
+  SEARCHED: 'SEARCHED',
+  PRICED: 'PRICED',
+  WORKBENCH_CREATED: 'WORKBENCH_CREATED',
+  OFFER_ADDED: 'OFFER_ADDED',
+  TRAVELERS_ADDED: 'TRAVELERS_ADDED',
+  BOOKED: 'BOOKED',
+  RESERVATION_CREATED: 'RESERVATION_CREATED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  TICKET_ISSUED: 'TICKET_ISSUED',
+  TRAVEL_COMPLETED: 'TRAVEL_COMPLETED',
+  VOIDED: 'VOIDED',
+  REFUNDED: 'REFUNDED',
+  EXCHANGED: 'EXCHANGED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const ProviderType = {
+  TRAVELPORT_GDS: 'TRAVELPORT_GDS',
+  TRAVELPORT_NDC: 'TRAVELPORT_NDC'
+} as const
+
+export type ProviderType = (typeof ProviderType)[keyof typeof ProviderType]
+
+
+export const PassengerType = {
+  ADT: 'ADT',
+  CNN: 'CNN',
+  INF: 'INF',
+  YTH: 'YTH'
+} as const
+
+export type PassengerType = (typeof PassengerType)[keyof typeof PassengerType]

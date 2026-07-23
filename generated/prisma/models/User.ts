@@ -216,6 +216,8 @@ export type UserWhereInput = {
   UserProfile?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   Wallet?: Prisma.XOR<Prisma.WalletNullableScalarRelationFilter, Prisma.WalletWhereInput> | null
   WalletTransaction?: Prisma.WalletTransactionListRelationFilter
+  UserLocation?: Prisma.UserLocationListRelationFilter
+  MapPreference?: Prisma.XOR<Prisma.MapPreferenceNullableScalarRelationFilter, Prisma.MapPreferenceWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -237,6 +239,8 @@ export type UserOrderByWithRelationInput = {
   UserProfile?: Prisma.UserProfileOrderByWithRelationInput
   Wallet?: Prisma.WalletOrderByWithRelationInput
   WalletTransaction?: Prisma.WalletTransactionOrderByRelationAggregateInput
+  UserLocation?: Prisma.UserLocationOrderByRelationAggregateInput
+  MapPreference?: Prisma.MapPreferenceOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -261,6 +265,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   UserProfile?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   Wallet?: Prisma.XOR<Prisma.WalletNullableScalarRelationFilter, Prisma.WalletWhereInput> | null
   WalletTransaction?: Prisma.WalletTransactionListRelationFilter
+  UserLocation?: Prisma.UserLocationListRelationFilter
+  MapPreference?: Prisma.XOR<Prisma.MapPreferenceNullableScalarRelationFilter, Prisma.MapPreferenceWhereInput> | null
 }, "id" | "clerkUserId">
 
 export type UserOrderByWithAggregationInput = {
@@ -310,6 +316,8 @@ export type UserCreateInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -331,6 +339,8 @@ export type UserUncheckedCreateInput = {
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -352,6 +362,8 @@ export type UserUpdateInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -373,6 +385,8 @@ export type UserUncheckedUpdateInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -586,6 +600,34 @@ export type UserUpdateOneRequiredWithoutWalletTransactionNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWalletTransactionInput, Prisma.UserUpdateWithoutWalletTransactionInput>, Prisma.UserUncheckedUpdateWithoutWalletTransactionInput>
 }
 
+export type UserCreateNestedOneWithoutUserLocationInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserLocationInput, Prisma.UserUncheckedCreateWithoutUserLocationInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserLocationInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserLocationNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserLocationInput, Prisma.UserUncheckedCreateWithoutUserLocationInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserLocationInput
+  upsert?: Prisma.UserUpsertWithoutUserLocationInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserLocationInput, Prisma.UserUpdateWithoutUserLocationInput>, Prisma.UserUncheckedUpdateWithoutUserLocationInput>
+}
+
+export type UserCreateNestedOneWithoutMapPreferenceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMapPreferenceInput, Prisma.UserUncheckedCreateWithoutMapPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMapPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMapPreferenceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMapPreferenceInput, Prisma.UserUncheckedCreateWithoutMapPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMapPreferenceInput
+  upsert?: Prisma.UserUpsertWithoutMapPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMapPreferenceInput, Prisma.UserUpdateWithoutMapPreferenceInput>, Prisma.UserUncheckedUpdateWithoutMapPreferenceInput>
+}
+
 export type UserCreateWithoutMemoryInput = {
   id: string
   clerkUserId: string
@@ -604,6 +646,8 @@ export type UserCreateWithoutMemoryInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMemoryInput = {
@@ -624,6 +668,8 @@ export type UserUncheckedCreateWithoutMemoryInput = {
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMemoryInput = {
@@ -660,6 +706,8 @@ export type UserUpdateWithoutMemoryInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMemoryInput = {
@@ -680,6 +728,8 @@ export type UserUncheckedUpdateWithoutMemoryInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferral_Referral_referredUserIdToUserInput = {
@@ -700,6 +750,8 @@ export type UserCreateWithoutReferral_Referral_referredUserIdToUserInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferral_Referral_referredUserIdToUserInput = {
@@ -720,6 +772,8 @@ export type UserUncheckedCreateWithoutReferral_Referral_referredUserIdToUserInpu
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferral_Referral_referredUserIdToUserInput = {
@@ -745,6 +799,8 @@ export type UserCreateWithoutReferral_Referral_referrerIdToUserInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferral_Referral_referrerIdToUserInput = {
@@ -765,6 +821,8 @@ export type UserUncheckedCreateWithoutReferral_Referral_referrerIdToUserInput = 
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferral_Referral_referrerIdToUserInput = {
@@ -801,6 +859,8 @@ export type UserUpdateWithoutReferral_Referral_referredUserIdToUserInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferral_Referral_referredUserIdToUserInput = {
@@ -821,6 +881,8 @@ export type UserUncheckedUpdateWithoutReferral_Referral_referredUserIdToUserInpu
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferral_Referral_referrerIdToUserInput = {
@@ -852,6 +914,8 @@ export type UserUpdateWithoutReferral_Referral_referrerIdToUserInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferral_Referral_referrerIdToUserInput = {
@@ -872,6 +936,8 @@ export type UserUncheckedUpdateWithoutReferral_Referral_referrerIdToUserInput = 
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSavedItemInput = {
@@ -892,6 +958,8 @@ export type UserCreateWithoutSavedItemInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSavedItemInput = {
@@ -912,6 +980,8 @@ export type UserUncheckedCreateWithoutSavedItemInput = {
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSavedItemInput = {
@@ -948,6 +1018,8 @@ export type UserUpdateWithoutSavedItemInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSavedItemInput = {
@@ -968,6 +1040,8 @@ export type UserUncheckedUpdateWithoutSavedItemInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTravelPhotoInput = {
@@ -988,6 +1062,8 @@ export type UserCreateWithoutTravelPhotoInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTravelPhotoInput = {
@@ -1008,6 +1084,8 @@ export type UserUncheckedCreateWithoutTravelPhotoInput = {
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTravelPhotoInput = {
@@ -1044,6 +1122,8 @@ export type UserUpdateWithoutTravelPhotoInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTravelPhotoInput = {
@@ -1064,6 +1144,8 @@ export type UserUncheckedUpdateWithoutTravelPhotoInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTravelPreferenceInput = {
@@ -1084,6 +1166,8 @@ export type UserCreateWithoutTravelPreferenceInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTravelPreferenceInput = {
@@ -1104,6 +1188,8 @@ export type UserUncheckedCreateWithoutTravelPreferenceInput = {
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTravelPreferenceInput = {
@@ -1140,6 +1226,8 @@ export type UserUpdateWithoutTravelPreferenceInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTravelPreferenceInput = {
@@ -1160,6 +1248,8 @@ export type UserUncheckedUpdateWithoutTravelPreferenceInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTripInput = {
@@ -1180,6 +1270,8 @@ export type UserCreateWithoutTripInput = {
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTripInput = {
@@ -1200,6 +1292,8 @@ export type UserUncheckedCreateWithoutTripInput = {
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTripInput = {
@@ -1236,6 +1330,8 @@ export type UserUpdateWithoutTripInput = {
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTripInput = {
@@ -1256,6 +1352,8 @@ export type UserUncheckedUpdateWithoutTripInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserProfileInput = {
@@ -1276,6 +1374,8 @@ export type UserCreateWithoutUserProfileInput = {
   Trip?: Prisma.TripCreateNestedManyWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserProfileInput = {
@@ -1296,6 +1396,8 @@ export type UserUncheckedCreateWithoutUserProfileInput = {
   Trip?: Prisma.TripUncheckedCreateNestedManyWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserProfileInput = {
@@ -1332,6 +1434,8 @@ export type UserUpdateWithoutUserProfileInput = {
   Trip?: Prisma.TripUpdateManyWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserProfileInput = {
@@ -1352,6 +1456,8 @@ export type UserUncheckedUpdateWithoutUserProfileInput = {
   Trip?: Prisma.TripUncheckedUpdateManyWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWalletInput = {
@@ -1372,6 +1478,8 @@ export type UserCreateWithoutWalletInput = {
   Trip?: Prisma.TripCreateNestedManyWithoutUserInput
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWalletInput = {
@@ -1392,6 +1500,8 @@ export type UserUncheckedCreateWithoutWalletInput = {
   Trip?: Prisma.TripUncheckedCreateNestedManyWithoutUserInput
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWalletInput = {
@@ -1428,6 +1538,8 @@ export type UserUpdateWithoutWalletInput = {
   Trip?: Prisma.TripUpdateManyWithoutUserNestedInput
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWalletInput = {
@@ -1448,6 +1560,8 @@ export type UserUncheckedUpdateWithoutWalletInput = {
   Trip?: Prisma.TripUncheckedUpdateManyWithoutUserNestedInput
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWalletTransactionInput = {
@@ -1468,6 +1582,8 @@ export type UserCreateWithoutWalletTransactionInput = {
   Trip?: Prisma.TripCreateNestedManyWithoutUserInput
   UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWalletTransactionInput = {
@@ -1488,6 +1604,8 @@ export type UserUncheckedCreateWithoutWalletTransactionInput = {
   Trip?: Prisma.TripUncheckedCreateNestedManyWithoutUserInput
   UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWalletTransactionInput = {
@@ -1524,6 +1642,8 @@ export type UserUpdateWithoutWalletTransactionInput = {
   Trip?: Prisma.TripUpdateManyWithoutUserNestedInput
   UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWalletTransactionInput = {
@@ -1544,6 +1664,216 @@ export type UserUncheckedUpdateWithoutWalletTransactionInput = {
   Trip?: Prisma.TripUncheckedUpdateManyWithoutUserNestedInput
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserLocationInput = {
+  id: string
+  clerkUserId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  profileImage?: string | null
+  createdAt?: Date | string
+  updatedAt: Date | string
+  Memory?: Prisma.MemoryCreateNestedManyWithoutUserInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralCreateNestedOneWithoutUser_Referral_referredUserIdToUserInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralCreateNestedManyWithoutUser_Referral_referrerIdToUserInput
+  SavedItem?: Prisma.SavedItemCreateNestedManyWithoutUserInput
+  TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutUserInput
+  TravelPreference?: Prisma.TravelPreferenceCreateNestedOneWithoutUserInput
+  Trip?: Prisma.TripCreateNestedManyWithoutUserInput
+  UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
+  Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
+  WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserLocationInput = {
+  id: string
+  clerkUserId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  profileImage?: string | null
+  createdAt?: Date | string
+  updatedAt: Date | string
+  Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutUserInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralUncheckedCreateNestedOneWithoutUser_Referral_referredUserIdToUserInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralUncheckedCreateNestedManyWithoutUser_Referral_referrerIdToUserInput
+  SavedItem?: Prisma.SavedItemUncheckedCreateNestedManyWithoutUserInput
+  TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutUserInput
+  TravelPreference?: Prisma.TravelPreferenceUncheckedCreateNestedOneWithoutUserInput
+  Trip?: Prisma.TripUncheckedCreateNestedManyWithoutUserInput
+  UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
+  Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
+  WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  MapPreference?: Prisma.MapPreferenceUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserLocationInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserLocationInput, Prisma.UserUncheckedCreateWithoutUserLocationInput>
+}
+
+export type UserUpsertWithoutUserLocationInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserLocationInput, Prisma.UserUncheckedUpdateWithoutUserLocationInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserLocationInput, Prisma.UserUncheckedCreateWithoutUserLocationInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserLocationInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserLocationInput, Prisma.UserUncheckedUpdateWithoutUserLocationInput>
+}
+
+export type UserUpdateWithoutUserLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Memory?: Prisma.MemoryUpdateManyWithoutUserNestedInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralUpdateOneWithoutUser_Referral_referredUserIdToUserNestedInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralUpdateManyWithoutUser_Referral_referrerIdToUserNestedInput
+  SavedItem?: Prisma.SavedItemUpdateManyWithoutUserNestedInput
+  TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutUserNestedInput
+  TravelPreference?: Prisma.TravelPreferenceUpdateOneWithoutUserNestedInput
+  Trip?: Prisma.TripUpdateManyWithoutUserNestedInput
+  UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
+  Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
+  WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Memory?: Prisma.MemoryUncheckedUpdateManyWithoutUserNestedInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralUncheckedUpdateOneWithoutUser_Referral_referredUserIdToUserNestedInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralUncheckedUpdateManyWithoutUser_Referral_referrerIdToUserNestedInput
+  SavedItem?: Prisma.SavedItemUncheckedUpdateManyWithoutUserNestedInput
+  TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutUserNestedInput
+  TravelPreference?: Prisma.TravelPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  Trip?: Prisma.TripUncheckedUpdateManyWithoutUserNestedInput
+  UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
+  Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
+  WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MapPreference?: Prisma.MapPreferenceUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMapPreferenceInput = {
+  id: string
+  clerkUserId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  profileImage?: string | null
+  createdAt?: Date | string
+  updatedAt: Date | string
+  Memory?: Prisma.MemoryCreateNestedManyWithoutUserInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralCreateNestedOneWithoutUser_Referral_referredUserIdToUserInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralCreateNestedManyWithoutUser_Referral_referrerIdToUserInput
+  SavedItem?: Prisma.SavedItemCreateNestedManyWithoutUserInput
+  TravelPhoto?: Prisma.TravelPhotoCreateNestedManyWithoutUserInput
+  TravelPreference?: Prisma.TravelPreferenceCreateNestedOneWithoutUserInput
+  Trip?: Prisma.TripCreateNestedManyWithoutUserInput
+  UserProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
+  Wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
+  WalletTransaction?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMapPreferenceInput = {
+  id: string
+  clerkUserId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  profileImage?: string | null
+  createdAt?: Date | string
+  updatedAt: Date | string
+  Memory?: Prisma.MemoryUncheckedCreateNestedManyWithoutUserInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralUncheckedCreateNestedOneWithoutUser_Referral_referredUserIdToUserInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralUncheckedCreateNestedManyWithoutUser_Referral_referrerIdToUserInput
+  SavedItem?: Prisma.SavedItemUncheckedCreateNestedManyWithoutUserInput
+  TravelPhoto?: Prisma.TravelPhotoUncheckedCreateNestedManyWithoutUserInput
+  TravelPreference?: Prisma.TravelPreferenceUncheckedCreateNestedOneWithoutUserInput
+  Trip?: Prisma.TripUncheckedCreateNestedManyWithoutUserInput
+  UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
+  Wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
+  WalletTransaction?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  UserLocation?: Prisma.UserLocationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMapPreferenceInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMapPreferenceInput, Prisma.UserUncheckedCreateWithoutMapPreferenceInput>
+}
+
+export type UserUpsertWithoutMapPreferenceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMapPreferenceInput, Prisma.UserUncheckedUpdateWithoutMapPreferenceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMapPreferenceInput, Prisma.UserUncheckedCreateWithoutMapPreferenceInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMapPreferenceInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMapPreferenceInput, Prisma.UserUncheckedUpdateWithoutMapPreferenceInput>
+}
+
+export type UserUpdateWithoutMapPreferenceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Memory?: Prisma.MemoryUpdateManyWithoutUserNestedInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralUpdateOneWithoutUser_Referral_referredUserIdToUserNestedInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralUpdateManyWithoutUser_Referral_referrerIdToUserNestedInput
+  SavedItem?: Prisma.SavedItemUpdateManyWithoutUserNestedInput
+  TravelPhoto?: Prisma.TravelPhotoUpdateManyWithoutUserNestedInput
+  TravelPreference?: Prisma.TravelPreferenceUpdateOneWithoutUserNestedInput
+  Trip?: Prisma.TripUpdateManyWithoutUserNestedInput
+  UserProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
+  Wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
+  WalletTransaction?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMapPreferenceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Memory?: Prisma.MemoryUncheckedUpdateManyWithoutUserNestedInput
+  Referral_Referral_referredUserIdToUser?: Prisma.ReferralUncheckedUpdateOneWithoutUser_Referral_referredUserIdToUserNestedInput
+  Referral_Referral_referrerIdToUser?: Prisma.ReferralUncheckedUpdateManyWithoutUser_Referral_referrerIdToUserNestedInput
+  SavedItem?: Prisma.SavedItemUncheckedUpdateManyWithoutUserNestedInput
+  TravelPhoto?: Prisma.TravelPhotoUncheckedUpdateManyWithoutUserNestedInput
+  TravelPreference?: Prisma.TravelPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  Trip?: Prisma.TripUncheckedUpdateManyWithoutUserNestedInput
+  UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
+  Wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
+  WalletTransaction?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  UserLocation?: Prisma.UserLocationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1558,6 +1888,7 @@ export type UserCountOutputType = {
   TravelPhoto: number
   Trip: number
   WalletTransaction: number
+  UserLocation: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1567,6 +1898,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   TravelPhoto?: boolean | UserCountOutputTypeCountTravelPhotoArgs
   Trip?: boolean | UserCountOutputTypeCountTripArgs
   WalletTransaction?: boolean | UserCountOutputTypeCountWalletTransactionArgs
+  UserLocation?: boolean | UserCountOutputTypeCountUserLocationArgs
 }
 
 /**
@@ -1621,6 +1953,13 @@ export type UserCountOutputTypeCountWalletTransactionArgs<ExtArgs extends runtim
   where?: Prisma.WalletTransactionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserLocationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserLocationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1641,6 +1980,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   UserProfile?: boolean | Prisma.User$UserProfileArgs<ExtArgs>
   Wallet?: boolean | Prisma.User$WalletArgs<ExtArgs>
   WalletTransaction?: boolean | Prisma.User$WalletTransactionArgs<ExtArgs>
+  UserLocation?: boolean | Prisma.User$UserLocationArgs<ExtArgs>
+  MapPreference?: boolean | Prisma.User$MapPreferenceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1689,6 +2030,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   UserProfile?: boolean | Prisma.User$UserProfileArgs<ExtArgs>
   Wallet?: boolean | Prisma.User$WalletArgs<ExtArgs>
   WalletTransaction?: boolean | Prisma.User$WalletTransactionArgs<ExtArgs>
+  UserLocation?: boolean | Prisma.User$UserLocationArgs<ExtArgs>
+  MapPreference?: boolean | Prisma.User$MapPreferenceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1707,6 +2050,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     UserProfile: Prisma.$UserProfilePayload<ExtArgs> | null
     Wallet: Prisma.$WalletPayload<ExtArgs> | null
     WalletTransaction: Prisma.$WalletTransactionPayload<ExtArgs>[]
+    UserLocation: Prisma.$UserLocationPayload<ExtArgs>[]
+    MapPreference: Prisma.$MapPreferencePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2121,6 +2466,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   UserProfile<T extends Prisma.User$UserProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$UserProfileArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Wallet<T extends Prisma.User$WalletArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$WalletArgs<ExtArgs>>): Prisma.Prisma__WalletClient<runtime.Types.Result.GetResult<Prisma.$WalletPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   WalletTransaction<T extends Prisma.User$WalletTransactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$WalletTransactionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WalletTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  UserLocation<T extends Prisma.User$UserLocationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$UserLocationArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  MapPreference<T extends Prisma.User$MapPreferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$MapPreferenceArgs<ExtArgs>>): Prisma.Prisma__MapPreferenceClient<runtime.Types.Result.GetResult<Prisma.$MapPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2768,6 +3115,49 @@ export type User$WalletTransactionArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.WalletTransactionScalarFieldEnum | Prisma.WalletTransactionScalarFieldEnum[]
+}
+
+/**
+ * User.UserLocation
+ */
+export type User$UserLocationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserLocation
+   */
+  select?: Prisma.UserLocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserLocation
+   */
+  omit?: Prisma.UserLocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserLocationInclude<ExtArgs> | null
+  where?: Prisma.UserLocationWhereInput
+  orderBy?: Prisma.UserLocationOrderByWithRelationInput | Prisma.UserLocationOrderByWithRelationInput[]
+  cursor?: Prisma.UserLocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserLocationScalarFieldEnum | Prisma.UserLocationScalarFieldEnum[]
+}
+
+/**
+ * User.MapPreference
+ */
+export type User$MapPreferenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MapPreference
+   */
+  select?: Prisma.MapPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MapPreference
+   */
+  omit?: Prisma.MapPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapPreferenceInclude<ExtArgs> | null
+  where?: Prisma.MapPreferenceWhereInput
 }
 
 /**

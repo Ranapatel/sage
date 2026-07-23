@@ -249,30 +249,18 @@ router.post('/init', [
     }
   }
 
-  // ── Flight booking (legacy simulation) ────────────────────────────────────
-  const booking = {
-    id:         bookingId,
-    type,
-    itemId,
-    status:     'PENDING',
-    createdAt:  new Date().toISOString(),
-    userDetails: {
-      name:  userDetails.name  || 'Guest',
-      email: userDetails.email || '',
-    },
+  if (type === 'flight') {
+    return res.status(400).json({
+      success: false,
+      error: 'FLIGHT_SEARCH_UNAVAILABLE',
+      message: 'Flight search is currently unavailable. Real-time flight booking will be available in a future update.'
+    })
   }
-  bookings.set(bookingId, booking)
 
-  // Simulate processing delay
-  setTimeout(() => {
-    const b = bookings.get(bookingId)
-    if (b) { b.status = 'CONFIRMED'; bookings.set(bookingId, b) }
-  }, 2000)
-
-  return res.json({
-    success: true,
-    data: { bookingId, status: 'PENDING' },
-    message: 'Booking initiated. Redirecting to partner site...',
+  return res.status(400).json({
+    success: false,
+    error: 'INVALID_BOOKING_TYPE',
+    message: 'Unsupported booking type.'
   })
 })
 

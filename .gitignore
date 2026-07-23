@@ -1,18 +1,24 @@
 node_modules/
+frontend/node_modules/
+backend/node_modules/
+backend/transport/node_modules/
+
+# Environment files and credentials (NEVER COMMIT TO GIT)
 .env
-.env.local
+.env.*
+*.env
+backend/.env*
+backend/transport/.env*
+frontend/.env*
+
 .next/
+frontend/.next/
 dist/
+frontend/dist/
 build/
 *.log
 .DS_Store
 .vercel/
-node_modules/
-.env
-frontend/node_modules/
-backend/node_modules/
-frontend/.next/
-frontend/dist/
 
 /generated/prisma
 backend/scratch/

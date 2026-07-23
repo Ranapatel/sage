@@ -101,3 +101,123 @@ export type Wallet = Prisma.WalletModel
  * 
  */
 export type WalletTransaction = Prisma.WalletTransactionModel
+/**
+ * Model UserLocation
+ * 
+ */
+export type UserLocation = Prisma.UserLocationModel
+/**
+ * Model PlaceVisitStatus
+ * 
+ */
+export type PlaceVisitStatus = Prisma.PlaceVisitStatusModel
+/**
+ * Model MapPreference
+ * 
+ */
+export type MapPreference = Prisma.MapPreferenceModel
+/**
+ * Model TransportRoutes
+ * 
+ */
+export type TransportRoutes = Prisma.TransportRoutesModel
+/**
+ * Model TransportProviders
+ * 
+ */
+export type TransportProviders = Prisma.TransportProvidersModel
+/**
+ * Model Stations
+ * 
+ */
+export type Stations = Prisma.StationsModel
+/**
+ * Model BusStops
+ * 
+ */
+export type BusStops = Prisma.BusStopsModel
+/**
+ * Model RailwayStations
+ * 
+ */
+export type RailwayStations = Prisma.RailwayStationsModel
+/**
+ * Model JourneyPlans
+ * 
+ */
+export type JourneyPlans = Prisma.JourneyPlansModel
+/**
+ * Model UserSearchHistory
+ * 
+ */
+export type UserSearchHistory = Prisma.UserSearchHistoryModel
+/**
+ * Model SearchSession
+ * 
+ */
+export type SearchSession = Prisma.SearchSessionModel
+/**
+ * Model FlightOffer
+ * 
+ */
+export type FlightOffer = Prisma.FlightOfferModel
+/**
+ * Model Reservation
+ * 
+ */
+export type Reservation = Prisma.ReservationModel
+/**
+ * Model Traveler
+ * 
+ */
+export type Traveler = Prisma.TravelerModel
+/**
+ * Model Ticket
+ * 
+ */
+export type Ticket = Prisma.TicketModel
+/**
+ * Model SeatAssignment
+ * 
+ */
+export type SeatAssignment = Prisma.SeatAssignmentModel
+/**
+ * Model AncillaryItem
+ * 
+ */
+export type AncillaryItem = Prisma.AncillaryItemModel
+/**
+ * Model FlightPayment
+ * 
+ */
+export type FlightPayment = Prisma.FlightPaymentModel
+/**
+ * Model FlightExchange
+ * 
+ */
+export type FlightExchange = Prisma.FlightExchangeModel
+/**
+ * Model FlightRefund
+ * 
+ */
+export type FlightRefund = Prisma.FlightRefundModel
+/**
+ * Model FlightVoid
+ * 
+ */
+export type FlightVoid = Prisma.FlightVoidModel
+/**
+ * Model FlightAuditLog
+ * 
+ */
+export type FlightAuditLog = Prisma.FlightAuditLogModel
+/**
+ * Model FlightCommission
+ * 
+ */
+export type FlightCommission = Prisma.FlightCommissionModel
+/**
+ * Model ScheduleChange
+ * 
+ */
+export type ScheduleChange = Prisma.ScheduleChangeModel

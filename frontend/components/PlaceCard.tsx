@@ -41,28 +41,25 @@ const CATEGORY_QUERIES: Record<string, string> = {
   accommodation: 'hotel resort room',
 };
 
-const UNSPLASH_KEY = process.env.NEXT_PUBLIC_UNSPLASH_KEY;
 const imageCache: Record<string, string[]> = {};
 
-async function fetchPlaceImages(placeName: string, category: string, destination?: string): Promise<string[]> {
-  const baseQuery = destination
-    ? `${placeName} ${destination} ${CATEGORY_QUERIES[category] || 'travel'}`
-    : `${placeName} ${CATEGORY_QUERIES[category] || 'travel'}`;
-  const cacheKey = baseQuery.toLowerCase();
+async function fetchPlaceImages(placeName: string, category: string = 'dining', destination?: string): Promise<string[]> {
+  const cat = (category || 'dining').toLowerCase();
+  const cacheKey = `${placeName.toLowerCase()}|${(destination || '').toLowerCase()}|${cat}`;
 
   if (imageCache[cacheKey]) return imageCache[cacheKey];
 
-  const query = encodeURIComponent(baseQuery);
   try {
-    if (!UNSPLASH_KEY) throw new Error('no key');
-    const res = await fetch(
-      `https://api.unsplash.com/search/photos?query=${query}&per_page=5&orientation=landscape&content_filter=high`,
-      { headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` } }
-    );
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const params = new URLSearchParams();
+    params.set('placeName', placeName);
+    params.set('city', destination || '');
+    params.set('category', cat);
+
+    const res = await fetch(`${baseUrl}/api/explore/place-image?${params.toString()}`);
     const data = await res.json();
-    const urls = (data.results || []).map((r: any) => `${r.urls.raw}&w=600&q=80&auto=format&fit=crop`);
-    if (urls.length >= 2) {
-      imageCache[cacheKey] = urls.slice(0, 5);
+    if (data.success && data.data && Array.isArray(data.data.gallery)) {
+      imageCache[cacheKey] = data.data.gallery;
       return imageCache[cacheKey];
     }
   } catch {}
@@ -106,8 +103,19 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
   const [images, setImages] = useState<string[] | null>(null);
 
   useEffect(() => {
+    // Reuse pre-resolved gallery and hero image from the backend if available
+    if (place.galleryImages && place.galleryImages.length > 0) {
+      setImages(place.galleryImages.slice(0, 4));
+      return;
+    }
+    if (place.heroImage) {
+      setImages([place.heroImage]);
+      return;
+    }
+
     const initial = place.image ? [place.image] : [];
-    fetchPlaceImages(place.name, place.category, destination)
+    const cat = place.category || 'dining';
+    fetchPlaceImages(place.name, cat, destination)
       .then((imgs) => {
         const merged = [...new Set([...initial, ...imgs])].filter(Boolean).slice(0, 4);
         setImages(merged.length > 0 ? merged : initial);
@@ -115,7 +123,7 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
       .catch(() => {
         setImages(initial);
       });
-  }, [place.name, place.category, place.image, destination]);
+  }, [place.name, place.category, place.image, place.heroImage, place.galleryImages, destination]);
 
   if (!images) {
     return (

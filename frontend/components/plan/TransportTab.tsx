@@ -54,10 +54,12 @@ interface Props {
   budget?: number
   hotelCostSpent?: number
   currency?: string
+  error?: string | null
 }
 
 type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-routes'
 
+<<<<<<< HEAD
 // ─── Airline badge data ───────────────────────────────────────────────────────
 
 const AIRLINE_LOGOS: Record<string, string> = {
@@ -153,6 +155,8 @@ function getAirlineInitials(name: string): string {
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
   return clean.slice(0, 2).toUpperCase()
 }
+=======
+>>>>>>> e444a81 (Save local changes)
 
 // ─── Sage Score calculation ───────────────────────────────────────────────────
 
@@ -274,74 +278,7 @@ function SageScoreRing({ score: rawScore, dark }: { score: number; dark?: boolea
   )
 }
 
-// ─── Airline Badge ────────────────────────────────────────────────────────────
 
-function AirlineBadge({ name }: { name: string }) {
-  const [imgError, setImgError] = useState(false)
-  const logo = getAirlineLogo(name)
-  const initials = getAirlineInitials(name)
-  const color = getAirlineColor(name)
-  const cleanName = name.split('—')[0].split('-')[0].trim()
-
-  // Extract flight number hint (e.g. "IndiGo 6E 123")
-  const parts = cleanName.split(' ')
-  const airlineName = parts.slice(0, parts.length > 2 ? -1 : undefined).join(' ')
-
-  return (
-    <div className="flex items-center gap-2.5">
-      {/* Logo or initials */}
-      <div
-        className="w-10 h-10 rounded-lg border border-[#E8E0D8] bg-white flex items-center justify-center shrink-0 overflow-hidden"
-        style={{ minWidth: 40, minHeight: 40 }}
-      >
-        {logo && !imgError ? (
-          <img
-            src={logo}
-            alt={airlineName}
-            className="w-full h-full object-contain p-1"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <span
-            className="text-[13px] font-bold text-white rounded-lg w-full h-full flex items-center justify-center"
-            style={{ background: color }}
-          >
-            {initials}
-          </span>
-        )}
-      </div>
-      {/* Name + sub info */}
-      <div className="min-w-0">
-        <p className="text-[14px] font-semibold text-[#1A1A1A] leading-tight truncate">{airlineName}</p>
-      </div>
-    </div>
-  )
-}
-
-// Small airline badge for dark image overlays
-function AirlineBadgeMini({ name }: { name: string }) {
-  const [imgError, setImgError] = useState(false)
-  const logo = getAirlineLogo(name)
-  const initials = getAirlineInitials(name)
-  const color = getAirlineColor(name)
-  const cleanName = name.split('—')[0].split('-')[0].trim().split(' ').slice(0, 2).join(' ')
-
-  return (
-    <div className="flex items-center gap-2">
-      <div
-        className="w-8 h-8 rounded-lg border border-white/30 bg-white/10 flex items-center justify-center shrink-0 overflow-hidden"
-      >
-        {logo && !imgError ? (
-          <img src={logo} alt={cleanName} className="w-full h-full object-contain p-0.5"
-            onError={() => setImgError(true)} />
-        ) : (
-          <span className="text-[11px] font-bold text-white">{initials}</span>
-        )}
-      </div>
-      <span className="text-[13px] font-semibold text-white drop-shadow-sm">{cleanName}</span>
-    </div>
-  )
-}
 
 function Shimmer({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -464,7 +401,12 @@ function BestValueCard({
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
   const cleanName = item.name?.split('—')[0]?.trim() ?? 'Best Route'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
+<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
+=======
+
+  const bgImg = null
+>>>>>>> e444a81 (Save local changes)
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
@@ -618,15 +560,21 @@ function ComparisonCard({
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor = item.rating >= 4.5 ? 'bg-blue-100 text-blue-800' : item.rating >= 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
+<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
   const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
   const logoUrl = getAirlineLogo(item.name ?? '')
+=======
+
+  const bgImg = null
+>>>>>>> e444a81 (Save local changes)
 
   return (
     <div
       className="bg-white border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-orange-400 transition-all duration-300 flex flex-col justify-between h-full group relative"
       style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
     >
+<<<<<<< HEAD
       <div>
         {/* ── Photo strip if available ── */}
         {bgImg ? (
@@ -642,6 +590,55 @@ function ComparisonCard({
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
               {isTopPick ? (
                 <span className="bg-[#EA580C] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+=======
+      {/* ── Aircraft photo strip ── */}
+      {bgImg && (
+        <div className="relative w-full" style={{ height: 140 }}>
+          <img
+            src={bgImg}
+            alt={item.name?.split('—')[0]?.trim() ?? 'Flight'}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'brightness(0.60)' }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(160deg,rgba(0,0,0,0.10) 0%,rgba(0,0,0,0.65) 100%)' }}
+          />
+          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] font-semibold text-white drop-shadow-sm">{item.name?.split('—')[0]?.trim()}</span>
+            </div>
+            {isTopPick && (
+              <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow">
+                Top Pick
+              </span>
+            )}
+          </div>
+          {/* Score top right */}
+          <div className="absolute top-2 right-2">
+            <SageScoreRing score={score} dark />
+          </div>
+        </div>
+      )}
+
+      {/* ── White content ── */}
+      <div className="p-4 flex flex-col gap-3">
+        {/* If no image, show airline/mode row */}
+        {!bgImg && (
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-lg border border-[#E8E0D8] bg-[#F5F5F4] flex items-center justify-center shrink-0">
+                <Icon size={18} strokeWidth={1.75} className="text-[#6B6B6B]" />
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold text-[#1A1A1A] leading-tight">{typeLabel}</p>
+                <p className="text-[12px] text-[#6B6B6B]">{item.name?.split('—')[0]?.trim()}</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              {isTopPick && (
+                <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
+>>>>>>> e444a81 (Save local changes)
                   Top Pick
                 </span>
               ) : (
@@ -758,9 +755,58 @@ function ComparisonCard({
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
-function EmptyState({ type, onSwitch }: { type: string; onSwitch?: () => void }) {
-  const Icon = type === 'flights' ? Plane : type === 'buses' ? Bus : type === 'trains' ? Train : Car
-  const labels = { flights: 'No flights found', trains: 'No trains found', buses: 'No buses found', cabs: 'No rental cars or cabs found' }
+function EmptyState({ type, error, onSwitch }: { type: string; error?: string | null; onSwitch?: () => void }) {
+  if (type === 'flights') {
+    let parsedErr: any = null;
+    if (error) {
+      try {
+        parsedErr = typeof error === 'string' && (error.startsWith('{') || error.startsWith('"')) ? JSON.parse(error) : error;
+      } catch {
+        parsedErr = error;
+      }
+    }
+
+    return (
+      <div className="bg-red-50/80 border border-red-200 rounded-2xl p-8 flex flex-col items-center gap-4 text-center my-4">
+        <div className="w-14 h-14 rounded-2xl bg-red-100 border border-red-300 flex items-center justify-center text-red-700">
+          <AlertCircle size={28} strokeWidth={1.5} />
+        </div>
+        <div className="w-full max-w-xl">
+          <p className="text-[18px] font-bold text-red-900 mb-2">
+            {error ? 'Travelport API Provider Error' : 'No Flights Found'}
+          </p>
+          {error ? (
+            <div className="bg-white p-4 rounded-xl border border-red-200 text-left font-mono text-xs text-red-950 space-y-1.5 shadow-sm">
+              <p><span className="font-bold text-red-700">Status:</span> 401 Unauthorized</p>
+              <p><span className="font-bold text-red-700">Code:</span> {typeof parsedErr === 'object' && parsedErr?.code ? parsedErr.code : '1012100'}</p>
+              <p><span className="font-bold text-red-700">Message:</span> {typeof parsedErr === 'object' ? (parsedErr?.message || parsedErr?.error_description || JSON.stringify(parsedErr)) : String(error)}</p>
+              <p className="text-slate-500 text-[11px] pt-1 border-t border-slate-100">
+                <span className="font-semibold text-slate-700">Trace ID:</span> {typeof parsedErr === 'object' && parsedErr?.traceId ? parsedErr.traceId : 'ts-9f43a3be-84b8-43fe-8b9f-a47243d8217c'}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[14px] text-slate-600 leading-relaxed">
+              No direct flights were found for your selected route and dates.
+            </p>
+          )}
+          {onSwitch && (
+            <div className="mt-5">
+              <p className="text-[13px] text-slate-500 mb-3">You can use our Multi-Modal Smart Route Planner to compare ground transport options.</p>
+              <button
+                onClick={onSwitch}
+                className="h-10 px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-[13px] rounded-xl transition-all shadow-sm flex items-center gap-1.5 mx-auto"
+              >
+                <Sparkles size={14} />
+                Try Smart Route Planner
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+  const Icon = type === 'buses' ? Bus : type === 'trains' ? Train : Car
+  const labels = { trains: 'No trains found', buses: 'No buses found', cabs: 'No rental cars or cabs found' }
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl p-16 flex flex-col items-center gap-4 text-center">
       <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] border border-[#FED7AA] flex items-center justify-center">
@@ -789,7 +835,7 @@ function EmptyState({ type, onSwitch }: { type: string; onSwitch?: () => void })
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 
 function TransportTab({
-  transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR'
+  transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR', error
 }: Props) {
   const [segment, setSegment] = useState<Segment>('recommended')
   const { userProfile } = useTripStore()
@@ -801,7 +847,7 @@ function TransportTab({
   const from = tripContext?.startLocation || searchForm?.from || ''
   const destCity = dest.split(',')[0].trim()
 
-  // Split transport list by type
+  // Split transport list by type — flights enabled
   const { flights, trains, buses, cabs } = useMemo(() => {
     const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure && t.type !== 'train' && t.type !== 'bus' && t.type !== 'car' && t.type !== 'cab'))
     const trains = transport.filter(t => t.type === 'train')
@@ -971,6 +1017,7 @@ function TransportTab({
         ) : (
           <EmptyState
             type={segment === 'recommended' ? 'flights' : segment}
+            error={error}
             onSwitch={segment === 'recommended' ? () => setSegment('smart-routes') : undefined}
           />
         ))}

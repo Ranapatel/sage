@@ -49,14 +49,18 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">3. Third-Party Services</h2>
             <p>
-              TripSage acts as a search engine and aggregator for transport and activities, redirecting you to external third-party providers (such as Skyscanner, etc.) for finalizing reservations. We are not responsible for the pricing, availability, cancellations, or service quality provided by these third parties.
+              TripSage acts as a search engine and aggregator for transport and activities, redirecting you to external third-party providers for finalizing reservations. We are not responsible for the pricing, availability, cancellations, or service quality provided by these third parties.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">4. Pricing</h2>
             <p>
+<<<<<<< HEAD
               All prices displayed on TripSage are dynamic, estimated, and subject to change based on real-time availability. Hotel rooms are booked directly on our platform via our direct booking system.
+=======
+              All prices displayed on TripSage are dynamic, estimated, and subject to change based on real-time availability. Hotel rooms are booked directly on our platform via our direct booking system. For other services (activities, local ground transport), TripSage may earn affiliate commissions from partner bookings made through our links.
+>>>>>>> e444a81 (Save local changes)
             </p>
           </section>
 
