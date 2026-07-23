@@ -26,20 +26,21 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[100] w-full border-b border-[#E8E0D8] bg-[#FFFBF7] px-6 py-4 flex items-center justify-between transition-all duration-200">
+      <nav className="sticky top-0 z-[100] w-full border-b border-[#E8E0D8]/70 bg-[#FFFBF7]/90 backdrop-blur-md px-4 md:px-6 py-2.5 md:py-4 flex items-center justify-between transition-all duration-200">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
             <img
               src="/logo.png"
               alt="TripSage"
-              width={34}
-              height={34}
-              className="rounded-lg shadow-sm w-[34px] h-[34px] object-contain"
+              width={32}
+              height={32}
+              className="rounded-lg shadow-2xs w-[28px] md:w-[34px] h-[28px] md:h-[34px] object-contain"
             />
-            <span className="font-display text-lg font-extrabold text-[#1A1A1A] tracking-tight hidden md:block" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>TripSage</span>
+            <span className="font-display text-base md:text-lg font-extrabold text-[#1A1A1A] tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>TripSage</span>
           </Link>
         </div>
         
+        {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-8 text-[13px] font-semibold text-[#6B6B6B]">
           <Link href="/#features" className="hover:text-[#EA580C] transition-colors duration-200">Features</Link>
           <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors duration-200">Destinations</Link>
@@ -48,7 +49,7 @@ export default function Navbar() {
           
           {/* Support Dropdown */}
           <div className="relative group py-2">
-            <button suppressHydrationWarning className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
+            <button suppressHydrationWarning type="button" className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
               Support <ChevronDown size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
             </button>
             <div className="absolute left-0 mt-1 w-36 bg-white border border-[#E8E0D8] rounded-lg shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 py-1">
@@ -58,21 +59,32 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        {/* Desktop Right Action Area */}
+        <div className="hidden md:flex items-center gap-3">
           {isSignedIn ? (
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="hidden md:flex whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard" className="whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
               <UserMenu />
             </div>
           ) : (
             <>
-              <Link href="/sign-in" className="hidden sm:flex text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
-              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="hidden md:flex bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={16} strokeWidth={1.5} className="text-white" /></Link>
+              <Link href="/sign-in" className="text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
+              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={16} strokeWidth={1.5} className="text-white" /></Link>
             </>
           )}
-          
-          <button className="md:hidden p-1.5 sm:p-2 text-[#1A1A1A]" onClick={() => setMobileMenuOpen(true)}>
-            <Menu size={16} strokeWidth={1.5} className="text-[#1C1917]" />
+        </div>
+
+        {/* Mobile Right Action Area (Ultra-Compact Pill Trigger) */}
+        <div className="flex md:hidden items-center gap-2">
+          {isSignedIn && <UserMenu />}
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={() => setMobileMenuOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E8E0D8] rounded-full shadow-2xs text-xs font-bold text-[#1A1A1A] active:scale-95 transition-transform"
+          >
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B6B6B]">Menu</span>
+            <Menu size={14} strokeWidth={2.5} className="text-[#EA580C]" />
           </button>
         </div>
       </nav>

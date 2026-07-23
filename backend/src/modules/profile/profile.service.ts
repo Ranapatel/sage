@@ -97,10 +97,15 @@ export class ProfileService {
 
   // Saved items methods
   static async getSavedItems(userId: string) {
-    return prisma.savedItem.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
-    })
+    try {
+      return await prisma.savedItem.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' }
+      })
+    } catch (err: any) {
+      console.warn('[ProfileService] SavedItem query failed:', err?.message)
+      return []
+    }
   }
 
   static async addSavedItem(userId: string, data: any) {

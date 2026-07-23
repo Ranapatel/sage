@@ -25,8 +25,10 @@ export default function SavedItems() {
       const response = await axios.get(`${apiUrl}/api/profile/saved`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      if (response.data?.success) {
+      if (response.data?.success && Array.isArray(response.data.data)) {
         setItems(response.data.data)
+      } else {
+        setItems([])
       }
     } catch (err: any) {
       console.error('Error fetching saved items:', err)

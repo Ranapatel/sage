@@ -10,8 +10,8 @@ import { BlogPost } from '@/lib/blog-data'
 export default function BlogCard({ post }: { post: BlogPost }) {
   return (
     <motion.div 
-      whileHover={{ y: -5 }}
-      className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full"
+      whileHover={{ y: -4 }}
+      className="bg-white rounded-3xl border border-[#E8E0D8] overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#FED7AA] group flex flex-col h-full"
     >
       <Link href={`/blog/${post.slug}`} className="relative h-56 overflow-hidden block">
         <Image 

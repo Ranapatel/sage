@@ -49,7 +49,7 @@ export default function PopularDestinations({ onSelect, isMobile = false }: Prop
               key={d.name}
               type="button"
               onClick={() => onSelect(d.name)}
-              className="group text-left plan-card overflow-hidden p-0 hover:shadow-md transition-shadow"
+              className="group text-left rounded-2xl border border-[#E8E0D8] bg-white overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#FED7AA]"
             >
               <div className="aspect-[16/10] overflow-hidden">
                 <img

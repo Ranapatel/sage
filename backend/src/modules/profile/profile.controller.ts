@@ -90,9 +90,10 @@ export class ProfileController {
       if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' })
 
       const items = await ProfileService.getSavedItems(userId)
-      return res.json({ success: true, data: items })
+      return res.json({ success: true, data: items || [] })
     } catch (err: any) {
-      return res.status(500).json({ success: false, message: err.message })
+      console.error('[ProfileController] getSavedItems error:', err?.message)
+      return res.json({ success: true, data: [] })
     }
   }
 

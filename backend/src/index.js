@@ -104,7 +104,11 @@ app.use('/api/webhooks/clerk', require('./webhooks/clerk.webhook').handleClerkWe
 app.use('/api/users',         require('./routes/users').default)
 app.use('/api/trips',         require('./routes/trips').default)
 
-app.use('/api/profile',       require('./modules/profile/profile.routes').default)
+try {
+  app.use('/api/profile',       require('./modules/profile/profile.routes').default || require('./routes/profile'))
+} catch (e) {
+  app.use('/api/profile',       require('./routes/profile'))
+}
 app.use('/api/places',        require('./routes/places'))
 app.use('/api/places',        require('./routes/placesIntegration').default)
 app.use('/api/reviews',       require('./routes/reviews'))

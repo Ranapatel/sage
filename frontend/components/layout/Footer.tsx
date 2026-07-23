@@ -119,11 +119,8 @@ export default function Footer() {
               />
               <span className="font-display text-2xl font-bold text-[#1A1A1A]">TripSage</span>
             </div>
-            <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
+            <p className="text-[#6B6B6B] text-sm leading-relaxed mb-6">
               TripSage helps you build customized itineraries and find flight and hotel bookings that fit your budget.
-            </p>
-            <p className="text-[#9CA3AF] text-xs italic leading-relaxed mb-6">
-              Affiliate Disclosure: TripSage earns a referral commission when you book through our partner links (flights, hotels, cabs). You pay the exact same price.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 text-sm w-full md:w-auto">

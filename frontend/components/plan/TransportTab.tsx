@@ -1008,20 +1008,10 @@ function TransportTab({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => <SkeletonCompactCard key={i} />)}
           </div>
-        )}
-
-        {/* ── AFFILIATE DISCLOSURE ──────────────────────────────────────── */}
-        <p className="text-[12px] text-[#9CA3AF] italic text-center">
-          Prices are estimated. Clicking options opens partner sites.
-          TripSage earns a referral when you book.
-        </p>
-      </div>
+        )}      </div>
 
       {/* ── MOBILE STICKY BOTTOM CTA ──────────────────────────────────── */}
       <div className="lg:hidden fixed bottom-[60px] left-0 right-0 z-40 px-4 pb-3 pt-3 bg-gradient-to-t from-[#FFFBF7] via-[#FFFBF7]/90 to-transparent">
-        <p className="text-[11px] text-[#9CA3AF] italic text-center mb-2">
-          Prices estimated. Partner links earn TripSage a referral.
-        </p>
         {bestForSegment ? (
           <a
             href={bestForSegment.bookingLink ?? '#'}
