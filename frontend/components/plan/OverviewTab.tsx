@@ -16,6 +16,7 @@ import { getVisaInfo } from '@/lib/visaData'
 import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
+import HotelDetailModal from '../hotel/HotelDetailModal'
 import LocationAutocomplete from '../ui/LocationAutocomplete'
 import { 
   Icon3DOverview, 
