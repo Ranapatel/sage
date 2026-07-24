@@ -11,17 +11,6 @@ function cityName(str: string) {
 
 export const affiliateLinks = {
 
- /**️ Skyscanner — flight search deep-link */
-  flight: (from: string, to: string, date: string) => {
-    const f = encodeURIComponent(cityName(from).replace(/\s+/g, '-').toLowerCase())
-    const t = encodeURIComponent(cityName(to).replace(/\s+/g, '-').toLowerCase())
-    const d = (date || '').replace(/-/g, '')
-    const base = d
-      ? `https://www.skyscanner.net/transport/flights/${f}/${t}/${d}/`
-      : `https://www.skyscanner.net/transport/flights/${f}/${t}/`
-    return `${base}?adults=1&cabinclass=economy&ref=home&rtn=0`
-  },
-
 
  /** GetYourGuide — activities search with partner ID */
   activity: (destination: string) => {

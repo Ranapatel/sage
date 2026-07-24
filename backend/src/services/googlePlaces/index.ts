@@ -10,6 +10,7 @@ export { getPlaceDetails } from './placeDetails'
 export { nearbySearch } from './nearbySearch'
 export { getPlacePhotos } from './placePhotos'
 export { HybridItineraryService } from './hybridItinerary.service'
+export { searchActivities, searchRestaurants, getPlaceDetailsWithNearby } from './exploreService'
 
 // Re-export types so consumers don't need to dig into types.ts
 export type {

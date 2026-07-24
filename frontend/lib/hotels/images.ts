@@ -40,10 +40,9 @@ export function buildHotelImageUrl(path: string, size: ImageSize = 'bigger'): st
     return `${GIATA_BASE}${SIZE_PREFIXES[size]}${rawPath}`;
   }
 
-  // If it's already an absolute non-Giata URL, reject it — return empty (shows placeholder)
+  // If it's already an absolute non-Giata URL, return it directly (pre-resolved Unsplash/Google image)
   if (path.startsWith('http://') || path.startsWith('https://')) {
-    console.warn('[HotelImage] Rejected non-Hotelbeds image URL:', path.substring(0, 60));
-    return '';
+    return path;
   }
 
   // Relative path (e.g. "00/012345/012345a_hb_ro_001.jpg") — build full Giata URL

@@ -8,6 +8,7 @@
 import axios from 'axios'
 import { googleRequest, buildPhotoUrl } from './googleClient'
 import { getPlaceDetails } from './placeDetails'
+import { ImageService } from '../imageService'
 import {
   TripSagePlace,
   HybridItinerary,
@@ -21,7 +22,7 @@ import {
 const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const LLM_MODEL = 'llama-3.3-70b-versatile'
+const LLM_MODEL = 'openai/gpt-oss-120b'
 
 export class HybridItineraryService {
   /**
@@ -284,6 +285,7 @@ ${candidateListStr}`
     try {
       const res = await axios.post(GROQ_API_URL, {
         model: LLM_MODEL,
+        reasoning_effort: 'medium',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -412,6 +414,7 @@ ${candidatesListStr}`
     try {
       const res = await axios.post(GROQ_API_URL, {
         model: LLM_MODEL,
+        reasoning_effort: 'medium',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -520,6 +523,7 @@ ${JSON.stringify(placesForSummary, null, 2)}`
           try {
             return await axios.post(GROQ_API_URL, {
               model: LLM_MODEL,
+              reasoning_effort: 'medium',
               messages: [
                 { role: 'system', content: summarySystemPrompt },
                 { role: 'user', content: summaryUserPrompt },
@@ -557,41 +561,91 @@ ${JSON.stringify(placesForSummary, null, 2)}`
       }
     }
 
-    // 4. Enrich every slot in the itinerary days list
-    const enrichedDays = days.map(d => {
+    const assignedUrls = new Set<string>()
+    const destinationCity = itineraryData.destination || ''
+
+    // 4. Enrich every slot in the itinerary days list sequentially to preserve duplicate prevention
+    const enrichedDays: any[] = []
+    for (const d of days) {
       const slots = d.slots || {}
       const enrichedSlots: any = {}
 
-      Object.keys(slots).forEach(key => {
+      for (const key of Object.keys(slots)) {
         const slot = slots[key]
         if (!slot) {
           enrichedSlots[key] = null
-          return
+          continue
         }
+
+        let rating: number | null = null
+        let reviewsCount: number | null = null
+        let googleMapsUrl: string = ''
+        let phone: string | null = null
+        let website: string | null = null
+        let openingHours: string[] | null = null
+        let coordinates: [number, number] | null = null
+        let reviewSummary: PlaceReviewSummary | null = null
+
+        let selectedPhotoUrl: string | null = null
+        let isAiIllustration = false
 
         if (slot.placeId && detailsMap.has(slot.placeId)) {
           const detail = detailsMap.get(slot.placeId)
-          const reviewSummary = reviewsSummaryMap.get(slot.placeId) || null
+          rating = detail.rating
+          reviewsCount = detail.userRatingsTotal
+          googleMapsUrl = detail.googleMapsUrl
+          phone = detail.phone
+          website = detail.website
+          openingHours = detail.openingHours
+          coordinates = [detail.latitude, detail.longitude]
+          reviewSummary = reviewsSummaryMap.get(slot.placeId) || null
 
-          enrichedSlots[key] = {
-            ...slot,
-            // Google facts
-            rating: detail.rating,
-            reviewsCount: detail.userRatingsTotal,
-            photoUrl: detail.photoUrl,
-            googleMapsUrl: detail.googleMapsUrl,
-            phone: detail.phone,
-            website: detail.website,
-            openingHours: detail.openingHours,
-            coordinates: [detail.latitude, detail.longitude],
-            // AI review summary
-            reviewSummary,
+          // Find first non-duplicate official photo
+          const detailPhotos = detail.photos || []
+          for (const p of detailPhotos) {
+            if (p.url && !assignedUrls.has(p.url)) {
+              selectedPhotoUrl = p.url
+              break
+            }
           }
-        } else {
-          // If no place id, keep slot as is
-          enrichedSlots[key] = slot
         }
-      })
+
+        // If no photo selected yet, resolve via centralized ImageService
+        if (!selectedPhotoUrl) {
+          try {
+            const resolved = await ImageService.resolvePlaceImages({
+              placeId: slot.placeId,
+              placeName: slot.name,
+              city: destinationCity,
+              category: slot.category,
+              ignoreUrls: assignedUrls
+            })
+            selectedPhotoUrl = resolved.imageUrl
+            isAiIllustration = !!resolved.isAiIllustration
+          } catch (err: any) {
+            console.warn(`[HybridItinerary/Enrichment] ImageService failed for "${slot.name}":`, err.message)
+          }
+        }
+
+        if (selectedPhotoUrl) {
+          assignedUrls.add(selectedPhotoUrl)
+        }
+
+        enrichedSlots[key] = {
+          ...slot,
+          rating,
+          reviewsCount,
+          photoUrl: selectedPhotoUrl,
+          image: selectedPhotoUrl, // Keep both photoUrl and image for compatibility
+          isAiIllustration,
+          googleMapsUrl,
+          phone,
+          website,
+          openingHours,
+          coordinates,
+          reviewSummary,
+        }
+      }
 
       const placesList = [
         enrichedSlots.morning,
@@ -600,12 +654,12 @@ ${JSON.stringify(placesForSummary, null, 2)}`
         enrichedSlots.night
       ].filter(Boolean)
 
-      return {
+      enrichedDays.push({
         ...d,
         slots: enrichedSlots,
         places: placesList,
-      }
-    })
+      })
+    }
 
     return {
       ...itineraryData,

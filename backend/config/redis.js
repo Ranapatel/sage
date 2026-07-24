@@ -15,13 +15,13 @@ let isConnected = false
 // Shared axios instance with auth header pre-set
 const upstash = axios.create({
   baseURL: REST_URL,
-  timeout: 5000,
+  timeout: 2500, // 2.5 second timeout to prevent slow startup
   headers: { Authorization: `Bearer ${REST_TOKEN}` },
 })
 
 async function connectRedis() {
   if (!REST_URL || !REST_TOKEN) {
-    console.warn('[TripSage] ⚠️  UPSTASH_REDIS_REST_URL / TOKEN not set — cache disabled.')
+    console.warn('[TripSage] ⚠️  UPSTASH_REDIS_REST_URL / TOKEN not set — using in-memory cache.')
     return null
   }
 
@@ -33,12 +33,12 @@ async function connectRedis() {
       console.log('[TripSage] ✅ Upstash Redis connected (REST API)')
       return { type: 'upstash-rest' }
     }
-    console.warn('[TripSage] ⚠️  Upstash ping returned unexpected payload:', JSON.stringify(data), '— cache disabled.')
+    console.warn('[TripSage] ℹ️  Upstash ping returned unexpected payload — using in-memory fallback cache.')
   } catch (err) {
     const reason = err.response?.status
-      ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}`
+      ? `HTTP ${err.response.status}`
       : err.message
-    console.warn(`[TripSage] ⚠️  Upstash Redis unreachable (${reason}) — cache disabled.`)
+    console.log(`[TripSage] ℹ️  Upstash Redis REST unreachable (${reason}) — seamlessly using in-memory fallback cache.`)
   }
 
   isConnected = false

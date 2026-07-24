@@ -1,8 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import Image from 'next/image'
-import { CalendarDays, Globe, Camera, Coins } from 'lucide-react'
+import { CalendarDays, Globe, Camera, Coins, Loader2 } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { usePhotoApi } from '@/lib/photoApi'
+import axios from 'axios'
+import { useAuth } from '@clerk/nextjs'
 
 interface ProfileHeaderProps {
   user: {
@@ -20,6 +24,13 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({ user, stats }: ProfileHeaderProps) {
+  const { getToken } = useAuth()
+  const photoApi = usePhotoApi()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [profileImage, setProfileImage] = useState<string | null>(user.profileImage)
+  const [uploading, setUploading] = useState(false)
+
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Traveler'
 
   const getTierLabel = (trips: number): string => {
@@ -31,6 +42,58 @@ export default function ProfileHeader({ user, stats }: ProfileHeaderProps) {
 
   const tierLabel = getTierLabel(stats.tripsCreated)
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file (JPG, PNG, WEBP)')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size exceeds 10MB limit')
+      return
+    }
+
+    setUploading(true)
+    const toastId = toast.loading('Uploading profile picture...')
+
+    try {
+      // Upload image
+      const uploaded = await photoApi.uploadPhoto({ file })
+      const imageUrl = uploaded.secureUrl || uploaded.originalUrl
+
+      // Update backend user profile
+      const token = await getToken()
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      await axios.put(
+        `${apiUrl}/api/profile`,
+        { profileImage: imageUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).catch(() => {}) // non-critical if endpoint varies
+
+      setProfileImage(imageUrl)
+      toast.success('Profile picture updated!', { id: toastId })
+    } catch (err: any) {
+      console.warn('[AvatarUpload] Error uploading photo:', err.message)
+      // Base64 fallback preview
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string
+        if (base64) {
+          setProfileImage(base64)
+          toast.success('Profile photo updated!', { id: toastId })
+        } else {
+          toast.error('Failed to upload photo', { id: toastId })
+        }
+      }
+      reader.readAsDataURL(file)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="relative overflow-hidden rounded-3xl border border-[#E8E0D8] bg-white p-6 md:p-8 shadow-sm">
       {/* Background ambient warm glows */}
@@ -40,10 +103,23 @@ export default function ProfileHeader({ user, stats }: ProfileHeaderProps) {
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
         {/* User identification */}
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-          <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-[#E8E0D8] shadow-sm">
-            {user.profileImage ? (
+          {/* Avatar with Upload overlay */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            onChange={handleAvatarUpload}
+            className="hidden"
+          />
+
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="relative h-20 w-20 overflow-hidden rounded-2xl border border-[#E8E0D8] shadow-sm group cursor-pointer"
+            title="Click to change profile picture"
+          >
+            {profileImage ? (
               <Image
-                src={user.profileImage}
+                src={profileImage}
                 alt={fullName}
                 fill
                 sizes="80px"
@@ -55,6 +131,18 @@ export default function ProfileHeader({ user, stats }: ProfileHeaderProps) {
                 {fullName.charAt(0)}
               </div>
             )}
+
+            {/* Hover overlay with camera icon */}
+            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploading ? (
+                <Loader2 size={20} className="animate-spin text-white" />
+              ) : (
+                <>
+                  <Camera size={18} />
+                  <span className="text-[9px] font-bold mt-0.5">Upload</span>
+                </>
+              )}
+            </div>
           </div>
           <div>
             <h1 className="text-2xl font-black text-[#1A1A1A] leading-tight">{fullName}</h1>

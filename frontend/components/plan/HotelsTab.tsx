@@ -28,18 +28,37 @@ const SkeletonGrid = () => (
   </div>
 )
 
-const EmptyState = () => (
+const EmptyState = ({ onReset, isFiltered }: { onReset?: () => void; isFiltered?: boolean }) => (
   <div style={{
     textAlign: 'center', padding: '60px 20px',
     background: 'var(--bg-card)', border: '1px solid var(--border)',
     borderRadius: '16px'
   }}>
     <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', fontSize: '1.1rem' }}>
-      No hotels found
+      {isFiltered ? 'No hotels match your filter criteria' : 'No hotel properties found'}
     </h3>
-    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-      Try adjusting your dates, destination, or budget to see more options
+    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: onReset ? '16px' : '0' }}>
+      {isFiltered
+        ? 'Try adjusting your star rating, meal plan, or price limit.'
+        : 'Try searching for a different destination or date range.'}
     </p>
+    {onReset && (
+      <button
+        onClick={onReset}
+        style={{
+          padding: '8px 20px',
+          background: 'var(--primary)',
+          color: '#fff',
+          fontWeight: 700,
+          fontSize: '0.82rem',
+          borderRadius: '10px',
+          border: 'none',
+          cursor: 'pointer'
+        }}
+      >
+        Reset All Filters
+      </button>
+    )}
   </div>
 )
 
@@ -48,7 +67,7 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
 
   // Filter States
   const [starFilter, setStarFilter] = useState<number | null>(null)
-  const [priceLimit, setPriceLimit] = useState<number>(30000)
+  const [priceLimit, setPriceLimit] = useState<number>(1000000)
   const [boardFilter, setBoardFilter] = useState<string>('all')
 
   // Dynamic price ceiling from returned data
@@ -62,7 +81,9 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
   useEffect(() => {
     if (hotels && hotels.length > 0) {
       const highest = Math.max(...hotels.map(h => h.price || 0))
-      Promise.resolve().then(() => setPriceLimit(highest))
+      if (highest > 0) {
+        setPriceLimit(prev => (prev === 1000000 ? highest : Math.max(prev, highest)))
+      }
     }
   }, [hotels])
 
@@ -262,7 +283,14 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
           ))}
         </div>
       ) : (
-        <EmptyState />
+        <EmptyState
+          isFiltered={Boolean(hotels && hotels.length > 0)}
+          onReset={hotels && hotels.length > 0 ? () => {
+            setStarFilter(null)
+            setPriceLimit(maxCeiling)
+            setBoardFilter('all')
+          } : undefined}
+        />
       )}
 
       {/* ── Hotel Detail Modal ─────────────────────────────────────────── */}

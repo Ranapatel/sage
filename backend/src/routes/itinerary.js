@@ -56,20 +56,28 @@ router.post('/generate', itineraryValidation, async (req, res) => {
     let isHybrid = false;
 
     if (hasGoogleKey) {
-      console.log('[Itinerary Route] Google Places API Key present. Running Hybrid Itinerary Engine...');
-      const { HybridItineraryService } = require('../services/googlePlaces');
-      enrichedData = await HybridItineraryService.generate({
-        destination,
-        from,
-        days,
-        budget,
-        currency,
-        style,
-        members,
-        preferences,
-        startDate
-      });
-      isHybrid = true;
+      console.log('[Itinerary Route] Google Places API Key present. Attempting Hybrid Itinerary Engine...');
+      try {
+        const { HybridItineraryService } = require('../services/googlePlaces');
+        enrichedData = await HybridItineraryService.generate({
+          destination,
+          from,
+          days,
+          budget,
+          currency,
+          style,
+          members,
+          preferences,
+          startDate
+        });
+        isHybrid = true;
+      } catch (hybridErr) {
+        console.warn(`[Itinerary Route] Hybrid Itinerary Engine failed (${hybridErr.message}) — falling back to legacy AI engine.`);
+        const result = await generateItinerary({ destination, from, days, budget, currency, style, members, preferences, startDate })
+        if (!result.success) throw new Error('Itinerary generation failed')
+        const enrichedItinerary = await enrichItineraryWithRealCoords(result.data.itinerary, destination)
+        enrichedData = { ...result.data, itinerary: enrichedItinerary }
+      }
     } else {
       console.log('[Itinerary Route] Google Places key not configured. Running legacy geocoded engine...');
       // 1. Generate itinerary via AI

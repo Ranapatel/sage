@@ -327,88 +327,43 @@ export async function resolvePlaceImage(
   const cached = cache.get(cacheKey)
   if (cached) return cached
 
-  const { placeName, city = '', country = '', lat, lng, category = '' } = input
-  const catLower = category.toLowerCase()
-  const hasCoords = typeof lat === 'number' && typeof lng === 'number' &&
-    !isNaN(lat) && !isNaN(lng)
+  const { placeName, city = '', lat, lng, category = '' } = input
 
-  // All name variants to try: original first, then extracted candidates
-  const nameCandidates = extractNameCandidates(placeName)
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const params = new URLSearchParams()
+    params.set('placeName', placeName)
+    params.set('city', city)
+    if (category) params.set('category', category)
+    if (lat) params.set('lat', String(lat))
+    if (lng) params.set('lng', String(lng))
 
-  // ── 1. Curated DB — try all name candidates ────────────────────────────────
-  for (const name of nameCandidates) {
-    const curated = lookupCuratedImage(name, city)
-    if (curated) {
-      const result: PlaceImageResult = {
-        imageUrl: curated.imageUrl,
-        source: 'curated',
-        confidence: 'exact',
-        attribution: curated.attribution,
-        attributionUrl: curated.attributionUrl,
-        license: curated.license,
-        altText: curated.altText,
-        showAsBackground: true,
+    const res = await fetch(`${baseUrl}/api/explore/place-image?${params.toString()}`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      const result = data.data
+      const hasImage = !!result.imageUrl
+      
+      const mappedResult: PlaceImageResult = {
+        imageUrl: result.imageUrl,
+        source: result.source === 'google' ? 'wikidata' : (result.source === 'wikimedia' ? 'wikimedia-geo' : 'wikipedia'),
+        confidence: result.source === 'placeholder' ? 'none' : 'exact',
+        attribution: result.source === 'google' ? 'Google Places' : (result.isAiIllustration ? 'AI Illustration' : null),
+        attributionUrl: null,
+        license: null,
+        altText: placeName,
+        showAsBackground: hasImage,
       }
-      setCache(cacheKey, result)
-      return result
-    }
-  }
-
-  // ── 2. Wikidata P18 — try all name candidates ──────────────────────────────
-  for (const name of nameCandidates) {
-    const wikidata = await tryWikidata(name, city)
-    if (wikidata) {
-      const result: PlaceImageResult = {
-        imageUrl: wikidata.imageUrl,
-        source: 'wikidata',
-        confidence: 'exact',
-        attribution: '© Wikimedia / Wikidata',
-        attributionUrl: wikidata.attributionUrl,
-        license: 'CC BY-SA 4.0',
-        altText: `${wikidata.label} — ${city}`.trim(),
-        showAsBackground: true,
+      
+      if (result.isAiIllustration) {
+        (mappedResult as any).isAiIllustration = true
       }
-      setCache(cacheKey, result)
-      return result
+      
+      setCache(cacheKey, mappedResult)
+      return mappedResult
     }
-  }
-
-  // ── 3. Wikipedia page summary — try all name candidates ───────────────────
-  for (const name of nameCandidates) {
-    const wikipedia = await tryWikipedia(name, city)
-    if (wikipedia) {
-      const result: PlaceImageResult = {
-        imageUrl: wikipedia.imageUrl,
-        source: 'wikipedia',
-        confidence: 'exact',
-        attribution: '© Wikipedia / Wikimedia Commons',
-        attributionUrl: wikipedia.attributionUrl,
-        license: 'CC BY-SA 3.0',
-        altText: `${wikipedia.title} — ${city}`.trim(),
-        showAsBackground: true,
-      }
-      setCache(cacheKey, result)
-      return result
-    }
-  }
-
-  // ── 4. Wikimedia Commons geosearch ─────────────────────────────────────────
-  if (hasCoords && !NO_AREA_IMAGE_CATEGORIES.has(catLower)) {
-    const geo = await tryWikimediaGeo(lat!, lng!)
-    if (geo) {
-      const result: PlaceImageResult = {
-        imageUrl: geo.imageUrl,
-        source: 'wikimedia-geo',
-        confidence: 'area',
-        attribution: '© Wikimedia Commons',
-        attributionUrl: geo.attributionUrl,
-        license: 'CC BY-SA',
-        altText: `Near ${placeName}${city ? `, ${city}` : ''}`,
-        showAsBackground: true,
-      }
-      setCache(cacheKey, result)
-      return result
-    }
+  } catch (err) {
+    console.warn('[placeImageResolver] Backend resolve failed, returning fallback', err)
   }
 
   // ── 5. Category visual ─────────────────────────────────────────────────────

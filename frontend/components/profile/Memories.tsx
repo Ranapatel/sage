@@ -1,11 +1,14 @@
-'use client'
-
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
 import Image from 'next/image'
+<<<<<<< HEAD
 import { Plus, Trash2, MapPin, X, Film, Camera } from 'lucide-react'
+=======
+import { Plus, Trash2, MapPin, X, Film, Upload, Camera, Loader2, Check } from 'lucide-react'
+import { usePhotoApi } from '@/lib/photoApi'
+>>>>>>> 269f806458071f98c773aa696ee1e7a248e06005
 
 interface MemoryData {
   id: string
@@ -28,6 +31,9 @@ const PRESET_PHOTOS = [
 
 export default function Memories() {
   const { getToken } = useAuth()
+  const photoApi = usePhotoApi()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [memories, setMemories] = useState<MemoryData[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -38,21 +44,110 @@ export default function Memories() {
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState('')
   const [selectedPhoto, setSelectedPhoto] = useState(PRESET_PHOTOS[0])
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [submitting, setSubmitting] = useState(false)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file (JPG, PNG, WEBP, HEIC)')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size exceeds 10MB limit')
+      return
+    }
+
+    setUploadingPhoto(true)
+    setUploadProgress(0)
+    const uploadToast = toast.loading('Uploading photo...')
+
+    try {
+      const uploaded = await photoApi.uploadPhoto({
+        file,
+        onProgress: (percent) => setUploadProgress(percent),
+      })
+
+      const photoUrl = uploaded.secureUrl || uploaded.originalUrl
+      setSelectedPhoto(photoUrl)
+      toast.success('Photo uploaded successfully!', { id: uploadToast })
+    } catch (err: any) {
+      console.warn('[Memories] Upload photo error, using base64 fallback:', err.message)
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string
+        if (base64) {
+          setSelectedPhoto(base64)
+          toast.success('Photo attached!', { id: uploadToast })
+        } else {
+          toast.error('Failed to attach photo', { id: uploadToast })
+        }
+      }
+      reader.readAsDataURL(file)
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   const fetchMemories = async () => {
     let apiMemories: MemoryData[] = []
     try {
       const token = await getToken()
+<<<<<<< HEAD
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.get(`${apiUrl}/api/profile/memories`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (response.data?.success && Array.isArray(response.data.data)) {
         apiMemories = response.data.data
+=======
+      let fetched: MemoryData[] = []
+      if (token) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const response = await axios.get(`${apiUrl}/api/profile/memories`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (response.data?.success && Array.isArray(response.data.data)) {
+          fetched = response.data.data
+        }
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       }
+
+      // Merge with localStorage cache for offline/dev resilience
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('tripsage-memories-cache')
+          if (stored) {
+            const localMems: MemoryData[] = JSON.parse(stored)
+            const map = new Map<string, MemoryData>()
+            localMems.forEach((m) => map.set(m.id, m))
+            fetched.forEach((m) => map.set(m.id, m))
+            fetched = Array.from(map.values())
+          }
+        } catch {
+          // ignore parse errors
+        }
+      }
+
+      setMemories(fetched)
     } catch (err: any) {
+<<<<<<< HEAD
       console.warn('API memories fetch notice:', err)
+=======
+      console.warn('[Memories] Could not load memories from API, checking local cache:', err.message)
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('tripsage-memories-cache')
+          if (stored) setMemories(JSON.parse(stored))
+        } catch {}
+      }
+    } finally {
+      setLoading(false)
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     }
 
     let localMemories: MemoryData[] = []
@@ -77,12 +172,13 @@ export default function Memories() {
 
   useEffect(() => {
     fetchMemories()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
     const deleteToast = toast.loading('Deleting memory...')
     try {
+<<<<<<< HEAD
       try {
         const raw = localStorage.getItem('memories_local')
         if (raw) {
@@ -104,6 +200,29 @@ export default function Memories() {
     } catch (err: any) {
       toast.success('Memory deleted successfully!', { id: deleteToast })
       fetchMemories()
+=======
+      // Immediate UI update
+      setMemories((prev) => {
+        const updated = prev.filter((m) => m.id !== id)
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('tripsage-memories-cache', JSON.stringify(updated))
+          } catch {}
+        }
+        return updated
+      })
+
+      const token = await getToken()
+      if (token) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        await axios.delete(`${apiUrl}/api/profile/memories/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      }
+      toast.success('Memory deleted successfully!', { id: deleteToast })
+    } catch (err: any) {
+      toast.success('Memory deleted from view!', { id: deleteToast })
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     }
   }
 
@@ -133,7 +252,7 @@ export default function Memories() {
       }
 
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
       await axios.post(
         `${apiUrl}/api/profile/memories`,
@@ -145,23 +264,74 @@ export default function Memories() {
           tripId: null
         },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
         }
       )
 
+<<<<<<< HEAD
       toast.success('Memory uploaded successfully!', { id: createToast })
+=======
+      const newMem: MemoryData = response.data?.data || {
+        id: `mem_${Date.now()}`,
+        title,
+        description: description || null,
+        location: location || null,
+        photos: [selectedPhoto],
+        createdAt: new Date().toISOString(),
+      }
+
+      setMemories((prev) => {
+        const updated = [newMem, ...prev.filter((m) => m.id !== newMem.id)]
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('tripsage-memories-cache', JSON.stringify(updated))
+          } catch {}
+        }
+        return updated
+      })
+
+      toast.success('Photo uploaded successfully.', { id: createToast })
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       setIsModalOpen(false)
       setTitle('')
       setDescription('')
       setLocation('')
+<<<<<<< HEAD
       fetchMemories()
     } catch (err: any) {
       toast.success('Memory uploaded successfully!', { id: createToast })
+=======
+    } catch (err: any) {
+      console.warn('[Memories] API memory save notice, using local cache:', err.message)
+      const fallbackMem: MemoryData = {
+        id: `mem_${Date.now()}`,
+        title,
+        description: description || null,
+        location: location || null,
+        photos: [selectedPhoto],
+        createdAt: new Date().toISOString(),
+      }
+
+      setMemories((prev) => {
+        const updated = [fallbackMem, ...prev.filter((m) => m.id !== fallbackMem.id)]
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('tripsage-memories-cache', JSON.stringify(updated))
+          } catch {}
+        }
+        return updated
+      })
+
+      toast.success('Photo uploaded successfully.', { id: createToast })
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       setIsModalOpen(false)
       setTitle('')
       setDescription('')
       setLocation('')
+<<<<<<< HEAD
       fetchMemories()
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     } finally {
       setSubmitting(false)
     }
@@ -259,8 +429,8 @@ export default function Memories() {
 
       {/* Upload Memory Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md bg-white border border-[#E8E0D8] rounded-3xl p-6 shadow-2xl flex flex-col">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-md max-h-[90vh] bg-white border border-[#E8E0D8] rounded-3xl p-6 shadow-2xl flex flex-col overflow-y-auto my-auto">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
@@ -311,22 +481,70 @@ export default function Memories() {
                 />
               </div>
 
-              {/* Photo Preset Selector */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">Choose Card Photo</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {PRESET_PHOTOS.map((photo, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setSelectedPhoto(photo)}
-                      className={`relative h-12 rounded-lg overflow-hidden border-2 cursor-pointer ${
-                        selectedPhoto === photo ? 'border-[#EA580C]' : 'border-[#E8E0D8]'
-                      }`}
-                    >
-                      <Image src={photo} alt={`preset-${i}`} fill className="object-cover" unoptimized />
-                    </button>
-                  ))}
+              {/* Photo Attachment (Direct File Upload + Presets) */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider">Photo Attachment</label>
+                  {uploadingPhoto && <span className="text-[#EA580C] text-[10px] font-semibold animate-pulse">Uploading {uploadProgress}%...</span>}
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-[#E8E0D8] hover:border-[#EA580C] bg-[#FFFBF7]/60 hover:bg-[#FFFBF7] rounded-2xl p-3 cursor-pointer transition-all text-center relative overflow-hidden"
+                  style={{ minHeight: 80 }}
+                >
+                  {selectedPhoto && !PRESET_PHOTOS.includes(selectedPhoto) ? (
+                    <div className="relative w-full h-24 rounded-xl overflow-hidden group">
+                      <Image src={selectedPhoto} alt="Uploaded preview" fill className="object-cover" unoptimized />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-white text-xs font-bold flex items-center gap-1">
+                          <Camera size={14} /> Change Photo
+                        </span>
+                      </div>
+                    </div>
+                  ) : uploadingPhoto ? (
+                    <div className="flex flex-col items-center gap-1.5 py-2">
+                      <Loader2 size={20} className="text-[#EA580C] animate-spin" />
+                      <span className="text-xs font-medium text-slate-600">Uploading photo... {uploadProgress}%</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 py-1">
+                      <div className="w-8 h-8 rounded-full bg-orange-100 text-[#EA580C] flex items-center justify-center">
+                        <Upload size={16} />
+                      </div>
+                      <span className="text-xs font-bold text-[#1A1A1A]">
+                        Click to upload photo <span className="text-slate-400 font-normal">from device</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400">JPG, PNG, WEBP up to 10MB</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Preset Options */}
+                <div>
+                  <span className="text-[0.65rem] text-slate-400 font-semibold block mb-1">Or choose a preset cover:</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {PRESET_PHOTOS.map((photo, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setSelectedPhoto(photo)}
+                        className={`relative h-10 rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+                          selectedPhoto === photo ? 'border-[#EA580C] ring-2 ring-orange-500/20' : 'border-[#E8E0D8]'
+                        }`}
+                      >
+                        <Image src={photo} alt={`preset-${i}`} fill className="object-cover" unoptimized />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

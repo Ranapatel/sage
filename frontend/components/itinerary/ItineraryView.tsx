@@ -40,6 +40,8 @@ interface Place {
   whyItFits?: string
   coordinates?: [number, number] | number[]
   image?: string
+  photoUrl?: string
+  isAiIllustration?: boolean
   smartLabels?: string[]
 }
 
@@ -53,6 +55,7 @@ interface Day {
   budgetNote?: string
   localTip?: string
   bestStartTime?: string
+  slots?: any
 }
 
 interface Props {
@@ -278,15 +281,32 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
     if (resolvedRef.current) return
     resolvedRef.current = true
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     // ── Fast path: backend pre-fetched image ─────────────────────────────────
-    if (place.image && typeof place.image === 'string' && place.image.startsWith('http')) {
+    const imgUrl = (typeof place.image === 'string' && place.image.startsWith('http')) ? place.image : (place.photoUrl || (typeof place.image === 'string' ? place.image : null))
+    if (imgUrl) {
       setImgLoaded(false)
       setImgError(false)
       setImageResult({
-        imageUrl: place.image,
+        imageUrl: imgUrl,
         source: 'curated',
         confidence: 'exact',
+<<<<<<< HEAD
         attribution: null,
+=======
+    if (place.image || place.photoUrl) {
+      setImageResult({
+        imageUrl: place.image || place.photoUrl || null,
+        source: 'wikidata', // show as exact match
+        confidence: 'exact',
+        attribution: place.isAiIllustration ? 'AI Illustration' : null,
+>>>>>>> e444a81 (Save local changes)
+=======
+        attribution: place.isAiIllustration ? 'AI Illustration' : null,
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
         attributionUrl: null,
         license: null,
         altText: place.name,
@@ -295,7 +315,14 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
       return
     }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
     // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
+=======
+>>>>>>> e444a81 (Save local changes)
+=======
+    // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     const hasCoords =
       Array.isArray(place.coordinates) &&
       place.coordinates.length === 2 &&
@@ -320,7 +347,15 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         altText: place.name, showAsBackground: false,
       })
     })
+<<<<<<< HEAD
+<<<<<<< HEAD
   }, [place.name, place.image, place.category, destination, place.coordinates])
+=======
+  }, [place.name, place.category, destination, place.coordinates, place.image, place.photoUrl, place.isAiIllustration])
+>>>>>>> e444a81 (Save local changes)
+=======
+  }, [place.name, place.image, place.photoUrl, place.isAiIllustration, place.category, destination, place.coordinates])
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   const hasCoords = Array.isArray(place.coordinates)
     && place.coordinates.length === 2
@@ -487,8 +522,19 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
               {React.cloneElement(fallbackStyle.icon as React.ReactElement, { size: 10, className: 'mr-0.5' })} {meta.label}
             </span>
 
-            {/* Right badge: area chip OR smart label OR verified image notice */}
-            {isAreaImage ? (
+            {/* Right badge: Illustration label OR area chip OR smart label OR verified image notice */}
+            {place.isAiIllustration || (imageResult as any)?.isAiIllustration ? (
+              <span
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-semibold backdrop-blur-sm"
+                style={{
+                  background: 'rgba(234,88,12,0.85)',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                🔮 Illustration
+              </span>
+            ) : isAreaImage ? (
               <span
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-semibold backdrop-blur-sm"
                 style={{
@@ -916,7 +962,8 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
   const isMobile = useIsMobile()
   const daySelectorRef = useRef<HTMLDivElement>(null)
   
-  const { setItinerary } = useTripStore()
+  const { setItinerary, currentTripId: storeTripId } = useTripStore()
+  const effectiveTripId = storeTripId || 'active_trip_session'
   const [isOptimizing, setIsOptimizing] = useState(false)
 
   const handleOptimizeRoute = useCallback(async (dayIndex: number) => {
@@ -1316,7 +1363,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
           {/* ── Travel Memories (Photo Upload) ───────────────────────────────── */}
           <TravelMemories
-            tripId={useTripStore.getState().currentTripId || ''}
+            tripId={effectiveTripId}
             dayNumber={currentDay.day}
           />
 

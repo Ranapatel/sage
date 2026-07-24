@@ -16,8 +16,8 @@
 | **Real-time** | Socket.IO |
 | **Database** | MongoDB Atlas |
 | **Cache** | Redis Cloud |
-| **AI** | Groq (LLaMA3-70B) |
-| **Travel APIs** | RapidAPI (Flights, Hotels, Activities, Buses) |
+| **AI** | Groq (GPT OSS 120B) |
+| **Travel APIs** | Travelport TripServices (Flights), Hotelbeds (Hotels) |
 | **Images** | Unsplash + Google Places |
 | **Weather** | OpenWeatherMap |
 | **Deployment** | Vercel (frontend) + Railway/Render (backend) |
@@ -52,7 +52,7 @@ tripsage/
 │   │   ├── index.js        # Server entry + middleware
 │   │   ├── routes/         # REST API routes
 │   │   └── services/
-│   │       ├── aiService.js      # Groq LLaMA3 integration
+│   │       ├── aiService.js      # Groq GPT OSS 120B integration
 │   │       ├── travelService.js  # Flights + Hotels (RapidAPI)
 │   │       ├── weatherService.js # OpenWeatherMap
 │   │       └── socketService.js  # Real-time engine
@@ -144,7 +144,7 @@ docker-compose up --build
 
 ## 🧠 AI Engine (Groq)
 
-TripSage uses **Groq LLaMA3-70B** for:
+TripSage uses **Groq GPT OSS 120B** (`openai/gpt-oss-120b`) for:
 - Day-by-day itinerary generation
 - Personalized recommendations
 - Travel tips based on style/budget
@@ -172,7 +172,6 @@ score = (0.4 × affordability) + (0.3 × rating) + (0.3 × relevance)
 
 | Partner | Platform |
 |---|---|
-| Flights | Skyscanner |
 | Hotels | Booking.com |
 | Activities | Viator |
 | Buses | RedBus |
@@ -217,7 +216,11 @@ railway up
 
 ## 📞 Support
 
+<<<<<<< HEAD
 - Email: rana@tripsage.in
+=======
+- Email: support@tripsage.in
+>>>>>>> e444a81 (Save local changes)
 - Website: https://tripsage.in
 
 ---

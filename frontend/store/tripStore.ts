@@ -343,7 +343,10 @@ export const useTripStore = create<TripStore>()(
       hotelDetailId: null,
 
       setProfile: (profile) => set((s) => ({ userProfile: { ...s.userProfile, ...profile } })),
-      setTrip: (trip) => set((s) => ({ tripContext: { ...s.tripContext, ...trip } })),
+      setTrip: (trip) => set((s) => ({
+        tripContext: { ...s.tripContext, ...trip },
+        currentTripId: s.currentTripId || `trip_session_${Date.now()}`,
+      })),
       setTransport: (transport) => set({ transport }),
       setReturnTransport: (returnTransport) => set({ returnTransport }),
       setHotels: (hotels) => set({ hotels }),
@@ -353,7 +356,10 @@ export const useTripStore = create<TripStore>()(
       setTrains: (trains) => set({ trains }),
       setTrainSearchUrl: (trainSearchUrl) => set({ trainSearchUrl }),
       setTrainStationInfo: (trainStationInfo) => set({ trainStationInfo }),
-      setItinerary: (itinerary) => set({ itinerary }),
+      setItinerary: (itinerary) => set((s) => ({
+        itinerary,
+        currentTripId: s.currentTripId || `trip_session_${Date.now()}`,
+      })),
       setWeather: (weather) => set({ weather }),
       addNotification: (notif) => set((s) => ({ notifications: [notif, ...s.notifications].slice(0, 20) })),
       markNotifRead: (id) => set((s) => ({

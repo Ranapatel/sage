@@ -99,7 +99,7 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
 
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
       const payload = {
         travelStyle: formData.travelStyle || null,

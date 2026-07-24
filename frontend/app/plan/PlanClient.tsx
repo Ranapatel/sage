@@ -168,7 +168,7 @@ export default function PlanClient() {
   const { emit } = useSocket()
   const {
     userProfile, tripContext, transport, hotels, buses, cars, trains, trainStationInfo, itinerary,
-    weather, notifications, bookingStatus, loading, isConnected,
+    weather, notifications, bookingStatus, loading, error, isConnected,
     tripStatus, feedbackStatus, tripHistory,
     setTrip, setProfile, setTransport, setHotels, setBuses, setBusSearchUrl, setCars, setTrains, setTrainSearchUrl, setTrainStationInfo, setItinerary,
     setWeather, setLoading, setError, addNotification,
@@ -496,7 +496,7 @@ export default function PlanClient() {
       const [searchResult, weatherResult, itineraryResult] = await Promise.all([
         // Main search: flights, hotels, buses, cars
         fetchWithRetry(
-          () => tripAPI.search({
+          (s) => tripAPI.search({
             from: p.from,
             to: p.to,
             startDate: p.startDate,
@@ -507,18 +507,29 @@ export default function PlanClient() {
             rooms: p.rooms,
             adults: p.adults,
             children: p.children,
+<<<<<<< HEAD
+<<<<<<< HEAD
             isMultiCity: p.isMultiCity,
             stops: p.stops,
           }, { signal }),
+=======
+          }, { signal: s || signal }),
+>>>>>>> e444a81 (Save local changes)
+=======
+            isMultiCity: p.isMultiCity,
+            stops: p.stops,
+          }, { signal: s || signal }),
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
           { timeout: 25000, maxRetries: 2, label: 'Search' }
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
-          throw err
+          console.warn('[Search] API error fallback:', err.message)
+          return null
         }),
         // Weather fetched in parallel
         fetchWithRetry(
-          () => tripAPI.getWeather(p.to, { signal }),
-          { timeout: 10000, maxRetries: 2, label: 'Weather' }
+          (s) => tripAPI.getWeather(p.to, { signal: s || signal }),
+          { timeout: 15000, maxRetries: 2, label: 'Weather' }
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
           console.warn('[Weather] failed after retries:', err.message)
@@ -526,7 +537,7 @@ export default function PlanClient() {
         }),
         // Itinerary fetched in parallel
         fetchWithRetry(
-          () => {
+          (s) => {
             let daysCount = 3
             if (p.startDate && p.endDate) {
               const start = new Date(p.startDate).getTime()
@@ -545,12 +556,26 @@ export default function PlanClient() {
               style: p.style,
               preferences: p.preferences || [],
               members: p.travelers,
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
               startDate: p.startDate,
               isMultiCity: p.isMultiCity,
               stops: p.stops,
-            }, { signal })
+            }, { signal: s || signal })
           },
+<<<<<<< HEAD
           { timeout: 20000, maxRetries: 1, label: 'Itinerary', silent: true }
+=======
+              startDate: p.startDate
+            }, { signal: s || signal })
+          },
+          { timeout: 45000, maxRetries: 2, label: 'Itinerary' }
+>>>>>>> e444a81 (Save local changes)
+=======
+          { timeout: 45000, maxRetries: 2, label: 'Itinerary' }
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
@@ -569,6 +594,7 @@ export default function PlanClient() {
       if (searchResult?.data) {
         const d = searchResult.data
         if (d.transport) setTransport(d.transport)
+        if (d.flightError) useTripStore.setState({ error: d.flightError })
         if (d.hotels) setHotels(d.hotels)
         if (d.buses) setBuses(d.buses)
         if (d.busSearchUrl) setBusSearchUrl(d.busSearchUrl)
@@ -1218,10 +1244,10 @@ export default function PlanClient() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[var(--primary)]">Analyzing user data & fetching real-time info...</p>
-              <p className="text-xs text-[var(--text-muted)]">Estimated time: ~15 seconds · Calling flight API · hotel API · weather · AI ranking</p>
+              <p className="text-xs text-[var(--text-muted)]">Estimated time: ~15 seconds · Calling hotel API · weather · AI ranking</p>
             </div>
             <div className="ml-auto font-mono text-xs text-[var(--text-muted)]">
-              Skyscanner · Direct Hotels · Open-Meteo
+              Direct Hotels · Open-Meteo
             </div>
           </div>
         </div>
@@ -1254,7 +1280,7 @@ export default function PlanClient() {
                 transport={mergedTransport} loading={loading}
                 tripContext={tripContext} searchForm={searchForm}
                 budget={totalBudget} hotelCostSpent={hotelCostSpent}
-                currency={currency}
+                currency={currency} error={error}
               />
             </div>
           )}

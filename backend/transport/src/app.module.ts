@@ -11,8 +11,10 @@ import { UberProvider } from './providers/UberProvider';
 import { MMTTrainScraper } from './providers/makemytrip/MMTTrainScraper';
 import { MMTBusScraper } from './providers/makemytrip/MMTBusScraper';
 
+import { FlightsModule } from './modules/flights/flights.module';
+
 @Module({
-  imports: [],
+  imports: [FlightsModule],
   controllers: [AppController, TransportController],
   providers: [
     AppService,

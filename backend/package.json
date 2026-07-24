@@ -15,12 +15,12 @@
     "prisma:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1085.0",
-    "@aws-sdk/s3-request-presigner": "^3.1085.0",
     "@clerk/backend": "^1.0.0",
     "@prisma/client": "^5.11.0",
+    "@types/multer": "^2.2.0",
     "axios": "^1.6.8",
     "bullmq": "^5.76.1",
+    "cloudinary": "^2.10.0",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "date-fns": "^3.3.1",
@@ -32,6 +32,7 @@
     "helmet": "^7.1.0",
     "mongoose": "^8.2.2",
     "morgan": "^1.10.0",
+    "multer": "^2.2.0",
     "node-cache": "^5.1.2",
     "opossum": "^10.0.0",
     "razorpay": "^2.9.6",

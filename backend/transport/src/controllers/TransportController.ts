@@ -22,7 +22,7 @@ export class TransportController {
     return this.transportService.generateLink('uber', dto);
   }
 
-  @Post('train/search')
+  @Post(['train/search', 'trains/search'])
   @HttpCode(200)
   @ApiOperation({
     summary: 'Search train itineraries and get MakeMyTrip booking deep links',
@@ -32,7 +32,7 @@ export class TransportController {
     return this.transportService.searchTrains(dto);
   }
 
-  @Post('bus/search')
+  @Post(['bus/search', 'buses/search'])
   @HttpCode(200)
   @ApiOperation({
     summary: 'Search bus itineraries and get MakeMyTrip booking deep links',

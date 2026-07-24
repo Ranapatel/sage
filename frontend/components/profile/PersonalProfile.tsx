@@ -90,7 +90,7 @@ export default function PersonalProfile({ initialData, onSaveSuccess }: Personal
 
       // 2. Update Backend Database (Profile settings)
       const token = clerkUser ? await getToken() : 'mock-store-token'
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
       
       const payload = {
         ...formData,

@@ -15,7 +15,7 @@ interface AssistantContext {
 
 export class TravelAssistantService {
   private static GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-  private static MODEL = 'llama-3.3-70b-versatile'
+  private static MODEL = 'openai/gpt-oss-120b'
 
   /**
    * Get contextual assistant advice based on maps, location, and itinerary.
@@ -67,6 +67,7 @@ JSON Schema format:
         this.GROQ_API_URL,
         {
           model: this.MODEL,
+          reasoning_effort: 'medium',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },

@@ -87,7 +87,7 @@ function TransportCard({ item, showDetail }: Props) {
       <div className="flex-1 w-full flex items-center justify-center gap-4 px-2">
         <div className="text-center min-w-[55px]">
           <span className="text-base font-black text-slate-900 block leading-tight">
-            {item.departure || '06:00'}
+            {item.departure || item.departureTime || '--:--'}
           </span>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             DEP
@@ -97,9 +97,11 @@ function TransportCard({ item, showDetail }: Props) {
         {/* Duration Timeline Bar */}
         <div className="flex-1 max-w-[180px] flex flex-col items-center">
           <span className="text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
-            <span>{item.duration || '2h 15m'}</span>
+            {item.duration ? (
+              <span>{item.duration}</span>
+            ) : null}
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-            <span className="text-emerald-700 font-extrabold">{item.stops === 0 ? 'Non-stop' : `${item.stops} stop`}</span>
+            <span className="text-emerald-700 font-extrabold">{item.stops === 0 ? 'Non-stop' : `${item.stops || 1} stop`}</span>
           </span>
           <div className="w-full flex items-center gap-1">
             <div className="w-2 h-2 rounded-full border-2 border-[#EA580C] bg-white shrink-0" />
@@ -112,7 +114,7 @@ function TransportCard({ item, showDetail }: Props) {
 
         <div className="text-center min-w-[55px]">
           <span className="text-base font-black text-slate-900 block leading-tight">
-            {item.arrival || '08:15'}
+            {item.arrival || item.arrivalTime || '--:--'}
           </span>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             ARR
@@ -128,10 +130,10 @@ function TransportCard({ item, showDetail }: Props) {
           {displayPrice ? (
             <>
               <span className="text-xl font-black text-[#EA580C] block leading-tight">
-                {displayPrice}
+                {formatPrice(item.perPassengerPrice || item.price, currency)}
               </span>
               <span className="text-[11px] font-medium text-slate-400 block">
-                per person
+                per person {item.totalPrice && item.passengers > 1 ? `(${formatPrice(item.totalPrice, currency)} total)` : ''}
               </span>
             </>
           ) : (
