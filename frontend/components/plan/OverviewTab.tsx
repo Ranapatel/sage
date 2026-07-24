@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
+import LocationAutocomplete from '../ui/LocationAutocomplete'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 
@@ -110,7 +111,7 @@ function Skeleton({ className = '' }: { className?: string }) {
   )
 }
 
-// â”€â”€â”€ Budget math â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ————————————————— Budget math ———————————————————————————————————————————————————
 
 function useBudgetBreakdown(budget: number, nights: number, travelers: number, currency: string) {
   return useMemo(() => {
@@ -118,7 +119,7 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
     const locale = currency === 'INR' ? 'en-IN' : 'en-US'
     const fmt = (n: number) => `${sym}${Math.round(n).toLocaleString(locale)}`
 
-    // Realistic proportions summing to ~85% â€” leaves a 15% buffer for incidentals
+    // Realistic proportions summing to ~85% — leaves a 15% buffer for incidentals
     const travel = Math.round(budget * 0.40)
     const stay = Math.round(budget * 0.25)
     const activities = Math.round(budget * 0.20)
@@ -135,95 +136,142 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
   }, [budget, nights, travelers, currency])
 }
 
-// â”€â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ————————————————— Empty state ———————————————————————————————————————————————————
 
 function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
+  const { setTrip } = useTripStore()
+  const [fromCity, setFromCity] = useState('Delhi')
+  const [toCity, setToCity] = useState('')
+  const [isBuilding, setIsBuilding] = useState(false)
+
   const POPULAR = ['Goa', 'Manali', 'Bali', 'Dubai', 'Singapore', 'Kerala', 'Jaipur', 'Bangkok']
-  const FEATURES = [
-    { icon: 'âœˆï¸', label: 'Live Flights' },
-    { icon: 'ðŸ¨', label: 'Real Hotels' },
-    { icon: 'ðŸ¤–', label: 'AI Itinerary' },
-    { icon: 'ðŸŒ¤ï¸', label: 'Live Weather' },
-    { icon: 'ðŸš‚', label: 'Trains & Buses' },
-    { icon: 'ðŸ’°', label: 'Budget AI' },
-  ]
+
+  const handleBuildTrip = (selectedDest?: string) => {
+    const dest = selectedDest || toCity
+    if (!dest || !dest.trim()) {
+      toast.error('Please enter a destination city!')
+      return
+    }
+
+    setIsBuilding(true)
+    const today = new Date()
+    const future = new Date(today.getTime() + 4 * 86400000)
+    const startStr = today.toISOString().split('T')[0]
+    const endStr = future.toISOString().split('T')[0]
+
+    setTrip({
+      destination: dest,
+      startLocation: fromCity || 'Delhi',
+      startDate: startStr,
+      endDate: endStr,
+      currentDay: 1,
+    })
+
+    useTripStore.getState().setProfile({
+      budget: 25000,
+      members: 2,
+      travelStyle: 'adventure',
+    })
+
+    useTripStore.getState().setItinerary([
+      {
+        day: 1,
+        date: startStr,
+        theme: `Arrival & Highlights of ${dest}`,
+        places: [
+          { name: `Central Landmark & Heritage Site`, category: 'landmark', time: '10:00', duration: '2 hrs' },
+          { name: `Scenic Local Market & Promenade`, category: 'shopping', time: '14:00', duration: '2 hrs' }
+        ]
+      }
+    ])
+
+    toast.success(`Trip plan generated for ${dest}!`)
+    setIsBuilding(false)
+  }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 text-center space-y-8">
-
-      {/* Hero icon with pulse ring */}
+    <div className="max-w-2xl mx-auto px-4 py-8 text-center space-y-6 animate-fade-in">
+      {/* Hero Icon */}
       <div className="flex justify-center">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-orange-100 animate-ping opacity-30 scale-150" />
-          <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#F97316] flex items-center justify-center shadow-lg shadow-orange-200">
-            <span className="text-4xl">ðŸŒ</span>
-          </div>
+        <div className="w-16 h-16 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center shadow-sm">
+          <Plane className="w-8 h-8 text-[#EA580C]" />
         </div>
       </div>
 
       {/* Headline */}
-      <div className="space-y-3">
-        <h2 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] leading-tight">
-          Where are you headed?
+      <div className="space-y-2">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1A1A1A] leading-tight font-display">
+          Where are you going?
         </h2>
-        <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-md mx-auto">
-          Fill in your <span className="text-[#EA580C] font-semibold">From</span>,{' '}
-          <span className="text-[#EA580C] font-semibold">To</span>, dates, and budget above â€” then hit{' '}
-          <span className="inline-flex items-center gap-1 text-[#EA580C] font-bold bg-orange-50 px-2 py-0.5 rounded-lg">
-            ðŸ” Search
-          </span>{' '}
-          to generate your complete trip board.
+        <p className="text-xs sm:text-sm text-[#6B6B6B] leading-relaxed max-w-md mx-auto font-medium">
+          Enter your destination below or tap a popular trip to generate your AI itinerary in seconds.
         </p>
       </div>
 
-      {/* Feature chips */}
-      <div className="flex flex-wrap justify-center gap-2">
-        {FEATURES.map(f => (
-          <span
-            key={f.label}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E8E0D8] rounded-full text-[13px] font-semibold text-[#4B4B4B] shadow-sm"
-          >
-            <span>{f.icon}</span> {f.label}
-          </span>
-        ))}
+      {/* Interactive Quick Trip Builder Card */}
+      <div className="bg-white border border-[#E8E0D8] p-5 sm:p-6 rounded-3xl shadow-sm text-left space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B6B6B] block mb-1">
+              Departure City
+            </label>
+            <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2">
+              <LocationAutocomplete
+                value={fromCity}
+                onChange={setFromCity}
+                placeholder="From..."
+                className="w-full bg-transparent border-none text-xs font-bold text-[#1A1A1A] outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B6B6B] block mb-1">
+              Destination City
+            </label>
+            <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2">
+              <LocationAutocomplete
+                value={toCity}
+                onChange={setToCity}
+                placeholder="Where to? (e.g. Goa, Bali)"
+                className="w-full bg-transparent border-none text-xs font-bold text-[#1A1A1A] outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleBuildTrip()}
+          disabled={isBuilding}
+          className="w-full py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+        >
+          <Sparkles size={16} />
+          <span>{isBuilding ? 'Building Your Trip...' : 'Plan My Trip Now ➔'}</span>
+        </button>
       </div>
 
-      {/* Popular destinations */}
-      <div className="space-y-3">
-        <p className="text-[12px] font-black text-[#9CA3AF] uppercase tracking-widest">Popular destinations</p>
+      {/* Popular Destination Shortcuts */}
+      <div className="space-y-2.5 pt-2">
+        <p className="text-[10px] font-extrabold text-[#9CA3AF] uppercase tracking-widest">
+          Or Pick a Popular Destination
+        </p>
         <div className="flex flex-wrap justify-center gap-2">
           {POPULAR.map(city => (
             <button
               key={city}
-              className="px-4 py-2 bg-[#FFFBF7] border border-[#E8E0D8] hover:border-[#EA580C] hover:bg-orange-50 hover:text-[#EA580C] rounded-xl text-[13px] font-semibold text-[#4B4B4B] transition-all active:scale-[0.97]"
+              type="button"
+              className="px-3.5 py-1.5 bg-[#FFFBF7] border border-[#E8E0D8] hover:border-[#EA580C] hover:bg-orange-50 hover:text-[#EA580C] rounded-xl text-xs font-extrabold text-[#4B4B4B] transition-all active:scale-95 cursor-pointer shadow-2xs"
               onClick={() => {
-                // Scroll to search and hint the destination
-                const toInput = document.querySelector<HTMLInputElement>('input[placeholder="To..."]')
-                if (toInput) {
-                  toInput.focus()
-                  toInput.value = city
-                  toInput.dispatchEvent(new Event('input', { bubbles: true }))
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' })
+                setToCity(city)
+                handleBuildTrip(city)
               }}
             >
-              {city}
+              🏝️ {city}
             </button>
           ))}
         </div>
       </div>
-
-      {/* Arrow pointing up to search */}
-      <div className="flex flex-col items-center gap-2 text-[#9CA3AF]">
-        <div className="flex flex-col items-center gap-1 animate-bounce">
-          <div className="w-px h-8 bg-gradient-to-t from-[#EA580C] to-transparent" />
-          <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="rotate-180 text-[#EA580C]">
-            <path d="M1 7L6 2L11 7" stroke="#EA580C" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </div>
-        <p className="text-[12px] font-medium">Search is up there ↑</p>
-      </div>
-
     </div>
   )
 }

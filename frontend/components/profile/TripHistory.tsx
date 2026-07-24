@@ -7,6 +7,8 @@ import { useAuth } from '@clerk/nextjs'
 import { Calendar, Users, DollarSign, ArrowRight, Plane, History } from 'lucide-react'
 import Link from 'next/link'
 
+import { useTripStore } from '@/store/tripStore'
+
 interface TripData {
   id: string
   destination: string
@@ -20,29 +22,50 @@ interface TripData {
 
 export default function TripHistory() {
   const { getToken } = useAuth()
+  const { tripHistory } = useTripStore()
   const [trips, setTrips] = useState<TripData[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchTrips = async () => {
+      let apiTrips: TripData[] = []
       try {
         const token = await getToken()
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         const response = await axios.get(`${apiUrl}/api/trips`, {
           headers: { Authorization: `Bearer ${token}` }
         })
-        if (response.data?.success) {
-          setTrips(response.data.data)
+        if (response.data?.success && Array.isArray(response.data.data)) {
+          apiTrips = response.data.data
         }
       } catch (err: any) {
-        console.error('Error fetching trips:', err)
-        toast.error('Failed to load trip history.')
-      } finally {
-        setLoading(false)
+        console.warn('API trips fetch notice:', err)
       }
+
+      const localTrips: TripData[] = (tripHistory || []).map((t: any) => ({
+        id: t.tripId || t.id || String(Math.random()),
+        destination: t.destination || 'Trip',
+        title: t.destination ? `Trip to ${t.destination}` : 'Custom Trip',
+        startDate: t.dates?.start || t.startDate || new Date().toISOString(),
+        endDate: t.dates?.end || t.endDate || new Date().toISOString(),
+        budget: Number(t.budget || 20000),
+        travelers: Number(t.members || t.travelers || 2),
+        status: t.status || 'planned'
+      }))
+
+      const combinedMap = new Map<string, TripData>()
+      apiTrips.forEach((t) => combinedMap.set(t.id, t))
+      localTrips.forEach((t) => {
+        if (!combinedMap.has(t.id)) {
+          combinedMap.set(t.id, t)
+        }
+      })
+
+      setTrips(Array.from(combinedMap.values()))
+      setLoading(false)
     }
     fetchTrips()
-  }, [])
+  }, [tripHistory])
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {

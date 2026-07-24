@@ -248,11 +248,15 @@ export const tripAPI = {
   getReviews: (): Promise<ApiResponse<any[]>> =>
     API.get('/api/reviews'),
 
-  saveTrip: (tripData: any): Promise<ApiResponse<any>> =>
-    API.post('/api/trips', tripData),
+  saveTrip: (tripData: any, token?: string | null): Promise<ApiResponse<any>> =>
+    API.post('/api/trips', tripData, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    }),
 
-  getUserTrips: (): Promise<ApiResponse<any[]>> =>
-    API.get('/api/trips'),
+  getUserTrips: (token?: string | null): Promise<ApiResponse<any[]>> =>
+    API.get('/api/trips', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    }),
 
   /**
    * Fetches ranked hotel recommendations from the Hotelbeds API.

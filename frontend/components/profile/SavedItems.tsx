@@ -6,6 +6,8 @@ import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
 import { Trash2, ExternalLink, Heart, Building2, Compass, Zap, CalendarDays, Utensils, MapPin } from 'lucide-react'
 
+import { getLocalBookmarks, removeBookmark } from '@/lib/bookmarkUtils'
+
 interface SavedItemData {
   id: string
   type: string
@@ -22,17 +24,31 @@ export default function SavedItems() {
     try {
       const token = await getToken()
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const response = await axios.get(`${apiUrl}/api/profile/saved`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (response.data?.success && Array.isArray(response.data.data)) {
-        setItems(response.data.data)
-      } else {
-        setItems([])
+      let apiItems: SavedItemData[] = []
+      try {
+        const response = await axios.get(`${apiUrl}/api/profile/saved`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (response.data?.success && Array.isArray(response.data.data)) {
+          apiItems = response.data.data
+        }
+      } catch (err) {
+        console.warn('API saved items fetch warning:', err)
       }
+
+      const localItems = getLocalBookmarks()
+
+      const mergedMap = new Map<string, SavedItemData>()
+      apiItems.forEach(item => mergedMap.set(item.referenceId, item))
+      localItems.forEach(item => {
+        if (!mergedMap.has(item.referenceId)) {
+          mergedMap.set(item.referenceId, item)
+        }
+      })
+
+      setItems(Array.from(mergedMap.values()))
     } catch (err: any) {
       console.error('Error fetching saved items:', err)
-      toast.error('Failed to load saved content.')
     } finally {
       setLoading(false)
     }
@@ -45,23 +61,16 @@ export default function SavedItems() {
     load()
   }, [])
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, referenceId: string) => {
     const delToast = toast.loading('Removing bookmark...')
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const response = await axios.delete(`${apiUrl}/api/profile/saved/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (response.data?.success) {
-        toast.success('Bookmark removed!', { id: delToast })
-        setItems((prev) => prev.filter((item) => item.id !== id))
-      } else {
-        toast.error(response.data?.message || 'Failed to remove bookmark.', { id: delToast })
-      }
+      await removeBookmark(id, referenceId, token)
+      toast.success('Bookmark removed!', { id: delToast })
+      setItems((prev) => prev.filter((item) => item.id !== id && item.referenceId !== referenceId))
     } catch (err: any) {
       console.error('Error removing saved item:', err)
-      toast.error(err.response?.data?.message || err.message || 'Failed to remove bookmark.', { id: delToast })
+      toast.error('Failed to remove bookmark.', { id: delToast })
     }
   }
 
@@ -151,7 +160,7 @@ export default function SavedItems() {
                   <ExternalLink size={14} />
                 </a>
                 <button
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => handleDelete(item.id, item.referenceId)}
                   className="flex items-center justify-center p-2 rounded-xl bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition-all cursor-pointer shadow-sm"
                   title="Remove bookmark"
                 >

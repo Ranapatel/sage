@@ -23,6 +23,7 @@ import {
   CalendarDays, Users, LayoutDashboard, Building2, Share2, BookmarkPlus, User, Pencil, Sliders
 } from 'lucide-react'
 import UserMenu from '@/components/layout/UserMenu'
+import { addBookmark } from '@/lib/bookmarkUtils'
 
 // Lazy load components
 const TransportCard = lazy(() => import('@/components/transport/TransportCard'))
@@ -700,6 +701,7 @@ export default function PlanClient() {
         // Real database save
         const response = await tripAPI.saveTrip(record)
         if (response.success) {
+          await addBookmark('itinerary', tripContext.destination)
           toast.success("Trip saved to your profile!")
         } else {
           throw new Error(response.message || "Failed to save to database")
@@ -719,6 +721,7 @@ export default function PlanClient() {
           style: userProfile.travelStyle,
           members: userProfile.members
         })
+        await addBookmark('itinerary', tripContext.destination)
         toast.success("Saved to browser! Log in to sync across devices.")
       }
     } catch (err: any) {

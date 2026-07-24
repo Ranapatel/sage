@@ -20,6 +20,7 @@ import axios from 'axios';
 import RideButton from './RideButton';
 import MapPreview from './MapPreview';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
+import { addBookmark, removeBookmark } from '@/lib/bookmarkUtils';
 
 interface Place {
   name: string;
@@ -174,14 +175,14 @@ export default function PlaceDetailsModal({
     }
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = async () => {
     if (isBookmarked) {
-      localStorage.removeItem(`bookmark_${place.name}`);
       setIsBookmarked(false);
+      await removeBookmark(`bookmark_${place.name}`, place.name);
       toast.success('Removed from Bookmarks');
     } else {
-      localStorage.setItem(`bookmark_${place.name}`, 'true');
       setIsBookmarked(true);
+      await addBookmark('activity', place.name);
       toast.success('Added to Bookmarks!');
     }
   };

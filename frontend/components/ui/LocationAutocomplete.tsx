@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { MapPin, Plane, Sparkles, TrendingUp } from 'lucide-react'
 import { tripAPI } from '@/lib/api'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -369,7 +370,7 @@ export default function LocationAutocomplete({
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="relative" ref={wrapperRef}>
+    <div className="relative" ref={wrapperRef} suppressHydrationWarning>
       {/* Text input */}
       <input
         type="text"
@@ -399,63 +400,72 @@ export default function LocationAutocomplete({
       {isOpen && state.status !== 'idle' && (
         <div
           role="listbox"
-          className="absolute z-50 w-full mt-2 rounded-[12px] border border-[#E5E7EB] bg-white py-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
-          style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB', borderRadius: '12px' }}
+          className="absolute left-0 right-0 z-[999] w-full min-w-[280px] mt-2 rounded-[20px] border border-[#E8E0D8] bg-white/98 backdrop-blur-xl p-2 shadow-[0_12px_36px_rgba(0,0,0,0.12)] text-left transition-all animate-fade-in"
         >
           {/* Searching state */}
           {state.status === 'loading' && (
-            <div className="px-4 py-3 text-xs text-[#71717A] text-center flex items-center justify-center gap-2">
-              <span className="w-3.5 h-3.5 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin inline-block" />
-              Searching cities...
+            <div className="px-4 py-4 text-xs font-semibold text-[#6B6B6B] text-center flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin inline-block" />
+              <span>Searching top destinations...</span>
             </div>
           )}
 
           {/* No results */}
           {state.status === 'empty' && (
-            <div className="px-4 py-4 text-xs text-[#71717A] text-center">
-              No cities found for &ldquo;{query}&rdquo;
+            <div className="px-4 py-5 text-xs font-semibold text-[#6B6B6B] text-center">
+              No places found matching &ldquo;<span className="text-[#1A1A1A] font-bold">{query}</span>&rdquo;
             </div>
           )}
 
           {/* Error */}
           {state.status === 'error' && (
-            <div className="px-4 py-3 text-xs text-rose-500 text-center">
+            <div className="px-4 py-3 text-xs font-bold text-rose-500 text-center">
               {state.message}
             </div>
           )}
 
           {/* Results list */}
           {state.status === 'success' && (
-            <div className="max-h-[260px] overflow-y-auto hide-scrollbar">
-              <div className="px-4 py-1.5 text-[9px] font-bold uppercase tracking-wider text-[#A1A1AA]">
-                Suggested Destinations
+            <div className="max-h-[300px] overflow-y-auto hide-scrollbar space-y-1">
+              <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#A1A1AA] flex items-center justify-between border-b border-[#E8E0D8]/60 mb-1">
+                <span className="flex items-center gap-1.5 text-[#EA580C]">
+                  <Sparkles size={12} strokeWidth={2.5} />
+                  Suggested Destinations
+                </span>
+                <span className="text-[9px] font-bold text-[#A1A1AA]">{state.data.length} Cities</span>
               </div>
-              {state.data.map((loc) => (
-                <div
-                  key={loc.id}
-                  role="option"
-                  aria-selected={false}
-                  className="px-4 py-2.5 cursor-pointer flex items-center justify-between bg-white text-[#111827] hover:bg-[#F9FAFB] transition-colors"
-                  style={{ borderTop: '1px solid #F4F4F5', backgroundColor: '#FFFFFF', color: '#111827' }}
-                  onMouseDown={(e) => e.preventDefault()} // prevents input blur before click
-                  onClick={() => handleSelect(loc)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#F9FAFB'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#FFFFFF'
-                  }}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold text-[#111827]" style={{ color: '#111827' }}>
-                      {loc.name}
-                    </span>
+
+              {state.data.map((loc) => {
+                const parts = loc.name.split(',')
+                const city = parts[0]?.trim() || loc.name
+                const country = parts.slice(1).join(',').trim() || 'India'
+                const isInternational = country && !country.toLowerCase().includes('india')
+
+                return (
+                  <div
+                    key={loc.id}
+                    role="option"
+                    aria-selected={false}
+                    className="p-2.5 cursor-pointer flex items-center justify-between rounded-xl bg-white hover:bg-[#FFF4EE]/70 hover:border-[#FED7AA] border border-transparent transition-all duration-150 group"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handleSelect(loc)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-[#FFF4EE] group-hover:bg-[#EA580C] text-[#EA580C] group-hover:text-white flex items-center justify-center transition-colors shrink-0 shadow-2xs">
+                        {isInternational ? <Plane size={15} strokeWidth={2.2} /> : <MapPin size={15} strokeWidth={2.2} />}
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-extrabold text-[#1A1A1A] group-hover:text-[#EA580C] transition-colors leading-tight">
+                          {city}
+                        </div>
+                        <div className="text-[11px] font-semibold text-[#6B6B6B]">
+                          {country}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#F4F4F5] text-[#71717A] uppercase tracking-wider">
-                    City
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>

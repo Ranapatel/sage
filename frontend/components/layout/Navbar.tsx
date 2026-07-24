@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useAuthStore } from '@/store/authStore'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { trackEvent } from '@/lib/analytics'
 import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
@@ -17,6 +17,8 @@ export default function Navbar() {
   const { isLoggedIn: isStoreLoggedIn, logout: storeLogout } = useAuthStore()
   const isSignedIn = isClerkSignedIn || isStoreLoggedIn
   const router = useRouter()
+  const pathname = usePathname()
+  const isHomePage = pathname === '/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -49,12 +51,13 @@ export default function Navbar() {
           
           {/* Support Dropdown */}
           <div className="relative group py-2">
-            <button suppressHydrationWarning type="button" className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
+            <Link href="/support" className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
               Support <ChevronDown size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
-            </button>
-            <div className="absolute left-0 mt-1 w-36 bg-white border border-[#E8E0D8] rounded-lg shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 py-1">
-              <Link href="/support" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Support Center</Link>
-              <Link href="/visa-guide" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Visa Guide</Link>
+            </Link>
+            <div className="absolute left-0 mt-1 w-44 bg-white border border-[#E8E0D8] rounded-xl shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 py-1.5 text-xs font-semibold">
+              <Link href="/support" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Help & Support</Link>
+              <Link href="/support#contact" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Contact Support</Link>
+              <Link href="/terms-and-conditions" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Terms & Privacy</Link>
             </div>
           </div>
         </div>
@@ -63,14 +66,26 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {isSignedIn ? (
             <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="whitespace-nowrap text-sm py-2 px-4 items-center justify-center rounded-lg bg-[#EA580C] text-white font-bold hover:bg-[#C2410C] transition-all duration-200">Dashboard</Link>
+              {!isHomePage && (
+                <Link
+                  href="/plan"
+                  onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })}
+                  className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200"
+                >
+                  <span>+ Plan a trip</span>
+                </Link>
+              )}
               <UserMenu />
             </div>
           ) : (
-            <>
+            <div className="flex items-center gap-3">
               <Link href="/sign-in" className="text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
-              <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="bg-[#EA580C] text-white whitespace-nowrap text-sm py-2 px-5 items-center justify-center gap-2 rounded-lg font-bold shadow-md shadow-orange-500/10 hover:bg-[#C2410C] transition-all duration-200">Create my trip <ArrowRight size={16} strokeWidth={1.5} className="text-white" /></Link>
-            </>
+              {!isHomePage && (
+                <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200">
+                  <span>Plan a trip</span> <ArrowRight size={14} strokeWidth={2} className="text-white" />
+                </Link>
+              )}
+            </div>
           )}
         </div>
 

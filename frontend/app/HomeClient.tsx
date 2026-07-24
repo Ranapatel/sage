@@ -4,14 +4,15 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
+import CustomDatePicker from '@/components/ui/CustomDatePicker'
 import { trackEvent } from '@/lib/analytics'
 import { tripAPI } from '@/lib/api'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { useInView } from 'framer-motion'
+import { useInView, motion } from 'framer-motion'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import {
-  MapPin, Calendar, ArrowRight, Plane, Shield, Sparkles, Plus, Minus, Info, ChevronRight, X, Search, SlidersHorizontal, Users
+  MapPin, Calendar, ArrowRight, Plane, Shield, Sparkles, Plus, Minus, Info, ChevronRight, ChevronLeft, X, Search, SlidersHorizontal, Users, ShieldCheck, FileCheck, Globe
 } from 'lucide-react'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ import {
 const BLUEPRINT_DESTINATIONS = [
   {
     name: 'Bali, Indonesia',
-    img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1000&q=85&auto=format&fit=crop',
     season: 'Apr – Oct',
     city: 'Bali',
     country: 'Indonesia',
@@ -32,7 +33,7 @@ const BLUEPRINT_DESTINATIONS = [
   },
   {
     name: 'Dubai, UAE',
-    img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&q=85&auto=format&fit=crop',
     season: 'Nov – Mar',
     city: 'Dubai',
     country: 'UAE',
@@ -45,7 +46,7 @@ const BLUEPRINT_DESTINATIONS = [
   },
   {
     name: 'Bangkok, Thailand',
-    img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1000&q=85&auto=format&fit=crop',
     season: 'Nov – Feb',
     city: 'Bangkok',
     country: 'Thailand',
@@ -58,7 +59,7 @@ const BLUEPRINT_DESTINATIONS = [
   },
   {
     name: 'Hanoi, Vietnam',
-    img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1000&q=85&auto=format&fit=crop',
     season: 'Sep – Nov',
     city: 'Hanoi',
     country: 'Vietnam',
@@ -71,7 +72,7 @@ const BLUEPRINT_DESTINATIONS = [
   },
   {
     name: 'Maldives',
-    img: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=1000&q=85&auto=format&fit=crop',
     season: 'Nov – Apr',
     city: 'Maldives',
     country: 'Maldives',
@@ -84,7 +85,7 @@ const BLUEPRINT_DESTINATIONS = [
   },
   {
     name: 'Singapore',
-    img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1000&q=85&auto=format&fit=crop',
     season: 'Dec – Jun',
     city: 'Singapore',
     country: 'Singapore',
@@ -95,28 +96,132 @@ const BLUEPRINT_DESTINATIONS = [
     bestFor: 'Family, Urban',
     link: '',
   },
+  {
+    name: 'Tokyo, Japan',
+    img: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1000&q=85&auto=format&fit=crop',
+    season: 'Mar – May',
+    city: 'Tokyo',
+    country: 'Japan',
+    visa: 'E-Visa Required',
+    visaType: 'warning',
+    budget: '₹95,000',
+    duration: '6 nights',
+    bestFor: 'Culture, Tech',
+    link: '',
+  },
+  {
+    name: 'Paris, France',
+    img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1000&q=85&auto=format&fit=crop',
+    season: 'Jun – Sep',
+    city: 'Paris',
+    country: 'France',
+    visa: 'Schengen Visa',
+    visaType: 'warning',
+    budget: '₹1,10,000',
+    duration: '5 nights',
+    bestFor: 'Romance, Art',
+    link: '',
+  },
+  {
+    name: 'Kuala Lumpur, Malaysia',
+    img: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1000&q=85&auto=format&fit=crop',
+    season: 'May – Jul',
+    city: 'Kuala Lumpur',
+    country: 'Malaysia',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹40,000',
+    duration: '5 nights',
+    bestFor: 'Shopping, Towers',
+    link: '',
+  },
+  {
+    name: 'Sri Lanka',
+    img: 'https://images.unsplash.com/photo-1546708973-b339540b5162?w=1000&q=85&auto=format&fit=crop',
+    season: 'Dec – Apr',
+    city: 'Colombo',
+    country: 'Sri Lanka',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹30,000',
+    duration: '5 nights',
+    bestFor: 'Beaches, Heritage',
+    link: '',
+  },
+  {
+    name: 'Mauritius',
+    img: 'https://images.unsplash.com/photo-1540206395-68808572332f?w=1000&q=85&auto=format&fit=crop',
+    season: 'May – Dec',
+    city: 'Mauritius',
+    country: 'Mauritius',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹85,000',
+    duration: '6 nights',
+    bestFor: 'Honeymoon, Beaches',
+    link: '',
+  },
+  {
+    name: 'Seychelles',
+    img: 'https://images.unsplash.com/photo-1589979481223-deb893043163?w=1000&q=85&auto=format&fit=crop',
+    season: 'Apr – Nov',
+    city: 'Mahé',
+    country: 'Seychelles',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹95,000',
+    duration: '6 nights',
+    bestFor: 'Granite Beaches, Luxury',
+    link: '',
+  },
+  {
+    name: 'Kenya',
+    img: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1000&q=85&auto=format&fit=crop',
+    season: 'Jul – Oct',
+    city: 'Nairobi',
+    country: 'Kenya',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹90,000',
+    duration: '5 nights',
+    bestFor: 'Masai Mara, Safari',
+    link: '',
+  },
+  {
+    name: 'Nepal',
+    img: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&q=85&auto=format&fit=crop',
+    season: 'Oct – Dec',
+    city: 'Kathmandu',
+    country: 'Nepal',
+    visa: 'Visa Free',
+    visaType: 'success',
+    budget: '₹20,000',
+    duration: '4 nights',
+    bestFor: 'Himalayas, Temples',
+    link: '',
+  },
 ]
 
 const DOMESTIC_DESTINATIONS = [
   {
     name: 'Goa',
-    img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1000&q=85&auto=format&fit=crop',
     season: 'Nov – Feb',
     city: 'Goa',
     country: 'Goa',
-    badge: 'Beach favorite',
+    badge: 'Beach Favorite',
     budget: '₹12,000',
     duration: '4 nights',
-    bestFor: 'Beaches, Friends',
+    bestFor: 'Beaches, Nightlife',
     link: '/seo/goa-trip-under-10000',
   },
   {
     name: 'Manali',
-    img: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1000&q=85&auto=format&fit=crop',
     season: 'Oct – Jun',
     city: 'Manali',
     country: 'Himachal Pradesh',
-    badge: 'Hill escape',
+    badge: 'Hill Retreat',
     budget: '₹18,000',
     duration: '5 nights',
     bestFor: 'Mountains, Adventure',
@@ -124,11 +229,11 @@ const DOMESTIC_DESTINATIONS = [
   },
   {
     name: 'Kerala',
-    img: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1000&q=85&auto=format&fit=crop',
     season: 'Sep – Mar',
     city: 'Kerala',
     country: 'Kerala',
-    badge: 'Family favorite',
+    badge: 'Backwaters',
     budget: '₹22,000',
     duration: '5 nights',
     bestFor: 'Family, Nature',
@@ -136,62 +241,110 @@ const DOMESTIC_DESTINATIONS = [
   },
   {
     name: 'Rishikesh',
-    img: 'https://images.unsplash.com/photo-1603867106100-0d2039fc8757?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1603867106100-0d2039fc8757?w=1000&q=85&auto=format&fit=crop',
     season: 'Sep – Apr',
     city: 'Rishikesh',
     country: 'Uttarakhand',
-    badge: 'Weekend friendly',
+    badge: 'Spiritual Hub',
     budget: '₹9,000',
     duration: '3 nights',
-    bestFor: 'Adventure, Spiritual',
+    bestFor: 'Rafting, Yoga',
     link: '',
   },
   {
     name: 'Jaipur',
-    img: 'https://images.unsplash.com/photo-1524230507669-5ff97982bb5e?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1000&q=85&auto=format&fit=crop',
     season: 'Oct – Mar',
     city: 'Jaipur',
     country: 'Rajasthan',
-    badge: 'Heritage trip',
+    badge: 'Royal Heritage',
     budget: '₹10,000',
     duration: '3 nights',
-    bestFor: 'Culture, Heritage',
+    bestFor: 'Forts, Culture',
     link: '/seo/budget-rajasthan-trip',
   },
   {
     name: 'Kashmir',
-    img: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?w=1000&q=85&auto=format&fit=crop',
     season: 'Mar – Oct',
     city: 'Kashmir',
     country: 'Jammu & Kashmir',
-    badge: 'Honeymoon pick',
+    badge: 'Paradise Valley',
     budget: '₹28,000',
     duration: '5 nights',
-    bestFor: 'Honeymoon, Nature',
+    bestFor: 'Snow, Valleys',
     link: '/seo/honeymoon-in-kashmir',
   },
   {
     name: 'Andaman',
-    img: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=1000&q=85&auto=format&fit=crop',
     season: 'Oct – May',
     city: 'Andaman',
     country: 'Andaman Islands',
-    badge: 'Island escape',
+    badge: 'Tropical Islands',
     budget: '₹35,000',
     duration: '5 nights',
-    bestFor: 'Beaches, Couples',
+    bestFor: 'Scuba, Beaches',
     link: '/seo/honeymoon-in-andaman',
   },
   {
     name: 'Varanasi',
-    img: 'https://images.unsplash.com/photo-1561361058-c24cecae35ca?w=600&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1561361058-c24cecae35ca?w=1000&q=85&auto=format&fit=crop',
     season: 'Oct – Mar',
     city: 'Varanasi',
     country: 'Uttar Pradesh',
-    badge: 'Spiritual trip',
+    badge: 'Sacred Ghats',
     budget: '₹8,000',
     duration: '3 nights',
-    bestFor: 'Spiritual, Culture',
+    bestFor: 'Ghats, Rituals',
+    link: '',
+  },
+  {
+    name: 'Munnar, Kerala',
+    img: 'https://images.unsplash.com/photo-1598324789736-4861f89564a0?w=1000&q=85&auto=format&fit=crop',
+    season: 'Sep – May',
+    city: 'Munnar',
+    country: 'Kerala',
+    badge: 'Tea Gardens',
+    budget: '₹14,000',
+    duration: '4 nights',
+    bestFor: 'Misty Hills, Tea Estates',
+    link: '',
+  },
+  {
+    name: 'Leh Ladakh',
+    img: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=1000&q=85&auto=format&fit=crop',
+    season: 'May – Sep',
+    city: 'Ladakh',
+    country: 'Jammu & Kashmir',
+    badge: 'High Passes',
+    budget: '₹32,000',
+    duration: '6 nights',
+    bestFor: 'Pangong Lake, Biking',
+    link: '',
+  },
+  {
+    name: 'Darjeeling',
+    img: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&q=85&auto=format&fit=crop',
+    season: 'Oct – May',
+    city: 'Darjeeling',
+    country: 'West Bengal',
+    badge: 'Himalayan Views',
+    budget: '₹16,000',
+    duration: '4 nights',
+    bestFor: 'Toy Train, Kanchenjunga',
+    link: '',
+  },
+  {
+    name: 'Ooty',
+    img: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1000&q=85&auto=format&fit=crop',
+    season: 'Oct – Jun',
+    city: 'Ooty',
+    country: 'Tamil Nadu',
+    badge: 'Nilgiri Hills',
+    budget: '₹12,000',
+    duration: '3 nights',
+    bestFor: 'Botanical Gardens, Toy Train',
     link: '',
   },
 ]
@@ -241,6 +394,18 @@ export default function HomeClient() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [showPrefModal, setShowPrefModal] = useState(false)
   const [showSearchDrawer, setShowSearchDrawer] = useState(false)
+  const [destTab, setDestTab] = useState<'all' | 'intl' | 'domestic' | 'visafree'>('all')
+  const [showAllDest, setShowAllDest] = useState(false)
+
+  const intlCarouselRef = useRef<HTMLDivElement>(null)
+  const domCarouselRef = useRef<HTMLDivElement>(null)
+
+  const scrollCarousel = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+    if (ref.current) {
+      const scrollAmount = direction === 'left' ? -320 : 320
+      ref.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
 
   useEffect(() => {
     let active = true
@@ -311,7 +476,7 @@ export default function HomeClient() {
       <Navbar />
 
       {/* ─── HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[50vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-hidden bg-[#FFFBF7]">
+      <section className="relative min-h-[50vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-visible bg-[#FFFBF7]">
         {/* Ambient Radial Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-[#FFEDD5]/40 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
 
@@ -361,6 +526,7 @@ export default function HomeClient() {
           {/* Search Form (Desktop Horizontal) */}
           <form
             onSubmit={handleSubmit}
+            suppressHydrationWarning
             className="hidden md:flex items-center w-full max-w-4xl bg-white border-[1.5px] border-[#E8E0D8] rounded-[16px] p-2.5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] mx-auto text-left"
           >
             {/* From */}
@@ -386,30 +552,12 @@ export default function HomeClient() {
             </div>
 
             {/* When (Depart & Return) */}
-            <div className="flex-[1.6] px-4 flex items-center gap-2">
-              <div className="flex-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Depart</label>
-                <input
-                  type="date"
-                  required
-                  suppressHydrationWarning
-                  value={form.startDate}
-                  onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
-                  className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-xs p-0 focus:ring-0 cursor-pointer"
-                />
-              </div>
-              <div className="w-px bg-[#E8E0D8] h-8 self-center"></div>
-              <div className="flex-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Return</label>
-                <input
-                  type="date"
-                  suppressHydrationWarning
-                  value={form.endDate}
-                  min={form.startDate || undefined}
-                  onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
-                  className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-xs p-0 focus:ring-0 cursor-pointer"
-                />
-              </div>
+            <div className="flex-[1.6] px-4">
+              <CustomDatePicker
+                startDate={form.startDate}
+                endDate={form.endDate}
+                onChange={(start, end) => setForm(p => ({ ...p, startDate: start, endDate: end }))}
+              />
             </div>
 
             {/* Submit Button */}
@@ -471,134 +619,149 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ─── DESTINATIONS SECTION ─────────────────────────────────────────── */}
+      {/* ─── DESTINATIONS HUB SECTION ─────────────────────────────────────────── */}
       <section id="destinations" className="py-12 md:py-16 bg-[#FFFBF7]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-8">
           
-          {/* Row 1: Popular international trips */}
-          <div className="space-y-6">
-            <div className="text-left">
-              <h2 className="font-display text-2xl font-bold text-[#1A1A1A] tracking-tight">
-                Popular international trips
+          {/* Header & Filter Pill Tabs */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-left border-b border-[#E8E0D8] pb-6">
+            <div>
+              <span className="text-[11px] font-extrabold text-[#EA580C] uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-200 inline-block mb-2">
+                Popular Routes
+              </span>
+              <h2 className="font-display text-2xl md:text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
+                Trending Destinations
               </h2>
+              <p className="text-xs md:text-sm text-[#6B6B6B] font-medium mt-1">
+                Curated global routes and domestic getaways with live visa guidance and instant AI itineraries.
+              </p>
             </div>
-            
-            {/* Horizontal Scroll row with snap alignment */}
-            <div className="flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory hide-scrollbar">
-              {BLUEPRINT_DESTINATIONS.map((d, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-[220px] h-[300px] snap-center bg-white border border-[#E8E0D8] rounded-[16px] overflow-hidden shadow-sm flex flex-col group cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#FED7AA]"
-                  onClick={() => {
-                    if (d.link) {
-                      router.push(d.link)
-                    } else {
-                      setForm(p => ({ ...p, to: d.name }))
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }
-                  }}
-                >
-                  {/* Photo Top 55% */}
-                  <div className="h-[55%] w-full relative overflow-hidden">
-                    <img
-                      src={d.img}
-                      alt={d.name}
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300 rounded-t-[16px]"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                        d.visaType === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-orange-50 text-orange-700 border border-orange-100'
-                      }`}>
-                        {d.visa}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Details Bottom 45% */}
-                  <div className="h-[45%] p-3.5 bg-white flex flex-col justify-between text-left">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-display font-semibold text-[#1A1A1A] text-sm leading-tight truncate mr-2">{d.city}</h4>
-                        <span className="text-[10px] text-[#EA580C] font-semibold whitespace-nowrap">Best: {d.season}</span>
-                      </div>
-                      <p className="text-[11px] text-[#6B6B6B]">{d.country}</p>
-                      <p className="text-[10px] text-[#9CA3AF] truncate">Best for: {d.bestFor}</p>
-                    </div>
-                    <div className="border-t border-[#E8E0D8] pt-2 flex items-center justify-between">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF4EE] text-[#EA580C] border border-[#FED7AA]">
-                        {d.budget} • {d.duration}
-                      </span>
-                      <span className="text-[#EA580C] text-[12px] font-bold flex items-center gap-0.5 hover:underline">
-                        Plan <ChevronRight size={11} />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Premium Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar" suppressHydrationWarning>
+              {[
+                { id: 'all', label: 'All Destinations' },
+                { id: 'intl', label: 'International' },
+                { id: 'domestic', label: 'India Escapes' },
+                { id: 'visafree', label: 'Visa Free' },
+              ].map(tab => {
+                const isActive = destTab === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={() => {
+                      setDestTab(tab.id as any)
+                      setShowAllDest(false)
+                    }}
+                    className={`relative px-5 py-2.5 rounded-full text-xs font-extrabold transition-colors whitespace-nowrap cursor-pointer ${
+                      isActive ? 'text-white font-black' : 'bg-white text-[#6B6B6B] border border-[#E8E0D8] hover:border-[#EA580C] hover:text-[#1A1A1A]'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTabPill"
+                        className="absolute inset-0 bg-[#EA580C] rounded-full shadow-md z-0"
+                        transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative z-10">{tab.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
+          
+          {/* Compact 4-Column Responsive Grid System */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+            {(
+              destTab === 'intl'
+                ? BLUEPRINT_DESTINATIONS
+                : destTab === 'domestic'
+                ? DOMESTIC_DESTINATIONS
+                : destTab === 'visafree'
+                ? [...BLUEPRINT_DESTINATIONS, ...DOMESTIC_DESTINATIONS].filter(d => (d as any).visaType === 'success' || (d as any).visa === 'Visa Free')
+                : [...BLUEPRINT_DESTINATIONS, ...DOMESTIC_DESTINATIONS]
+            )
+            .slice(0, showAllDest ? 16 : 4)
+            .map((d, i) => (
+              <div
+                key={i}
+                className="w-full h-[260px] md:h-[280px] relative rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-[#E8E0D8] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-[#FED7AA]"
+                onClick={() => {
+                  if (d.link) {
+                    router.push(d.link)
+                  } else {
+                    setForm(p => ({ ...p, to: d.name }))
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
+                }}
+              >
+                {/* Full-bleed Ultra 4K Photo */}
+                <img
+                  src={d.img}
+                  alt={d.name}
+                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                  loading="lazy"
+                />
+                
+                {/* Dark Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300" />
 
-          {/* Row 2: Popular domestic getaways */}
-          <div className="space-y-6">
-            <div className="text-left">
-              <h2 className="font-display text-2xl font-bold text-[#1A1A1A] tracking-tight">
-                Popular domestic getaways
-              </h2>
-            </div>
-            
-            {/* Horizontal Scroll row with snap alignment */}
-            <div className="flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory hide-scrollbar">
-              {DOMESTIC_DESTINATIONS.map((d, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-[220px] h-[300px] snap-center bg-white border border-[#E8E0D8] rounded-[16px] overflow-hidden shadow-sm flex flex-col group cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#FED7AA]"
-                  onClick={() => {
-                    if (d.link) {
-                      router.push(d.link)
-                    } else {
-                      setForm(p => ({ ...p, to: d.name }))
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }
-                  }}
-                >
-                  {/* Photo Top 55% */}
-                  <div className="h-[55%] w-full relative overflow-hidden">
-                    <img
-                      src={d.img}
-                      alt={d.name}
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300 rounded-t-[16px]"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-100">
-                        {d.badge}
-                      </span>
-                    </div>
+                {/* Top Glassmorphism Badges */}
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+                  <span className={`backdrop-blur-md bg-black/60 border text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1 ${
+                    (d as any).visaType === 'success' || (d as any).badge ? 'border-emerald-400/60 text-emerald-300' : 'border-sky-400/60 text-sky-300'
+                  }`}>
+                    {(d as any).visaType === 'success' ? <ShieldCheck size={11} className="text-emerald-400" /> : (d as any).badge ? <MapPin size={11} className="text-emerald-400" /> : <FileCheck size={11} className="text-sky-400" />}
+                    <span>{(d as any).visa || (d as any).badge}</span>
+                  </span>
+
+                  <span className="backdrop-blur-md bg-black/60 border border-white/30 text-white/90 text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Calendar size={10} className="text-amber-300" />
+                    <span>{d.season}</span>
+                  </span>
+                </div>
+
+                {/* Bottom Information Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 z-10 text-left space-y-2">
+                  <div>
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-300 block">
+                      {d.bestFor}
+                    </span>
+                    <h3 className="font-display text-lg md:text-xl font-extrabold text-white leading-tight">
+                      {d.city}, <span className="text-white/80 font-medium text-xs md:text-sm">{d.country}</span>
+                    </h3>
                   </div>
 
-                  {/* Details Bottom 45% */}
-                  <div className="h-[45%] p-3.5 bg-white flex flex-col justify-between text-left">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-display font-semibold text-[#1A1A1A] text-sm leading-tight truncate mr-2">{d.city}</h4>
-                        <span className="text-[10px] text-[#EA580C] font-semibold whitespace-nowrap">Best: {d.season}</span>
-                      </div>
-                      <p className="text-[11px] text-[#6B6B6B]">{d.country}</p>
-                      <p className="text-[10px] text-[#9CA3AF] truncate">Best for: {d.bestFor}</p>
+                  <div className="pt-2 border-t border-white/20 flex items-center justify-between">
+                    <div>
+                      <span className="text-[9px] text-white/70 block uppercase font-bold tracking-wider">Est. Budget</span>
+                      <span className="text-xs md:text-sm font-extrabold text-amber-300">{d.budget} <span className="text-[10px] text-white/80 font-normal">• {d.duration}</span></span>
                     </div>
-                    <div className="border-t border-[#E8E0D8] pt-2 flex items-center justify-between">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF4EE] text-[#EA580C] border border-[#FED7AA]">
-                        {d.budget} • {d.duration}
-                      </span>
-                      <span className="text-[#EA580C] text-[12px] font-bold flex items-center gap-0.5 hover:underline">
-                        Plan <ChevronRight size={11} />
-                      </span>
-                    </div>
+
+                    <span className="px-3 py-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-[11px] rounded-lg shadow-md flex items-center gap-1 transition-all active:scale-95">
+                      <span>Plan</span>
+                      <ChevronRight size={13} />
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Expand / Collapse Button */}
+          <div className="text-center pt-4">
+            <button
+              type="button"
+              suppressHydrationWarning
+              onClick={() => setShowAllDest(!showAllDest)}
+              className="px-7 py-3.5 bg-white border border-[#E8E0D8] hover:border-[#EA580C] text-[#1A1A1A] hover:text-[#EA580C] font-extrabold text-xs tracking-wide rounded-full shadow-sm transition-all inline-flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <span>{showAllDest ? 'Show Fewer Destinations' : 'Explore More Destinations'}</span>
+              <ChevronRight size={14} className={`transition-transform duration-300 ${showAllDest ? '-rotate-90' : 'rotate-90'}`} />
+            </button>
           </div>
 
         </div>
@@ -787,7 +950,7 @@ export default function HomeClient() {
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
                 <>
-                  <span>Generate My Itinerary</span>
+                  <span>Plan my trip</span>
                   <ArrowRight size={16} strokeWidth={1.5} />
                 </>
               )}

@@ -23,6 +23,9 @@ import toast from 'react-hot-toast'
 import { useTripStore } from '@/store/tripStore'
 import { tripAPI } from '@/lib/api'
 import TravelMemories from '@/components/photos/TravelMemories'
+import { addBookmark } from '@/lib/bookmarkUtils'
+import StoryCardModal from './StoryCardModal'
+import CollaborativeInviteModal from './CollaborativeInviteModal'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -908,6 +911,8 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
   }, [rawItinerary])
 
   const [activeDay, setActiveDay] = useState(0)
+  const [showStoryModal, setShowStoryModal] = useState(false)
+  const [showCollabModal, setShowCollabModal] = useState(false)
   const isMobile = useIsMobile()
   const daySelectorRef = useRef<HTMLDivElement>(null)
   
@@ -1139,16 +1144,31 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
     }
   }, [itinerary, setItinerary, destination])
 
-  const handleSaveDay = useCallback((dayIndex: number) => {
+  const handleSaveDay = useCallback(async (dayIndex: number) => {
+    const dayTitle = `${destination || 'Trip'} Day ${dayIndex + 1}`
+    await addBookmark('itinerary', dayTitle)
     toast.success(`Day ${dayIndex + 1} bookmark saved successfully!`)
-  }, [])
+  }, [destination])
 
   const handleShareDay = useCallback(() => {
-    const url = typeof window !== 'undefined' ? window.location.href : 'TripSage Plan'
-    navigator.clipboard.writeText(url)
-      .then(() => toast.success("Share link copied to clipboard!"))
-      .catch(() => toast.error("Could not copy link."))
-  }, [])
+    const url = typeof window !== 'undefined' ? window.location.href : 'https://tripsage.in'
+    const brandedMessage = `✈️ TripSage AI — Smart Travel Plan\n🗺️ Check out my AI-planned itinerary for ${destination || 'my trip'}!\n\nPlan your own custom trip at: ${url}`
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({
+        title: `TripSage AI Plan — ${destination || 'My Trip'}`,
+        text: brandedMessage,
+        url: url,
+      }).then(() => toast.success("Shared via TripSage!"))
+      .catch(() => {
+        navigator.clipboard.writeText(brandedMessage)
+        toast.success("TripSage branded link copied!")
+      })
+    } else {
+      navigator.clipboard.writeText(brandedMessage)
+      toast.success("TripSage branded link copied to clipboard!")
+    }
+  }, [destination])
 
   if (loading) return <ItineraryLoadingSkeleton />
 
@@ -1198,13 +1218,24 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="px-3 py-1.5 rounded-xl text-xs font-bold"
-            style={{ background: '#FFF7ED', color: '#EA580C', border: '1px solid #FED7AA' }}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowCollabModal(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#FFF4EE] hover:bg-orange-100 text-[#EA580C] border border-[#FED7AA] flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
           >
-            AI Generated
-          </span>
+            <Users size={14} />
+            <span>Invite Co-Travelers (+200 Pts)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowStoryModal(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#1A1A1A] hover:bg-black text-white flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+          >
+            <Camera size={14} className="text-orange-400" />
+            <span>Story Card Exporter</span>
+          </button>
         </div>
       </div>
 
@@ -1395,6 +1426,22 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
           </button>
         </div>
       )}
+
+      {/* ── Story Card Modal ── */}
+      <StoryCardModal
+        isOpen={showStoryModal}
+        onClose={() => setShowStoryModal(false)}
+        destination={destination || 'Trip'}
+        durationDays={itinerary.length}
+        places={itinerary.flatMap((d: any) => d.places || []).map((p: any) => p.name).filter(Boolean)}
+      />
+
+      {/* ── Collaborative Invite Modal ── */}
+      <CollaborativeInviteModal
+        isOpen={showCollabModal}
+        onClose={() => setShowCollabModal(false)}
+        destination={destination || 'Trip'}
+      />
     </div>
   )
 }

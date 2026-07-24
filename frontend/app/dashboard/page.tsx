@@ -1,6 +1,6 @@
 'use client'
 
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import { useAuthStore } from '@/store/authStore'
 import { useTripStore, type TripRecord } from '@/store/tripStore'
 import { tripAPI } from '@/lib/api'
@@ -70,6 +70,7 @@ const features = [
 
 export default function DashboardPage() {
   const { user: clerkUser, isLoaded, isSignedIn } = useUser()
+  const { getToken } = useAuth()
   const { isLoggedIn: isStoreLoggedIn, user: storeUser } = useAuthStore()
   const { tripHistory, startNewTrip, setTrip, setItinerary, addTripToHistory } = useTripStore()
   const router = useRouter()
@@ -88,18 +89,19 @@ export default function DashboardPage() {
         return
       }
       try {
-        const response = await tripAPI.getUserTrips()
-        if (response.success && response.data) {
+        const token = await getToken()
+        const response = await tripAPI.getUserTrips(token)
+        if (response?.success && Array.isArray(response?.data)) {
           setDbTrips(response.data)
         }
       } catch (err) {
-        console.error('Error fetching database trips:', err)
+        console.warn('Trips fetch warning:', err)
       } finally {
         setDbLoading(false)
       }
     }
     loadTrips()
-  }, [isAuthenticated])
+  }, [isAuthenticated, getToken])
 
   useEffect(() => {
     if (isLoaded && !isAuthenticated) {
