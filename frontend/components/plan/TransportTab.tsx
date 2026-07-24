@@ -56,14 +56,11 @@ interface Props {
   hotelCostSpent?: number
   currency?: string
   error?: string | null
+  flightValidation?: any
 }
 
 type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-routes'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 // ─── Airline badge data ───────────────────────────────────────────────────────
 
 const AIRLINE_LOGOS: Record<string, string> = {
@@ -159,11 +156,7 @@ function getAirlineInitials(name: string): string {
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
   return clean.slice(0, 2).toUpperCase()
 }
-<<<<<<< HEAD
-=======
->>>>>>> e444a81 (Save local changes)
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
+
 
 // ─── Sage Score calculation ───────────────────────────────────────────────────
 
@@ -409,16 +402,7 @@ function BestValueCard({
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
   const cleanName = item.name?.split('—')[0]?.trim() ?? 'Best Route'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
-<<<<<<< HEAD
-<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
-=======
-
-  const bgImg = null
->>>>>>> e444a81 (Save local changes)
-=======
-  const bgImg = getCardBgImage(item)
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
@@ -579,30 +563,15 @@ function ComparisonCard({
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor = item.rating >= 4.5 ? 'bg-blue-100 text-blue-800' : item.rating >= 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
-<<<<<<< HEAD
-<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
   const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
   const logoUrl = getAirlineLogo(item.name ?? '')
-=======
-
-  const bgImg = null
->>>>>>> e444a81 (Save local changes)
-=======
-  const bgImg = getCardBgImage(item)
-  const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
-  const logoUrl = getAirlineLogo(item.name ?? '')
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   return (
     <div
       className="bg-white border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-orange-400 transition-all duration-300 flex flex-col justify-between h-full group relative"
       style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
     >
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       <div>
         {/* ── Photo strip if available ── */}
         {bgImg ? (
@@ -618,58 +587,6 @@ function ComparisonCard({
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
               {isTopPick ? (
                 <span className="bg-[#EA580C] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
-<<<<<<< HEAD
-=======
-      {/* ── Aircraft photo strip ── */}
-      {bgImg && (
-        <div className="relative w-full" style={{ height: 140 }}>
-          <img
-            src={bgImg}
-            alt={item.name?.split('—')[0]?.trim() ?? 'Flight'}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(0.60)' }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(160deg,rgba(0,0,0,0.10) 0%,rgba(0,0,0,0.65) 100%)' }}
-          />
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-semibold text-white drop-shadow-sm">{item.name?.split('—')[0]?.trim()}</span>
-            </div>
-            {isTopPick && (
-              <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow">
-                Top Pick
-              </span>
-            )}
-          </div>
-          {/* Score top right */}
-          <div className="absolute top-2 right-2">
-            <SageScoreRing score={score} dark />
-          </div>
-        </div>
-      )}
-
-      {/* ── White content ── */}
-      <div className="p-4 flex flex-col gap-3">
-        {/* If no image, show airline/mode row */}
-        {!bgImg && (
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg border border-[#E8E0D8] bg-[#F5F5F4] flex items-center justify-center shrink-0">
-                <Icon size={18} strokeWidth={1.75} className="text-[#6B6B6B]" />
-              </div>
-              <div>
-                <p className="text-[14px] font-semibold text-[#1A1A1A] leading-tight">{typeLabel}</p>
-                <p className="text-[12px] text-[#6B6B6B]">{item.name?.split('—')[0]?.trim()}</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              {isTopPick && (
-                <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
->>>>>>> e444a81 (Save local changes)
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
                   Top Pick
                 </span>
               ) : (
@@ -873,7 +790,7 @@ function EmptyState({ type, error, onSwitch }: { type: string; error?: string | 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 
 function TransportTab({
-  transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR', error
+  transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR', error, flightValidation
 }: Props) {
   const [segment, setSegment] = useState<Segment>('recommended')
   const { userProfile } = useTripStore()
@@ -1065,6 +982,7 @@ function TransportTab({
           <AiFlightSearch
             flights={flights}
             loading={loading}
+            flightValidation={flightValidation}
             tripContext={{
               from,
               to: dest,

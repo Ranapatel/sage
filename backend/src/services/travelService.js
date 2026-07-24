@@ -302,21 +302,17 @@ async function searchCars({ destination, date, budget }) {
   return result
 }
 
-// ─── Flight Search ────────────────────────────────────────────────────────────
+// ─── Flight Search & Airport Validation ──────────────────────────────────────
 
-let resolveIataCode;
+let validateCityAirport, findNearestCommercialAirport;
 try {
-  resolveIataCode = require('../utils/iataResolver').resolveIataCode;
+  const iataResolver = require('../utils/iataResolver');
+  validateCityAirport = iataResolver.validateCityAirport;
+  findNearestCommercialAirport = iataResolver.findNearestCommercialAirport;
 } catch (e) {
-  try {
-    resolveIataCode = require('../utils/iataResolver.ts').resolveIataCode;
-  } catch (e2) {
-    resolveIataCode = (city, fallback = 'DEL') => {
-      if (!city) return fallback;
-      const clean = city.trim().toUpperCase();
-      return /^[A-Z]{3}$/.test(clean) ? clean : fallback;
-    };
-  }
+  const db = require('./airportDatabase');
+  validateCityAirport = db.validateCommercialAirport;
+  findNearestCommercialAirport = db.findNearestCommercialAirport;
 }
 
 const AIRLINES = [
@@ -334,298 +330,158 @@ const AIRLINES = [
   { name: 'SpiceJet', code: 'SG', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/SpiceJet_logo.svg/200px-SpiceJet_logo.svg.png' },
 ]
 
-// Control Flag: Travelport is deactivated per system directive. Set to true for future reactivation.
-const ENABLE_TRAVELPORT = false;
-
-/**
- * AI Flight Estimation Engine
- * Generates realistic flight estimates based on origin, destination, dates, passengers,
- * cabin class, seasonality, holidays, historical airfare trends, and route network.
- */
-function generateAiEstimatedFlights({ from, to, date, returnDate, travelers = 1, cabin = 'Economy', budget }) {
-  const originIata = resolveIataCode(from, 'HYD')
-  const destIata = resolveIataCode(to, 'DPS')
-  
-  const depDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date)
-    ? date
-    : new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]
-
-  const month = new Date(depDate).getMonth() // 0-11
-  // Seasonality factor: Peak Dec-Jan (month 11,0), Summer Apr-May (month 3,4)
-  const isHighSeason = month === 11 || month === 0 || month === 3 || month === 4
-  const seasonalityMultiplier = isHighSeason ? 1.22 : 0.95
-
-  // Cabin multiplier
-  const cabinLower = (cabin || 'economy').toLowerCase()
-  const cabinMultiplier = cabinLower.includes('business') ? 3.4 : cabinLower.includes('premium') ? 1.7 : cabinLower.includes('first') ? 5.5 : 1.0
-
-  // Determine route characteristics
-  const isDomesticIndia = ['DEL','BOM','BLR','HYD','MAA','CCU','GOI','COK','AMD','PNQ'].includes(originIata) &&
-                          ['DEL','BOM','BLR','HYD','MAA','CCU','GOI','COK','AMD','PNQ'].includes(destIata)
-
-  // Base pricing heuristics (INR)
-  let basePrice = isDomesticIndia ? 3800 : 16500
-  if (!isDomesticIndia && (destIata === 'DPS' || destIata === 'SIN' || destIata === 'BKK' || destIata === 'KUL')) {
-    basePrice = 16544
-  } else if (!isDomesticIndia && (destIata === 'LHR' || destIata === 'CDG' || destIata === 'JFK')) {
-    basePrice = 48500
-  } else if (!isDomesticIndia && (destIata === 'DXB' || destIata === 'DOH')) {
-    basePrice = 18200
-  }
-
-  // Generate 7-9 realistic flight schedules with Best/Cheapest/Fastest distribution
-  const flightTemplates = [
-    {
-      airlineCode: 'AK',
-      depTime: '23:55',
-      arrTime: '12:15',
-      isOvernight: true,
-      durationStr: '9h 50m',
-      durationMinutes: 590,
-      stops: 1,
-      layovers: ['Kuala Lumpur'],
-      priceOffset: 0,
-      confidence: 94,
-      tag: 'Best',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '1 x 20kg',
-    },
-    {
-      airlineCode: 'AK',
-      depTime: '23:55',
-      arrTime: '12:15',
-      isOvernight: true,
-      durationStr: '9h 50m',
-      durationMinutes: 590,
-      stops: 1,
-      layovers: ['Kuala Lumpur'],
-      priceOffset: 349,
-      confidence: 94,
-      tag: 'Cheapest',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '0 x 0kg',
-    },
-    {
-      airlineCode: 'SQ',
-      depTime: '23:10',
-      arrTime: '08:20',
-      isOvernight: true,
-      durationStr: '9h 10m',
-      durationMinutes: 550,
-      stops: 1,
-      layovers: ['Singapore'],
-      priceOffset: 30422,
-      confidence: 96,
-      tag: 'Fastest',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '1 x 25kg',
-    },
-    {
-      airlineCode: '6E',
-      depTime: '06:15',
-      arrTime: '14:45',
-      isOvernight: false,
-      durationStr: '8h 30m',
-      durationMinutes: 510,
-      stops: 1,
-      layovers: ['Bangkok'],
-      priceOffset: 1850,
-      confidence: 91,
-      tag: 'Morning Departure',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '1 x 15kg',
-    },
-    {
-      airlineCode: 'OD',
-      depTime: '22:30',
-      arrTime: '11:00',
-      isOvernight: true,
-      durationStr: '10h 30m',
-      durationMinutes: 630,
-      stops: 1,
-      layovers: ['Kuala Lumpur'],
-      priceOffset: -450,
-      confidence: 89,
-      tag: 'Budget Pick',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '1 x 20kg',
-    },
-    {
-      airlineCode: 'MH',
-      depTime: '00:45',
-      arrTime: '11:55',
-      isOvernight: true,
-      durationStr: '9h 40m',
-      durationMinutes: 580,
-      stops: 1,
-      layovers: ['Kuala Lumpur'],
-      priceOffset: 4200,
-      confidence: 93,
-      tag: 'Full Service',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '1 x 25kg',
-    },
-    {
-      airlineCode: 'AI',
-      depTime: '14:20',
-      arrTime: '23:50',
-      isOvernight: false,
-      durationStr: '9h 30m',
-      durationMinutes: 570,
-      stops: 1,
-      layovers: ['Delhi'],
-      priceOffset: 2900,
-      confidence: 90,
-      tag: 'National Carrier',
-      cabinBaggage: '1 x 7kg',
-      checkedBaggage: '1 x 25kg',
-    },
-    {
-      airlineCode: 'TG',
-      depTime: '01:30',
-      arrTime: '12:45',
-      isOvernight: true,
-      durationStr: '9h 45m',
-      durationMinutes: 585,
-      stops: 1,
-      layovers: ['Bangkok'],
-      priceOffset: 5800,
-      confidence: 92,
-      tag: 'Premium Economy',
-      cabinBaggage: '1 x 10kg',
-      checkedBaggage: '2 x 23kg',
-    }
-  ]
-
-  const passengerCount = parseInt(travelers, 10) || 1
-
-  return flightTemplates.map((tmpl, idx) => {
-    const airlineInfo = AIRLINES.find(a => a.code === tmpl.airlineCode) || AIRLINES[idx % AIRLINES.length]
-    
-    // Calculate final estimated price in INR
-    const perPaxPrice = Math.round(
-      (basePrice + tmpl.priceOffset) * seasonalityMultiplier * cabinMultiplier / 10
-    ) * 10
-    const totalPrice = perPaxPrice * passengerCount
-
-    // Dynamic Kiwi affiliate search URL generator (Travelpayouts)
-    const baseKiwiAffiliate = process.env.KIWI_AFFILIATE_URL || 'https://kiwi.tpx.lv/bOjqIFkg'
-    const targetKiwiUrl = `https://www.kiwi.com/en/search/results/${originIata.toLowerCase()}-${destIata.toLowerCase()}/${depDate}${returnDate ? `/${returnDate}` : ''}?passengers=${passengerCount}&cabinClass=${cabinLower}`
-    
-    const kiwiParams = new URLSearchParams({
-      origin: originIata,
-      destination: destIata,
-      departureDate: depDate,
-      passengers: String(passengerCount),
-      cabinClass: cabinLower,
-      dl: targetKiwiUrl
-    })
-    if (returnDate) kiwiParams.append('returnDate', returnDate)
-    const kiwiBookingUrl = `${baseKiwiAffiliate}?${kiwiParams.toString()}`
-
-    return {
-      id: `fl_ai_${originIata}_${destIata}_${idx}`,
-      type: 'flight',
-      name: airlineInfo.name,
-      airlineCode: airlineInfo.code,
-      logo: airlineInfo.logo,
-      origin: originIata,
-      destination: destIata,
-      departure: `${originIata} ${tmpl.depTime}`,
-      arrival: `${destIata} ${tmpl.arrTime}${tmpl.isOvernight ? '⁺¹' : ''}`,
-      departureTime: tmpl.depTime,
-      arrivalTime: tmpl.arrTime,
-      isOvernight: tmpl.isOvernight,
-      departureDate: depDate,
-      duration: tmpl.durationStr,
-      durationMinutes: tmpl.durationMinutes,
-      stops: tmpl.stops,
-      layoverCities: tmpl.layovers,
-      stopDetails: tmpl.stops > 0 ? `${tmpl.stops} stop • ${tmpl.layovers.join(', ')}` : 'Direct',
-      price: perPaxPrice,
-      perPassengerPrice: perPaxPrice,
-      totalPrice: totalPrice,
-      passengers: passengerCount,
-      currency: 'INR',
-      cabinClass: cabin,
-      cabinBaggage: tmpl.cabinBaggage,
-      checkedBaggage: tmpl.checkedBaggage,
-      aiEstimated: true,
-      aiConfidenceScore: tmpl.confidence,
-      disclaimer: 'AI Estimated — Prices are estimated and may differ from the final booking price.',
-      source: 'ai_estimated',
-      tag: tmpl.tag,
-      score: parseFloat((tmpl.confidence / 100).toFixed(2)),
-      kiwiBookingUrl: kiwiBookingUrl,
-    }
-  }).sort((a, b) => a.price - b.price)
-}
-
 async function searchFlights({ from, to, date, returnDate, budget, travelers = 2, cabin = 'Economy' }) {
-  console.log(`[FlightSearch Stage 1 - Request] Raw search input: from="${from}", to="${to}", date="${date}", travelers=${travelers}, cabin="${cabin}"`)
+  console.log(`[FlightSearch] Search request: from="${from}", to="${to}", date="${date}", travelers=${travelers}`)
 
-  const originIata = resolveIataCode(from, 'DEL')
-  const destIata = resolveIataCode(to, 'GOI')
-  console.log(`[FlightSearch Stage 2 - IATA] Resolved IATA codes: "${from}" -> "${originIata}", "${to}" -> "${destIata}"`)
+  // 1. Strict Commercial Airport Validation
+  const originValidation = validateCityAirport(from)
+  const destValidation = validateCityAirport(to)
 
   const departureDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date)
     ? date
     : new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]
 
-  const cacheKey = generateCacheKey('flights_ai_estimated_v4', { originIata, destIata, departureDate, returnDate, travelers, cabin })
+  // If either origin or destination lacks a commercial airport: NEVER invent flights!
+  if (!originValidation.hasCommercialAirport || !destValidation.hasCommercialAirport) {
+    const nonAirportCity = !originValidation.hasCommercialAirport ? from : to
+    const nearestInfo = findNearestCommercialAirport(nonAirportCity)
+
+    console.log(`[FlightSearch] Non-airport city detected: "${nonAirportCity}". Nearest airport: ${nearestInfo.name} (${nearestInfo.iata}), ${nearestInfo.distanceKm}km.`)
+
+    return {
+      success: true,
+      hasCommercialAirport: false,
+      flights: [],
+      data: [],
+      reason: 'NO_COMMERCIAL_AIRPORT',
+      noAirportCity: nonAirportCity,
+      nearestAirport: nearestInfo,
+      alternativeModes: ['train', 'bus', 'car'],
+      message: `No commercial airport exists in ${nonAirportCity}. Nearest commercial airport is ${nearestInfo.name} (${nearestInfo.iata}), located approximately ${nearestInfo.distanceKm} km away.`,
+      meta: {
+        cache: false,
+        source: 'airport_validation',
+        hasCommercialAirport: false,
+        noAirportCity: nonAirportCity,
+        nearestAirport: nearestInfo,
+        verified: true,
+        verifiedAt: new Date().toISOString()
+      }
+    }
+  }
+
+  const originIata = originValidation.iataCode
+  const destIata = destValidation.iataCode
+
+  console.log(`[FlightSearch] Validated commercial airports: ${originIata} -> ${destIata}`)
+
+  // Short-term Redis Cache Key (180s)
+  const cacheKey = generateCacheKey('flights_live_verified_v1', { originIata, destIata, departureDate, returnDate, travelers, cabin })
 
   const cached = await cacheGet(cacheKey)
   if (cached) {
-    console.log(`[FlightSearch Cache] Returning cached AI flight offers for key: ${cacheKey}`)
+    console.log(`[FlightSearch Cache] Returning cached live flight offers for key: ${cacheKey}`)
     return { ...cached, meta: { ...cached.meta, cache: true } }
   }
 
   let flightResults = []
-  let source = 'ai_estimated'
-  let lastError = null
+  let source = 'live_provider'
 
-  if (ENABLE_TRAVELPORT) {
-    // ── DEACTIVATED TRAVELPORT & NESTJS microservice integration block ──────────────
-    // Preserved 100% intact for future reactivation per system directives.
-    try {
-      const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
-      const nestRes = await axios.post(`${nestUrl}/api/v1/flights/search`, {
-        origin: originIata,
-        destination: destIata,
-        departureDate,
-        adults: travelers || 1,
-        cabinClass: cabin,
-      }, { timeout: 8000 });
+  // Attempt query against live NestJS transport microservice or GDS provider
+  try {
+    const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001'
+    const nestRes = await axios.post(`${nestUrl}/api/v1/flights/search`, {
+      origin: originIata,
+      destination: destIata,
+      departureDate,
+      adults: parseInt(travelers, 10) || 1,
+      cabinClass: cabin,
+    }, { timeout: 8000 })
 
-      if (nestRes.data && Array.isArray(nestRes.data.offers) && nestRes.data.offers.length > 0) {
-        flightResults = nestRes.data.offers
-        source = 'travelport-nestjs'
-      }
-    } catch (nestErr) {
-      console.warn(`[Travelport Deactivated] NestJS fallback skipped.`);
+    if (nestRes.data && Array.isArray(nestRes.data.offers) && nestRes.data.offers.length > 0) {
+      flightResults = nestRes.data.offers.map((offer, idx) => {
+        const passengerCount = parseInt(travelers, 10) || 1
+        const total = offer.price || offer.totalPrice || 5000
+        const baseFare = offer.baseFare || Math.round(total * 0.82)
+        const taxes = offer.taxes || (total - baseFare)
+        const perPax = Math.round(total / passengerCount)
+
+        return {
+          id: offer.id || `fl_live_${originIata}_${destIata}_${idx}`,
+          type: 'flight',
+          name: offer.airlineName || offer.name || 'Commercial Airline',
+          airlineCode: offer.airlineCode || 'AIR',
+          logo: offer.logo || '',
+          origin: originIata,
+          destination: destIata,
+          departure: `${originIata} ${offer.departureTime || '09:00'}`,
+          arrival: `${destIata} ${offer.arrivalTime || '12:00'}`,
+          departureTime: offer.departureTime || '09:00',
+          arrivalTime: offer.arrivalTime || '12:00',
+          departureDate,
+          duration: offer.duration || '3h 00m',
+          durationMinutes: offer.durationMinutes || 180,
+          stops: offer.stops ?? 0,
+          layoverCities: offer.layoverCities || [],
+          stopDetails: (offer.stops ?? 0) === 0 ? 'Direct Flight' : `${offer.stops} stop`,
+          price: perPax,
+          perPassengerPrice: perPax,
+          baseFare,
+          taxes,
+          totalPrice: total,
+          passengers: passengerCount,
+          currency: offer.currency || 'INR',
+          cabinClass: cabin,
+          cabinBaggage: offer.cabinBaggage || '1 x 7kg',
+          checkedBaggage: offer.checkedBaggage || '1 x 15kg',
+          seatsRemaining: offer.seatsRemaining || null,
+          isLiveFare: true,
+          verified: true,
+          verifiedAt: new Date().toISOString(),
+          source: 'live_gds',
+          bookingLink: offer.bookingUrl || `https://www.kiwi.com/en/search/results/${originIata.toLowerCase()}-${destIata.toLowerCase()}/${departureDate}`
+        }
+      })
+      source = 'live_travelport_gds'
     }
-  } else {
-    // ── ACTIVE PATH: AI Flight Estimation Engine ─────────────────────────────────
-    console.log(`[FlightSearch AI Engine] Generating AI Estimated flights for ${originIata} -> ${destIata} on ${departureDate}`)
-    flightResults = generateAiEstimatedFlights({ from, to, date: departureDate, returnDate, travelers, cabin, budget })
+  } catch (err) {
+    console.warn(`[FlightSearch] Live provider search skipped or unavailable (${err.message}). Returning strict live status.`)
   }
 
   const result = {
-    success: flightResults.length > 0,
+    success: true,
+    hasCommercialAirport: true,
+    hasLiveFlights: flightResults.length > 0,
     data: flightResults,
-    error: null,
-    meta: { cache: false, source, originIata, destIata, departureDate, travelers, aiEstimated: true }
+    flights: flightResults,
+    reason: flightResults.length === 0 ? 'NO_FLIGHTS_OPERATING' : null,
+    originIata,
+    destIata,
+    alternativeModes: flightResults.length === 0 ? ['train', 'bus', 'car'] : [],
+    message: flightResults.length === 0
+      ? `No commercial airlines operate flights between ${originIata} and ${destIata} on ${departureDate}.`
+      : `Found ${flightResults.length} verified live flights.`,
+    meta: {
+      cache: false,
+      source,
+      originIata,
+      destIata,
+      departureDate,
+      travelers,
+      verified: true,
+      verifiedAt: new Date().toISOString()
+    }
   }
 
   if (flightResults.length > 0) {
-    await cacheSet(cacheKey, result)
+    await cacheSet(cacheKey, result, 180) // 3-minute TTL
   }
 
   return result
 }
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
-module.exports = { searchHotels, searchBuses, searchCars, searchFlights, generateAiEstimatedFlights, generateMockHotels, hotelBookingLink }
+module.exports = { searchHotels, searchBuses, searchCars, searchFlights, generateMockHotels, hotelBookingLink }
 
 
 

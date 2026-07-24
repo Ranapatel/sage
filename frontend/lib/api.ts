@@ -24,6 +24,7 @@ export interface SearchData {
   trainSearchUrl?: string
   trainStationInfo?: any
   flightError?: string
+  flightValidation?: any
 }
 
 export interface ItineraryData {

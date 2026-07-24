@@ -17,7 +17,6 @@ import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
-<<<<<<< HEAD
 import LocationAutocomplete from '../ui/LocationAutocomplete'
 import { 
   Icon3DOverview, 
@@ -27,8 +26,6 @@ import {
 } from '@/components/ui/TripSageIcons'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
 // ── Destination background images ─────────────────────────────────────────────
 const DESTINATION_IMAGES: Record<string, string> = {

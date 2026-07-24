@@ -281,10 +281,6 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
     if (resolvedRef.current) return
     resolvedRef.current = true
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     // ── Fast path: backend pre-fetched image ─────────────────────────────────
     const imgUrl = (typeof place.image === 'string' && place.image.startsWith('http')) ? place.image : (place.photoUrl || (typeof place.image === 'string' ? place.image : null))
     if (imgUrl) {
@@ -294,19 +290,7 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         imageUrl: imgUrl,
         source: 'curated',
         confidence: 'exact',
-<<<<<<< HEAD
-        attribution: null,
-=======
-    if (place.image || place.photoUrl) {
-      setImageResult({
-        imageUrl: place.image || place.photoUrl || null,
-        source: 'wikidata', // show as exact match
-        confidence: 'exact',
         attribution: place.isAiIllustration ? 'AI Illustration' : null,
->>>>>>> e444a81 (Save local changes)
-=======
-        attribution: place.isAiIllustration ? 'AI Illustration' : null,
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
         attributionUrl: null,
         license: null,
         altText: place.name,
@@ -315,14 +299,7 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
       return
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
-=======
->>>>>>> e444a81 (Save local changes)
-=======
-    // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     const hasCoords =
       Array.isArray(place.coordinates) &&
       place.coordinates.length === 2 &&
@@ -347,15 +324,7 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         altText: place.name, showAsBackground: false,
       })
     })
-<<<<<<< HEAD
-<<<<<<< HEAD
-  }, [place.name, place.image, place.category, destination, place.coordinates])
-=======
-  }, [place.name, place.category, destination, place.coordinates, place.image, place.photoUrl, place.isAiIllustration])
->>>>>>> e444a81 (Save local changes)
-=======
   }, [place.name, place.image, place.photoUrl, place.isAiIllustration, place.category, destination, place.coordinates])
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   const hasCoords = Array.isArray(place.coordinates)
     && place.coordinates.length === 2
@@ -1240,7 +1209,10 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
   }
 
   const currentDay = itinerary[activeDay] || itinerary[0]
-  const routeUrl = buildRouteUrl(currentDay.places, destination)
+  const sortedCurrentDayPlaces = currentDay?.places
+    ? [...currentDay.places].sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'))
+    : []
+  const routeUrl = buildRouteUrl(sortedCurrentDayPlaces, destination)
 
   return (
     <div className="space-y-6">
@@ -1338,7 +1310,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
         {/* Left: timeline */}
         <div>
-          {currentDay.places.length === 0 ? (
+          {sortedCurrentDayPlaces.length === 0 ? (
             <div
               className="flex items-center justify-center py-16 rounded-2xl text-center"
               style={{ background: '#FFFFFF', border: '1px dashed #E8E0D8' }}
@@ -1347,14 +1319,14 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
             </div>
           ) : (
             <div className="space-y-1">
-              {currentDay.places.map((place: any, i: number) => (
+              {sortedCurrentDayPlaces.map((place: any, i: number) => (
                 <StopCard
                   key={`${activeDay}-${i}-${place.name}`}
                   place={place}
                   index={i}
                   dayIndex={activeDay}
                   destination={destination}
-                  isLast={i === currentDay.places.length - 1}
+                  isLast={i === sortedCurrentDayPlaces.length - 1}
                   onReplace={handleReplaceStop}
                 />
               ))}
