@@ -485,30 +485,30 @@ export default function HomeClient() {
           {/* Main Headline & Subtitle */}
           <div className="text-center mb-6 md:mb-10">
             <h1
-              className="font-display text-[32px] md:text-[64px] font-bold text-[#1A1A1A] tracking-tight leading-tight md:leading-none text-center mb-2 md:mb-4"
+              className="font-display text-[38px] md:text-[68px] font-extrabold text-[#1A1A1A] tracking-tight leading-[1.08] text-center mb-2.5 md:mb-4"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Where to next?
+              Where to next<span className="text-[#EA580C]">?</span>
             </h1>
             <p
-              className="text-[14px] md:text-[18px] text-[#6B6B6B] font-normal leading-relaxed text-center max-w-xl mx-auto"
+              className="text-sm md:text-lg text-[#6B6B6B] font-medium leading-relaxed text-center max-w-lg mx-auto"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               Tell us where you want to go — we plan everything else.
             </p>
           </div>
 
-          {/* Mobile Airbnb-Style Floating Search Pill Trigger */}
+          {/* Minimal Mobile Floating Search Bar */}
           <div className="flex md:hidden flex-col w-full mb-6 text-left">
             <button
               type="button"
               suppressHydrationWarning
               onClick={() => setShowSearchDrawer(true)}
-              className="w-full bg-white border border-[#E8E0D8] rounded-full py-3.5 px-4 shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex items-center justify-between transition-all active:scale-[0.98]"
+              className="w-full bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#EA580C]">
-                  <Search size={18} strokeWidth={2.5} />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EA580C] to-[#F97316] flex items-center justify-center text-white shadow-md shrink-0">
+                  <Search size={20} strokeWidth={2.5} />
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-extrabold text-[#1A1A1A]">Where to next?</p>
@@ -517,7 +517,7 @@ export default function HomeClient() {
                   </p>
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-full border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] bg-[#FFFBF7]">
+              <div className="w-8 h-8 rounded-full border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] bg-[#FFFBF7] shrink-0">
                 <SlidersHorizontal size={14} strokeWidth={2} />
               </div>
             </button>
@@ -673,8 +673,8 @@ export default function HomeClient() {
             </div>
           </div>
           
-          {/* Compact 4-Column Responsive Grid System */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+          {/* Compact 4-Column Responsive Grid System (2-Column on Mobile) */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {(
               destTab === 'intl'
                 ? BLUEPRINT_DESTINATIONS
@@ -688,7 +688,7 @@ export default function HomeClient() {
             .map((d, i) => (
               <div
                 key={i}
-                className="w-full h-[260px] md:h-[280px] relative rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-[#E8E0D8] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-[#FED7AA]"
+                className="w-full h-[220px] sm:h-[260px] md:h-[280px] relative rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-[#E8E0D8] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-[#FED7AA]"
                 onClick={() => {
                   if (d.link) {
                     router.push(d.link)
@@ -1106,6 +1106,19 @@ export default function HomeClient() {
           </div>
         </div>
       )}
+
+      {/* ─── MOBILE FLOATING QUICK PLAN CTA BAR ───────────────────────── */}
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
+        <button
+          type="button"
+          onClick={() => setShowSearchDrawer(true)}
+          className="w-full h-12 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-orange-500/25 active:scale-95 transition-transform border border-white/20"
+        >
+          <Sparkles size={16} className="text-white animate-pulse" />
+          <span>Design My AI Trip</span>
+          <ArrowRight size={15} />
+        </button>
+      </div>
 
       <Footer />
     </div>

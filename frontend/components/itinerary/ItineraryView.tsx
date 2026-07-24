@@ -1152,7 +1152,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
   const handleShareDay = useCallback(() => {
     const url = typeof window !== 'undefined' ? window.location.href : 'https://tripsage.in'
-    const brandedMessage = `✈️ TripSage AI — Smart Travel Plan\n🗺️ Check out my AI-planned itinerary for ${destination || 'my trip'}!\n\nPlan your own custom trip at: ${url}`
+    const brandedMessage = `TripSage AI — Smart Travel Plan\nCheck out my AI-planned itinerary for ${destination || 'my trip'}!\n\nPlan your own custom trip at: ${url}`
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({

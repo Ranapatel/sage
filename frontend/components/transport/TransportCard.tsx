@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/currency'
 
 import { trackEvent } from '@/lib/analytics'
 import toast from 'react-hot-toast'
+import { Plane } from 'lucide-react'
 import { getOptimizedImageUrl, getLogoUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
@@ -36,7 +37,7 @@ function TransportCard({ item, showDetail }: Props) {
     addNotification({
       id: Date.now().toString(),
       type: 'info',
- title: '️ Flight Selected',
+      title: 'Flight Selected',
       message: `${item.name}${displayPrice ? ` - ${displayPrice}` : ''}`,
       timestamp: new Date().toISOString(),
       read: false,
@@ -103,7 +104,7 @@ function TransportCard({ item, showDetail }: Props) {
           <div className="w-full flex items-center gap-1">
             <div className="w-2 h-2 rounded-full border-2 border-[#EA580C] bg-white shrink-0" />
             <div className="flex-1 h-[2px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 relative">
-              <span className="text-[10px] absolute -top-3 left-1/2 -translate-x-1/2 text-[#EA580C]">✈</span>
+              <Plane size={12} className="absolute -top-1.5 left-1/2 -translate-x-1/2 text-[#EA580C] rotate-90" />
             </div>
             <div className="w-2 h-2 rounded-full bg-[#EA580C] shrink-0" />
           </div>

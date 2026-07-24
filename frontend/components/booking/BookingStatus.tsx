@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 import { useState } from 'react'
 import { trackEvent } from '@/lib/analytics'
+import { Plane, Building2, PlaneTakeoff, PlaneLanding, Clock, Info, FileText, XCircle, CheckCircle2 } from 'lucide-react'
 
 const STATUS_STEPS = ['INIT', 'SELECTED', 'PENDING', 'CONFIRMED']
 
@@ -228,7 +229,9 @@ export default function BookingStatus() {
           border: '1px solid var(--border)', padding: '24px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '1.8rem' }}>✈️</span>
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 border border-sky-100">
+              <Plane size={22} />
+            </div>
             <div>
               <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>Flight</h3>
               <p style={{
@@ -254,9 +257,9 @@ export default function BookingStatus() {
                 {formatPrice(bookingStatus.selectedFlight.price, currency)} per person
               </p>
               <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                <span>🛫 {bookingStatus.selectedFlight.departure}</span>
-                <span>🛬 {bookingStatus.selectedFlight.arrival}</span>
-                <span>⏱ {bookingStatus.selectedFlight.duration}</span>
+                <span className="inline-flex items-center gap-1.5"><PlaneTakeoff size={14} className="text-sky-500" /> {bookingStatus.selectedFlight.departure}</span>
+                <span className="inline-flex items-center gap-1.5"><PlaneLanding size={14} className="text-sky-500" /> {bookingStatus.selectedFlight.arrival}</span>
+                <span className="inline-flex items-center gap-1.5"><Clock size={14} className="text-slate-400" /> {bookingStatus.selectedFlight.duration}</span>
               </div>
             </div>
           ) : (
@@ -313,7 +316,9 @@ export default function BookingStatus() {
           border: '1px solid var(--border)', padding: '24px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '1.8rem' }}>🏨</span>
+            <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 border border-orange-100">
+              <Building2 size={22} />
+            </div>
             <div>
               <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>Hotel</h3>
               <p style={{
@@ -434,9 +439,9 @@ export default function BookingStatus() {
               <button
                 onClick={handleViewVoucher}
                 className="hotel-cta"
-                style={{ marginTop: '12px', background: 'var(--primary)' }}
+                style={{ marginTop: '12px', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                📄 View & Print Voucher
+                <FileText size={16} /> View & Print Voucher
               </button>
 
               <button
@@ -447,10 +452,14 @@ export default function BookingStatus() {
                   marginTop: '8px',
                   background: 'transparent',
                   border: '1px solid rgba(239, 68, 68, 0.4)',
-                  color: '#ef4444'
+                  color: '#ef4444',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
                 }}
               >
-                {cancelling ? 'Cancelling...' : '❌ Cancel Hotel Booking'}
+                <XCircle size={16} /> {cancelling ? 'Cancelling...' : 'Cancel Hotel Booking'}
               </button>
             </div>
           )}
@@ -463,8 +472,8 @@ export default function BookingStatus() {
         background: 'var(--bg-card-hover)', fontSize: '0.72rem',
         color: 'var(--text-muted)', lineHeight: 1.6
       }}>
-        <p style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', fontSize: '0.78rem' }}>
-          ℹ️ Terms & Conditions
+        <p style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Info size={16} className="text-[#EA580C]" /> Terms & Conditions
         </p>
         <p>
           Prices and availability may change in real time. Final booking price is confirmed at checkout.

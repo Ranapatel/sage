@@ -7,7 +7,7 @@ const GOOGLE_ENABLED = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 export default function GoogleSignInButton() {
   const handleClick = () => {
     if (!GOOGLE_ENABLED) {
-      toast('Google sign-in is coming soon', { icon: '🔜' })
+      toast('Google sign-in is coming soon')
       return
     }
     // OAuth flow can be wired when backend + Google Cloud are configured

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Map, MapPin } from 'lucide-react';
 
 interface MapPreviewProps {
   latitude: number | null;
@@ -31,9 +32,10 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
     }
 
     let isMounted = true;
+    const centerCoords: [number, number] = [latitude, longitude];
 
     import('leaflet').then((L) => {
-      if (!isMounted) return;
+      if (!isMounted || !containerRef.current) return;
 
       // Clean up previous instance if any
       if (mapInstanceRef.current) {
@@ -42,12 +44,10 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
       }
 
       try {
-        const centerCoords: [number, number] = [latitude, longitude];
-
         // Locked map configuration to mimic a static map preview
         const map = L.map(containerRef.current!, {
           center: centerCoords,
-          zoom: 14,
+          zoom: 13,
           zoomControl: false,
           dragging: false,
           scrollWheelZoom: false,
@@ -55,13 +55,14 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
           touchZoom: false,
           boxZoom: false,
           keyboard: false,
+          attributionControl: false,
         });
 
         mapInstanceRef.current = map;
 
-        const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || '3ffd189110c8416c8e2c733950e9d50d';
-        L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=${apiKey}`, {
-          attribution: 'Powered by Geoapify | © OpenStreetMap contributors',
+        // Add minimalist tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
         }).addTo(map);
 
         // Custom marker icon
@@ -73,7 +74,7 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
             transform: rotate(-45deg);
             box-shadow: 0 2px 6px rgba(0,0,0,0.4);
             display: flex; align-items: center; justify-content: center;
-          "><span style="transform: rotate(45deg); color: white; font-size: 14px;">📍</span></div>`,
+          "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>`,
           iconSize: [32, 32],
           iconAnchor: [16, 32],
           className: '',
@@ -101,7 +102,7 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
   if (hasError) {
     return (
       <div className="w-full h-48 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex flex-col items-center justify-center text-center p-4 border border-[var(--border)]">
-        <span className="text-2xl mb-2">🗺️</span>
+        <Map size={24} className="text-[var(--text-muted)] mb-2" />
         <p className="text-sm font-semibold text-[var(--text-secondary)]">Map Preview Unavailable</p>
         <p className="text-xs text-[var(--text-muted)] mt-1">Coordinates not found or invalid.</p>
       </div>
@@ -111,8 +112,8 @@ export default function MapPreview({ latitude, longitude, placeName }: MapPrevie
   return (
     <div className="relative w-full rounded-xl overflow-hidden shadow-sm border border-[var(--border)]">
       <div ref={containerRef} className="w-full h-48 z-0 bg-zinc-100" />
-      <div className="absolute bottom-2 left-2 z-10 glass px-2.5 py-1 rounded-md text-[10px] font-bold text-[var(--text-primary)] shadow-sm">
-        🗺️ Map Preview
+      <div className="absolute bottom-2 left-2 z-10 glass px-2.5 py-1 rounded-md text-[10px] font-bold text-[var(--text-primary)] shadow-sm flex items-center gap-1.5">
+        <Map size={12} className="text-purple-600" /> Map Preview
       </div>
     </div>
   );

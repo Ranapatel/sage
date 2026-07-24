@@ -14,26 +14,37 @@ import {
   MapPin,
   Send,
   X,
-  Plus
+  Plus,
+  Hotel,
+  Utensils,
+  Coffee,
+  ShoppingBag,
+  Train,
+  Clock,
+  Star
 } from 'lucide-react'
 import RouteLayer from '@/components/maps/RouteLayer'
 import { useTripStore } from '@/store/tripStore'
 
-// Emojis for categories as per spec
-const CATEGORY_EMOJIS: Record<string, string> = {
-  accommodation: '🏨',
-  hotel: '🏨',
-  activity: '🎭',
-  dining: '🍽',
-  restaurant: '🍽',
-  transport: '🚉',
-  cafe: '☕',
-  shopping: '🛍'
+// Lucide icon mapping for place categories
+export const getCategoryIcon = (category: string, size = 16, className = '') => {
+  const clean = category?.toLowerCase() || ''
+  if (clean.includes('hotel') || clean.includes('accommodation')) return <Hotel size={size} className={className || 'text-blue-400'} />
+  if (clean.includes('dining') || clean.includes('restaurant')) return <Utensils size={size} className={className || 'text-orange-400'} />
+  if (clean.includes('cafe')) return <Coffee size={size} className={className || 'text-amber-400'} />
+  if (clean.includes('shopping')) return <ShoppingBag size={size} className={className || 'text-purple-400'} />
+  if (clean.includes('transport') || clean.includes('station')) return <Train size={size} className={className || 'text-emerald-400'} />
+  return <Compass size={size} className={className || 'text-indigo-400'} />
 }
 
-const getCategoryEmoji = (category: string) => {
+export const getCategorySvgString = (category: string) => {
   const clean = category?.toLowerCase() || ''
-  return CATEGORY_EMOJIS[clean] || '📍'
+  if (clean.includes('hotel') || clean.includes('accommodation')) return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 0 2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>'
+  if (clean.includes('dining') || clean.includes('restaurant')) return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>'
+  if (clean.includes('cafe')) return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>'
+  if (clean.includes('shopping')) return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C084FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>'
+  if (clean.includes('transport') || clean.includes('station')) return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>'
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>'
 }
 
 interface Place {
@@ -563,12 +574,12 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       // 1. Plot Custom Markers with Popup
       validPlaces.forEach((place, index) => {
         const coords: [number, number] = [place.coordinates[1], place.coordinates[0]] // [lon, lat]
-        const emoji = getCategoryEmoji(place.category || '')
+        const iconSvg = getCategorySvgString(place.category || '')
 
         const el = document.createElement('div')
         el.className =
           'w-9 h-9 flex items-center justify-center bg-slate-900 rounded-full border-2 border-blue-500 shadow-xl cursor-pointer hover:scale-110 hover:border-blue-600 transition-all font-sans text-base z-10'
-        el.innerHTML = emoji
+        el.innerHTML = iconSvg
 
         const placeId = place.id || `${activeDay}-${index}`
         const statusText = visitStatuses[placeId] || 'upcoming'
@@ -582,7 +593,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           <div class="p-3 font-sans text-slate-200 bg-slate-950 border border-slate-800 rounded-lg max-w-[220px]">
             <h4 class="font-bold text-sm text-white leading-tight mb-1">${place.name}</h4>
             <div class="flex items-center gap-1.5 text-[10px] font-semibold text-blue-400 mb-1.5 uppercase tracking-wider">
-              <span>${emoji}</span>
+              <span class="inline-flex items-center">${iconSvg}</span>
               <span>${place.category || 'Sightseeing'}</span>
             </div>
             <div class="px-2 py-0.5 inline-block text-[9px] font-bold rounded border uppercase tracking-wider mb-2 ${
@@ -590,7 +601,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
             }">
               Status: ${statusText}
             </div>
-            ${place.time ? `<p class="text-xs text-slate-400 mb-0.5">⏱ <b>Time:</b> ${place.time}</p>` : ''}
+            ${place.time ? `<p class="text-xs text-slate-400 mb-0.5"><b>Time:</b> ${place.time}</p>` : ''}
             ${place.description ? `<p class="text-[10px] text-slate-400 border-t border-slate-800 pt-1.5 leading-relaxed mt-1.5">${place.description}</p>` : ''}
           </div>
         `
@@ -818,7 +829,6 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                 {validPlaces.map((place, idx) => {
                   const placeId = place.id || `${activeDay}-${idx}`
                   const status = visitStatuses[placeId] || 'upcoming'
-                  const emoji = getCategoryEmoji(place.category || '')
 
                   // Distance from user to this place
                   let distText = null
@@ -844,15 +854,25 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                       }`}
                     >
                       <div className="flex items-center gap-2.5 overflow-hidden">
-                        <span className="text-lg flex-shrink-0 select-none">{emoji}</span>
+                        <div className="flex-shrink-0 p-1.5 rounded-lg bg-slate-800/80 border border-slate-700/50">
+                          {getCategoryIcon(place.category || '', 15)}
+                        </div>
                         <div className="overflow-hidden">
                           <h5 className="text-xs font-bold text-slate-100 truncate leading-tight">
                             {place.name.split(' — ')[0]}
                           </h5>
                           <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1 font-medium">
-                            {place.time && <span>🕒 {place.time}</span>}
+                            {place.time && (
+                              <span className="flex items-center gap-1">
+                                <Clock size={10} className="text-slate-400" />
+                                {place.time}
+                              </span>
+                            )}
                             {distText && (
-                              <span className="text-blue-400 font-semibold">📍 {distText} away</span>
+                              <span className="text-blue-400 font-semibold flex items-center gap-1">
+                                <MapPin size={10} className="text-blue-400" />
+                                {distText} away
+                              </span>
                             )}
                           </div>
                         </div>
@@ -900,13 +920,14 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wide">Map Filters</h4>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'hotels', label: '🏨 Hotels' },
-                  { id: 'restaurants', label: '🍽 Restaurants' },
-                  { id: 'cafes', label: '☕ Cafes' },
-                  { id: 'activities', label: '🎭 Activities' },
-                  { id: 'shopping', label: '🛍 Shopping' },
+                  { id: 'hotels', label: 'Hotels', IconComp: Hotel },
+                  { id: 'restaurants', label: 'Restaurants', IconComp: Utensils },
+                  { id: 'cafes', label: 'Cafes', IconComp: Coffee },
+                  { id: 'activities', label: 'Activities', IconComp: Compass },
+                  { id: 'shopping', label: 'Shopping', IconComp: ShoppingBag },
                 ].map((layer) => {
                   const isActive = activeLayers.includes(layer.id)
+                  const Icon = layer.IconComp
                   return (
                     <button
                       key={layer.id}
@@ -917,7 +938,10 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                           : 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                       }`}
                     >
-                      <span>{layer.label}</span>
+                      <span className="flex items-center gap-1.5">
+                        <Icon size={13} />
+                        {layer.label}
+                      </span>
                       {isActive && <span className="h-1.5 w-1.5 rounded-full bg-white"></span>}
                     </button>
                   )}
@@ -991,7 +1015,10 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
               {recommendedMarker && (
                 <div className="bg-amber-950/20 border border-amber-900/40 p-2.5 rounded-xl mb-3 flex items-center justify-between text-[11px]">
                   <div className="overflow-hidden">
-                    <span className="font-bold text-amber-400 block truncate">📍 {recommendedMarker.name}</span>
+                    <span className="font-bold text-amber-400 flex items-center gap-1 truncate">
+                      <MapPin size={12} className="text-amber-400 shrink-0" />
+                      {recommendedMarker.name}
+                    </span>
                     <span className="text-slate-400 truncate block mt-0.5">{recommendedMarker.reason}</span>
                   </div>
                   <button

@@ -24,6 +24,15 @@ import {
 } from 'lucide-react'
 import UserMenu from '@/components/layout/UserMenu'
 import { addBookmark } from '@/lib/bookmarkUtils'
+import { 
+  Icon3DOverview, 
+  Icon3DTransport, 
+  Icon3DStay, 
+  Icon3DItinerary, 
+  Icon3DExplore, 
+  Icon3DMap, 
+  Icon3DBookings 
+} from '@/components/ui/TripSageIcons'
 
 // Lazy load components
 const TransportCard = lazy(() => import('@/components/transport/TransportCard'))
@@ -56,15 +65,7 @@ const TabLoader = () => (
   </div>
 )
 
-import { 
-  Icon3DOverview, 
-  Icon3DTransport, 
-  Icon3DStay, 
-  Icon3DItinerary, 
-  Icon3DExplore, 
-  Icon3DMap, 
-  Icon3DBookings 
-} from '@/components/ui/TripSageIcons'
+
 
 // IMPORTANT: Every tab in TABS must have a matching render block
 // in the content area. Adding a tab without the content block
@@ -1230,41 +1231,20 @@ export default function PlanClient() {
 
           {/* Overview */}
           <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
-            {/* Welcome empty state — shown when user hasn't searched yet */}
-            {tripStatus !== 'active' && !loading && !tripContext.destination ? (
-              <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                <div className="w-20 h-20 rounded-full bg-[#FFF4EC] flex items-center justify-center mb-6 shadow-sm">
-                  <span className="text-4xl">✈️</span>
-                </div>
-                <h2 className="text-2xl font-bold text-[#1A1A1A] mb-3" style={{ fontFamily: 'Instrument Serif, serif' }}>
-                  Where are you going?
-                </h2>
-                <p className="text-[#6B6B6B] text-sm max-w-xs mb-6 leading-relaxed">
-                  Fill in your destination, dates, and budget above — TripSage AI will plan your entire trip in seconds.
-                </p>
-                <div className="flex flex-col gap-2 text-[13px] text-[#A1A1AA]">
-                  <span>🤖 AI-generated itinerary</span>
-                  <span>✈️ Cheapest flights comparison</span>
-                  <span>🏨 Hotel recommendations</span>
-                  <span>🗺️ Day-by-day route planning</span>
-                </div>
-              </div>
-            ) : (
-              <OverviewTab
-                transport={mergedTransport} hotels={hotels}
-                weather={weather} itinerary={itinerary}
-                bookingStatus={bookingStatus}
-                destination={tripContext.destination}
-                loading={loading}
-                onTabChange={setActiveTab}
-                tripStatus={tripStatus}
-                tripHistory={tripHistory}
-                onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
-                onNewTrip={handleNewTripClick}
-                onShare={handleShareTrip}
-                onSave={handleSaveTrip}
-              />
-            )}
+            <OverviewTab
+              transport={mergedTransport} hotels={hotels}
+              weather={weather} itinerary={itinerary}
+              bookingStatus={bookingStatus}
+              destination={tripContext.destination}
+              loading={loading}
+              onTabChange={setActiveTab}
+              tripStatus={tripStatus}
+              tripHistory={tripHistory}
+              onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}
+              onNewTrip={handleNewTripClick}
+              onShare={handleShareTrip}
+              onSave={handleSaveTrip}
+            />
           </div>
 
           {/* Travel (flights) */}
@@ -1492,24 +1472,25 @@ export default function PlanClient() {
       >
         <div className="flex items-center justify-around h-[60px]">
           {([
-            { id: 'overview',  label: 'Overview',  icon: LayoutDashboard },
-            { id: 'transport', label: 'Transport', icon: Plane },
-            { id: 'hotels',    label: 'Stay',       icon: Building2 },
-            { id: 'itinerary', label: 'Plan',       icon: MapPin },
+            { id: 'overview',  label: 'Overview',  icon: Icon3DOverview },
+            { id: 'transport', label: 'Transport', icon: Icon3DTransport },
+            { id: 'hotels',    label: 'Stay',       icon: Icon3DStay },
+            { id: 'itinerary', label: 'Plan',       icon: Icon3DItinerary },
           ] as const).map(t => {
             const isActive = activeTab === t.id
+            const IconComp = t.icon
             return (
               <button
                 key={t.id}
                 onClick={() => { setActiveTab(t.id); setMoreSheetOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-colors ${
+                className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative transition-colors ${
                   isActive ? 'text-[#EA580C]' : 'text-[#9CA3AF]'
                 }`}
               >
                 {isActive && (
                   <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#EA580C] rounded-b-full" />
                 )}
-                <t.icon size={20} strokeWidth={isActive ? 2.5 : 1.75} />
+                <IconComp size={24} active={isActive} />
                 <span className="text-[9px] font-bold uppercase tracking-wide">{t.label}</span>
               </button>
             )
@@ -1518,14 +1499,14 @@ export default function PlanClient() {
           {/* More button — opens bottom sheet with all remaining tabs */}
           <button
             onClick={() => setMoreSheetOpen(o => !o)}
-            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-colors ${
+            className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative transition-colors ${
               moreSheetOpen ? 'text-[#EA580C]' : 'text-[#9CA3AF]'
             }`}
           >
             {moreSheetOpen && (
               <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#EA580C] rounded-b-full" />
             )}
-            <Menu size={20} strokeWidth={moreSheetOpen ? 2.5 : 1.75} />
+            <Menu size={22} strokeWidth={moreSheetOpen ? 2.5 : 1.75} />
             <span className="text-[9px] font-bold uppercase tracking-wide">More</span>
           </button>
         </div>
@@ -1557,13 +1538,14 @@ export default function PlanClient() {
                 <div className="w-10 h-1 bg-[#E8E0D8] rounded-full" />
               </div>
               <p className="text-[11px] font-black text-[#9CA3AF] uppercase tracking-widest px-5 pb-2">More Features</p>
-              <div className="grid grid-cols-3 gap-1 px-3 pb-5">
+              <div className="grid grid-cols-3 gap-2 px-4 pb-6">
                 {([
-                  { id: 'explore',  label: 'Explore',  icon: Compass },
-                  { id: 'map',      label: 'Map',      icon: Map },
-                  { id: 'bookings', label: 'Bookings', icon: ClipboardList },
+                  { id: 'explore',  label: 'Explore',  icon: Icon3DExplore },
+                  { id: 'map',      label: 'Map',      icon: Icon3DMap },
+                  { id: 'bookings', label: 'Bookings', icon: Icon3DBookings },
                 ] as const).map(t => {
                   const isActive = activeTab === t.id
+                  const IconComp = t.icon
                   return (
                     <button
                       key={t.id}
@@ -1572,14 +1554,14 @@ export default function PlanClient() {
                         setMoreSheetOpen(false)
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                       }}
-                      className={`flex flex-col items-center justify-center gap-2 py-4 rounded-xl transition-all ${
+                      className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl transition-all border ${
                         isActive
-                          ? 'bg-orange-50 text-[#EA580C]'
-                          : 'text-[#6B6B6B] hover:bg-[#F5F5F4]'
+                          ? 'bg-orange-50 border-orange-200 text-[#EA580C] shadow-xs scale-[1.02]'
+                          : 'bg-[#FFFBF7] border-[#E8E0D8] text-[#6B6B6B] hover:bg-[#F5F5F4]'
                       }`}
                     >
-                      <t.icon size={22} strokeWidth={isActive ? 2.5 : 1.75} />
-                      <span className="text-[10px] font-bold">{t.label}</span>
+                      <IconComp size={32} active={isActive} />
+                      <span className="text-[10px] font-extrabold uppercase tracking-wide">{t.label}</span>
                     </button>
                   )
                 })}

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
 import Image from 'next/image'
-import { Plus, Trash2, MapPin, X, Film } from 'lucide-react'
+import { Plus, Trash2, MapPin, X, Film, Camera } from 'lucide-react'
 
 interface MemoryData {
   id: string
@@ -182,7 +182,8 @@ export default function Memories() {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h2 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
-            📷 Travel Memories
+            <Camera className="text-[#EA580C]" size={20} />
+            <span>Travel Memories</span>
           </h2>
           <p className="text-slate-500 text-xs mt-1">
             Capture, organize, and store your favorite moments from your journeys.
@@ -268,7 +269,10 @@ export default function Memories() {
             </button>
 
             <div className="mb-4 text-left">
-              <h3 className="text-lg font-black text-[#1A1A1A]">📸 Add New Travel Memory</h3>
+              <h3 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
+                <Camera className="text-[#EA580C]" size={20} />
+                <span>Add New Travel Memory</span>
+              </h3>
               <p className="text-slate-500 text-xs mt-0.5">Save a moment from your trip.</p>
             </div>
 

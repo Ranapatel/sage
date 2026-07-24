@@ -83,9 +83,9 @@ export default function TrainsEmpty({
       )}
 
       {/* Suggest Buses Option */}
-      <div className="glass p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-blue-50/20 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="glass p-6 rounded-2xl border border-orange-200/60 bg-gradient-to-br from-white to-orange-50/30 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3.5 text-left">
-          <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-[#EA580C] flex-shrink-0 border border-orange-200/50">
             <Bus size={22} />
           </div>
           <div>
@@ -98,7 +98,7 @@ export default function TrainsEmpty({
 
         <button
           onClick={() => setActiveTab('buses')}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white transition-colors flex-shrink-0 cursor-pointer shadow-md shadow-blue-600/10"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all flex-shrink-0 cursor-pointer shadow-md shadow-orange-500/20 active:scale-95"
         >
           View Bus Schedules <ArrowRight size={14} />
         </button>

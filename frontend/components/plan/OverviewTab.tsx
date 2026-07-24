@@ -5,7 +5,8 @@ import {
   Plane, Building2, MapPin, Wallet, Sparkles,
   ArrowRight, Check, Home, Info, Share2, Bookmark,
   Sun, CloudRain, CloudSun, ShieldAlert, ChevronDown, ChevronUp,
-  ExternalLink, Calendar, Clock, Briefcase, AlertTriangle, AlertCircle, X, FileDown
+  ExternalLink, Calendar, Clock, Briefcase, AlertTriangle, AlertCircle, X, FileDown,
+  CloudLightning, Umbrella, Train, Bus, Car, CheckCircle2, TrendingUp, Users, Zap, ShieldCheck, Banknote
 } from 'lucide-react'
 import { SYMBOLS } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
@@ -17,16 +18,67 @@ import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
 import LocationAutocomplete from '../ui/LocationAutocomplete'
+import { 
+  Icon3DOverview, 
+  Icon3DTransport, 
+  Icon3DStay, 
+  Icon3DItinerary 
+} from '@/components/ui/TripSageIcons'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 
-// â”€â”€â”€ Destination background images â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Curated Unsplash photos keyed by lowercase destination city name.
-// Falls back to a generic travel photo when city not found.
-
+// ── Destination background images ─────────────────────────────────────────────
 const DESTINATION_IMAGES: Record<string, string> = {
-  bali:        'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85&auto=format&fit=crop',
+  // Kerala & South India
+  kochi:       'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  cochin:      'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  kerala:      'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  munnar:      'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=1200&q=85&auto=format&fit=crop',
+  wayanad:     'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  alleppey:    'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  trivandrum:  'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  thiruvananthapuram: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
+  pondicherry: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&q=85&auto=format&fit=crop',
+  puducherry:  'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&q=85&auto=format&fit=crop',
+  ooty:        'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=1200&q=85&auto=format&fit=crop',
+  coorg:       'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=85&auto=format&fit=crop',
+  mysore:      'https://images.unsplash.com/photo-1600100397608-f010e423b961?w=1200&q=85&auto=format&fit=crop',
+  mysuru:      'https://images.unsplash.com/photo-1600100397608-f010e423b961?w=1200&q=85&auto=format&fit=crop',
+  chennai:     'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&q=85&auto=format&fit=crop',
+  bangalore:   'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=1200&q=85&auto=format&fit=crop',
+  bengaluru:   'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=1200&q=85&auto=format&fit=crop',
+  hyderabad:   'https://images.unsplash.com/photo-1572445271230-a78e5b8ace6d?w=1200&q=85&auto=format&fit=crop',
+  visakhapatnam: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=85&auto=format&fit=crop',
+  vizag:       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=85&auto=format&fit=crop',
   goa:         'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=85&auto=format&fit=crop',
+
+  // North & West India
+  udaipur:     'https://images.unsplash.com/photo-1615836245337-f5b9b2303f1c?w=1200&q=85&auto=format&fit=crop',
+  jaipur:      'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=85&auto=format&fit=crop',
+  jodhpur:     'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=85&auto=format&fit=crop',
+  jaisalmer:   'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=85&auto=format&fit=crop',
+  rajasthan:   'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=85&auto=format&fit=crop',
+  varanasi:    'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1200&q=85&auto=format&fit=crop',
+  rishikesh:   'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=1200&q=85&auto=format&fit=crop',
+  amritsar:    'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=1200&q=85&auto=format&fit=crop',
+  agra:        'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=85&auto=format&fit=crop',
+  delhi:       'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1200&q=85&auto=format&fit=crop',
+  mumbai:      'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=1200&q=85&auto=format&fit=crop',
+  manali:      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=85&auto=format&fit=crop',
+  shimla:      'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=1200&q=85&auto=format&fit=crop',
+  ladakh:      'https://images.unsplash.com/photo-1574968986035-8f9d1c93b8e1?w=1200&q=85&auto=format&fit=crop',
+  leh:         'https://images.unsplash.com/photo-1574968986035-8f9d1c93b8e1?w=1200&q=85&auto=format&fit=crop',
+  srinagar:    'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?w=1200&q=85&auto=format&fit=crop',
+  kashmir:     'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?w=1200&q=85&auto=format&fit=crop',
+
+  // East & Hill Stations
+  kolkata:     'https://images.unsplash.com/photo-1558431382-27e303142255?w=1200&q=85&auto=format&fit=crop',
+  darjeeling:  'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1200&q=85&auto=format&fit=crop',
+  shillong:    'https://images.unsplash.com/photo-1626015486807-6b45391a27b8?w=1200&q=85&auto=format&fit=crop',
+  gangtok:     'https://images.unsplash.com/photo-1626015486807-6b45391a27b8?w=1200&q=85&auto=format&fit=crop',
+
+  // International Destinations
+  bali:        'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85&auto=format&fit=crop',
   dubai:       'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=85&auto=format&fit=crop',
   bangkok:     'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&q=85&auto=format&fit=crop',
   singapore:   'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200&q=85&auto=format&fit=crop',
@@ -48,31 +100,19 @@ const DESTINATION_IMAGES: Record<string, string> = {
   colombo:     'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&q=85&auto=format&fit=crop',
   'abu dhabi':  'https://images.unsplash.com/photo-1512632578888-169bbbc64f33?w=1200&q=85&auto=format&fit=crop',
   mauritius:   'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=1200&q=85&auto=format&fit=crop',
-  kerala:      'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=85&auto=format&fit=crop',
-  rajasthan:   'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=85&auto=format&fit=crop',
-  jaipur:      'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=85&auto=format&fit=crop',
-  agra:        'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=85&auto=format&fit=crop',
-  mumbai:      'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=1200&q=85&auto=format&fit=crop',
-  delhi:       'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1200&q=85&auto=format&fit=crop',
-  hyderabad:   'https://images.unsplash.com/photo-1572445271230-a78e5b8ace6d?w=1200&q=85&auto=format&fit=crop',
-  kolkata:     'https://images.unsplash.com/photo-1558431382-27e303142255?w=1200&q=85&auto=format&fit=crop',
-  manali:      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=85&auto=format&fit=crop',
-  shimla:      'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=1200&q=85&auto=format&fit=crop',
-  ladakh:      'https://images.unsplash.com/photo-1574968986035-8f9d1c93b8e1?w=1200&q=85&auto=format&fit=crop',
 }
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=85&auto=format&fit=crop'
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=85&auto=format&fit=crop'
 
 function getDestinationImage(destination: string): string {
   if (!destination) return FALLBACK_IMAGE
-  const key = destination.toLowerCase().split(',')[0].trim()
-  // Try exact match first, then partial match
+  const key = destination.toLowerCase().split(',')[0].trim().replace(/[^a-z\s]/g, '')
   if (DESTINATION_IMAGES[key]) return DESTINATION_IMAGES[key]
   const partialKey = Object.keys(DESTINATION_IMAGES).find(k => key.includes(k) || k.includes(key))
   return partialKey ? DESTINATION_IMAGES[partialKey] : FALLBACK_IMAGE
 }
 
-// â”€â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Props ─────────────────────────────────────────────────────────────────────
 
 interface Props {
   transport: any[]
@@ -91,18 +131,18 @@ interface Props {
   onSave: () => void
 }
 
-// â”€â”€â”€ Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Skeleton shimmer ──────────────────────────────────────────────────────────
 
 function Skeleton({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`rounded-lg bg-[#F0ECE8] overflow-hidden relative ${className}`}
+      className={`rounded-lg bg-slate-100 overflow-hidden relative ${className}`}
       style={{ minHeight: 16 }}
     >
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%)',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',
           animation: 'shimmer 1.5s infinite',
           backgroundSize: '200% 100%',
         }}
@@ -111,7 +151,7 @@ function Skeleton({ className = '' }: { className?: string }) {
   )
 }
 
-// ————————————————— Budget math ———————————————————————————————————————————————————
+// ── Budget math ───────────────────────────────────────────────────────────────
 
 function useBudgetBreakdown(budget: number, nights: number, travelers: number, currency: string) {
   return useMemo(() => {
@@ -119,7 +159,6 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
     const locale = currency === 'INR' ? 'en-IN' : 'en-US'
     const fmt = (n: number) => `${sym}${Math.round(n).toLocaleString(locale)}`
 
-    // Realistic proportions summing to ~85% — leaves a 15% buffer for incidentals
     const travel = Math.round(budget * 0.40)
     const stay = Math.round(budget * 0.25)
     const activities = Math.round(budget * 0.20)
@@ -128,7 +167,6 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
     const perPerson = travelers > 0 ? Math.round(totalEstimated / travelers) : totalEstimated
     const pctUsed = budget > 0 ? Math.min(100, (totalEstimated / budget) * 100) : 0
 
-    // Tier estimates: saver = 85%, value = estimated, comfort = 115%
     const saverPerPerson = Math.round(perPerson * 0.85)
     const comfortPerPerson = Math.round(perPerson * 1.15)
 
@@ -136,7 +174,7 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
   }, [budget, nights, travelers, currency])
 }
 
-// ————————————————— Empty state ———————————————————————————————————————————————————
+// ── Empty state ───────────────────────────────────────────────────────────────
 
 function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
   const { setTrip } = useTripStore()
@@ -191,14 +229,12 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 text-center space-y-6 animate-fade-in">
-      {/* Hero Icon */}
       <div className="flex justify-center">
         <div className="w-16 h-16 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center shadow-sm">
           <Plane className="w-8 h-8 text-[#EA580C]" />
         </div>
       </div>
 
-      {/* Headline */}
       <div className="space-y-2">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1A1A1A] leading-tight font-display">
           Where are you going?
@@ -208,7 +244,6 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
         </p>
       </div>
 
-      {/* Interactive Quick Trip Builder Card */}
       <div className="bg-white border border-[#E8E0D8] p-5 sm:p-6 rounded-3xl shadow-sm text-left space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -251,7 +286,6 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
         </button>
       </div>
 
-      {/* Popular Destination Shortcuts */}
       <div className="space-y-2.5 pt-2">
         <p className="text-[10px] font-extrabold text-[#9CA3AF] uppercase tracking-widest">
           Or Pick a Popular Destination
@@ -261,13 +295,13 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
             <button
               key={city}
               type="button"
-              className="px-3.5 py-1.5 bg-[#FFFBF7] border border-[#E8E0D8] hover:border-[#EA580C] hover:bg-orange-50 hover:text-[#EA580C] rounded-xl text-xs font-extrabold text-[#4B4B4B] transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-3.5 py-1.5 bg-[#FFFBF7] border border-[#E8E0D8] hover:border-[#EA580C] hover:bg-orange-50 hover:text-[#EA580C] rounded-xl text-xs font-extrabold text-[#4B4B4B] transition-all active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1"
               onClick={() => {
                 setToCity(city)
                 handleBuildTrip(city)
               }}
             >
-              🏝️ {city}
+              <MapPin size={11} className="text-[#EA580C]" /> {city}
             </button>
           ))}
         </div>
@@ -276,23 +310,84 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
   )
 }
 
-// â”€â”€â”€ LEFT: Trip Mood Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Donut Budget Ring Chart ────────────────────────────────────────────────────
+
+function DonutRing({ segments, size = 80 }: { segments: { value: number; color: string }[]; size?: number }) {
+  const r = 30
+  const cx = size / 2
+  const cy = size / 2
+  const circumference = 2 * Math.PI * r
+  const total = segments.reduce((s, seg) => s + seg.value, 0)
+
+  let offset = 0
+  const arcs = segments.map(seg => {
+    const pct = total > 0 ? seg.value / total : 0
+    const dash = pct * circumference
+    const arc = { dash, offset: -offset * circumference / total * total, color: seg.color, pct }
+    offset += seg.value
+    return arc
+  })
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F1F5F9" strokeWidth={8} />
+      {arcs.map((arc, i) => (
+        <circle
+          key={i}
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="none"
+          stroke={arc.color}
+          strokeWidth={8}
+          strokeDasharray={`${arc.dash} ${circumference}`}
+          strokeDashoffset={-arcs.slice(0, i).reduce((s, a) => s + a.dash, 0)}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease' }}
+        />
+      ))}
+    </svg>
+  )
+}
+
+// ── LEFT: Trip Mood Panel ─────────────────────────────────────────────────────
 
 function TripMoodPanel({ weather, remaining, fmt, loading }: { weather: any; remaining: number; fmt: (n: number) => string; loading: boolean }) {
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 2000)
+    return () => clearInterval(id)
+  }, [])
+
   const rows = [
-    { label: 'Pace', value: 'Easy', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', pill: true },
-    { label: 'Weather', value: 'Pack light, rain gear', color: '#B45309', bg: '#FFFBEB', border: '#FDE68A', pill: false },
-    { label: 'Budget', value: remaining > 0 ? fmt(remaining) + ' left' : 'On track', color: '#EA580C', bg: '#FFF7ED', border: '#FED7AA', pill: false },
-    { label: 'Status', value: 'Ready to book', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', pill: true },
+    { label: 'Pace', value: 'Easy', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', dot: '#16A34A', pill: true },
+    { label: 'Weather', value: 'Pack light, rain gear', color: '#B45309', bg: '#FFFBEB', border: '#FDE68A', dot: '#B45309', pill: false },
+    { label: 'Budget', value: remaining > 0 ? fmt(remaining) + ' left' : 'On track', color: '#EA580C', bg: '#FFF7ED', border: '#FED7AA', dot: '#EA580C', pill: false },
+    { label: 'Status', value: 'Ready to book', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', dot: '#16A34A', pill: true },
   ]
 
   return (
-    <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-[#6B6B6B] mb-4">Trip Mood</p>
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
+          <Zap size={14} className="text-violet-600" />
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Trip Mood</p>
+      </div>
       <div className="space-y-3">
-        {rows.map(r => (
+        {rows.map((r, idx) => (
           <div key={r.label} className="flex items-center justify-between gap-3">
-            <span className="text-[13px] text-[#6B6B6B] shrink-0">{r.label}</span>
+            <div className="flex items-center gap-2">
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{
+                  background: r.dot,
+                  boxShadow: `0 0 0 ${(tick + idx) % 4 === 0 ? '4px' : '0px'} ${r.dot}33`,
+                  transition: 'box-shadow 0.5s ease',
+                }}
+              />
+              <span className="text-[13px] text-slate-600 shrink-0">{r.label}</span>
+            </div>
             {loading ? (
               <Skeleton className="h-5 w-24" />
             ) : r.pill ? (
@@ -312,54 +407,57 @@ function TripMoodPanel({ weather, remaining, fmt, loading }: { weather: any; rem
   )
 }
 
+// ── LEFT: Journey Flow ── reactive vertical timeline ──────────────────────────
 
-// â”€â”€â”€ LEFT: Journey Flow â€” vertical timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function JourneyFlowVertical({ loading, hasTransport, hasHotels }: { loading: boolean; hasTransport: boolean; hasHotels: boolean }) {
+  const steps = [
+    { label: 'Origin', status: 'Ready', done: true, color: '#EA580C' },
+    { label: 'Travel', status: hasTransport ? 'Matched' : 'Searching...', done: hasTransport, color: '#EA580C' },
+    { label: 'Stay', status: hasHotels ? 'Matched' : 'Searching...', done: hasHotels, color: '#16A34A' },
+    { label: 'Experience', status: 'Planned', done: true, color: '#16A34A' },
+    { label: 'All Set', status: 'Ready to go', done: hasTransport && hasHotels, color: '#7C3AED' },
+  ]
 
-const FLOW_STEPS = [
-  { label: 'Origin', status: 'Ready', done: true },
-  { label: 'Travel', status: 'Matched', done: true },
-  { label: 'Stay', status: 'Matched', done: true },
-  { label: 'Experience', status: 'Planned', done: false },
-  { label: 'Partner Options', status: 'Available', done: false },
-]
+  const completedCount = steps.filter(s => s.done).length
 
-function JourneyFlowVertical({ loading }: { loading: boolean }) {
   return (
-    <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-[0_2px_16px_rgba(0,0,0,0.06)] mt-3">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-[#6B6B6B] mb-4">Journey Flow</p>
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 mt-3">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+          <TrendingUp size={14} className="text-[#EA580C]" />
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Journey Flow</p>
+        <span className="ml-auto text-[10px] font-black text-[#EA580C] bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
+          {completedCount}/{steps.length}
+        </span>
+      </div>
       <div className="relative">
-        {/* Connecting line */}
-        <div className="absolute left-[9px] top-2 bottom-2 w-px bg-[#E8E0D8]" />
-        {/* Orange line for completed steps */}
+        <div className="absolute left-[9px] top-2 bottom-2 w-px bg-slate-100" />
         <div
-          className="absolute left-[9px] top-2 w-px bg-[#EA580C] transition-all"
-          style={{ height: `${(3 / 5) * 100}%` }}
+          className="absolute left-[9px] top-2 w-px bg-gradient-to-b from-[#EA580C] to-[#7C3AED] transition-all duration-1000"
+          style={{ height: `${(completedCount / steps.length) * 100}%` }}
         />
         <div className="space-y-4">
-          {FLOW_STEPS.map((step, i) => (
+          {steps.map((step, i) => (
             <div key={step.label} className="flex items-center gap-3 relative">
-              {/* Circle */}
               <div
-                className="w-[18px] h-[18px] rounded-full border-2 shrink-0 z-10 flex items-center justify-center"
+                className="w-[18px] h-[18px] rounded-full border-2 shrink-0 z-10 flex items-center justify-center transition-all duration-500"
                 style={{
-                  background: step.done ? (i < 2 ? '#EA580C' : '#16A34A') : 'white',
-                  borderColor: step.done ? (i < 2 ? '#EA580C' : '#16A34A') : '#D1C9C0',
+                  background: step.done ? step.color : 'white',
+                  borderColor: step.done ? step.color : '#D1C9C0',
+                  boxShadow: step.done ? `0 0 0 3px ${step.color}20` : 'none',
                 }}
               >
                 {step.done && <Check size={10} className="text-white" strokeWidth={3} />}
               </div>
               <div className="flex-1 flex items-center justify-between min-w-0">
-                <span className={`text-[13px] font-medium ${step.done ? 'text-[#1A1A1A]' : 'text-[#9CA3AF]'}`}>
+                <span className={`text-[13px] font-medium ${step.done ? 'text-slate-800' : 'text-slate-400'}`}>
                   {step.label}
                 </span>
                 {loading ? (
                   <Skeleton className="h-4 w-14" />
                 ) : (
-                  <span
-                    className={`text-[11px] font-semibold ${
-                      step.status === 'Available' ? 'text-[#9CA3AF]' : step.done ? 'text-[#16A34A]' : 'text-[#6B6B6B]'
-                    }`}
-                  >
+                  <span className={`text-[11px] font-semibold ${step.done ? 'text-emerald-600' : 'text-slate-400'}`}>
                     {step.status}
                   </span>
                 )}
@@ -372,157 +470,113 @@ function JourneyFlowVertical({ loading }: { loading: boolean }) {
   )
 }
 
-// â”€â”€â”€ CENTER: Trip Story Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CENTER: Trip Story Card (premium hero) ────────────────────────────────────
 
 function TripStoryCard({
-  loading, perPerson, budget, sym, fmt, travelers, destination, onFlights, onAdjust
+  loading, perPerson, budget, sym, fmt, travelers, destination,
+  origin, nights, onFlights, onAdjust
 }: {
   loading: boolean; perPerson: number; budget: number; sym: string; fmt: (n: number) => string
-  travelers: number; destination: string; onFlights: () => void; onAdjust: () => void
+  travelers: number; destination: string; origin?: string; nights: number
+  onFlights: () => void; onAdjust: () => void
 }) {
-  const locale = sym === 'â‚¹' ? 'en-IN' : 'en-US'
+  const locale = sym === '₹' ? 'en-IN' : 'en-US'
   const imgUrl = getDestinationImage(destination)
+  const destName = destination.split(',')[0].trim() || 'Your Destination'
+  const originName = origin ? origin.split(',')[0].trim() : null
 
   return (
-    <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
+    <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 group">
 
-      {/* â”€â”€ Destination hero image with dark gradient overlay (desktop) â”€â”€ */}
-      <div
-        className="relative w-full hidden lg:block"
-        style={{ height: 220 }}
-      >
-        {/* Background image */}
+      {/* ── Destination hero image ── */}
+      <div className="relative w-full" style={{ height: 240 }}>
         <img
           src={imgUrl}
-          alt={destination || 'Destination'}
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: loading ? 'brightness(0.5) blur(2px)' : 'brightness(0.72)' }}
+          alt={destName}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+          style={{ filter: loading ? 'brightness(0.5) blur(2px)' : 'brightness(0.65)' }}
         />
-        {/* Dark gradient â€” bottom fade so content below is on white */}
+        {/* Layered gradient: top left for badge, bottom for content */}
         <div
           className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(160deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.78) 100%)'
-          }}
+          style={{ background: 'linear-gradient(160deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.82) 100%)' }}
+        />
+        {/* Subtle animated shimmer on hover */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{ background: 'linear-gradient(135deg, rgba(234,88,12,0.08) 0%, transparent 60%)' }}
         />
 
-        {/* Content on top of image */}
-        <div className="absolute inset-0 p-6 flex flex-col justify-between">
-          {/* Top row: badge + recommended */}
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
-              <Sparkles size={10} /> Best Value
-            </span>
-            <span className="text-[12px] text-white/70 font-medium">Recommended</span>
+        {/* Content on image */}
+        <div className="absolute inset-0 p-5 flex flex-col justify-between">
+          {/* Top badges */}
+          <div className="flex items-center justify-end">
+            {travelers > 0 && (
+              <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/20">
+                <Users size={10} /> {travelers} {travelers === 1 ? 'Traveler' : 'Travelers'}
+              </span>
+            )}
           </div>
 
-          {/* Title + estimate on image */}
+          {/* Route + price */}
           <div>
             {loading ? (
               <Skeleton className="h-7 w-2/3 mb-2" />
             ) : (
-              <h2
-                className="text-[20px] font-bold text-white leading-tight mb-2 drop-shadow-sm"
-                style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)', fontWeight: 700 }}
-              >
-                Flight + budget-friendly stay
-              </h2>
+              <div className="mb-1.5">
+                {originName && (
+                  <p className="text-[11px] text-white/60 font-semibold uppercase tracking-widest mb-1">
+                    {originName} → {destName}
+                  </p>
+                )}
+                <h2 className="text-[22px] font-extrabold text-white leading-tight drop-shadow-sm">
+                  {nights > 0 ? `${nights} Night${nights > 1 ? 's' : ''} in ` : ''}{destName}
+                </h2>
+              </div>
             )}
             {loading ? (
-              <Skeleton className="h-8 w-36" />
+              <Skeleton className="h-9 w-36" />
             ) : (
               <div className="flex items-end gap-2 flex-wrap">
-                <span
-                  className="text-[28px] font-bold text-white leading-none drop-shadow-sm"
-                  style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
-                >
+                <span className="text-[32px] font-black text-white leading-none drop-shadow-sm">
                   {sym}{perPerson > 0 ? Math.round(perPerson).toLocaleString(locale) : '—'}
                 </span>
-                <span className="text-[13px] text-white/75 mb-0.5">/person est.</span>
+                <span className="text-[13px] text-white/65 mb-1">/person est.</span>
+                {budget > 0 && (
+                  <span className="text-[11px] text-white/50 mb-1 ml-1">of {fmt(budget)} total</span>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* ── White content area below image ── */}
-      <div className="p-6 pt-5">
-        {/* Reason */}
-        {loading ? (
-          <div className="space-y-1.5 mb-5">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-4/5" />
-          </div>
-        ) : (
-          <p className="text-[14px] text-slate-600 font-medium italic leading-relaxed mb-5">
-            Fast route with a well-located stay — leaves room for food, local travel, and activities.
-          </p>
-        )}
+      {/* White content area */}
+      <div className="p-5 pt-4">
+        <p className="text-[13px] text-slate-500 font-medium italic leading-relaxed mb-4">
+          Fast route with a well-located stay — leaves room for food, local travel, and activities.
+        </p>
 
-        {/* Budget subtitle on white */}
-        {!loading && budget > 0 && (
-          <p className="text-[12px] text-slate-400 font-semibold mb-5">of {fmt(budget)} total budget</p>
-        )}
-
-        {/* CTAs */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <button
             onClick={onFlights}
-            className="w-full h-12 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-[15px] rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98]"
+            className="w-full h-11 bg-gradient-to-r from-[#EA580C] to-[#F97316] hover:from-[#C2410C] hover:to-[#EA580C] text-white font-black text-[14px] rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-orange-500/20 active:scale-[0.98]"
           >
-            See flight options <ArrowRight size={16} />
+            See flight options <ArrowRight size={15} />
           </button>
           <button
             onClick={onAdjust}
-            className="w-full h-11 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-extrabold text-[14px] rounded-xl flex items-center justify-center transition-all active:scale-[0.98]"
+            className="w-full h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-[13px] rounded-xl flex items-center justify-center transition-all active:scale-[0.98]"
           >
             Adjust my plan
           </button>
-        </div>
-      </div>
-
-      {/* â”€â”€ Mobile: image top panel â”€â”€ */}
-      <div
-        className="lg:hidden relative w-full overflow-hidden"
-        style={{ height: 160, borderRadius: '16px 16px 0 0' }}
-      >
-        <img
-          src={imgUrl}
-          alt={destination || 'Destination'}
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: loading ? 'brightness(0.5)' : 'brightness(0.7)' }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(160deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.70) 100%)' }}
-        />
-        <div className="absolute inset-0 p-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
-              <Sparkles size={9} /> Best Value
-            </span>
-          </div>
-          <div>
-            {!loading && (
-              <>
-                <p className="text-[15px] font-bold text-white leading-snug mb-1" style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}>
-                  Flight + budget-friendly stay
-                </p>
-                <p className="text-[22px] font-bold text-white leading-none" style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}>
-                  {sym}{perPerson > 0 ? Math.round(perPerson).toLocaleString(locale) : 'â€”'}
-                  <span className="text-[12px] font-normal text-white/70 ml-1">/person</span>
-                </p>
-              </>
-            )}
-          </div>
         </div>
       </div>
     </div>
   )
 }
 
-
-// â”€â”€â”€ RIGHT: Budget Compass â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── RIGHT: Budget Compass with Donut Ring ─────────────────────────────────────
 
 function BudgetCompass({
   loading, budget, totalEstimated, remaining, travel, stay, activities, pctUsed, fmt, sym
@@ -532,81 +586,105 @@ function BudgetCompass({
   pctUsed: number; fmt: (n: number) => string; sym: string
 }) {
   const breakdowns = [
-    { label: 'Travel', amount: travel, dot: '#EA580C' },
-    { label: 'Stay', amount: stay, dot: '#3B82F6' },
-    { label: 'Activities', amount: activities, dot: '#7C3AED' },
+    { label: 'Travel', amount: travel, color: '#EA580C' },
+    { label: 'Stay', amount: stay, color: '#3B82F6' },
+    { label: 'Activities', amount: activities, color: '#7C3AED' },
+  ]
+
+  const donutSegments = [
+    { value: travel, color: '#EA580C' },
+    { value: stay, color: '#3B82F6' },
+    { value: activities, color: '#7C3AED' },
+    { value: Math.max(0, remaining), color: '#E2E8F0' },
   ]
 
   return (
-    <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-[#6B6B6B]">Budget Compass</p>
-        <Info size={14} className="text-[#9CA3AF]" />
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+            <Wallet size={14} className="text-[#EA580C]" />
+          </div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Budget Compass</p>
+        </div>
+        <Info size={13} className="text-slate-400" />
       </div>
 
-      {/* Total */}
-      {loading ? (
-        <Skeleton className="h-8 w-36 mb-4" />
-      ) : (
-        <p className="text-[28px] font-bold text-[#1A1A1A] mb-4 leading-none" style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}>
-          {fmt(budget)}
-        </p>
-      )}
-
-      {/* Estimated + Remaining */}
-      {loading ? (
-        <div className="space-y-2 mb-4">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-5 w-28" />
-        </div>
-      ) : (
-        <div className="space-y-1.5 mb-4">
-          <div className="flex items-center gap-1.5">
-            <Check size={13} className="text-[#16A34A]" strokeWidth={2.5} />
-            <span className="text-[13px] text-[#16A34A] font-semibold">Est. spend {fmt(totalEstimated)}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-[#EA580C] shrink-0" />
-            <span className="text-[13px] font-semibold" style={{ color: remaining >= 0 ? '#EA580C' : '#DC2626' }}>
-              {remaining >= 0 ? fmt(remaining) + ' remaining' : 'Over budget'}
+      {/* Donut Ring + Total */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative shrink-0">
+          {loading ? (
+            <div className="w-20 h-20 rounded-full bg-slate-100 animate-pulse" />
+          ) : (
+            <DonutRing segments={budget > 0 ? donutSegments : [{ value: 1, color: '#E2E8F0' }]} size={80} />
+          )}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[10px] font-black text-slate-500 text-center leading-none">
+              {loading ? '...' : `${Math.round(pctUsed)}%`}
             </span>
           </div>
         </div>
-      )}
-
-      {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-[#E8E0D8] overflow-hidden mb-5">
-        <div
-          className="h-full rounded-full bg-[#EA580C] transition-all duration-700"
-          style={{ width: loading ? '0%' : `${pctUsed}%` }}
-        />
+        <div className="flex-1 min-w-0">
+          {loading ? (
+            <Skeleton className="h-7 w-28 mb-1.5" />
+          ) : (
+            <p className="text-[24px] font-black text-slate-900 leading-none">{fmt(budget)}</p>
+          )}
+          <div className="mt-1.5 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 size={12} className="text-emerald-500" strokeWidth={2.5} />
+              {loading ? <Skeleton className="h-3 w-24" /> : (
+                <span className="text-[11px] text-emerald-600 font-semibold">Est. {fmt(totalEstimated)}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#EA580C] shrink-0" />
+              {loading ? <Skeleton className="h-3 w-20" /> : (
+                <span className="text-[11px] font-semibold" style={{ color: remaining >= 0 ? '#EA580C' : '#DC2626' }}>
+                  {remaining >= 0 ? fmt(remaining) + ' left' : 'Over budget'}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Breakdown */}
-      <div className="space-y-2.5">
-        {breakdowns.map(b => (
-          <div key={b.label} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: b.dot }} />
-              <span className="text-[13px] text-[#6B6B6B]">{b.label}</span>
+      {/* Breakdown rows with mini color bars */}
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        {breakdowns.map(b => {
+          const pct = budget > 0 ? Math.min(100, (b.amount / budget) * 100) : 0
+          return (
+            <div key={b.label}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: b.color }} />
+                  <span className="text-[12px] text-slate-600">{b.label}</span>
+                </div>
+                {loading ? (
+                  <Skeleton className="h-3 w-14" />
+                ) : (
+                  <span className="text-[12px] font-bold text-slate-800">{fmt(b.amount)}</span>
+                )}
+              </div>
+              <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-1000"
+                  style={{ width: loading ? '0%' : `${pct}%`, background: b.color }}
+                />
+              </div>
             </div>
-            {loading ? (
-              <Skeleton className="h-4 w-16" />
-            ) : (
-              <span className="text-[13px] font-semibold text-[#1A1A1A]">{fmt(b.amount)}</span>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
 }
 
-// â”€â”€â”€ MOBILE: Horizontal Mood Pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── MOBILE: Horizontal Mood Pills ─────────────────────────────────────────────
 
 function MobileMoodPills({ loading, remaining, fmt }: { loading: boolean; remaining: number; fmt: (n: number) => string }) {
   const pills = [
-    { label: 'Easy', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' },
+    { label: 'Easy Pace', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' },
     { label: 'Rain Aware', color: '#B45309', bg: '#FFFBEB', border: '#FDE68A' },
     { label: loading ? '...' : (remaining > 0 ? fmt(remaining) : 'On track'), color: '#EA580C', bg: '#FFF7ED', border: '#FED7AA' },
     { label: 'Ready', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' },
@@ -627,6 +705,7 @@ function MobileMoodPills({ loading, remaining, fmt }: { loading: boolean; remain
   )
 }
 
+// ── Weather Forecast Modal ────────────────────────────────────────────────────
 
 function WeatherForecastModal({
   weather,
@@ -645,24 +724,22 @@ function WeatherForecastModal({
         <div className="px-6 py-4 border-b border-[#E8E0D8] flex items-center justify-between bg-[#FFFBF7]">
           <h3 className="font-bold text-[#1A1A1A] text-lg flex items-center gap-2">
             <CloudSun className="text-[#EA580C]" size={20} />
-            <span>Weather Forecast â€” {destinationCity}</span>
+            <span>Weather Forecast – {destinationCity}</span>
           </h3>
           <button onClick={onClose} className="p-1.5 hover:bg-[#E8E0D8] rounded-lg transition-colors text-[#6B6B6B]">
             <X size={20} />
           </button>
         </div>
         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto text-left">
-          {/* Current weather details */}
           <div className="flex items-center gap-6 pb-4 border-b border-[#F5F5F4]">
             <div className="text-6xl text-[#EA580C]"><CloudSun size={56} /></div>
             <div>
-              <p className="text-3xl font-bold text-[#1A1A1A] font-mono">{weather.temperature}Â°C</p>
+              <p className="text-3xl font-bold text-[#1A1A1A] font-mono">{weather.temperature}°C</p>
               <p className="text-sm font-semibold text-[#6B6B6B] mt-0.5">{weather.condition}</p>
-              <p className="text-xs text-[#9CA3AF] mt-0.5">Feels like {weather.feelsLike || weather.temperature}Â°C</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5">Feels like {weather.feelsLike || weather.temperature}°C</p>
             </div>
           </div>
 
-          {/* Stats grid */}
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="bg-[#FFFBF7] border border-[#F2ECE4] rounded-xl p-3">
               <p className="text-xs text-[#9CA3AF] uppercase">Rain Probability</p>
@@ -678,7 +755,6 @@ function WeatherForecastModal({
             </div>
           </div>
 
-          {/* Forecast table */}
           {weather.forecast && weather.forecast.length > 0 && (
             <div className="space-y-3">
               <p className="text-[11px] font-bold text-[#1A1A1A] uppercase tracking-wider">4-Day Forecast</p>
@@ -688,7 +764,7 @@ function WeatherForecastModal({
                     <span className="font-semibold text-[#1A1A1A]">{f.date}</span>
                     <span className="text-[#6B6B6B]">{f.condition}</span>
                     <span className="font-mono font-semibold">
-                      <span className="text-red-500">{f.high}Â°</span> / <span className="text-blue-500">{f.low}Â°</span>
+                      <span className="text-red-500">{f.high}°</span> / <span className="text-blue-500">{f.low}°</span>
                     </span>
                   </div>
                 ))}
@@ -696,7 +772,6 @@ function WeatherForecastModal({
             </div>
           )}
 
-          {/* Weather Advisory */}
           <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex gap-3">
             <AlertCircle size={20} className="text-[#EA580C] shrink-0 mt-0.5" />
             <div>
@@ -767,8 +842,8 @@ function WeatherOptModal({
             </div>
           ) : success ? (
             <div className="space-y-4">
-              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
-                âœ“
+              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 size={32} strokeWidth={1.5} />
               </div>
               <div>
                 <h4 className="font-bold text-lg text-[#1A1A1A]">Optimization Complete!</h4>
@@ -842,7 +917,7 @@ function VisaGuidanceModal({
             {isInternational ? (
               <span className="flex items-center gap-2">
                 <ShieldAlert className="text-[#EA580C]" size={20} />
-                <span>Visa Guidance â€” {visaConfig?.country}</span>
+                <span>Visa Guidance – {visaConfig?.country}</span>
               </span>
             ) : (
               <span className="flex items-center gap-2">
@@ -858,7 +933,6 @@ function VisaGuidanceModal({
         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto text-left">
           {isInternational ? (
             <div className="space-y-5">
-              {/* Visa Status Block */}
               <div className="bg-[#FFFBF7] border border-[#F2ECE4] rounded-xl p-4 flex justify-between items-start">
                 <div>
                   <p className="text-xs text-[#9CA3AF] uppercase">Visa Type</p>
@@ -876,7 +950,6 @@ function VisaGuidanceModal({
                 </span>
               </div>
 
-              {/* Processing details */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="border border-[#E8E0D8] rounded-xl p-3">
                   <p className="text-xs text-[#9CA3AF] uppercase">Processing Time</p>
@@ -888,7 +961,6 @@ function VisaGuidanceModal({
                 </div>
               </div>
 
-              {/* Detailed steps */}
               <div className="space-y-2">
                 <p className="text-[11px] font-bold text-[#1A1A1A] uppercase tracking-wider">Step-by-Step Instructions</p>
                 <ol className="text-[13px] text-[#6B6B6B] list-decimal pl-5 space-y-2 leading-relaxed">
@@ -905,7 +977,6 @@ function VisaGuidanceModal({
                 </ol>
               </div>
 
-              {/* Document Checklist */}
               <div className="space-y-2">
                 <p className="text-[11px] font-bold text-[#1A1A1A] uppercase tracking-wider">Required Checklist</p>
                 <div className="bg-[#F5F5F4] rounded-xl p-4 space-y-2">
@@ -959,6 +1030,8 @@ function VisaGuidanceModal({
   )
 }
 
+// ── Weather Readiness Card ────────────────────────────────────────────────────
+
 function WeatherReadinessCard({
   weather,
   datesText,
@@ -995,28 +1068,25 @@ function WeatherReadinessCard({
   const displayDates = datesText ? datesText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim() : ''
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between h-[320px] text-left relative overflow-hidden group">
-      
-      {/* Dynamic Background Ambient Gradient */}
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col justify-between h-full min-h-[220px] text-left relative overflow-hidden group">
+
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-sky-500/5 to-transparent pointer-events-none" />
 
       <div className="relative z-10 space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-100/80 p-2 flex items-center justify-center text-[#EA580C] shrink-0 border border-orange-200/60 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-orange-100/80 p-2 flex items-center justify-center text-[#EA580C] shrink-0 border border-orange-200/60">
               <CloudSun size={20} strokeWidth={2.2} />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-slate-900 leading-tight">
-                Weather Readiness
-              </h3>
+              <h3 className="text-sm font-extrabold text-slate-900 leading-tight">Weather Readiness</h3>
               <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
                 {destinationCity} {displayDates ? `• ${displayDates}` : ''}
               </p>
             </div>
           </div>
-          
+
           <span
             className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs shrink-0"
             style={{
@@ -1029,7 +1099,7 @@ function WeatherReadinessCard({
           </span>
         </div>
 
-        {/* Temperature & Rain Gauge Bar */}
+        {/* Temperature & Rain */}
         <div className="grid grid-cols-2 gap-2.5 bg-gradient-to-r from-orange-50/70 to-amber-50/70 border border-orange-200/50 rounded-xl p-2.5">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center text-[#EA580C] shrink-0">
@@ -1058,44 +1128,44 @@ function WeatherReadinessCard({
 
         {/* 5-Hour Forecast Strip */}
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-2 flex items-center justify-between text-center gap-1">
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col items-center">
             <span className="text-[8px] font-bold text-slate-400 block">09:00</span>
-            <span className="text-xs block my-0.5">☀️</span>
+            <Sun size={14} className="text-amber-500 my-0.5" />
             <span className="text-[11px] font-black text-slate-800 block">26°</span>
           </div>
           <div className="w-[1px] h-5 bg-slate-200" />
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col items-center">
             <span className="text-[8px] font-bold text-slate-400 block">12:00</span>
-            <span className="text-xs block my-0.5">⛅</span>
+            <CloudSun size={14} className="text-amber-500 my-0.5" />
             <span className="text-[11px] font-black text-slate-800 block">28°</span>
           </div>
           <div className="w-[1px] h-5 bg-slate-200" />
-          <div className="flex-1 bg-orange-100/60 rounded-md py-0.5 border border-orange-200/50">
+          <div className="flex-1 bg-orange-100/60 rounded-md py-0.5 border border-orange-200/50 flex flex-col items-center">
             <span className="text-[8px] font-extrabold text-[#EA580C] block">15:00</span>
-            <span className="text-xs block my-0.5">⛈️</span>
+            <CloudLightning size={14} className="text-[#EA580C] my-0.5" />
             <span className="text-[11px] font-black text-[#EA580C] block">24°</span>
           </div>
           <div className="w-[1px] h-5 bg-slate-200" />
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col items-center">
             <span className="text-[8px] font-bold text-slate-400 block">18:00</span>
-            <span className="text-xs block my-0.5">🌧️</span>
+            <CloudRain size={14} className="text-blue-500 my-0.5" />
             <span className="text-[11px] font-black text-slate-800 block">23°</span>
           </div>
           <div className="w-[1px] h-5 bg-slate-200" />
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col items-center">
             <span className="text-[8px] font-bold text-slate-400 block">21:00</span>
-            <span className="text-xs block my-0.5">🌤️</span>
+            <CloudSun size={14} className="text-amber-500 my-0.5" />
             <span className="text-[11px] font-black text-slate-800 block">25°</span>
           </div>
         </div>
 
-        {/* Outdoor Window & Packing */}
+        {/* Outdoor Window */}
         <div className="flex items-center justify-between text-[11px] text-slate-700 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
           <span className="font-extrabold text-[#EA580C] flex items-center gap-1">
             <Clock size={13} /> {weatherConfig.bestWindow}
           </span>
-          <span className="font-semibold text-slate-500">
-            ☂️ Umbrella • Raincoat
+          <span className="font-semibold text-slate-500 flex items-center gap-1">
+            <Umbrella size={12} className="text-blue-500" /> Umbrella • Raincoat
           </span>
         </div>
       </div>
@@ -1118,6 +1188,8 @@ function WeatherReadinessCard({
     </div>
   )
 }
+
+// ── Visa Readiness Card ───────────────────────────────────────────────────────
 
 function VisaReadinessCard({
   isInternational,
@@ -1149,42 +1221,32 @@ function VisaReadinessCard({
     )
   }
 
-  // Domestic View
   if (!isInternational) {
     const destinationCity = destination ? destination.split(',')[0].replace(/[^a-zA-Z\s]/g, '').trim() : 'Destination'
     const startCity = tripContext.startLocation ? tripContext.startLocation.split(',')[0].replace(/[^a-zA-Z\s]/g, '').trim() : 'Origin'
     return (
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between h-[320px] text-left relative overflow-hidden group">
-        
-        {/* Dynamic Background Ambient Gradient */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col justify-between h-full min-h-[220px] text-left relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-transparent pointer-events-none" />
 
         <div className="relative z-10 space-y-3">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100/80 p-2 flex items-center justify-center text-emerald-600 shrink-0 border border-emerald-200/60 shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-emerald-100/80 p-2 flex items-center justify-center text-emerald-600 shrink-0 border border-emerald-200/60">
                 <Plane size={20} strokeWidth={2.2} />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-slate-900 leading-tight">
-                  Travel Readiness
-                </h3>
-                <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
-                  {startCity} → {destinationCity}
-                </p>
+                <h3 className="text-sm font-extrabold text-slate-900 leading-tight">Travel Readiness</h3>
+                <p className="text-[11px] font-semibold text-slate-500 mt-0.5">{startCity} → {destinationCity}</p>
               </div>
             </div>
-            
             <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider text-emerald-800 bg-emerald-100 border border-emerald-300 shadow-xs">
               READY
             </span>
           </div>
 
-          {/* Guarantee Banner */}
           <div className="bg-emerald-50/80 border border-emerald-200/70 rounded-xl p-3 flex gap-2.5 items-center">
             <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-700 flex items-center justify-center shrink-0">
-              <Check size={16} strokeWidth={3} />
+              <CheckCircle2 size={16} strokeWidth={2} />
             </div>
             <div>
               <p className="text-xs font-black text-emerald-950">No Visa Required</p>
@@ -1194,7 +1256,6 @@ function VisaReadinessCard({
             </div>
           </div>
 
-          {/* Required Documents */}
           <div className="space-y-1.5 bg-slate-50 border border-slate-100 rounded-xl p-3">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Mandatory Travel IDs</span>
             <div className="space-y-1 text-xs font-semibold text-slate-700">
@@ -1210,7 +1271,6 @@ function VisaReadinessCard({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="pt-2 relative z-10">
           <button
             onClick={onGuidanceClick}
@@ -1223,27 +1283,21 @@ function VisaReadinessCard({
     )
   }
 
-  // International View
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between h-[320px] text-left relative overflow-hidden group">
-      
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col justify-between h-full min-h-[220px] text-left relative overflow-hidden group">
       <div className="relative z-10 space-y-3">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-100/80 p-2 flex items-center justify-center text-[#EA580C] shrink-0 border border-orange-200/60 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-orange-100/80 p-2 flex items-center justify-center text-[#EA580C] shrink-0 border border-orange-200/60">
               <ShieldAlert size={20} strokeWidth={2.2} />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-slate-900 leading-tight">
-                Visa Readiness
-              </h3>
+              <h3 className="text-sm font-extrabold text-slate-900 leading-tight">Visa Readiness</h3>
               <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
                 Passport → {visaConfig?.country || destination}
               </p>
             </div>
           </div>
-          
           <span
             className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs shrink-0"
             style={{
@@ -1256,13 +1310,11 @@ function VisaReadinessCard({
           </span>
         </div>
 
-        {/* Visa Info Box */}
         <div className="bg-orange-50/60 border border-orange-100 rounded-xl p-3 space-y-1">
           <span className="text-[10px] font-black text-orange-600 uppercase tracking-wider block">Visa Status</span>
           <p className="text-xs font-black text-slate-900">{visaConfig?.visaStatus || 'Visa Required on Arrival'}</p>
         </div>
 
-        {/* Required Documents */}
         <div className="space-y-1.5 bg-slate-50 border border-slate-100 rounded-xl p-3">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Required Documents</span>
           <p className="text-xs font-medium text-slate-700 leading-relaxed">
@@ -1271,7 +1323,6 @@ function VisaReadinessCard({
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="pt-2 flex gap-2 relative z-10">
         <button
           onClick={onGuidanceClick}
@@ -1290,6 +1341,8 @@ function VisaReadinessCard({
   )
 }
 
+// ── Transit Comparison Card (with visual price bars) ─────────────────────────
+
 function TransitComparisonCard({
   transport,
   loading,
@@ -1306,16 +1359,14 @@ function TransitComparisonCard({
 
     const modes = ['flight', 'train', 'bus', 'car'] as const
     const labelMap = { flight: 'Flight', train: 'Train', bus: 'Bus', car: 'Cab/Car' }
-    const iconMap = { flight: '✈️', train: '🚆', bus: '🚌', car: '🚗' }
+    const iconMap = { flight: Plane, train: Train, bus: Bus, car: Car }
 
     return modes.map(mode => {
       const options = transport.filter(t => t.type === mode)
       if (options.length === 0) return null
 
-      // Cheapest option (min price)
       const cheapest = options.reduce((min, cur) => cur.price < min.price ? cur : min, options[0])
-      
-      // Fast duration parsed or calculated
+
       const getDurationMinutes = (durationStr: string) => {
         let mins = 0
         const hMatch = durationStr.match(/(\d+)\s*h/)
@@ -1336,13 +1387,11 @@ function TransitComparisonCard({
         icon: iconMap[mode],
         price: cheapest.price,
         duration: fastest.duration || 'N/A',
-        cheapestOption: cheapest,
-        fastestOption: fastest
       }
     }).filter(Boolean) as Array<{
       type: 'flight' | 'train' | 'bus' | 'car'
       label: string
-      icon: string
+      icon: any
       price: number
       duration: string
     }>
@@ -1350,7 +1399,7 @@ function TransitComparisonCard({
 
   if (loading) {
     return (
-      <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-sm space-y-3 text-left">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3 text-left hover:-translate-y-0.5 transition-all duration-300">
         <Skeleton className="h-5 w-1/3" />
         <Skeleton className="h-4 w-2/3" />
         <Skeleton className="h-24 w-full" />
@@ -1360,6 +1409,7 @@ function TransitComparisonCard({
 
   if (comparisonData.length === 0) return null
 
+  const maxPrice = Math.max(...comparisonData.map(d => d.price))
   const cheapestPrice = Math.min(...comparisonData.map(d => d.price))
   const parseDuration = (dStr: string) => {
     let mins = 0
@@ -1372,50 +1422,62 @@ function TransitComparisonCard({
   const fastestDuration = Math.min(...comparisonData.map(d => parseDuration(d.duration)))
 
   return (
-    <div className="bg-white border border-[#E8E0D8] rounded-xl p-5 shadow-sm text-left">
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="text-[#EA580C]" size={20} />
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 text-left">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+          <Sparkles className="text-[#EA580C]" size={14} />
+        </div>
         <div>
-          <h3 className="text-[15px] font-bold text-[#1A1A1A] leading-tight">Transit Mode Comparison</h3>
-          <p className="text-[11px] text-[#6B6B6B] mt-0.5">Cheapest & fastest transit options side-by-side</p>
+          <h3 className="text-[14px] font-bold text-slate-900 leading-tight">Transit Mode Comparison</h3>
+          <p className="text-[11px] text-slate-500 mt-0.5">Cheapest & fastest transit options side-by-side</p>
         </div>
       </div>
 
-      <div className="divide-y divide-slate-100">
+      <div className="space-y-3">
         {comparisonData.map((item) => {
+          const IconComp = item.icon
+          const isCheapest = item.price === cheapestPrice
+          const isFastest = parseDuration(item.duration) === fastestDuration
+          const barPct = maxPrice > 0 ? (item.price / maxPrice) * 100 : 0
+          const barColor = isCheapest ? '#16A34A' : isFastest ? '#0284C7' : item.type === 'train' ? '#0D9488' : '#94A3B8'
+
           let badgeText = ''
-          let badgeColor = 'text-slate-600 bg-slate-50 border-slate-200'
-          if (item.price === cheapestPrice) {
-            badgeText = 'Cheapest'
-            badgeColor = 'text-[#16A34A] bg-[#F0FDF4] border-[#BBF7D0]'
-          } else if (parseDuration(item.duration) === fastestDuration) {
-            badgeText = 'Fastest'
-            badgeColor = 'text-[#0284C7] bg-[#F0F9FF] border-[#BAE6FD]'
-          } else if (item.type === 'train') {
-            badgeText = 'Eco-Friendly'
-            badgeColor = 'text-[#0D9488] bg-[#F0FDFA] border-[#CCFBF1]'
-          }
+          let badgeStyle = 'text-slate-600 bg-slate-50 border-slate-200'
+          if (isCheapest) { badgeText = 'Cheapest'; badgeStyle = 'text-emerald-700 bg-emerald-50 border-emerald-200' }
+          else if (isFastest) { badgeText = 'Fastest'; badgeStyle = 'text-sky-700 bg-sky-50 border-sky-200' }
+          else if (item.type === 'train') { badgeText = 'Eco'; badgeStyle = 'text-teal-700 bg-teal-50 border-teal-200' }
 
           return (
             <div
               key={item.type}
               onClick={() => onTabChange(item.type === 'flight' ? 'transport' : item.type === 'train' ? 'trains' : item.type === 'bus' ? 'buses' : 'cars')}
-              className="flex items-center justify-between py-2.5 hover:bg-slate-50/50 px-1 rounded-lg transition-colors cursor-pointer"
+              className="group/row rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50/80 p-2.5 transition-all cursor-pointer"
             >
-              <div className="flex items-center gap-2.5">
-                <span className="text-xl">{item.icon}</span>
-                <div>
-                  <p className="text-sm font-semibold text-[#1A1A1A]">{item.label}</p>
-                  <p className="text-[11px] text-[#8E8E93]">{item.duration}</p>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover/row:bg-white flex items-center justify-center text-slate-600 shrink-0 transition-colors border border-transparent group-hover/row:border-slate-200">
+                    <IconComp size={15} />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold text-slate-800">{item.label}</p>
+                    <p className="text-[10px] text-slate-400">{item.duration}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {badgeText && (
+                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border uppercase tracking-wider ${badgeStyle}`}>
+                      {badgeText}
+                    </span>
+                  )}
+                  <span className="text-[13px] font-black text-slate-800">{fmt(item.price)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                {badgeText && (
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor} uppercase tracking-wider`}>
-                    {badgeText}
-                  </span>
-                )}
-                <span className="text-sm font-bold text-[#1A1A1A]">{fmt(item.price)}</span>
+              {/* Visual price bar */}
+              <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${barPct}%`, background: barColor }}
+                />
               </div>
             </div>
           )
@@ -1425,9 +1487,64 @@ function TransitComparisonCard({
   )
 }
 
+// ── Trip Perks Card (Fills Bottom Right Gap) ───────────────────────────────────
 
+function TripPerksCard({ onDownloadPDF, pdfGenerating }: { onDownloadPDF: () => void; pdfGenerating: boolean }) {
+  return (
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left relative overflow-hidden">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <ShieldCheck size={15} />
+          </div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Trip Guarantee & Extras</p>
+        </div>
+        <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">
+          ACTIVE
+        </span>
+      </div>
 
-// â”€â”€â”€ ROOT COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      <div className="space-y-2 mb-3">
+        <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl p-2">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center text-[#EA580C]">
+              <Banknote size={13} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-800 leading-none">Price Drop Guarantee</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Monitoring fare drops 24/7</p>
+            </div>
+          </div>
+          <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+        </div>
+
+        <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl p-2">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
+              <Sparkles size={13} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-800 leading-none">24/7 AI Concierge</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Weather & plan adjustments</p>
+            </div>
+          </div>
+          <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+        </div>
+      </div>
+
+      <button
+        onClick={onDownloadPDF}
+        disabled={pdfGenerating}
+        className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
+      >
+        <FileDown size={14} />
+        <span>{pdfGenerating ? 'Generating PDF...' : 'Download Offline Itinerary (PDF)'}</span>
+      </button>
+    </div>
+  )
+}
+
+// ── ROOT COMPONENT ────────────────────────────────────────────────────────────
 
 function OverviewTab({
   transport, hotels, weather, itinerary, bookingStatus,
@@ -1459,7 +1576,6 @@ function OverviewTab({
     const loadToast = toast.loading("Generating your travel plan PDF...")
 
     try {
-      // Setup high DPI options for crisp text rendering
       const options = {
         scale: 2,
         useCORS: true,
@@ -1471,10 +1587,9 @@ function OverviewTab({
       const canvas = await html2canvas(element, options)
       const imgData = canvas.toDataURL('image/png')
 
-      // Calculate A4 page dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgWidth = 210 // A4 width in mm
-      const pageHeight = 295 // A4 height in mm
+      const imgWidth = 210
+      const pageHeight = 295
       const imgHeight = (canvas.height * imgWidth) / canvas.width
       let heightLeft = imgHeight
 
@@ -1502,7 +1617,6 @@ function OverviewTab({
       setPdfGenerating(false)
     }
   }
-
 
   const destClean = (tripContext.destination || destination || '').toLowerCase()
   const domesticCities = [
@@ -1589,7 +1703,6 @@ function OverviewTab({
     return <EmptyState onTabChange={onTabChange} />
   }
 
-  // Formatted trip metadata
   const routeText = useMemo(() => {
     if (tripContext.isMultiCity && tripContext.stops && tripContext.stops.length > 0) {
       const stopCities = tripContext.stops.map(s => s.city.split(',')[0].trim()).join(' → ')
@@ -1602,53 +1715,85 @@ function OverviewTab({
   }, [tripContext.isMultiCity, tripContext.stops, tripContext.startLocation, tripContext.destination, destination])
 
   const datesText = tripContext.startDate && tripContext.endDate
-    ? `${formatDate(tripContext.startDate)} â€“ ${formatDate(tripContext.endDate)} Â· ${days}d`
+    ? `${formatDate(tripContext.startDate)} – ${formatDate(tripContext.endDate)} · ${days}d`
     : null
 
   const budgetDisplay = budget > 0 ? `${sym}${Math.round(budget).toLocaleString(locale)}` : null
 
+  const hasTransport = transport && transport.length > 0
+  const hasHotels = hotels && hotels.length > 0
+
   return (
     <div id="trip-board-overview">
-      {/* Shimmer keyframe */}
+      {/* Keyframes */}
       <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%) }
           100% { transform: translateX(100%) }
         }
+        @keyframes float-up {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0px); }
+        }
         .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .card-enter { animation: float-up 0.4s ease forwards; }
       `}</style>
 
-      {/* DESKTOP LAYOUT */}
-      <div className="hidden lg:block">
+      {/* ── OFFICIAL TRIPSAGE BRAND HEADER (Included in PDF Exports) ── */}
+      <div className="mb-4 p-4 bg-white border border-[#E8E0D8] rounded-2xl shadow-xs flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="TripSage"
+            className="w-9 h-9 rounded-xl object-contain shadow-xs"
+          />
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-display text-xl font-black text-[#1A1A1A] tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                TripSage
+              </span>
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-orange-50 text-[#EA580C] border border-orange-200 uppercase tracking-wider">
+                Official AI Travel Itinerary
+              </span>
+            </div>
+            <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+              Verified travel intelligence, weather forecast, transit comparison & readiness summary
+            </p>
+          </div>
+        </div>
 
-        {/* Two-column Apple/Google Dashboard Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="text-right">
+          <span className="text-sm font-extrabold text-[#1A1A1A] block">{routeText}</span>
+          {datesText && (
+            <span className="text-xs font-semibold text-[#EA580C] block mt-0.5">{datesText}</span>
+          )}
+        </div>
+      </div>
+
+      {/* DESKTOP LAYOUT — PERFECT BALANCED DASHBOARD */}
+      <div className="hidden lg:block">
+        <div className="grid grid-cols-12 gap-5 items-start">
 
           {/* MAIN (LEFT 8 COLS) */}
-          <div className="lg:col-span-8 space-y-6">
-            <TripStoryCard
-              loading={loading}
-              perPerson={perPerson}
-              budget={budget}
-              sym={sym}
-              fmt={fmt}
-              travelers={travelers}
-              destination={tripContext.destination || destination || ''}
-              onFlights={() => onTabChange('transport')}
-              onAdjust={() => onTabChange('optimizer')}
-            />
+          <div className="col-span-8 space-y-4">
+            <div className="card-enter" style={{ animationDelay: '0ms' }}>
+              <TripStoryCard
+                loading={loading}
+                perPerson={perPerson}
+                budget={budget}
+                sym={sym}
+                fmt={fmt}
+                travelers={travelers}
+                destination={tripContext.destination || destination || ''}
+                origin={tripContext.startLocation || ''}
+                nights={nights}
+                onFlights={() => onTabChange('transport')}
+                onAdjust={() => onTabChange('optimizer')}
+              />
+            </div>
 
-            {/* Transit Comparison Widget */}
-            <TransitComparisonCard
-              transport={transport}
-              loading={loading}
-              onTabChange={onTabChange}
-              fmt={fmt}
-            />
-
-            {/* Premium Readiness Cards Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 card-enter" style={{ animationDelay: '80ms' }}>
               <WeatherReadinessCard
                 weather={weather}
                 datesText={datesText}
@@ -1676,56 +1821,76 @@ function OverviewTab({
                 setDocsExpanded={setDocsExpanded}
               />
             </div>
+
+            <div className="card-enter" style={{ animationDelay: '160ms' }}>
+              <TransitComparisonCard
+                transport={transport}
+                loading={loading}
+                onTabChange={onTabChange}
+                fmt={fmt}
+              />
+            </div>
           </div>
 
           {/* ASIDE (RIGHT 4 COLS) */}
-          <div className="lg:col-span-4 space-y-5">
-            <BudgetCompass
-              loading={loading}
-              budget={budget}
-              totalEstimated={totalEstimated}
-              remaining={remaining}
-              travel={travel}
-              stay={stay}
-              activities={activities}
-              pctUsed={pctUsed}
-              fmt={fmt}
-              sym={sym}
-            />
-            <TripMoodPanel weather={weather} remaining={remaining} fmt={fmt} loading={loading} />
-            <JourneyFlowVertical loading={loading} />
+          <div className="col-span-4 space-y-4">
+            <div className="card-enter" style={{ animationDelay: '40ms' }}>
+              <BudgetCompass
+                loading={loading}
+                budget={budget}
+                totalEstimated={totalEstimated}
+                remaining={remaining}
+                travel={travel}
+                stay={stay}
+                activities={activities}
+                pctUsed={pctUsed}
+                fmt={fmt}
+                sym={sym}
+              />
+            </div>
+            <div className="card-enter" style={{ animationDelay: '120ms' }}>
+              <TripMoodPanel weather={weather} remaining={remaining} fmt={fmt} loading={loading} />
+            </div>
+            <div className="card-enter" style={{ animationDelay: '200ms' }}>
+              <JourneyFlowVertical loading={loading} hasTransport={hasTransport} hasHotels={hasHotels} />
+            </div>
+            <div className="card-enter" style={{ animationDelay: '240ms' }}>
+              <TripPerksCard onDownloadPDF={handleDownloadPDF} pdfGenerating={pdfGenerating} />
+            </div>
           </div>
 
         </div>
       </div>
 
-      {/* â”€â”€ MOBILE LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="lg:hidden pb-[140px]">
+      {/* ── MOBILE LAYOUT — MOBILE-FIRST APP EXPERIENCE ───────────────────── */}
+      <div className="lg:hidden pb-[140px] space-y-4">
 
-        {/* Compact mobile header */}
-        <div className="px-4 mb-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[18px] font-semibold text-[#1A1A1A] truncate flex-1 mr-3" style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}>
+        {/* Mobile Header Route Text */}
+        <div className="px-4 pt-1 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-extrabold text-[#1A1A1A] leading-tight">
               {routeText}
-            </p>
-            {budgetDisplay && (
-              <span className="text-[15px] font-bold text-[#EA580C] shrink-0">{budgetDisplay}</span>
+            </h2>
+            {datesText && (
+              <p className="text-xs text-[#6B6B6B] mt-0.5 font-semibold">
+                {datesText} {travelers ? `· ${travelers} traveler${travelers > 1 ? 's' : ''}` : ''}
+              </p>
             )}
           </div>
-          {(datesText || travelers) && (
-            <p className="text-[13px] text-[#6B6B6B] mt-0.5">
-              {datesText}{datesText && travelers ? ' Â· ' : ''}{travelers ? `${travelers} traveler${travelers > 1 ? 's' : ''}` : ''}
-            </p>
+          {budgetDisplay && (
+            <span className="text-sm font-extrabold text-[#EA580C] bg-orange-50 px-2.5 py-1 rounded-xl border border-orange-200 shrink-0">
+              {budgetDisplay}
+            </span>
           )}
         </div>
 
-        {/* Mood pills */}
-        <div className="mb-4">
+        {/* Mobile Mood Pills */}
+        <div>
           <MobileMoodPills loading={loading} remaining={remaining} fmt={fmt} />
         </div>
 
-        {/* Trip Story Card */}
-        <div className="px-4 mb-4">
+        {/* Hero Story Card */}
+        <div className="px-4">
           <TripStoryCard
             loading={loading}
             perPerson={perPerson}
@@ -1734,111 +1899,113 @@ function OverviewTab({
             fmt={fmt}
             travelers={travelers}
             destination={tripContext.destination || destination || ''}
+            origin={tripContext.startLocation || ''}
+            nights={nights}
             onFlights={() => onTabChange('transport')}
             onAdjust={() => onTabChange('optimizer')}
           />
         </div>
 
-        {/* Mobile Transit Comparison Widget */}
-        <div className="px-4 mb-4">
-          <TransitComparisonCard
-            transport={transport}
-            loading={loading}
-            onTabChange={onTabChange}
-            fmt={fmt}
-          />
-        </div>
+        {/* ── MOBILE HORIZONTAL SNAP CAROUSEL (Swipeable Cards) ── */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-4">
+            <span className="text-[11px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1">
+              <Sparkles size={12} className="text-[#EA580C]" /> Swipe Cards & Intelligence
+            </span>
+            <span className="text-[10px] font-bold text-slate-400">Swipe →</span>
+          </div>
 
-        {/* Mobile Premium Readiness Cards */}
-        <div className="px-4 space-y-4 mb-4">
-          <WeatherReadinessCard
-            weather={weather}
-            datesText={datesText}
-            destination={tripContext.destination || destination || ''}
-            weatherConfig={weatherConfig}
-            loading={loading}
-            onAdjustClick={() => { setOptSuccess(false); setIsOptimizing(false); setShowWeatherOpt(true); }}
-            onForecastClick={() => setShowForecast(true)}
-            packExpanded={packExpanded}
-            setPackExpanded={setPackExpanded}
-            isMobile={true}
-          />
-          <VisaReadinessCard
-            isInternational={isInternational}
-            destination={tripContext.destination || destination || ''}
-            tripContext={tripContext}
-            visaConfig={visaConfig}
-            loading={loading}
-            onGuidanceClick={() => setShowVisaGuidance(true)}
-            onOfficialClick={() => {
-              if (visaConfig?.officialLink) {
-                window.open(visaConfig.officialLink, '_blank')
-              }
-            }}
-            docsExpanded={docsExpanded}
-            setDocsExpanded={setDocsExpanded}
-            isMobile={true}
-          />
-        </div>
-
-
-
-        {/* Budget Compass compact */}
-        <div className="px-4">
-          <div className="bg-white border border-[#E8E0D8] rounded-xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-[#6B6B6B]">Budget Compass</p>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-4 pb-2">
+            {/* Slide 1: Weather Readiness */}
+            <div className="snap-center shrink-0 w-[86vw] max-w-[340px]">
+              <WeatherReadinessCard
+                weather={weather}
+                datesText={datesText}
+                destination={tripContext.destination || destination || ''}
+                weatherConfig={weatherConfig}
+                loading={loading}
+                onAdjustClick={() => { setOptSuccess(false); setIsOptimizing(false); setShowWeatherOpt(true); }}
+                onForecastClick={() => setShowForecast(true)}
+                packExpanded={packExpanded}
+                setPackExpanded={setPackExpanded}
+                isMobile={true}
+              />
             </div>
-            <div className="flex items-center gap-4 mb-3 flex-wrap">
-              <div>
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wide">Total</p>
-                {loading ? <Skeleton className="h-5 w-20 mt-0.5" /> : (
-                  <p className="text-[15px] font-bold text-[#1A1A1A]">{fmt(budget)}</p>
-                )}
-              </div>
-              <div>
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wide">Est. Spend</p>
-                {loading ? <Skeleton className="h-5 w-20 mt-0.5" /> : (
-                  <p className="text-[15px] font-bold text-[#16A34A]">{fmt(totalEstimated)}</p>
-                )}
-              </div>
-              <div>
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wide">Remaining</p>
-                {loading ? <Skeleton className="h-5 w-20 mt-0.5" /> : (
-                  <p className="text-[15px] font-bold text-[#EA580C]">{fmt(remaining)}</p>
-                )}
-              </div>
+
+            {/* Slide 2: Travel & Visa Readiness */}
+            <div className="snap-center shrink-0 w-[86vw] max-w-[340px]">
+              <VisaReadinessCard
+                isInternational={isInternational}
+                destination={tripContext.destination || destination || ''}
+                tripContext={tripContext}
+                visaConfig={visaConfig}
+                loading={loading}
+                onGuidanceClick={() => setShowVisaGuidance(true)}
+                onOfficialClick={() => {
+                  if (visaConfig?.officialLink) {
+                    window.open(visaConfig.officialLink, '_blank')
+                  }
+                }}
+                docsExpanded={docsExpanded}
+                setDocsExpanded={setDocsExpanded}
+                isMobile={true}
+              />
             </div>
-            <div className="h-1.5 rounded-full bg-[#E8E0D8] overflow-hidden">
-              <div
-                className="h-full rounded-full bg-[#EA580C] transition-all duration-700"
-                style={{ width: loading ? '0%' : `${pctUsed}%` }}
+
+            {/* Slide 3: Transit Mode Comparison */}
+            <div className="snap-center shrink-0 w-[86vw] max-w-[340px]">
+              <TransitComparisonCard
+                transport={transport}
+                loading={loading}
+                onTabChange={onTabChange}
+                fmt={fmt}
               />
             </div>
           </div>
         </div>
+
+        {/* Mobile Budget Compass */}
+        <div className="px-4">
+          <BudgetCompass
+            loading={loading}
+            budget={budget}
+            totalEstimated={totalEstimated}
+            remaining={remaining}
+            travel={travel}
+            stay={stay}
+            activities={activities}
+            pctUsed={pctUsed}
+            fmt={fmt}
+            sym={sym}
+          />
+        </div>
+
+        {/* Mobile Perks Card */}
+        <div className="px-4">
+          <TripPerksCard onDownloadPDF={handleDownloadPDF} pdfGenerating={pdfGenerating} />
+        </div>
       </div>
 
-      {/* â”€â”€ MOBILE STICKY BOTTOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── MOBILE STICKY BOTTOM ── */}
       <div className="lg:hidden fixed bottom-[60px] left-0 right-0 z-40 px-4 pb-3 pt-4 bg-gradient-to-t from-[#FFFBF7] via-[#FFFBF7]/95 to-transparent">
         <button
           onClick={() => onTabChange('transport')}
-          className="w-full h-[52px] bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[15px] rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 transition-colors"
+          className="w-full h-[52px] bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white font-bold text-[15px] rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 transition-colors"
         >
           See transport options <ArrowRight size={16} />
         </button>
       </div>
 
-      {/* â”€â”€ MOBILE BOTTOM NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── MOBILE BOTTOM NAV ── */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E0D8] z-50 h-[60px] flex items-center"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {[
-          { id: 'overview', label: 'Overview', Icon: Home },
-          { id: 'transport', label: 'Transport', Icon: Plane },
-          { id: 'hotels', label: 'Stay', Icon: Building2 },
-          { id: 'itinerary', label: 'Plan', Icon: MapPin },
+          { id: 'overview', label: 'Overview', Icon: Icon3DOverview },
+          { id: 'transport', label: 'Transport', Icon: Icon3DTransport },
+          { id: 'hotels', label: 'Stay', Icon: Icon3DStay },
+          { id: 'itinerary', label: 'Plan', Icon: Icon3DItinerary },
         ].map(({ id, label, Icon }) => {
           const isActive = id === 'overview'
           return (
@@ -1851,7 +2018,7 @@ function OverviewTab({
               {isActive && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-[2px] bg-[#EA580C] rounded-b-full" />
               )}
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+              <Icon size={24} active={isActive} />
               <span className="text-[9px] font-bold uppercase tracking-wide">{label}</span>
             </button>
           )

@@ -1,4 +1,3 @@
-'use client'
 import React, { memo, useState, useCallback } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import HotelImage from './HotelImage'
@@ -8,23 +7,24 @@ import toast from 'react-hot-toast'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import SageScoreBadge from '../ui/SageScoreBadge'
+import { Wifi, Coffee, Waves, Car, Sparkles, Dumbbell, Utensils, Wine, Wind, Flame, Star, Heart } from 'lucide-react'
 
 // ── Amenity detection from raw data ──────────────────────────────────────────
-const AMENITY_MAP: Record<string, { icon: string; label: string }> = {
-  wifi: { icon: '📶', label: 'Free WiFi' },
-  breakfast: { icon: '🍳', label: 'Breakfast' },
-  pool: { icon: '🏊', label: 'Pool' },
-  parking: { icon: '🅿️', label: 'Parking' },
-  spa: { icon: '💆', label: 'Spa' },
-  gym: { icon: '🏋️', label: 'Gym' },
-  restaurant: { icon: '🍽️', label: 'Restaurant' },
-  bar: { icon: '🍸', label: 'Bar' },
-  ac: { icon: '❄️', label: 'A/C' },
+const AMENITY_MAP: Record<string, { icon: React.ComponentType<any>; label: string }> = {
+  wifi: { icon: Wifi, label: 'Free WiFi' },
+  breakfast: { icon: Coffee, label: 'Breakfast' },
+  pool: { icon: Waves, label: 'Pool' },
+  parking: { icon: Car, label: 'Parking' },
+  spa: { icon: Sparkles, label: 'Spa' },
+  gym: { icon: Dumbbell, label: 'Gym' },
+  restaurant: { icon: Utensils, label: 'Restaurant' },
+  bar: { icon: Wine, label: 'Bar' },
+  ac: { icon: Wind, label: 'A/C' },
 }
 
-function detectAmenities(amenities?: string[], offers?: string[]): { icon: string; label: string }[] {
+function detectAmenities(amenities?: string[], offers?: string[]): { icon: React.ComponentType<any>; label: string }[] {
   const all = [...(amenities || []), ...(offers || [])].join(' ').toLowerCase()
-  const found: { icon: string; label: string }[] = []
+  const found: { icon: React.ComponentType<any>; label: string }[] = []
 
   // Breakfast detection
   if (all.includes('breakfast') || all.includes('bed and breakfast') || all.includes('b&b')) {
@@ -238,12 +238,15 @@ function HotelCard({ item, showDetail }: Props) {
         {/* Amenities Row */}
         {showDetail && amenities.length > 0 && (
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
-            {amenities.map((a, i) => (
-              <span key={i} className="hotel-amenity">
-                <span>{a.icon}</span>
-                {a.label}
-              </span>
-            ))}
+            {amenities.map((a, i) => {
+              const IconComp = a.icon
+              return (
+                <span key={i} className="hotel-amenity" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <IconComp size={13} />
+                  {a.label}
+                </span>
+              )
+            })}
           </div>
         )}
 
@@ -271,8 +274,8 @@ function HotelCard({ item, showDetail }: Props) {
 
           {/* Deal badge */}
           {item.score > 0.7 && (
-            <span className="hotel-deal-badge">
-              🔥 Great Deal
+            <span className="hotel-deal-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <Flame size={12} /> Great Deal
             </span>
           )}
         </div>

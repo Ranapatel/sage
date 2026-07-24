@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useTripStore } from '@/store/tripStore'
-import { Plus, Minus, Compass, Navigation, AlertTriangle, RefreshCw, X, Check } from 'lucide-react'
+import { Plus, Minus, Compass, Navigation, AlertTriangle, RefreshCw, X, Check, Plane, MapPin, Map } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -404,41 +404,8 @@ export default function MapView({
       .setLngLat([eCoords[1], eCoords[0]])
       .addTo(map)
 
-    // Animated plane
-    const planeEl = document.createElement('div')
-    planeEl.style.cssText = 'width:30px;height:30px;'
-    planeEl.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-        fill="#1E3A8A" stroke="#FFFFFF" stroke-width="0.8"
-        style="width:30px;height:30px;filter:drop-shadow(0 3px 8px rgba(30,58,138,0.55));">
-        <path d="M17.8 19.2L16 11l3.5-3.5C20 7 20 6.4 19.6 6c-.4-.4-1-.4-1.4 0L14.7 9.5 6.5 7.7 5 9.2l6.5 3.3L8 16l-3.3-1.2-1.5 1.5 3.5 1.8 1.8 3.5 1.5-1.5L8.8 17.8l3.5-3.5 3.3 6.5z"/>
-      </svg>
-    `
-
-    const planeMarker = new mgl.Marker({ element: planeEl })
-      .setLngLat(arcPoints[0])
-      .addTo(map)
-    planeMarkerRef.current = planeMarker
-
-    let progress = 0
-    const totalPts = arcPoints.length - 1
-    const animate = () => {
-      if (!mapInstanceRef.current) return
-      progress = (progress + 0.25) % totalPts
-      const idx  = Math.floor(progress)
-      const next = (idx + 1) % totalPts
-      const cur  = arcPoints[idx]
-      const nxt  = arcPoints[next]
-      if (cur && nxt) {
-        const angle = Math.atan2(nxt[1] - cur[1], nxt[0] - cur[0]) * (180 / Math.PI)
-        planeMarker.setLngLat(cur)
-        const svg = planeEl.querySelector('svg')
-        if (svg) (svg as unknown as HTMLElement).style.transform = `rotate(${90 - angle}deg)`
-      }
-      animFrameRef.current = requestAnimationFrame(animate)
-    }
-
-    const t = setTimeout(() => { animFrameRef.current = requestAnimationFrame(animate) }, 1600)
+    // Plane animation removed — static arc line shown instead
+    const t = setTimeout(() => {}, 0)
 
     // Trigger initial positioning view
     if (mapMode === 'flight') {
@@ -453,7 +420,6 @@ export default function MapView({
 
     return () => {
       clearTimeout(t)
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
   }, [mapLoaded, originCoord, destCoord, mapMode])
 
@@ -685,7 +651,7 @@ export default function MapView({
                 : 'text-slate-300 hover:text-white'
             }`}
           >
-            <span>✈️</span> Flight Path
+            <Plane size={13} /> Flight Path
           </button>
           <button
             onClick={() => setMapMode('sightseeing')}
@@ -695,7 +661,7 @@ export default function MapView({
                 : 'text-slate-300 hover:text-white'
             }`}
           >
-            <span>📍</span> Sightseeing
+            <MapPin size={13} /> Sightseeing
           </button>
         </div>
       )}
@@ -707,12 +673,15 @@ export default function MapView({
           onClick={e => e.stopPropagation()}
         >
           <div className="flex justify-between items-start gap-2">
-            <h4 className="text-sm font-bold truncate">📍 {selectedStop.name.split('—')[0].trim()}</h4>
+            <h4 className="text-sm font-bold truncate flex items-center gap-1">
+              <MapPin size={14} className="text-red-400 shrink-0" />
+              {selectedStop.name.split('—')[0].trim()}
+            </h4>
             <button
               onClick={() => setSelectedStop(null)}
               className="text-slate-400 hover:text-white text-xs p-1"
             >
-              ✕
+              <X size={14} />
             </button>
           </div>
           {selectedStop.time && (
@@ -734,18 +703,18 @@ export default function MapView({
                 setSearchQuery(selectedStop.name.split('—')[0].trim())
                 setShowReplaceModal(true)
               }}
-              className="flex-1 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-200 text-[10px] font-semibold text-center transition-all"
+              className="flex-1 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-200 text-[10px] font-semibold text-center transition-all flex items-center justify-center gap-1"
             >
-              🔄 Replace
+              <RefreshCw size={11} /> Replace
             </button>
             <button
               onClick={() => {
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedStop.name)}`
                 window.open(mapsUrl, '_blank')
               }}
-              className="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-semibold text-center transition-all"
+              className="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-semibold text-center transition-all flex items-center justify-center gap-1"
             >
-              🧭 Open Maps
+              <Map size={11} /> Open Maps
             </button>
           </div>
         </div>

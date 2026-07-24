@@ -144,9 +144,8 @@ export default function StoryCardModal({
 
         ctx.fillStyle = '#FFFFFF'
         ctx.font = 'bold 34px sans-serif'
-        ctx.fillText(`🗓️ ${durationDays} DAYS • CURATED TRIP`, 540, 437)
+        ctx.fillText(`${durationDays} DAYS • CURATED TRIP`, 540, 437)
 
-        // 5. Highlights Glass Box
         ctx.fillStyle = 'rgba(0, 0, 0, 0.65)'
         ctx.beginPath()
         if (typeof ctx.roundRect === 'function') {
@@ -160,11 +159,10 @@ export default function StoryCardModal({
         ctx.lineWidth = 3
         ctx.stroke()
 
-        // Highlights Header
         ctx.fillStyle = '#FED7AA'
         ctx.font = '800 36px sans-serif'
         ctx.textAlign = 'left'
-        ctx.fillText('📍 FEATURED ROUTE HIGHLIGHTS', 160, 590)
+        ctx.fillText('FEATURED ROUTE HIGHLIGHTS', 160, 590)
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
         ctx.lineWidth = 2
@@ -173,8 +171,6 @@ export default function StoryCardModal({
         ctx.lineTo(920, 620)
         ctx.stroke()
 
-        // Highlight Items (Up to 5)
-        const icons = ['🌅', '🏖️', '🍽️', '🏛️', '🌿']
         displayPlaces.forEach((place, i) => {
           const itemY = 660 + i * 150
           ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'
@@ -185,19 +181,23 @@ export default function StoryCardModal({
             ctx.rect(140, itemY, 800, 115)
           }
           ctx.fill()
+
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)'
+          ctx.lineWidth = 2
+          ctx.stroke()
+
           ctx.fillStyle = '#FFFFFF'
-          ctx.font = 'bold 36px sans-serif'
+          ctx.font = 'bold 30px sans-serif'
           ctx.textAlign = 'left'
-          ctx.fillText(`${icons[i % icons.length]}  ${place}`, 180, itemY + 70)
+          ctx.fillText(place.length > 38 ? place.slice(0, 36) + '…' : place, 180, itemY + 68)
         })
 
-        // 6. Bottom VIP Referral Card
-        ctx.fillStyle = 'rgba(234, 88, 12, 0.95)'
+        ctx.fillStyle = '#EA580C'
         ctx.beginPath()
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(100, 1500, 880, 270, 40)
+          ctx.roundRect(100, 1500, 880, 240, 32)
         } else {
-          ctx.rect(100, 1500, 880, 270)
+          ctx.rect(100, 1500, 880, 240)
         }
         ctx.fill()
 
@@ -212,7 +212,7 @@ export default function StoryCardModal({
 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
         ctx.font = 'bold 26px sans-serif'
-        ctx.fillText('🛡️ VERIFIED ITINERARY  |  Get +100 Free Credits On Sign Up', 540, 1715)
+        ctx.fillText('VERIFIED ITINERARY  |  Get +100 Free Credits On Sign Up', 540, 1715)
 
         const dataUrl = canvas.toDataURL('image/png')
         const link = document.createElement('a')
@@ -223,42 +223,49 @@ export default function StoryCardModal({
         toast.success('HD Story Card exported with official TripSage logo!', { id: loadToast })
       }
     } catch (err) {
-      toast.error('Failed to generate Story card. Try again!', { id: loadToast })
+      console.error('Failed to generate story card:', err)
+      toast.error('Failed to export story card image.', { id: loadToast })
     } finally {
       setDownloading(false)
     }
   }
 
+  if (!isOpen) return null
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 animate-fade-in text-left">
-      {/* Responsive Compact Card Wrapper - Never Overflows Viewport */}
-      <div className="relative w-full max-w-[340px] sm:max-w-[370px] max-h-[96vh] rounded-[28px] bg-[#121212] border border-stone-800 shadow-2xl p-3 sm:p-4 flex flex-col gap-2.5 overflow-hidden">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
+      <div className="relative w-full max-w-sm sm:max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto hide-scrollbar">
         <button
-          type="button"
           onClick={onClose}
-          className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-stone-900/90 hover:bg-stone-800 flex items-center justify-center text-white transition-all cursor-pointer z-40 border border-white/20 shadow-md"
-          title="Close Modal"
+          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors"
         >
-          <X size={16} />
+          <X size={18} />
         </button>
 
-        {/* Story Preview Card - Fixed Viewport Height (No Vertical Cut-off) */}
+        <div className="text-left mb-4">
+          <h3 className="text-lg font-black text-white flex items-center gap-2">
+            <Sparkles size={18} className="text-[#EA580C]" />
+            <span>Generate Story Card</span>
+          </h3>
+          <p className="text-slate-400 text-xs mt-0.5">
+            Export a high-resolution 9:16 Instagram/WhatsApp Story to share your itinerary.
+          </p>
+        </div>
+
         <div
           ref={cardRef}
-          className="w-full h-[460px] sm:h-[500px] max-h-[72vh] rounded-2xl relative overflow-hidden border border-white/20 shadow-2xl flex flex-col justify-between p-3.5 text-center group shrink-0"
+          className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl flex flex-col justify-between p-4 text-left select-none"
         >
-          {/* HD Background Photo with Gradient Vignette */}
           <img
             src={bgImg}
             alt={destination}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/35 to-black/90" />
 
-          {/* Top Prominent Brand Logo & Destination Title */}
-          <div className="relative z-10 space-y-1.5 pt-1">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#EA580C] text-white shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/85" />
+
+          <div className="relative z-10 space-y-1">
+            <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full w-fit">
               <img
                 src="/logo.png"
                 alt="TripSage"
@@ -271,30 +278,27 @@ export default function StoryCardModal({
               <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight drop-shadow-md leading-tight">
                 {destination}
               </h2>
-              <span className="inline-block mt-0.5 px-2.5 py-0.5 bg-[#EA580C] text-white font-black text-[9.5px] rounded-full shadow-md uppercase tracking-wider">
-                🗓️ {durationDays} DAYS • CURATED TRIP
+              <span className="inline-flex items-center gap-1 mt-0.5 px-2.5 py-0.5 bg-[#EA580C] text-white font-black text-[9.5px] rounded-full shadow-md uppercase tracking-wider">
+                <Calendar size={10} /> {durationDays} DAYS • CURATED TRIP
               </span>
             </div>
           </div>
 
-          {/* Glass Highlights List (4 Highlights to fit perfectly) */}
           <div className="relative z-10 bg-black/65 backdrop-blur-xl border border-white/20 rounded-xl p-2.5 text-left space-y-1 shadow-xl my-1">
-            <span className="text-[8.5px] font-extrabold text-amber-300 uppercase tracking-widest block border-b border-white/15 pb-0.5">
-              📍 Featured Highlights
+            <span className="text-[8.5px] font-extrabold text-amber-300 uppercase tracking-widest flex items-center gap-1 border-b border-white/15 pb-0.5">
+              <MapPin size={9} /> Featured Highlights
             </span>
 
             {displayPlaces.slice(0, 4).map((p, idx) => {
-              const icons = ['🌅', '🏖️', '🍽️', '🏛️']
               return (
                 <div key={idx} className="bg-white/10 px-2 py-1 rounded-lg text-[10px] font-semibold text-white flex items-center gap-1.5 border border-white/10">
-                  <span className="text-xs">{icons[idx % icons.length]}</span>
+                  <Compass size={11} className="text-amber-300 shrink-0" />
                   <span className="truncate">{p}</span>
                 </div>
               )
             })}
           </div>
 
-          {/* Footer Referral Badge */}
           <div className="relative z-10 bg-[#EA580C] p-2 rounded-xl space-y-0.5 text-center shadow-lg border border-orange-400/40">
             <div className="flex items-center justify-between text-[8.5px] text-white/90 font-bold uppercase tracking-wider border-b border-white/20 pb-0.5 mb-0.5">
               <span className="flex items-center gap-1">

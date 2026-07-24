@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { buildHotelImageUrl, IMAGE_FALLBACK_CHAIN, type ImageSize } from '@/lib/hotels/images';
+import { Building2 } from 'lucide-react';
 
 interface HotelImageProps {
   path: string | null | undefined;
@@ -44,7 +45,7 @@ export default function HotelImage({ path, alt, className, style, preferredSize 
           ...style 
         }}
       >
-        <span style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🏨</span>
+        <Building2 size={28} className="text-slate-400 mb-1.5" />
         <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>No photo available</span>
       </div>
     );
@@ -72,7 +73,7 @@ export default function HotelImage({ path, alt, className, style, preferredSize 
           ...style
         }}
       >
-        <span style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🏨</span>
+        <Building2 size={28} className="text-slate-400 mb-1.5" />
         <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>No photo available</span>
       </div>
     );

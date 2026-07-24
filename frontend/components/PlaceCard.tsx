@@ -200,7 +200,9 @@ function PlaceCard({ place, destinationName, onClick }: PlaceCardProps) {
                   {lat!.toFixed(3)}, {lng!.toFixed(3)}
                 </span>
               ) : (
-                <span className="text-[10px] text-yellow-500">📍 Coordinates loading...</span>
+                <span className="text-[10px] text-amber-500 flex items-center gap-1">
+                  <MapPin className="w-3 h-3 shrink-0 animate-pulse" /> Coordinates loading...
+                </span>
               )}
             </div>
           </div>

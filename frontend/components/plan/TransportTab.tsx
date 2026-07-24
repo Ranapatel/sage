@@ -4,7 +4,7 @@ import React, { memo, useMemo, useState } from 'react'
 import {
   Plane, Bus, Car, Clock, Wallet, Shield, Star,
   ArrowRight, Sparkles, CheckCircle2, AlertCircle,
-  TrendingUp, Zap, ChevronRight, ExternalLink, Train, Share2
+  TrendingUp, Zap, ChevronRight, ChevronLeft, ExternalLink, Train, Share2, Banknote
 } from 'lucide-react'
 import { SYMBOLS } from '@/lib/currency'
 import { useTripStore } from '@/store/tripStore'
@@ -28,7 +28,7 @@ export const handleUniversalShare = (item: any) => {
   const fareStr = item.price ? `₹${Math.round(item.price)}` : 'Estimate'
   
   const shareTitle = `TripSage Travel Recommendation`
-  const shareText = `Check out this travel option on TripSage:\n\n✈️ ${cleanName}\n⏰ Timing: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\n💰 Price: ${fareStr}/person\n\nPlan and view details on TripSage!`
+  const shareText = `Check out this travel option on TripSage:\n\n* ${cleanName}\nTiming: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\nPrice: ${fareStr}/person\n\nPlan and view details on TripSage!`
   const shareUrl = `https://tripsage.in/plan`
 
   if (navigator.share) {
@@ -232,16 +232,16 @@ function SageScoreRing({ score: rawScore, dark }: { score: number; dark?: boolea
           Sage Analysis
         </h5>
         <div className="space-y-1.5 text-[11px] font-bold">
-          <div className="flex justify-between">
-            <span className="text-slate-400">💸 Price:</span>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-400 flex items-center gap-1"><Banknote size={11} /> Price:</span>
             <span className="text-green-400">{priceScore}/100</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">⚡ Speed:</span>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-400 flex items-center gap-1"><Zap size={11} /> Speed:</span>
             <span className="text-blue-400">{speedScore}/100</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">🛡️ Safety:</span>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-400 flex items-center gap-1"><Shield size={11} /> Safety:</span>
             <span className="text-amber-400">{safetyScore}/100</span>
           </div>
         </div>
@@ -894,35 +894,57 @@ function TransportTab({
           </p>
         </div>
 
-        {/* ── SEGMENT PILLS (3D Isometric Icon Bar like MakeMyTrip) ───────── */}
-        <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2">
-          {segments.map(s => {
-            const isActive = segment === s.id
-            const IconComp = s.icon
-            return (
-              <button
-                key={s.id}
-                onClick={() => setSegment(s.id)}
-                className={`shrink-0 h-12 px-4 rounded-2xl text-[14px] font-bold flex items-center gap-2.5 transition-all duration-200 cursor-pointer border ${
-                  isActive
-                    ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-lg shadow-orange-500/25 scale-[1.02]'
-                    : 'bg-white text-slate-700 border-[#E8E0D8] hover:border-orange-300 hover:bg-orange-50/40 hover:shadow-sm'
-                }`}
-              >
-                <IconComp size={24} active={isActive} />
-                <span>{s.label}</span>
-                {s.count != null && s.count > 0 && !loading && (
-                  <span
-                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
+        {/* ── SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) ───────── */}
+        <div className="space-y-2">
+          {/* Top Swipe Hint */}
+          <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#EA580C] flex items-center gap-1.5">
+              <Sparkles size={12} className="text-[#EA580C]" /> Select Transport Mode
+            </span>
+            <div className="md:hidden flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200/80 shadow-2xs">
+              <span>Swipe for modes</span>
+              <ArrowRight size={12} className="text-[#EA580C] animate-pulse" />
+            </div>
+          </div>
+
+          {/* Pill Container with Fade Overlay */}
+          <div className="relative group/pills">
+            {/* Right Fade Gradient Overlay */}
+            <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-10 rounded-r-2xl" />
+
+            <div
+              id="transport-segment-pills"
+              className="flex gap-3 overflow-x-auto hide-scrollbar py-1.5 scroll-smooth pr-8"
+            >
+              {segments.map(s => {
+                const isActive = segment === s.id
+                const IconComp = s.icon
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setSegment(s.id)}
+                    className={`shrink-0 h-12 px-4 rounded-2xl text-[14px] font-bold flex items-center gap-2.5 transition-all duration-200 cursor-pointer border ${
+                      isActive
+                        ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-lg shadow-orange-500/25 scale-[1.02]'
+                        : 'bg-white text-slate-700 border-[#E8E0D8] hover:border-orange-300 hover:bg-orange-50/40 hover:shadow-sm'
                     }`}
                   >
-                    {s.count}
-                  </span>
-                )}
-              </button>
-            )
-          })}
+                    <IconComp size={24} active={isActive} />
+                    <span>{s.label}</span>
+                    {s.count != null && s.count > 0 && !loading && (
+                      <span
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          isActive ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {s.count}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
 
         {/* ── SMART ROUTES (Transport Intelligence) ───────────────────── */}

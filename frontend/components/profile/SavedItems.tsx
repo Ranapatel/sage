@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
-import { Trash2, ExternalLink, Heart, Building2, Compass, Zap, CalendarDays, Utensils, MapPin } from 'lucide-react'
+import { Trash2, ExternalLink, Heart, Building2, Compass, Zap, CalendarDays, Utensils, MapPin, Bookmark } from 'lucide-react'
 
 import { getLocalBookmarks, removeBookmark } from '@/lib/bookmarkUtils'
 
@@ -117,7 +117,8 @@ export default function SavedItems() {
     <div className="card p-6 md:p-8 bg-white border border-[#E8E0D8] rounded-3xl relative overflow-hidden shadow-sm space-y-6">
       <div>
         <h2 className="text-lg font-black text-[#1A1A1A] flex items-center gap-2">
-          💖 Saved Content
+          <Bookmark className="text-[#EA580C]" size={20} />
+          <span>Saved Content</span>
         </h2>
         <p className="text-slate-500 text-xs mt-1">
           Access your catalog of bookmarked flights, hotels, activities, and itineraries.

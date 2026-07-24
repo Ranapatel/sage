@@ -96,13 +96,32 @@ export default function Navbar() {
             type="button"
             suppressHydrationWarning
             onClick={() => setMobileMenuOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E8E0D8] rounded-full shadow-2xs text-xs font-bold text-[#1A1A1A] active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#EA580C] text-white rounded-full shadow-md text-xs font-bold active:scale-95 transition-transform"
           >
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B6B6B]">Menu</span>
-            <Menu size={14} strokeWidth={2.5} className="text-[#EA580C]" />
+            <span className="text-[11px] font-extrabold uppercase tracking-wider">Menu</span>
+            <Menu size={14} strokeWidth={2.5} className="text-white" />
           </button>
         </div>
       </nav>
+
+      {/* Mobile Top Navigation Sub-Header Quick Strip */}
+      <div className="flex md:hidden items-center gap-2 overflow-x-auto hide-scrollbar px-4 py-2 bg-white/90 backdrop-blur-md border-b border-[#E8E0D8] scroll-smooth z-[99]">
+        <Link href="/#features" className="shrink-0 text-[11px] font-extrabold text-[#1A1A1A] hover:text-[#EA580C] bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1 rounded-full shadow-2xs">
+          Features
+        </Link>
+        <Link href="/#destinations" className="shrink-0 text-[11px] font-extrabold text-[#1A1A1A] hover:text-[#EA580C] bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1 rounded-full shadow-2xs">
+          Destinations
+        </Link>
+        <Link href="/blog" className="shrink-0 text-[11px] font-extrabold text-[#1A1A1A] hover:text-[#EA580C] bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1 rounded-full shadow-2xs">
+          Blog
+        </Link>
+        <Link href="/visa-guide" className="shrink-0 text-[11px] font-extrabold text-[#1A1A1A] hover:text-[#EA580C] bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1 rounded-full shadow-2xs">
+          Visa Guide
+        </Link>
+        <Link href="/support" className="shrink-0 text-[11px] font-extrabold text-[#1A1A1A] hover:text-[#EA580C] bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1 rounded-full shadow-2xs">
+          Support
+        </Link>
+      </div>
 
       <AnimatePresence>
         {mobileMenuOpen && (

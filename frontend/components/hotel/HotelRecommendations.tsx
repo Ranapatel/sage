@@ -19,32 +19,57 @@ import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 import HotelImage from './HotelImage'
 
+import {
+  Wifi,
+  Coffee,
+  Waves,
+  Car,
+  Sparkles,
+  Dumbbell,
+  Utensils,
+  Wine,
+  Wind,
+  BedDouble,
+  Building2,
+  Crown,
+  Camera,
+  BarChart2,
+  X,
+  MapPin,
+  Star,
+  Flame,
+  Lightbulb,
+  Check,
+  AlertTriangle,
+  Lock
+} from 'lucide-react'
+
 // ─── Amenity icon mapping ─────────────────────────────────────────────────────
-const AMENITY_ICONS: Record<string, string> = {
-  wifi:        '📶',
-  'wi-fi':     '📶',
-  breakfast:   '🍳',
-  pool:        '🏊',
-  swim:        '🏊',
-  parking:     '🅿️',
-  spa:         '💆',
-  gym:         '🏋️',
-  fitness:     '🏋️',
-  restaurant:  '🍽️',
-  dining:      '🍽️',
-  bar:         '🍸',
-  ac:          '❄️',
-  'air cond':  '❄️',
-  room:        '🛏️',
-  suite:       '🛏️',
+const AMENITY_ICONS: Record<string, React.ComponentType<any>> = {
+  wifi:        Wifi,
+  'wi-fi':     Wifi,
+  breakfast:   Coffee,
+  pool:        Waves,
+  swim:        Waves,
+  parking:     Car,
+  spa:         Sparkles,
+  gym:         Dumbbell,
+  fitness:     Dumbbell,
+  restaurant:  Utensils,
+  dining:      Utensils,
+  bar:         Wine,
+  ac:          Wind,
+  'air cond':  Wind,
+  room:        BedDouble,
+  suite:       BedDouble,
 }
 
-function getAmenityIcon(amenity: string): string {
+function getAmenityIcon(amenity: string): React.ReactNode {
   const lower = amenity.toLowerCase()
-  for (const [key, icon] of Object.entries(AMENITY_ICONS)) {
-    if (lower.includes(key)) return icon
+  for (const [key, IconComp] of Object.entries(AMENITY_ICONS)) {
+    if (lower.includes(key)) return <IconComp size={13} className="inline-block" />
   }
-  return '✓'
+  return <Check size={13} className="inline-block" />
 }
 
 // ─── Source badge ─────────────────────────────────────────────────────────────
@@ -151,18 +176,21 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
         gap:           '5px',
       }}>
         <span style={{
-          padding:      '4px 10px',
+          padding:      '3px 10px',
           borderRadius: '20px',
-          fontSize:     '0.7rem',
+          fontSize:     '0.65rem',
           fontWeight:   800,
           background:   isTopPick
-            ? 'linear-gradient(135deg, #f59e0b, #ef4444)'
+            ? 'linear-gradient(135deg, #2563eb, #0d9488)'
             : 'rgba(0,0,0,0.55)',
           color:        '#fff',
           backdropFilter: 'blur(6px)',
           letterSpacing: '0.3px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
         }}>
-          {isTopPick ? '🏆 Top Pick' : `#${hotel._meta.rank}`}
+          {isTopPick ? <><Crown size={12} className="text-amber-300 fill-amber-300" /> Top Pick</> : `#${hotel._meta.rank}`}
         </span>
         <SourceBadge source={hotel._meta.source || ''} />
       </div>
@@ -198,8 +226,11 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
             fontSize:   '0.6rem',
             fontWeight: 600,
             backdropFilter: 'blur(4px)',
+            display:    'inline-flex',
+            alignItems: 'center',
+            gap:        '4px',
           }}>
-            📷 Placeholder image
+            <Camera size={11} /> Placeholder image
           </div>
         )}
 
@@ -404,17 +435,20 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
           </div>
 
           {/* Great deal badge */}
-          {hotel._meta.score >= 0.7 && !priceUnavailable && (
+          {parseFloat(hotel.price_per_night) > 0 && parseFloat(hotel.price_per_night) < 3000 && (
             <span style={{
-              padding:    '5px 10px',
+              padding:    '2px 8px',
               borderRadius: '8px',
               background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(6,182,212,0.15))',
               color:      '#10b981',
               fontSize:   '0.68rem',
               fontWeight: 700,
               border:     '1px solid rgba(16,185,129,0.25)',
+              display:    'inline-flex',
+              alignItems: 'center',
+              gap:        '3px',
             }}>
-              🔥 Great Deal
+              <Flame size={11} /> Great Deal
             </span>
           )}
         </div>
@@ -429,9 +463,9 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
           border:       isTopPick ? '1px solid rgba(37,99,235,0.15)' : '1px solid var(--border)',
           marginBottom: '12px',
         }}>
-          <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            <span style={{ fontWeight: 700, color: 'var(--primary)', marginRight: '4px' }}>💡</span>
-            {hotel.recommendation_reason}
+          <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+            <Lightbulb size={13} className="text-amber-500 shrink-0 mt-0.5" />
+            <span>{hotel.recommendation_reason}</span>
           </p>
         </div>
 
@@ -444,9 +478,13 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
             background: selected
               ? 'linear-gradient(135deg, #10b981, #059669)'
               : undefined,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
           }}
         >
-          {selected ? '✓ Selected' : 'View Rooms & Book'}
+          {selected ? <><Check size={14} /> Selected</> : 'View Rooms & Book'}
         </button>
       </div>
     </div>
@@ -575,7 +613,7 @@ export default function HotelRecommendations({ destination, checkin, checkout, m
       timestamp: new Date().toISOString(),
       read:      false,
     })
-    toast.success(`${hotel.hotel_name} selected!`, { icon: '🏨' })
+    toast.success(`${hotel.hotel_name} selected!`)
   }, [setBookingStatus, setHotelDetailId, addNotification])
 
   // ── Loading skeleton ─────────────────────────────────────────────────────────
@@ -623,8 +661,8 @@ export default function HotelRecommendations({ destination, checkin, checkout, m
         border:       '1px solid rgba(239,68,68,0.2)',
         color:        '#ef4444',
       }}>
-        <p style={{ fontWeight: 700, fontSize: '0.88rem', marginBottom: '4px' }}>
-          ⚠️ Hotel recommendations unavailable
+        <p style={{ fontWeight: 700, fontSize: '0.88rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <AlertTriangle size={16} /> Hotel recommendations unavailable
         </p>
         <p style={{ fontSize: '0.78rem', opacity: 0.8 }}>{error}</p>
         <button
@@ -671,8 +709,11 @@ export default function HotelRecommendations({ destination, checkin, checkout, m
             fontWeight: 800,
             color:      'var(--text-primary)',
             marginBottom: '3px',
+            display:    'flex',
+            alignItems: 'center',
+            gap:        '8px',
           }}>
-            🏨 Hotel Recommendations
+            <Building2 size={20} className="text-[#EA580C]" /> Hotel Recommendations
           </h2>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
             {hotels.length} hotels ranked by value · rating · budget fit
@@ -713,7 +754,7 @@ export default function HotelRecommendations({ destination, checkin, checkout, m
         alignItems:   'center',
         gap:          '8px',
       }}>
-        <span style={{ fontSize: '0.9rem' }}>🔒</span>
+        <Lock size={13} className="text-emerald-600 shrink-0" />
         <span>
           All prices, ratings &amp; images are sourced exclusively from the Hotelbeds API.
           {meta?.source?.includes('mock') && ' Some data is estimated — live API keys not configured.'}

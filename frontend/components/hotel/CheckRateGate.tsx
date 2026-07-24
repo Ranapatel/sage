@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useTripStore, BookingFlowStep } from '@/store/tripStore'
 import { tripAPI } from '@/lib/api'
 import { formatPrice } from '@/lib/currency'
+import { AlertTriangle, Bell, CheckCircle2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 
@@ -103,7 +104,11 @@ export default function CheckRateGate() {
             gap: '12px',
             alignItems: 'flex-start'
           }}>
-            <span style={{ fontSize: '1.4rem' }}>{isLargeIncrease ? '⚠️' : '🔔'}</span>
+            {isLargeIncrease ? (
+              <AlertTriangle className="text-red-500 shrink-0" size={22} />
+            ) : (
+              <Bell className="text-amber-500 shrink-0" size={22} />
+            )}
             <div>
               <h4 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.88rem', marginBottom: '4px' }}>
                 Room Rate Updated
@@ -124,7 +129,7 @@ export default function CheckRateGate() {
             gap: '12px',
             alignItems: 'flex-start'
           }}>
-            <span style={{ fontSize: '1.4rem', color: '#10b981' }}>✓</span>
+            <CheckCircle2 className="text-emerald-500 shrink-0" size={22} />
             <div>
               <h4 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.88rem', marginBottom: '4px' }}>
                 Rate Confirmed

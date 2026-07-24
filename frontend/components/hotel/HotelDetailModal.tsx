@@ -1,4 +1,3 @@
-'use client'
 import React, { useState, useCallback, useEffect } from 'react'
 import { useTripStore, HotelOption } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
@@ -8,17 +7,18 @@ import { useRequireAuth } from '@/hooks/useRequireAuth'
 import HotelImage from './HotelImage'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import { Wifi, Coffee, Waves, Car, Sparkles, Dumbbell, Utensils, Wind, Calendar, Check, X, Building2 } from 'lucide-react'
 
 // ── Amenity grid icons ───────────────────────────────────────────────────────
 const AMENITY_GRID = [
-  { key: 'wifi', icon: '📶', label: 'Free WiFi' },
-  { key: 'breakfast', icon: '🍳', label: 'Breakfast Included' },
-  { key: 'pool', icon: '🏊', label: 'Swimming Pool' },
-  { key: 'parking', icon: '🅿️', label: 'Free Parking' },
-  { key: 'spa', icon: '💆', label: 'Spa & Wellness' },
-  { key: 'gym', icon: '🏋️', label: 'Fitness Center' },
-  { key: 'restaurant', icon: '🍽️', label: 'Restaurant' },
-  { key: 'ac', icon: '❄️', label: 'Air Conditioning' },
+  { key: 'wifi', icon: Wifi, label: 'Free WiFi' },
+  { key: 'breakfast', icon: Coffee, label: 'Breakfast Included' },
+  { key: 'pool', icon: Waves, label: 'Swimming Pool' },
+  { key: 'parking', icon: Car, label: 'Free Parking' },
+  { key: 'spa', icon: Sparkles, label: 'Spa & Wellness' },
+  { key: 'gym', icon: Dumbbell, label: 'Fitness Center' },
+  { key: 'restaurant', icon: Utensils, label: 'Restaurant' },
+  { key: 'ac', icon: Wind, label: 'Air Conditioning' },
 ]
 
 // ── Clean room name ──────────────────────────────────────────────────────────
@@ -285,19 +285,24 @@ export default function HotelDetailModal() {
               display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
               gap: '10px'
             }}>
-              {facilitiesToDisplay.slice(0, 16).map((a, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
-                  padding: '8px 12px', borderRadius: '10px',
-                  border: '1px solid var(--border)', fontSize: '0.8rem',
-                  color: 'var(--text-secondary)'
-                }}>
-                  <span style={{ fontSize: '1rem', color: 'var(--primary)' }}>{a.icon}</span>
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {a.label}
-                  </span>
-                </div>
-              ))}
+              {facilitiesToDisplay.slice(0, 16).map((a: any, idx: number) => {
+                const IconComp = typeof a.icon === 'function' ? a.icon : Check
+                return (
+                  <div key={idx} style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '8px 12px', borderRadius: '10px',
+                    border: '1px solid var(--border)', fontSize: '0.8rem',
+                    color: 'var(--text-secondary)'
+                  }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', color: 'var(--primary)' }}>
+                      <IconComp size={16} />
+                    </span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {a.label}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -320,7 +325,9 @@ export default function HotelDetailModal() {
                 borderRadius: '16px',
                 margin: '10px 0 20px'
               }}>
-                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '12px' }}>🛏️</span>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                  <Building2 size={40} className="text-slate-400" />
+                </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1rem', color: '#ef4444', marginBottom: '6px' }}>
                   No rooms available for selected dates
                 </h4>

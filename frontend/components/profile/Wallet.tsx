@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
-import { Landmark, ArrowUpRight, ArrowDownLeft, Sparkles, Download, FileText, Gift, Lock, CheckCircle2, ShieldCheck, Zap } from 'lucide-react'
+import { Landmark, ArrowUpRight, ArrowDownLeft, Sparkles, Download, FileText, Gift, Lock, CheckCircle2, ShieldCheck, Zap, Coins } from 'lucide-react'
 import Link from 'next/link'
 
 interface Transaction {
@@ -165,7 +165,10 @@ export default function Wallet() {
             </div>
 
             <div className="text-4xl font-display font-extrabold text-[#1A1A1A] tracking-tight flex items-center gap-2 pt-1">
-              <span>🪙 {balance.toLocaleString()}</span>
+              <span className="flex items-center gap-1.5">
+                <Coins size={32} className="text-amber-500" />
+                {balance.toLocaleString()}
+              </span>
               <span className="text-sm font-bold text-slate-500">Credits</span>
             </div>
 
@@ -238,7 +241,7 @@ export default function Wallet() {
                       {perk.badge}
                     </span>
                     <span className="text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1">
-                      🪙 {perk.cost} Pts
+                      <Coins size={13} className="text-amber-500" /> {perk.cost} Pts
                     </span>
                   </div>
 
