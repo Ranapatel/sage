@@ -282,14 +282,19 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
     resolvedRef.current = true
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     // ── Fast path: backend pre-fetched image ─────────────────────────────────
-    if (place.image && typeof place.image === 'string' && place.image.startsWith('http')) {
+    const imgUrl = (typeof place.image === 'string' && place.image.startsWith('http')) ? place.image : (place.photoUrl || (typeof place.image === 'string' ? place.image : null))
+    if (imgUrl) {
       setImgLoaded(false)
       setImgError(false)
       setImageResult({
-        imageUrl: place.image,
+        imageUrl: imgUrl,
         source: 'curated',
         confidence: 'exact',
+<<<<<<< HEAD
         attribution: null,
 =======
     if (place.image || place.photoUrl) {
@@ -299,6 +304,9 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
         confidence: 'exact',
         attribution: place.isAiIllustration ? 'AI Illustration' : null,
 >>>>>>> e444a81 (Save local changes)
+=======
+        attribution: place.isAiIllustration ? 'AI Illustration' : null,
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
         attributionUrl: null,
         license: null,
         altText: place.name,
@@ -308,9 +316,13 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
 =======
 >>>>>>> e444a81 (Save local changes)
+=======
+    // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     const hasCoords =
       Array.isArray(place.coordinates) &&
       place.coordinates.length === 2 &&
@@ -336,10 +348,14 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
       })
     })
 <<<<<<< HEAD
+<<<<<<< HEAD
   }, [place.name, place.image, place.category, destination, place.coordinates])
 =======
   }, [place.name, place.category, destination, place.coordinates, place.image, place.photoUrl, place.isAiIllustration])
 >>>>>>> e444a81 (Save local changes)
+=======
+  }, [place.name, place.image, place.photoUrl, place.isAiIllustration, place.category, destination, place.coordinates])
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   const hasCoords = Array.isArray(place.coordinates)
     && place.coordinates.length === 2
@@ -946,7 +962,8 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
   const isMobile = useIsMobile()
   const daySelectorRef = useRef<HTMLDivElement>(null)
   
-  const { setItinerary } = useTripStore()
+  const { setItinerary, currentTripId: storeTripId } = useTripStore()
+  const effectiveTripId = storeTripId || 'active_trip_session'
   const [isOptimizing, setIsOptimizing] = useState(false)
 
   const handleOptimizeRoute = useCallback(async (dayIndex: number) => {
@@ -1346,7 +1363,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
           {/* ── Travel Memories (Photo Upload) ───────────────────────────────── */}
           <TravelMemories
-            tripId={useTripStore.getState().currentTripId || ''}
+            tripId={effectiveTripId}
             dayNumber={currentDay.day}
           />
 

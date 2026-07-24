@@ -38,7 +38,7 @@ const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&q=80&auto=format&fit=crop'
 
 function getCarImage(carType: string, itemImage?: string): string {
-  if (itemImage) return itemImage
+  if (itemImage && !itemImage.includes('photo-1549317661-bd32c8ce0db2')) return itemImage
   if (!carType) return FALLBACK_IMAGE
   const key = carType.toLowerCase()
   for (const [type, url] of Object.entries(CAR_TYPE_IMAGES)) {

@@ -80,17 +80,19 @@ app.use(compression())
 app.use(cors({ origin: allowedOrigin, credentials: true }))
 app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '10kb' }))
 app.use(express.json({
-  limit: '10kb',
+  limit: '50mb',
   verify: (req, res, buf) => {
     req.rawBody = buf.toString();
   }
 }))
+app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(morgan('dev'))
 
 // Rate limiting
+const isDev = process.env.NODE_ENV !== 'production'
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDev ? 5000 : 1000, // 5000 requests per 15 min in dev, 1000 in prod
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,

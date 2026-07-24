@@ -124,10 +124,15 @@ model TravelPhoto {
   userId         String
   tripId         String
   itineraryDayId String?
+  secureUrl      String?
+  publicId       String?
   originalUrl    String
   thumbnailUrl   String?
   imageUrl       String?        // Legacy field — kept for backward compat with trip.service.ts
   caption        String?
+  width          Int?
+  height         Int?
+  format         String?
   fileSize       Int?
   fileType       String?
   locationName   String?
@@ -324,4 +329,14 @@ model UserSearchHistory {
   passengers     Int      @default(1)
   rankPreference String   @default("balanced")
   createdAt      DateTime @default(now())
+}
+
+model PriceWatch {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  route     String
+  targetPrice Float?
+  currentPrice Float?
+  createdAt DateTime @default(now())
 }

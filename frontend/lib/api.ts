@@ -23,6 +23,7 @@ export interface SearchData {
   trains?:   any[]
   trainSearchUrl?: string
   trainStationInfo?: any
+  flightError?: string
 }
 
 export interface ItineraryData {
@@ -153,7 +154,7 @@ export interface VoucherData {
 // NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:4000 in dev).
 // We also hard-code the local fallback so hot-reload works without a restart.
 const _API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 })

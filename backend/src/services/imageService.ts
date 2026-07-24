@@ -15,6 +15,11 @@ const FALLBACK_HOTEL_IMAGES = [
   'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80',
   'https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80',
   'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
+  'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
+  'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
+  'https://images.unsplash.com/photo-1568495248636-6432b97bd949?w=800&q=80',
+  'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80',
+  'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80',
 ]
 
 const FALLBACK_FLIGHT_IMAGES = [
@@ -185,8 +190,8 @@ export class ImageService {
     
     // Cache photos using the Place ID, not the category or destination
     const cacheKey = placeId 
-      ? generateCacheKey('img_place_v2', { placeId })
-      : generateCacheKey('img_resolve_v2', { placeName, city, category })
+      ? generateCacheKey('img_place_v3', { placeId })
+      : generateCacheKey('img_resolve_v3', { placeName, city, category })
     
     console.log(`[ImageService] Resolving images for name="${placeName}" | city="${city}" | placeId="${placeId || 'none'}" | category="${category || 'none'}"`)
 
@@ -560,43 +565,38 @@ export async function getDestinationImage(destination: string, type: 'hotel' | '
   return fallbacks[index % fallbacks.length]
 }
 
-function getHotelbedsFallbackImage(identifier: string) {
-  let hash = 0
-  const str = String(identifier || 'default')
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const fallbackIndex = Math.abs(hash) % 4 + 1
-  const relPath = `00/004200/004200a_hb_ro_00${fallbackIndex}.jpg`
+function getHotelbedsFallbackImage(identifier: string, idx = 0) {
+  const distinctImg = FALLBACK_HOTEL_IMAGES[idx % FALLBACK_HOTEL_IMAGES.length]
   return {
-    image: `https://photos.hotelbeds.com/giata/bigger/${relPath}`,
-    image_path: relPath,
-    gallery_paths: [relPath],
-    images: [`https://photos.hotelbeds.com/giata/bigger/${relPath}`]
+    image: distinctImg,
+    image_path: distinctImg,
+    gallery_paths: [distinctImg],
+    images: [distinctImg]
   }
 }
 
 export async function enrichHotelsWithImages(hotels: any[], destination: string): Promise<any[]> {
-  // Try resolving with ImageService if hotels lack CDN images, otherwise use fallback Giata images
-  const promises = hotels.map(async (hotel) => {
-    let img = hotel.image
-    if (img) {
-      const isAbsolute = img.startsWith('http://') || img.startsWith('https://')
-      const isRealProvider = img.includes('hotelbeds') || img.includes('bookingassets') || img.includes('agoda')
-      if (isAbsolute && !isRealProvider) {
-        img = null
-      }
-    }
+  const claimedUrls = new Set<string>()
 
-    if (!img) {
+  const promises = hotels.map(async (hotel, idx) => {
+    let img = hotel.image
+    
+    // Detect generic, mock, or duplicate room photos
+    const isMockOrDuplicate = !img ||
+      img.includes('004200a_hb_ro') ||
+      img.includes('004200') ||
+      claimedUrls.has(img)
+
+    if (isMockOrDuplicate) {
       try {
-        // Query our new backend ImageService using the hotel name and destination
+        // Query Google Places / ImageService using exact hotel name & city
         const resolved = await ImageService.resolvePlaceImages({
           placeName: hotel.name,
           city: destination,
           category: 'hotels'
         })
-        if (resolved && resolved.imageUrl) {
+        if (resolved && resolved.imageUrl && !claimedUrls.has(resolved.imageUrl)) {
+          claimedUrls.add(resolved.imageUrl)
           return {
             ...hotel,
             image: resolved.imageUrl,
@@ -605,17 +605,30 @@ export async function enrichHotelsWithImages(hotels: any[], destination: string)
             images: resolved.gallery
           }
         }
-      } catch {}
+      } catch (err: any) {
+        console.warn(`[enrichHotelsWithImages] Google Places resolution error for "${hotel.name}":`, err.message)
+      }
 
-      const fallbacks = getHotelbedsFallbackImage(hotel.id || hotel.name)
+      // If Google Places / Unsplash has no unique image, assign a distinct fallback from our rich pool
+      const distinctFallback = FALLBACK_HOTEL_IMAGES[idx % FALLBACK_HOTEL_IMAGES.length]
+      claimedUrls.add(distinctFallback)
+      const gallery = [
+        distinctFallback,
+        FALLBACK_HOTEL_IMAGES[(idx + 1) % FALLBACK_HOTEL_IMAGES.length],
+        FALLBACK_HOTEL_IMAGES[(idx + 2) % FALLBACK_HOTEL_IMAGES.length]
+      ]
+
       return {
         ...hotel,
-        image: fallbacks.image,
-        image_path: hotel.image_path || fallbacks.image_path,
-        gallery_paths: (hotel.gallery_paths && hotel.gallery_paths.length > 0) ? hotel.gallery_paths : fallbacks.gallery_paths,
-        images: (hotel.images && hotel.images.length > 0) ? hotel.images : fallbacks.images
+        image: distinctFallback,
+        image_path: distinctFallback,
+        gallery_paths: gallery,
+        images: gallery
       }
+    } else {
+      claimedUrls.add(img)
     }
+
     return hotel
   })
 

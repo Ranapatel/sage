@@ -1,10 +1,10 @@
 const axios = require('axios')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'llama-3.3-70b-versatile'
+const MODEL = 'openai/gpt-oss-120b'
 
 /**
- * Generate AI-powered itinerary using Groq LLaMA3
+ * Generate AI-powered itinerary using Groq GPT OSS 120B
  */
 async function generateItinerary({ destination, from, days, budget, currency = 'INR', style, preferences, members, startDate, isMultiCity = false, stops = [] }) {
   const apiKey = process.env.GROQ_API_KEY
@@ -163,6 +163,7 @@ Return JSON in this exact schema:
   try {
     const response = await axios.post(GROQ_API_URL, {
       model: MODEL,
+      reasoning_effort: 'medium',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -218,6 +219,7 @@ async function getRecommendations({ destination, category, budget, currency = 'I
   try {
     const response = await axios.post(GROQ_API_URL, {
       model: MODEL,
+      reasoning_effort: 'medium',
       messages: [{
         role: 'user',
         content: `List top 5 ${category} in ${destination} for a ${style} traveler. Total budget is strictly ${budgetDisplay} — every recommendation MUST stay within this budget.
@@ -308,6 +310,7 @@ IMPORTANT: All prices must be in Indian Rupees (₹). Do NOT use the $ symbol or
   try {
     const response = await axios.post(GROQ_API_URL, {
       model: MODEL,
+      reasoning_effort: 'medium',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -436,6 +439,7 @@ Return ONLY a valid JSON object with the format:
 
   const response = await axios.post(GROQ_API_URL, {
     model: MODEL,
+    reasoning_effort: 'medium',
     messages: [
       {
         role: 'system',

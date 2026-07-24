@@ -12,6 +12,7 @@ import { trackEvent } from '@/lib/analytics'
 import TransportPlanner from '@/components/transport-intelligence/TransportPlanner'
 import TrainsPanel from '@/components/transport/TrainsPanel'
 import BusesPanel from '@/components/transport/BusesPanel'
+import AiFlightSearch from '@/components/flight/AiFlightSearch'
 import LiveBookingToast from '@/components/ui/LiveBookingToast'
 import toast from 'react-hot-toast'
 import { 
@@ -60,6 +61,9 @@ interface Props {
 type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-routes'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 // ─── Airline badge data ───────────────────────────────────────────────────────
 
 const AIRLINE_LOGOS: Record<string, string> = {
@@ -155,8 +159,11 @@ function getAirlineInitials(name: string): string {
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
   return clean.slice(0, 2).toUpperCase()
 }
+<<<<<<< HEAD
 =======
 >>>>>>> e444a81 (Save local changes)
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
 // ─── Sage Score calculation ───────────────────────────────────────────────────
 
@@ -364,8 +371,9 @@ function MatchPill({
 
 // ─── Budget Fit Bar ───────────────────────────────────────────────────────────
 
-function BudgetFitBar({ price, budget, label }: { price: number; budget: number; label?: string }) {
-  const pct = budget > 0 ? Math.min(100, Math.round((price / budget) * 100)) : 0
+function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price: number; budget: number; label?: string; totalPrice?: number; passengers?: number }) {
+  const totalCost = totalPrice || (price * (passengers || 1))
+  const pct = budget > 0 ? Math.min(100, Math.round((totalCost / budget) * 100)) : 0
   const color = pct <= 35 ? '#16A34A' : pct <= 55 ? '#EA580C' : '#DC2626'
   return (
     <div>
@@ -402,11 +410,15 @@ function BestValueCard({
   const cleanName = item.name?.split('—')[0]?.trim() ?? 'Best Route'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
 <<<<<<< HEAD
+<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
 =======
 
   const bgImg = null
 >>>>>>> e444a81 (Save local changes)
+=======
+  const bgImg = getCardBgImage(item)
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
@@ -504,9 +516,16 @@ function BestValueCard({
               className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 leading-none"
               style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
             >
-              {symbol}{Math.round(item.price).toLocaleString(locale)}
+              {symbol}{Math.round(item.perPassengerPrice || item.price).toLocaleString(locale)}
             </p>
-            <p className="text-[12px] font-semibold text-slate-500 mt-1">per person · estimated</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[12px] font-semibold text-slate-500">per person · estimated</span>
+              {item.totalPrice && item.passengers > 1 && (
+                <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                  {symbol}{Math.round(item.totalPrice).toLocaleString(locale)} total ({item.passengers} travelers)
+                </span>
+              )}
+            </div>
           </div>
           <div className="shrink-0 flex items-center justify-end">
             <SageScoreRing score={score} />
@@ -516,7 +535,7 @@ function BestValueCard({
         {/* Budget fit bar */}
         {budget > 0 && item.price && (
           <div className="mb-6">
-            <BudgetFitBar price={item.price} budget={budget} />
+            <BudgetFitBar price={item.price} budget={budget} totalPrice={item.totalPrice} passengers={item.passengers} />
           </div>
         )}
 
@@ -561,6 +580,7 @@ function ComparisonCard({
   const comfortColor = item.rating >= 4.5 ? 'bg-blue-100 text-blue-800' : item.rating >= 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
 <<<<<<< HEAD
+<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
   const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
   const logoUrl = getAirlineLogo(item.name ?? '')
@@ -568,6 +588,11 @@ function ComparisonCard({
 
   const bgImg = null
 >>>>>>> e444a81 (Save local changes)
+=======
+  const bgImg = getCardBgImage(item)
+  const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
+  const logoUrl = getAirlineLogo(item.name ?? '')
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   return (
     <div
@@ -575,6 +600,9 @@ function ComparisonCard({
       style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
     >
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       <div>
         {/* ── Photo strip if available ── */}
         {bgImg ? (
@@ -590,6 +618,7 @@ function ComparisonCard({
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
               {isTopPick ? (
                 <span className="bg-[#EA580C] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+<<<<<<< HEAD
 =======
       {/* ── Aircraft photo strip ── */}
       {bgImg && (
@@ -639,6 +668,8 @@ function ComparisonCard({
               {isTopPick && (
                 <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
 >>>>>>> e444a81 (Save local changes)
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
                   Top Pick
                 </span>
               ) : (
@@ -714,17 +745,24 @@ function ComparisonCard({
           {/* Price Stack (Zero Clipping) */}
           <div className="mt-1">
             <div className="text-2xl font-black text-slate-900 leading-none">
-              {symbol}{Math.round(item.price).toLocaleString(locale)}
+              {symbol}{Math.round(item.perPassengerPrice || item.price).toLocaleString(locale)}
             </div>
-            <span className="text-xs font-semibold text-slate-400 block mt-1">
-              per person • estimated
-            </span>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+              <span className="text-xs font-semibold text-slate-400">
+                per person • estimated
+              </span>
+              {item.totalPrice && item.passengers > 1 && (
+                <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
+                  ({symbol}{Math.round(item.totalPrice).toLocaleString(locale)} total for {item.passengers} travelers)
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Budget fit bar */}
           {budget > 0 && item.price && (
             <div className="mt-1">
-              <BudgetFitBar price={item.price} budget={budget} />
+              <BudgetFitBar price={item.price} budget={budget} totalPrice={item.totalPrice} passengers={item.passengers} />
             </div>
           )}
         </div>
@@ -1000,8 +1038,25 @@ function TransportTab({
           />
         )}
 
-        {/* ── BEST VALUE CARD ────────────────────────────────────────────── */}
-        {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && (loading ? (
+        {/* ── FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) ───── */}
+        {segment === 'flights' && (
+          <AiFlightSearch
+            flights={flights}
+            loading={loading}
+            tripContext={{
+              from,
+              to: dest,
+              startDate: searchForm?.startDate || tripContext?.startDate,
+              endDate: searchForm?.endDate || tripContext?.endDate,
+              travelers: searchForm?.travelers || tripContext?.travelers || userProfile?.members || 1,
+              cabin: searchForm?.cabin || 'Economy',
+            }}
+            currency={currency}
+          />
+        )}
+
+        {/* ── BEST VALUE CARD (for Recommended & Cabs) ───────────────────── */}
+        {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -1022,8 +1077,8 @@ function TransportTab({
           />
         ))}
 
-        {/* ── COMPARISON GRID ────────────────────────────────────────────── */}
-        {segment !== 'trains' && segment !== 'buses' && !loading && gridItems.length > 0 && (
+        {/* ── COMPARISON GRID (for Recommended & Cabs) ───────────────────── */}
+        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && !loading && gridItems.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-[#1A1A1A]">
@@ -1051,7 +1106,7 @@ function TransportTab({
         )}
 
         {/* Skeleton grid while loading */}
-        {segment !== 'trains' && segment !== 'buses' && loading && (
+        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => <SkeletonCompactCard key={i} />)}
           </div>

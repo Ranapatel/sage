@@ -234,6 +234,9 @@ function ProfilePageContent() {
       <main className="flex-grow pt-24 pb-20 px-4 sm:px-6 max-w-7xl mx-auto w-full">
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
         {/* ── Profile Header Card ────────────────────────────────────────── */}
         {displayUser && (
           <div className="mb-8">
@@ -241,6 +244,7 @@ function ProfilePageContent() {
               user={displayUser}
               stats={stats}
             />
+<<<<<<< HEAD
 =======
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
@@ -496,6 +500,8 @@ function ProfilePageContent() {
               )}
             </motion.div>
 >>>>>>> e444a81 (Save local changes)
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
           </div>
         )}
 

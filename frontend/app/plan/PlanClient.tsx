@@ -507,12 +507,18 @@ export default function PlanClient() {
             adults: p.adults,
             children: p.children,
 <<<<<<< HEAD
+<<<<<<< HEAD
             isMultiCity: p.isMultiCity,
             stops: p.stops,
           }, { signal }),
 =======
           }, { signal: s || signal }),
 >>>>>>> e444a81 (Save local changes)
+=======
+            isMultiCity: p.isMultiCity,
+            stops: p.stops,
+          }, { signal: s || signal }),
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
           { timeout: 25000, maxRetries: 2, label: 'Search' }
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null
@@ -550,11 +556,15 @@ export default function PlanClient() {
               preferences: p.preferences || [],
               members: p.travelers,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
               startDate: p.startDate,
               isMultiCity: p.isMultiCity,
               stops: p.stops,
-            }, { signal })
+            }, { signal: s || signal })
           },
+<<<<<<< HEAD
           { timeout: 20000, maxRetries: 1, label: 'Itinerary', silent: true }
 =======
               startDate: p.startDate
@@ -562,6 +572,9 @@ export default function PlanClient() {
           },
           { timeout: 45000, maxRetries: 2, label: 'Itinerary' }
 >>>>>>> e444a81 (Save local changes)
+=======
+          { timeout: 45000, maxRetries: 2, label: 'Itinerary' }
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
         ).catch(err => {
           if (err.message?.includes('canceled') || err.name === 'AbortError') return null

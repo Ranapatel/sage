@@ -16,7 +16,7 @@
 | **Real-time** | Socket.IO |
 | **Database** | MongoDB Atlas |
 | **Cache** | Redis Cloud |
-| **AI** | Groq (LLaMA3-70B) |
+| **AI** | Groq (GPT OSS 120B) |
 | **Travel APIs** | Travelport TripServices (Flights), Hotelbeds (Hotels) |
 | **Images** | Unsplash + Google Places |
 | **Weather** | OpenWeatherMap |
@@ -52,7 +52,7 @@ tripsage/
 │   │   ├── index.js        # Server entry + middleware
 │   │   ├── routes/         # REST API routes
 │   │   └── services/
-│   │       ├── aiService.js      # Groq LLaMA3 integration
+│   │       ├── aiService.js      # Groq GPT OSS 120B integration
 │   │       ├── travelService.js  # Flights + Hotels (RapidAPI)
 │   │       ├── weatherService.js # OpenWeatherMap
 │   │       └── socketService.js  # Real-time engine
@@ -144,7 +144,7 @@ docker-compose up --build
 
 ## 🧠 AI Engine (Groq)
 
-TripSage uses **Groq LLaMA3-70B** for:
+TripSage uses **Groq GPT OSS 120B** (`openai/gpt-oss-120b`) for:
 - Day-by-day itinerary generation
 - Personalized recommendations
 - Travel tips based on style/budget

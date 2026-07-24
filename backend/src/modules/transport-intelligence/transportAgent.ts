@@ -6,7 +6,7 @@ import axios from 'axios';
 import { JourneyPlan, PlanRequest } from './types';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'llama-3.3-70b-versatile';
+const MODEL = 'openai/gpt-oss-120b';
 
 /**
  * Generate a natural-language explanation of the journey options.
@@ -50,6 +50,7 @@ Write a clear explanation for the user.`;
 
     const response = await axios.post(GROQ_API_URL, {
       model: MODEL,
+      reasoning_effort: 'medium',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

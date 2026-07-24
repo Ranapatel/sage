@@ -31,15 +31,29 @@ export default function TripHistory() {
       let apiTrips: TripData[] = []
       try {
         const token = await getToken()
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+        if (!token) {
+          setLoading(false)
+          return
+        }
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
         const response = await axios.get(`${apiUrl}/api/trips`, {
           headers: { Authorization: `Bearer ${token}` }
         })
+<<<<<<< HEAD
         if (response.data?.success && Array.isArray(response.data.data)) {
           apiTrips = response.data.data
         }
       } catch (err: any) {
         console.warn('API trips fetch notice:', err)
+=======
+        if (response.data?.success) {
+          setTrips(response.data.data || [])
+        }
+      } catch (err: any) {
+        console.warn('[TripHistory] Could not load trips:', err.response?.status || err.message)
+      } finally {
+        setLoading(false)
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       }
 
       const localTrips: TripData[] = (tripHistory || []).map((t: any) => ({

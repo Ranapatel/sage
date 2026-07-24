@@ -7,7 +7,7 @@ const axios = require('axios')
 const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'llama-3.3-70b-versatile'
+const MODEL = 'openai/gpt-oss-120b'
 
 /**
  * Generate an AI-powered description for a place.
@@ -64,6 +64,7 @@ Write a concise description (80-150 words).`
   try {
     const response = await axios.post(GROQ_API_URL, {
       model: MODEL,
+      reasoning_effort: 'medium',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }

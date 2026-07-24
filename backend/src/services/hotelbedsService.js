@@ -39,11 +39,16 @@ const getApiKey    = () => process.env.HOTELS_HB_API_KEY || ''
 const getApiSecret = () => process.env.HOTELS_HB_SECRET  || ''
 
 const HOTEL_IMAGES = [
-  'https://photos.hotelbeds.com/giata/00/004200/004200a_hb_ro_006.jpg',
-  'https://photos.hotelbeds.com/giata/00/004200/004200a_hb_ro_001.jpg',
-  'https://photos.hotelbeds.com/giata/00/004200/004200a_hb_ro_002.jpg',
-  'https://photos.hotelbeds.com/giata/00/004200/004200a_hb_ro_003.jpg',
-  'https://photos.hotelbeds.com/giata/00/004200/004200a_hb_ro_004.jpg',
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+  'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
+  'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80',
+  'https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80',
+  'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
+  'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
+  'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
+  'https://images.unsplash.com/photo-1568495248636-6432b97bd949?w=800&q=80',
+  'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80',
+  'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80',
 ]
 
 // Built-in coordinates mapping to avoid external API dependencies where possible
@@ -478,19 +483,13 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
       // Deduplicate
       galleryPaths = [...new Set(galleryPaths)]
 
-      // If we don't have a valid image from Content API or availability, assign a fallback Hotelbeds image
+      // If we don't have a valid image from Content API or availability, assign a distinct image from pool
       if (!hbdImage) {
-        let hash = 0
-        const str = String(h.code || h.name || i)
-        for (let j = 0; j < str.length; j++) {
-          hash = str.charCodeAt(j) + ((hash << 5) - hash)
-        }
-        const fallbackIndex = Math.abs(hash) % 4 + 1 // 1 to 4
-        const relPath = `00/004200/004200a_hb_ro_00${fallbackIndex}.jpg`
-        hbdImage = `https://photos.hotelbeds.com/giata/bigger/${relPath}`
-        imagePath = relPath
-        galleryPaths = [relPath]
-        gallery = [hbdImage]
+        const distinctImg = HOTEL_IMAGES[i % HOTEL_IMAGES.length]
+        hbdImage = distinctImg
+        imagePath = distinctImg
+        galleryPaths = [distinctImg]
+        gallery = [distinctImg]
       }
 
       return {
@@ -528,17 +527,8 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
     liveSearchError = err.message
   }
 
-  // If live keys are configured, return exactly the live results (or error if call failed)
-  // We do NOT mix in or supplement with mock hotels when keys are present.
-  if (isConfigured) {
-    if (liveSearchError && liveHotels.length === 0) {
-      return {
-        success: false,
-        data: [],
-        error: `Hotelbeds API search failed: ${liveSearchError}`,
-        meta: { source: 'hotelbeds-live-error' }
-      }
-    }
+  // If live keys are configured and returned results, return live results
+  if (isConfigured && liveHotels.length >= MIN_RESULTS) {
     return {
       success: true,
       data: liveHotels,

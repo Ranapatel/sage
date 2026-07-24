@@ -16,9 +16,12 @@ import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
+<<<<<<< HEAD
 import LocationAutocomplete from '../ui/LocationAutocomplete'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
 // â”€â”€â”€ Destination background images â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Curated Unsplash photos keyed by lowercase destination city name.
@@ -1459,6 +1462,22 @@ function OverviewTab({
     const loadToast = toast.loading("Generating your travel plan PDF...")
 
     try {
+      let html2canvasModule: any = null
+      let jsPDFModule: any = null
+      try {
+        html2canvasModule = (await import(/* webpackIgnore: true */ 'html2canvas' as any)).default
+        const jspdf = await import(/* webpackIgnore: true */ 'jspdf' as any)
+        jsPDFModule = jspdf.jsPDF || jspdf.default
+      } catch {
+        toast.dismiss(loadToast)
+        window.print()
+        setPdfGenerating(false)
+        return
+      }
+
+      const html2canvas = html2canvasModule
+      const jsPDF = jsPDFModule
+
       // Setup high DPI options for crisp text rendering
       const options = {
         scale: 2,

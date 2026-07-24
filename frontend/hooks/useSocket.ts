@@ -14,11 +14,11 @@ const getSocketUrl = () => {
     const isIpAddress = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname)
     
     if (isIpAddress && hostname !== '127.0.0.1') {
-      return `${protocol}//${hostname}:4000`
+      return `${protocol}//${hostname}:5000`
     }
   }
   
-  return envUrl || 'http://localhost:4000'
+  return envUrl || 'http://localhost:5000'
 }
 
 export function useSocket() {

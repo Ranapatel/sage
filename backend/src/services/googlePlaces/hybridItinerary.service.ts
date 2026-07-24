@@ -22,7 +22,7 @@ import {
 const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const LLM_MODEL = 'llama-3.3-70b-versatile'
+const LLM_MODEL = 'openai/gpt-oss-120b'
 
 export class HybridItineraryService {
   /**
@@ -285,6 +285,7 @@ ${candidateListStr}`
     try {
       const res = await axios.post(GROQ_API_URL, {
         model: LLM_MODEL,
+        reasoning_effort: 'medium',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -413,6 +414,7 @@ ${candidatesListStr}`
     try {
       const res = await axios.post(GROQ_API_URL, {
         model: LLM_MODEL,
+        reasoning_effort: 'medium',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -521,6 +523,7 @@ ${JSON.stringify(placesForSummary, null, 2)}`
           try {
             return await axios.post(GROQ_API_URL, {
               model: LLM_MODEL,
+              reasoning_effort: 'medium',
               messages: [
                 { role: 'system', content: summarySystemPrompt },
                 { role: 'user', content: summaryUserPrompt },

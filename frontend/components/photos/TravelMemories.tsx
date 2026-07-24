@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useAuth } from '@clerk/nextjs'
+import axios from 'axios'
 import { Camera, Upload, X, Trash2, ImageIcon, Loader2, AlertCircle, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePhotoApi, type Photo } from '@/lib/photoApi'
@@ -11,6 +12,8 @@ import { useRequireAuth } from '@/hooks/useRequireAuth'
 
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+const UNSAVED_TRIP_ID = 'active_trip_session'
+const MAX_RETRY_ATTEMPTS = 2
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -34,7 +37,7 @@ export default function TravelMemories({
   itineraryDayId,
   dayNumber,
 }: TravelMemoriesProps) {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, getToken } = useAuth()
   const { requireAuth } = useRequireAuth()
   const photoApi = usePhotoApi()
 
@@ -47,28 +50,48 @@ export default function TravelMemories({
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // ── Unsaved trip detection ──────────────────────────────────────────────────
+
+  const isUnsavedTrip = tripId === UNSAVED_TRIP_ID
+
   // ── Load photos ───────────────────────────────────────────────────────────
 
   const loadPhotos = useCallback(async () => {
-    if (!tripId || !itineraryDayId) {
+    const dayIdentifier = itineraryDayId || (dayNumber !== undefined ? String(dayNumber) : null)
+    const storageKey = `tripsage-day-photos-${tripId}-${dayIdentifier || 'general'}`
+
+    let cached: Photo[] = []
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem(storageKey)
+        if (stored) cached = JSON.parse(stored)
+      } catch {}
+    }
+
+    if (!tripId || !dayIdentifier || isUnsavedTrip) {
+      setPhotos(cached)
       setLoading(false)
       return
     }
+
     try {
       setLoading(true)
-      const data = await photoApi.getPhotos(tripId, itineraryDayId)
-      setPhotos(data)
+      const data = await photoApi.getPhotos(tripId, dayIdentifier)
+      const combined = [...data]
+      cached.forEach((c) => {
+        if (!combined.some((p) => p.id === c.id)) combined.push(c)
+      })
+      setPhotos(combined)
     } catch (err: any) {
-      // Silently fail — don't bother user if photos can't load
-      console.error('[TravelMemories] Load error:', err.message)
+      setPhotos(cached)
     } finally {
       setLoading(false)
     }
-  }, [tripId, itineraryDayId])
+  }, [tripId, itineraryDayId, dayNumber, isUnsavedTrip]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     loadPhotos()
-  }, [loadPhotos])
+  }, [tripId, itineraryDayId, dayNumber, isUnsavedTrip]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── File Validation ───────────────────────────────────────────────────────
 
@@ -82,26 +105,56 @@ export default function TravelMemories({
     return null
   }
 
+  // ── Retry helper for transient failures ────────────────────────────────────
+
+  async function withRetry<T>(fn: () => Promise<T>, retries = MAX_RETRY_ATTEMPTS): Promise<T> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await fn()
+      } catch (err: any) {
+        const isTransient = err.message?.includes('Network error') || err.message?.includes('fetch')
+        if (attempt < retries && isTransient) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)))
+          continue
+        }
+        throw err
+      }
+    }
+    throw new Error('Upload failed after retries')
+  }
+
   // ── Upload Flow ───────────────────────────────────────────────────────────
 
   const handleFiles = useCallback(
     (files: FileList | File[]) => {
+      console.log('[TravelMemories] 📸 File(s) selected via file picker or dropzone:', files)
       requireAuth(async () => {
+        console.log('[TravelMemories] 🚀 Entering handleFiles upload execution...')
         const fileArray = Array.from(files)
-        if (fileArray.length === 0) return
-
-        // Validate all files first
-        const errors = fileArray.map(validateFile).filter(Boolean)
-        if (errors.length > 0) {
-          errors.forEach((e) => toast.error(e))
+        if (fileArray.length === 0) {
+          console.warn('[TravelMemories] ⚠️ No files to upload')
+          return
         }
 
-        const validFiles = fileArray.filter((f) => !validateFile(f))
+        // Single-pass validation — validate once, partition into valid/invalid
+        const validFiles: File[] = []
+        for (const file of fileArray) {
+          console.log('[TravelMemories] 🔍 Validating file:', file.name, 'size:', file.size, 'type:', file.type)
+          const error = validateFile(file)
+          if (error) {
+            console.error('[TravelMemories] ❌ Validation failed for file:', file.name, error)
+            toast.error(error)
+          } else {
+            console.log('[TravelMemories] ✅ Validation passed for file:', file.name)
+            validFiles.push(file)
+          }
+        }
         if (validFiles.length === 0) return
 
         // Upload each file
         for (const file of validFiles) {
-          const uploadId = `${file.name}-${Date.now()}`
+          console.log('[TravelMemories] 📤 Starting upload process for:', file.name)
+          const uploadToast = toast.loading(`Uploading ${file.name}...`)
 
           setUploading((prev) => [
             ...prev,
@@ -109,73 +162,144 @@ export default function TravelMemories({
           ])
 
           try {
-            // Step 1: Get presigned upload URL
-            const { uploadUrl, fileKey } = await photoApi.generateUploadUrl({
-              tripId,
-              itineraryDayId,
-              dayNumber,
-              fileName: file.name,
-              fileType: file.type,
-              fileSize: file.size,
-            })
+            let savedPhoto: Photo
 
-            // Step 2: Upload to R2 directly
-            await photoApi.uploadToR2(uploadUrl, file, (percent) => {
-              setUploading((prev) =>
-                prev.map((u) =>
-                  u.fileName === file.name && u.status === 'uploading'
-                    ? { ...u, progress: percent }
-                    : u
+            if (isUnsavedTrip) {
+              console.log('[TravelMemories] ℹ️ Unsaved trip session — converting file to Data URI...')
+              // Convert file to Data URI for immediate attach on unsaved trip session
+              const dataUrl = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onload = () => resolve(reader.result as string)
+                reader.onerror = reject
+                reader.readAsDataURL(file)
+              })
+
+              savedPhoto = {
+                id: `photo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+                userId: 'session_user',
+                tripId: 'active_trip_session',
+                itineraryDayId: itineraryDayId || null,
+                publicId: `session_${Date.now()}`,
+                originalUrl: dataUrl,
+                secureUrl: dataUrl,
+                thumbnailUrl: dataUrl,
+                isFeatured: false,
+                rewardStatus: 'NONE',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              }
+            } else {
+              console.log('[TravelMemories] 📦 FormData created, sending XHR request via photoApi.uploadPhoto for file:', file.name)
+              // Upload directly to Cloudinary backend (reusing working photoApi.uploadPhoto)
+              savedPhoto = await withRetry(() =>
+                photoApi.uploadPhoto({
+                  tripId,
+                  itineraryDayId,
+                  dayNumber,
+                  file,
+                  onProgress: (percent) => {
+                    console.log(`[TravelMemories] ⏳ Upload progress for ${file.name}: ${percent}%`)
+                    setUploading((prev) =>
+                      prev.map((u) =>
+                        u.fileName === file.name && u.status === 'uploading'
+                          ? { ...u, progress: percent }
+                          : u
+                      )
+                    )
+                  },
+                })
+              )
+            }
+
+            console.log('[TravelMemories] ✅ Upload response received for file:', file.name, savedPhoto)
+            const photoUrl = savedPhoto.secureUrl || savedPhoto.originalUrl
+
+            // Reuse working Memory upload backend API so photo appears in User Profile -> Memories
+            try {
+              const token = await getToken()
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+              console.log('[TravelMemories] 🔄 Syncing photo to Profile Memories API...')
+              await axios.post(
+                `${apiUrl}/api/profile/memories`,
+                {
+                  title: file.name || 'Itinerary Memory',
+                  description: `Uploaded for Day ${dayNumber || 1}`,
+                  location: null,
+                  photos: [photoUrl],
+                  tripId: !isUnsavedTrip ? tripId : null,
+                },
+                {
+                  headers: token ? { Authorization: `Bearer ${token}` } : {},
+                }
+              )
+              console.log('[TravelMemories] ✅ Profile Memories API sync complete')
+            } catch (memApiErr: any) {
+              console.warn('[TravelMemories] Memory API save notice:', memApiErr.message)
+            }
+
+            // Sync with local memories cache for instant visibility
+            if (typeof window !== 'undefined') {
+              try {
+                const storedMemories = localStorage.getItem('tripsage-memories-cache')
+                const existingMems = storedMemories ? JSON.parse(storedMemories) : []
+                const newMem = {
+                  id: `mem_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+                  title: file.name || 'Itinerary Memory',
+                  description: `Uploaded for Day ${dayNumber || 1}`,
+                  location: null,
+                  photos: [photoUrl],
+                  createdAt: new Date().toISOString(),
+                }
+                localStorage.setItem(
+                  'tripsage-memories-cache',
+                  JSON.stringify([newMem, ...existingMems.filter((m: any) => m.id !== newMem.id)])
                 )
-              )
+              } catch {}
+            }
+
+            // Add to photos list & sync with sessionStorage
+            const dayIdentifier = itineraryDayId || (dayNumber !== undefined ? String(dayNumber) : null)
+            const storageKey = `tripsage-day-photos-${tripId}-${dayIdentifier || 'general'}`
+
+            setPhotos((prev) => {
+              const updated = [savedPhoto, ...prev.filter((p) => p.id !== savedPhoto.id)]
+              if (typeof window !== 'undefined') {
+                try {
+                  sessionStorage.setItem(storageKey, JSON.stringify(updated))
+                } catch {}
+              }
+              return updated
             })
 
-            // Step 3: Update status to processing
+            // Mark as done
             setUploading((prev) =>
               prev.map((u) =>
-                u.fileName === file.name ? { ...u, status: 'processing', progress: 100 } : u
+                u.fileName === file.name ? { ...u, status: 'done', progress: 100 } : u
               )
             )
 
-            // Step 4: Save photo record (backend processes image)
-            const savedPhoto = await photoApi.savePhoto({
-              tripId,
-              itineraryDayId,
-              dayNumber,
-              fileKey,
-              metadata: { fileName: file.name, fileType: file.type },
-            })
-
-            // Step 5: Add to photos list
-            setPhotos((prev) => [savedPhoto, ...prev])
-
-            // Step 6: Mark as done
-            setUploading((prev) =>
-              prev.map((u) =>
-                u.fileName === file.name ? { ...u, status: 'done' } : u
-              )
-            )
-
-            toast.success(`${file.name} uploaded!`)
+            toast.success('Photo uploaded successfully.', { id: uploadToast })
           } catch (err: any) {
+            console.error('[TravelMemories] ❌ Backend upload error:', err)
+
             setUploading((prev) =>
               prev.map((u) =>
                 u.fileName === file.name
-                  ? { ...u, status: 'error', error: err.message }
+                  ? { ...u, status: 'error', error: err.message || 'Upload failed' }
                   : u
               )
             )
-            toast.error(`Failed to upload ${file.name}: ${err.message}`)
+            toast.error(err.message || 'Upload failed. Please try again.', { id: uploadToast })
           }
         }
 
-        // Clear completed uploads after 2 seconds
+        // Clear completed uploads after 4 seconds
         setTimeout(() => {
-          setUploading((prev) => prev.filter((u) => u.status !== 'done' && u.status !== 'error'))
-        }, 2000)
-      })
+          setUploading((prev) => prev.filter((u) => u.status !== 'done'))
+        }, 4000)
+      })()
     },
-    [tripId, itineraryDayId, dayNumber, photoApi, requireAuth]
+    [tripId, itineraryDayId, dayNumber, isUnsavedTrip, photoApi, requireAuth]
   )
 
   // ── Drag & Drop ───────────────────────────────────────────────────────────
@@ -219,7 +343,7 @@ export default function TravelMemories({
         } finally {
           setDeletingId(null)
         }
-      })
+      })()
     },
     [photoApi, requireAuth]
   )
@@ -356,7 +480,7 @@ export default function TravelMemories({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={photo.thumbnailUrl || photo.originalUrl}
+                src={photo.thumbnailUrl || photo.secureUrl || photo.originalUrl}
                 alt={photo.locationName || 'Travel photo'}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 loading="lazy"
@@ -394,7 +518,11 @@ export default function TravelMemories({
       {!loading && photos.length === 0 && uploading.length === 0 && (
         <div className="mt-2 flex items-center gap-2 text-[#A1A1AA]">
           <ImageIcon size={14} />
-          <p className="text-xs">No photos yet. Upload to capture your travel memories!</p>
+          <p className="text-xs">
+            {isUnsavedTrip
+              ? 'Save your trip to start uploading travel memories!'
+              : 'No photos yet. Upload to capture your travel memories!'}
+          </p>
         </div>
       )}
 

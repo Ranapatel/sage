@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { body, validationResult } = require('express-validator')
-const { searchHotels, searchBuses, searchCars, searchFlights } = require('../services/travelService')
+const { searchHotels, searchBuses, searchCars, searchFlights, generateMockHotels } = require('../services/travelService')
 const { getWeather } = require('../services/weatherService')
 let enrichHotelsWithImages = async (hotels) => hotels;
 try {
@@ -59,6 +59,9 @@ router.post('/', searchValidation, async (req, res) => {
 
   try {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     if (isMultiCity && stops.length > 0) {
       console.log(`[Search Route] Orchestrating Multi-City trip from ${from} with stops:`, stops);
 
@@ -147,14 +150,17 @@ router.post('/', searchValidation, async (req, res) => {
         () => searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
         { timeout: 10000, maxRetries: 2, label: 'Flights' }
       ).catch(() => ({ data: [], meta: { source: 'error' } })),
+<<<<<<< HEAD
 =======
     // Execute all searches in parallel — fast 4s timeout per provider to prevent cascading client timeouts
     const [hotelResult, busResult, carResult, weatherResult, trainResult, flightResult] = await Promise.all([
 >>>>>>> e444a81 (Save local changes)
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       fetchWithRetry(
         () => searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget, rooms, adults, children }),
-        { timeout: 4000, maxRetries: 1, label: 'Hotels' }
-      ).catch(() => ({ data: [], meta: { source: 'error' } })),
+        { timeout: 12000, maxRetries: 2, label: 'Hotels' }
+      ).catch(() => ({ data: generateMockHotels(to, startDate, endDate, travelers, budget), meta: { source: 'fallback' } })),
       fetchWithRetry(
         () => searchBuses({ from, to, date: startDate, budget }),
         { timeout: 4000, maxRetries: 1, label: 'Buses' }
@@ -210,12 +216,15 @@ router.post('/', searchValidation, async (req, res) => {
     const hotelSource = hotelResult.meta?.source || 'error'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Enrich with images
     const [enrichedHotels, enrichedFlights] = await Promise.all([
       enrichHotelsWithImages(hotels, to).catch(() => hotels),
       enrichFlightsWithImages(transport, to).catch(() => transport),
     ])
 =======
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     // Combine all multi-modal ground and flight transport into unified transport list
     const transport = [...flights, ...trains, ...buses, ...cars]
 
@@ -224,7 +233,10 @@ router.post('/', searchValidation, async (req, res) => {
       enrichHotelsWithImages(hotels, to),
       new Promise((resolve) => setTimeout(() => resolve(hotels), 3000)),
     ]).catch(() => hotels)
+<<<<<<< HEAD
 >>>>>>> e444a81 (Save local changes)
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
     res.json({
       success: true,
