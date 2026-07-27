@@ -681,7 +681,6 @@ function ComparisonCard({
             </div>
           )}
         </div>
-      </div>
 
       {/* â”€â”€ Fixed Bottom CTA Row â”€â”€ */}
       <div className="p-4 pt-0 mt-auto flex items-center gap-2">
