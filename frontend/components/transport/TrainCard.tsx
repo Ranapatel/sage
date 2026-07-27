@@ -104,7 +104,7 @@ export function TrainCard({ train }: TrainCardProps) {
         <div className="text-right">
           <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Runs On</span>
           <div className="text-xs font-extrabold text-[var(--text-secondary)] mt-0.5">
-            {train.runsOn.join(' · ')}
+            {Array.isArray(train.runsOn) ? train.runsOn.join(' · ') : (train.runsOn || 'Daily')}
           </div>
         </div>
       </div>
@@ -113,16 +113,16 @@ export function TrainCard({ train }: TrainCardProps) {
       <div className="flex items-center justify-between bg-slate-50/5 p-4 rounded-xl relative my-1">
         <div className="text-left w-[30%]">
           <div className="font-black text-lg text-[var(--text-primary)] tracking-tight">
-            {train.departure}
+            {train.departure || '08:00'}
           </div>
           <div className="font-extrabold text-xs text-[var(--text-secondary)] uppercase mt-0.5">
-            {train.originCode}
+            {train.originCode || 'DEP'}
           </div>
         </div>
 
         <div className="flex-1 flex flex-col items-center px-2">
           <span className="text-[10px] font-bold text-[var(--text-muted)] mb-1">
-            {train.duration}
+            {train.duration || '6h 30m'}
           </span>
           <div className="w-full flex items-center justify-center relative">
             <div className="h-px bg-[var(--border)] w-full"></div>
@@ -132,10 +132,10 @@ export function TrainCard({ train }: TrainCardProps) {
 
         <div className="text-right w-[30%]">
           <div className="font-black text-lg text-[var(--text-primary)] tracking-tight">
-            {train.arrival}
+            {train.arrival || '14:30'}
           </div>
           <div className="font-extrabold text-xs text-[var(--text-secondary)] uppercase mt-0.5">
-            {train.destinationCode}
+            {train.destinationCode || 'ARR'}
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@ export function TrainCard({ train }: TrainCardProps) {
       {/* Classes and Booking CTA */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[var(--border)]">
         <div className="flex flex-wrap gap-2 items-center">
-          {train.availableClasses.map((cls) => (
+          {(Array.isArray(train.availableClasses) ? train.availableClasses : []).map((cls) => (
             <div
               key={cls.class}
               className={`flex flex-col items-start gap-1 p-2 rounded-lg border text-left min-w-[75px] transition-all duration-200 ${

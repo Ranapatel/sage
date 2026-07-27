@@ -301,7 +301,11 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
       return
     }
 
+<<<<<<< HEAD
     // â”€â”€ Slow path: frontend resolver (legacy fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    // ── Slow path: frontend resolver (legacy fallback) ────────────────────────
+>>>>>>> 7c9f4a836657168ed8f2a47bc772f7ce4c5fb874
     const hasCoords =
       Array.isArray(place.coordinates) &&
       place.coordinates.length === 2 &&

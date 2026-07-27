@@ -90,17 +90,8 @@ export default function Memories() {
   }
 
   const fetchMemories = async () => {
-    let apiMemories: MemoryData[] = []
     try {
       const token = await getToken()
-<<<<<<< HEAD
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const response = await axios.get(`${apiUrl}/api/profile/memories`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (response.data?.success && Array.isArray(response.data.data)) {
-        apiMemories = response.data.data
-=======
       let fetched: MemoryData[] = []
       if (token) {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
@@ -110,7 +101,6 @@ export default function Memories() {
         if (response.data?.success && Array.isArray(response.data.data)) {
           fetched = response.data.data
         }
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       }
 
       // Merge with localStorage cache for offline/dev resilience
@@ -131,9 +121,6 @@ export default function Memories() {
 
       setMemories(fetched)
     } catch (err: any) {
-<<<<<<< HEAD
-      console.warn('API memories fetch notice:', err)
-=======
       console.warn('[Memories] Could not load memories from API, checking local cache:', err.message)
       if (typeof window !== 'undefined') {
         try {
@@ -143,27 +130,7 @@ export default function Memories() {
       }
     } finally {
       setLoading(false)
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     }
-
-    let localMemories: MemoryData[] = []
-    try {
-      const raw = localStorage.getItem('memories_local')
-      if (raw) localMemories = JSON.parse(raw)
-    } catch (e) {
-      console.warn('Local memories parse warning:', e)
-    }
-
-    const mergedMap = new Map<string, MemoryData>()
-    apiMemories.forEach(m => mergedMap.set(m.id, m))
-    localMemories.forEach(m => {
-      if (!mergedMap.has(m.id)) {
-        mergedMap.set(m.id, m)
-      }
-    })
-
-    setMemories(Array.from(mergedMap.values()))
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -174,29 +141,6 @@ export default function Memories() {
     e.stopPropagation()
     const deleteToast = toast.loading('Deleting memory...')
     try {
-<<<<<<< HEAD
-      try {
-        const raw = localStorage.getItem('memories_local')
-        if (raw) {
-          const list = JSON.parse(raw).filter((m: any) => m.id !== id)
-          localStorage.setItem('memories_local', JSON.stringify(list))
-        }
-      } catch (err) {
-        console.warn('Local memory delete notice:', err)
-      }
-
-      const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      await axios.delete(`${apiUrl}/api/profile/memories/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      
-      toast.success('Memory deleted successfully!', { id: deleteToast })
-      fetchMemories()
-    } catch (err: any) {
-      toast.success('Memory deleted successfully!', { id: deleteToast })
-      fetchMemories()
-=======
       // Immediate UI update
       setMemories((prev) => {
         const updated = prev.filter((m) => m.id !== id)
@@ -218,7 +162,6 @@ export default function Memories() {
       toast.success('Memory deleted successfully!', { id: deleteToast })
     } catch (err: any) {
       toast.success('Memory deleted from view!', { id: deleteToast })
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     }
   }
 
@@ -228,29 +171,11 @@ export default function Memories() {
     setSubmitting(true)
     const createToast = toast.loading('Uploading memory...')
 
-    const newMemObj: MemoryData = {
-      id: String(Date.now()),
-      title: title.trim(),
-      description: description.trim() || null,
-      location: location.trim() || null,
-      photos: [selectedPhoto],
-      createdAt: new Date().toISOString()
-    }
-
     try {
-      try {
-        const raw = localStorage.getItem('memories_local')
-        const list = raw ? JSON.parse(raw) : []
-        list.unshift(newMemObj)
-        localStorage.setItem('memories_local', JSON.stringify(list))
-      } catch (err) {
-        console.warn('Local memory create notice:', err)
-      }
-
       const token = await getToken()
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
-      await axios.post(
+      const response = await axios.post(
         `${apiUrl}/api/profile/memories`,
         {
           title,
@@ -264,9 +189,6 @@ export default function Memories() {
         }
       )
 
-<<<<<<< HEAD
-      toast.success('Memory uploaded successfully!', { id: createToast })
-=======
       const newMem: MemoryData = response.data?.data || {
         id: `mem_${Date.now()}`,
         title,
@@ -287,16 +209,10 @@ export default function Memories() {
       })
 
       toast.success('Photo uploaded successfully.', { id: createToast })
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       setIsModalOpen(false)
       setTitle('')
       setDescription('')
       setLocation('')
-<<<<<<< HEAD
-      fetchMemories()
-    } catch (err: any) {
-      toast.success('Memory uploaded successfully!', { id: createToast })
-=======
     } catch (err: any) {
       console.warn('[Memories] API memory save notice, using local cache:', err.message)
       const fallbackMem: MemoryData = {
@@ -319,15 +235,10 @@ export default function Memories() {
       })
 
       toast.success('Photo uploaded successfully.', { id: createToast })
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       setIsModalOpen(false)
       setTitle('')
       setDescription('')
       setLocation('')
-<<<<<<< HEAD
-      fetchMemories()
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     } finally {
       setSubmitting(false)
     }

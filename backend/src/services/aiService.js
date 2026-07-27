@@ -417,7 +417,7 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
       name: morningTemplate.name.replace('{city}', activeCity),
       time: '10:00',
       category: morningTemplate.category,
-      coordinates: [20.0 + (i * 0.01) + (Math.random() * 0.005), 70.0 + (i * 0.01) + (Math.random() * 0.005)],
+      coordinates: null,
       description: morningTemplate.desc.replace(/\{city\}/g, activeCity),
       estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8),
       why: `Optimal morning schedule to avoid peak crowds in ${activeCity}.`
@@ -429,7 +429,7 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
       name: afternoonTemplate.name.replace('{city}', activeCity),
       time: '14:00',
       category: afternoonTemplate.category,
-      coordinates: [20.0 + (i * 0.01) + 0.02 + (Math.random() * 0.005), 70.0 + (i * 0.01) + 0.02 + (Math.random() * 0.005)],
+      coordinates: null,
       description: afternoonTemplate.desc.replace(/\{city\}/g, activeCity),
       estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8),
       why: `Selected for indoor comfort and authentic local experiences in ${activeCity}.`
@@ -441,7 +441,7 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
       name: eveningTemplate.name.replace('{city}', activeCity),
       time: '18:00',
       category: eveningTemplate.category,
-      coordinates: [20.0 + (i * 0.01) + 0.04 + (Math.random() * 0.005), 70.0 + (i * 0.01) + 0.04 + (Math.random() * 0.005)],
+      coordinates: null,
       description: eveningTemplate.desc.replace(/\{city\}/g, activeCity),
       estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8),
       why: `Perfect sunset & nightlife atmosphere in ${activeCity}.`

@@ -132,6 +132,10 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
   // ── upgraded UI Panel Tab State ───────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'itinerary' | 'layers' | 'assistant'>('itinerary')
 
+  const isDummyOcean = (lat: number, lng: number) => {
+    return (lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0)
+  }
+
   // Collapse consecutive duplicate coordinates to avoid Routing API errors
   const validPlaces = (places || [])
     .filter(
@@ -139,7 +143,8 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         Array.isArray(p.coordinates) &&
         p.coordinates.length === 2 &&
         !isNaN(p.coordinates[0]) &&
-        !isNaN(p.coordinates[1])
+        !isNaN(p.coordinates[1]) &&
+        !isDummyOcean(p.coordinates[0], p.coordinates[1])
     )
     .filter((p, idx, arr) => {
       if (idx === 0) return true

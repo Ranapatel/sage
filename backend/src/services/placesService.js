@@ -188,17 +188,35 @@ async function photonGeocode(placeName, cityContext = '') {
   }
 }
 
+function parseCityStops(dest) {
+  if (!dest) return []
+  return dest.split(/->|--| to /i).map(s => s.trim()).filter(Boolean)
+}
+
+function cleanCityContext(cityStr) {
+  if (!cityStr) return ''
+  const parts = cityStr.split(/->|--| to /i)
+  return parts[0].trim()
+}
+
+function isDummyOceanCoords(lat, lng) {
+  if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return true
+  // Ocean dummy zone off Diu/Gujarat coast: lat 18-22, lng 68-72
+  return (lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0)
+}
+
 async function geocodePlace(placeName, cityContext = '') {
+  const cleanCity = cleanCityContext(cityContext)
   try {
     const { GeoapifyGeocodingService } = require('./geoapifyGeocoding.service')
-    const geoapifyRes = await GeoapifyGeocodingService.geocodePlace(placeName, cityContext)
+    const geoapifyRes = await GeoapifyGeocodingService.geocodePlace(placeName, cleanCity)
     if (geoapifyRes) {
       return {
         lat: geoapifyRes.latitude,
         lng: geoapifyRes.longitude,
         placeId: geoapifyRes.placeId,
         formattedAddress: geoapifyRes.formatted_address,
-        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName + ', ' + cityContext)}`,
+        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName + ', ' + cleanCity)}`,
         source: 'geoapify',
       }
     }
@@ -206,42 +224,52 @@ async function geocodePlace(placeName, cityContext = '') {
     console.warn(`[Places] Geoapify failed for "${placeName}": ${err.message}`)
   }
 
-  const google = await googleGeocode(placeName, cityContext)
+  const google = await googleGeocode(placeName, cleanCity)
   if (google) return google
   
-  const photon = await photonGeocode(placeName, cityContext)
+  const photon = await photonGeocode(placeName, cleanCity)
   if (photon) return photon
 
-  return nominatimGeocode(placeName, cityContext)
+  return nominatimGeocode(placeName, cleanCity)
 }
 
 async function enrichItineraryWithRealCoords(itinerary, destination) {
-  const allPlaces = itinerary.flatMap(d => d.places)
+  const allPlaces = itinerary.flatMap(d => d.places || [])
   const total = allPlaces.length
   const hasGoogle = process.env.GOOGLE_PLACES_API_KEY &&
     process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key'
 
-  console.log(`[Places] Geocoding ${total} places for "${destination}" via ${hasGoogle ? 'Google' : 'Nominatim'}...`)
+  const cityStops = parseCityStops(destination)
+  console.log(`[Places] Geocoding ${total} places for "${destination}" (Parsed cities: ${cityStops.join(' → ')}) via ${hasGoogle ? 'Google' : 'Geoapify/Photon'}...`)
 
   const enriched = []
-  for (const day of itinerary) {
+  for (let dayIdx = 0; dayIdx < itinerary.length; dayIdx++) {
+    const day = itinerary[dayIdx]
+    const dayCity = day.city || day.destination || (cityStops.length > 0 ? cityStops[Math.min(dayIdx, cityStops.length - 1)] : destination)
+    const cleanedCity = cleanCityContext(dayCity)
+
     const enrichedPlaces = []
-    for (const place of day.places) {
-      const geo = await geocodePlace(place.name, destination)
+    for (const place of (day.places || [])) {
+      const geo = await geocodePlace(place.name, cleanedCity)
 
       const lat = geo?.lat ?? null
       const lng = geo?.lng ?? null
 
       // Resolve a real image for this place (Wikipedia → Flickr → Wikimedia geo)
-      // Only fetch if place doesn't already have a verified image URL
       let imageUrl = place.image || null
       if (!imageUrl) {
-        imageUrl = await resolvePlaceImage(place.name, destination, lat, lng)
+        imageUrl = await resolvePlaceImage(place.name, cleanedCity, lat, lng)
       }
+
+      const existingCoordsValid = Array.isArray(place.coordinates) &&
+        place.coordinates.length === 2 &&
+        !isDummyOceanCoords(place.coordinates[0], place.coordinates[1])
 
       enrichedPlaces.push(geo ? {
         ...place,
         coordinates: [lat, lng],
+        lat,
+        lng,
         placeId: geo.placeId,
         formattedAddress: geo.formattedAddress,
         googleMapsUrl: geo.googleMapsUrl,
@@ -249,6 +277,9 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
         image: imageUrl,
       } : {
         ...place,
+        coordinates: existingCoordsValid ? place.coordinates : null,
+        lat: existingCoordsValid ? place.coordinates[0] : null,
+        lng: existingCoordsValid ? place.coordinates[1] : null,
         coordSource: 'ai_estimated',
         image: imageUrl,
       })
