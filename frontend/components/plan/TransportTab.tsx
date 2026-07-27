@@ -571,32 +571,46 @@ function ComparisonCard({
       className="bg-white border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-orange-400 transition-all duration-300 flex flex-col justify-between h-full group relative"
       style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
     >
-                  Top Pick
-                </span>
+      {bgImg ? (
+        <div className="relative w-full h-36 overflow-hidden">
+          <img
+            src={bgImg}
+            alt={carrierName}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+
+          {/* Top Badges */}
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+            {isTopPick ? (
+              <span className="bg-[#EA580C] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+                Top Pick
+              </span>
+            ) : (
+              <span className="bg-white/25 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+                {typeLabel}
+              </span>
+            )}
+            <SageScoreRing score={score} dark />
+          </div>
+
+          {/* Official Carrier Logo Badge Overlay */}
+          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl shadow-md border border-white/40">
+              {logoUrl ? (
+                <img src={logoUrl} alt={carrierName} className="w-4 h-4 object-contain shrink-0" />
               ) : (
-                <span className="bg-white/25 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-                  {typeLabel}
+                <span className="w-4 h-4 rounded-md bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shrink-0">
+                  {getAirlineInitials(carrierName)}
                 </span>
               )}
-              <SageScoreRing score={score} dark />
-            </div>
-
-            {/* Official Carrier Logo Badge Overlay */}
-            <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
-              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl shadow-md border border-white/40">
-                {logoUrl ? (
-                  <img src={logoUrl} alt={carrierName} className="w-4 h-4 object-contain shrink-0" />
-                ) : (
-                  <span className="w-4 h-4 rounded-md bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shrink-0">
-                    {getAirlineInitials(carrierName)}
-                  </span>
-                )}
-                <span className="text-slate-900 font-extrabold text-xs leading-none">
-                  {carrierName}
-                </span>
-              </div>
+              <span className="text-slate-900 font-extrabold text-xs leading-none">
+                {carrierName}
+              </span>
             </div>
           </div>
+        </div>
+
         ) : (
           /* Header when no image */
           <div className="p-4 pb-2 border-b border-slate-100 flex items-center justify-between gap-3">
