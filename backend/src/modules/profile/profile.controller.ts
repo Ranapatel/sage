@@ -106,11 +106,7 @@ export class ProfileController {
       const items = await ProfileService.getSavedItems(userId)
       return res.json({ success: true, data: items || [] })
     } catch (err: any) {
-<<<<<<< HEAD
-      console.error('[ProfileController] getSavedItems error:', err?.message)
-=======
       console.warn('[ProfileController] DB notice during getSavedItems:', err.message)
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       return res.json({ success: true, data: [] })
     }
   }

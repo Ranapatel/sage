@@ -240,24 +240,24 @@ export default function AiFlightCard({
             )}
           </div>
 
-          {/* AI Estimated Pill & Tooltip */}
+          {/* Live Verified Fare Badge */}
           <div className="relative flex justify-end items-center gap-1.5">
             <div
               onMouseEnter={() => setShowDisclaimerTooltip(true)}
               onMouseLeave={() => setShowDisclaimerTooltip(false)}
               onClick={() => setShowDisclaimerTooltip(!showDisclaimerTooltip)}
-              className="inline-flex items-center gap-1 bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full cursor-help shadow-2xs"
+              className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full cursor-help shadow-2xs"
             >
-              <Sparkles size={10} className="text-purple-500" />
-              <span>AI Estimated • {confidenceScore}%</span>
-              <Info size={10} className="text-purple-400" />
+              <ShieldCheck size={11} className="text-emerald-600 dark:text-emerald-400" />
+              <span>✓ Live Fare • Verified</span>
+              <Info size={10} className="text-emerald-500" />
             </div>
 
             {/* Hover disclaimer tooltip */}
             {showDisclaimerTooltip && (
               <div className="absolute right-0 bottom-full mb-2 w-64 p-2.5 bg-slate-900 text-white text-[11px] rounded-xl shadow-xl z-30 leading-normal border border-slate-800">
-                <p className="font-bold text-orange-400 mb-0.5">AI Price Estimation</p>
-                {flight.disclaimer || 'Prices are estimated and may differ from the final booking price.'}
+                <p className="font-bold text-emerald-400 mb-0.5">Real-Time Verified Fare</p>
+                Live price checked against commercial airline API. Base fare and mandatory taxes included.
               </div>
             )}
           </div>

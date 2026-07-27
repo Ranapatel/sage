@@ -11,6 +11,19 @@ import { KiwiFlightParams } from '@/lib/kiwiAffiliate'
 interface AiFlightSearchProps {
   flights: FlightOfferItem[]
   loading?: boolean
+  flightValidation?: {
+    hasCommercialAirport?: boolean
+    reason?: string
+    noAirportCity?: string
+    nearestAirport?: {
+      iata: string
+      name: string
+      city: string
+      distanceKm: number
+    }
+    alternativeModes?: string[]
+    message?: string
+  }
   tripContext?: {
     from?: string
     to?: string
@@ -37,6 +50,7 @@ const DEFAULT_FILTERS: FlightFilterState = {
 export default function AiFlightSearch({
   flights = [],
   loading = false,
+  flightValidation,
   tripContext,
   currency = 'INR',
 }: AiFlightSearchProps) {
@@ -234,24 +248,56 @@ export default function AiFlightSearch({
               />
             ))
           ) : (
-            /* Empty State */
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-10 text-center space-y-4 shadow-sm">
-              <div className="w-14 h-14 bg-orange-100 dark:bg-orange-950/40 text-orange-500 rounded-full flex items-center justify-center mx-auto">
-                <Sparkles size={24} />
+            /* Smart Empty State — Non-airport city or no operating flights */
+            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center space-y-4 shadow-sm">
+              <div className="w-14 h-14 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800">
+                <HelpCircle size={28} />
               </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-black">No flights match your filter criteria</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Try adjusting your bag preferences, stop limit, or price range.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setFilters(DEFAULT_FILTERS)}
-                className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition-colors inline-flex items-center gap-2"
-              >
-                <RefreshCw size={14} /> Reset All Filters
-              </button>
+              
+              {flightValidation && flightValidation.hasCommercialAirport === false ? (
+                <div className="space-y-3 max-w-md mx-auto">
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                    No Direct Flights Available
+                  </h3>
+                  <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl text-xs text-amber-900 dark:text-amber-200 text-left space-y-2">
+                    <p className="font-bold text-sm text-amber-950 dark:text-amber-100">
+                      📍 {flightValidation.noAirportCity || tripContext?.to || 'Selected location'} has no commercial airport
+                    </p>
+                    {flightValidation.nearestAirport && (
+                      <div className="pt-2 border-t border-amber-200/60 dark:border-amber-900/60">
+                        <p className="font-semibold">Nearest Commercial Airport:</p>
+                        <p className="font-black text-amber-900 dark:text-amber-100 text-sm mt-0.5">
+                          {flightValidation.nearestAirport.name} ({flightValidation.nearestAirport.iata})
+                        </p>
+                        <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+                          Location: {flightValidation.nearestAirport.city} • ~{flightValidation.nearestAirport.distanceKm} km distance
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 pt-1">
+                    We recommend taking a train, bus, or rental cab to reach {flightValidation.noAirportCity || tripContext?.to}.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-w-md mx-auto">
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                    No Operating Flights Found
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    {flightValidation?.message || `No commercial airlines operate live flights between ${tripContext?.from || 'origin'} and ${tripContext?.to || 'destination'} on the selected date.`}
+                  </p>
+                  {flights.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFilters(DEFAULT_FILTERS)}
+                      className="mt-3 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition-colors inline-flex items-center gap-2"
+                    >
+                      <RefreshCw size={14} /> Reset Filters
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

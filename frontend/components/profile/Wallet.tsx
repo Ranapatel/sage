@@ -58,7 +58,7 @@ export default function Wallet() {
           }])
         }
       } catch (err: any) {
-        console.warn('Wallet fetch notice:', err)
+        console.warn('[Wallet] Could not load wallet:', err.response?.status || err.message)
         setBalance(500)
         setTransactions([{
           id: 'tx-1',

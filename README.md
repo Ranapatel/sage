@@ -216,11 +216,7 @@ railway up
 
 ## 📞 Support
 
-<<<<<<< HEAD
-- Email: rana@tripsage.in
-=======
 - Email: support@tripsage.in
->>>>>>> e444a81 (Save local changes)
 - Website: https://tripsage.in
 
 ---

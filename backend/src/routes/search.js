@@ -58,10 +58,6 @@ router.post('/', searchValidation, async (req, res) => {
   const timestamp = new Date().toISOString()
 
   try {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     if (isMultiCity && stops.length > 0) {
       console.log(`[Search Route] Orchestrating Multi-City trip from ${from} with stops:`, stops);
 
@@ -150,13 +146,6 @@ router.post('/', searchValidation, async (req, res) => {
         () => searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
         { timeout: 10000, maxRetries: 2, label: 'Flights' }
       ).catch(() => ({ data: [], meta: { source: 'error' } })),
-<<<<<<< HEAD
-=======
-    // Execute all searches in parallel — fast 4s timeout per provider to prevent cascading client timeouts
-    const [hotelResult, busResult, carResult, weatherResult, trainResult, flightResult] = await Promise.all([
->>>>>>> e444a81 (Save local changes)
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
       fetchWithRetry(
         () => searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget, rooms, adults, children }),
         { timeout: 12000, maxRetries: 2, label: 'Hotels' }
@@ -190,10 +179,6 @@ router.post('/', searchValidation, async (req, res) => {
         console.warn('[Search Route] Train search fallback:', err.message);
         return [];
       }),
-      fetchWithRetry(
-        () => searchFlights({ from, to, date: startDate, budget, travelers }),
-        { timeout: 5000, maxRetries: 1, label: 'Flights' }
-      ).catch(() => ({ data: [] })),
     ])
 
     const hotels = hotelResult.data || []
@@ -215,16 +200,6 @@ router.post('/', searchValidation, async (req, res) => {
 
     const hotelSource = hotelResult.meta?.source || 'error'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    // Enrich with images
-    const [enrichedHotels, enrichedFlights] = await Promise.all([
-      enrichHotelsWithImages(hotels, to).catch(() => hotels),
-      enrichFlightsWithImages(transport, to).catch(() => transport),
-    ])
-=======
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     // Combine all multi-modal ground and flight transport into unified transport list
     const transport = [...flights, ...trains, ...buses, ...cars]
 
@@ -233,10 +208,6 @@ router.post('/', searchValidation, async (req, res) => {
       enrichHotelsWithImages(hotels, to),
       new Promise((resolve) => setTimeout(() => resolve(hotels), 3000)),
     ]).catch(() => hotels)
-<<<<<<< HEAD
->>>>>>> e444a81 (Save local changes)
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
     res.json({
       success: true,
@@ -245,6 +216,14 @@ router.post('/', searchValidation, async (req, res) => {
         transport,
         flights,
         flightError: flightResult.error || null,
+        flightValidation: {
+          hasCommercialAirport: flightResult.hasCommercialAirport ?? true,
+          reason: flightResult.reason || null,
+          noAirportCity: flightResult.noAirportCity || null,
+          nearestAirport: flightResult.nearestAirport || null,
+          alternativeModes: flightResult.alternativeModes || [],
+          message: flightResult.message || null,
+        },
         hotels: enrichedHotels,
         buses,
         busSearchUrl,

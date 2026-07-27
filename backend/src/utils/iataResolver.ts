@@ -1,7 +1,9 @@
 /**
- * IATA City & Airport Code Resolver
- * Maps city names to 3-letter IATA airport codes required by Travelport API.
+ * IATA City & Commercial Airport Code Resolver — TripSage
+ * Maps city names to 3-letter IATA commercial airport codes and validates airport existence.
  */
+
+import { validateCommercialAirport, findNearestCommercialAirport, AirportValidationResult } from '../services/airportDatabase';
 
 const IATA_MAP: Record<string, string> = {
   // India
@@ -62,7 +64,11 @@ const IATA_MAP: Record<string, string> = {
   zurich: 'ZRH',
 };
 
-export function resolveIataCode(cityOrName: string | undefined, defaultFallback = 'DEL'): string {
+export function validateCityAirport(cityOrName: string | undefined): AirportValidationResult {
+  return validateCommercialAirport(cityOrName);
+}
+
+export function resolveIataCode(cityOrName: string | undefined, defaultFallback: string | null = null): string | null {
   if (!cityOrName) return defaultFallback;
 
   const clean = cityOrName.trim().toLowerCase();
@@ -72,18 +78,19 @@ export function resolveIataCode(cityOrName: string | undefined, defaultFallback 
     return clean.toUpperCase();
   }
 
-  // 2. Direct map match
+  // 2. Commercial Airport Database Validation
+  const validation = validateCommercialAirport(cityOrName);
+  if (validation.hasCommercialAirport && validation.iataCode) {
+    return validation.iataCode;
+  }
+
+  // 3. Fallback to direct map
   const cityKey = clean.split(',')[0].trim();
   if (IATA_MAP[cityKey]) {
     return IATA_MAP[cityKey];
   }
 
-  // 3. Partial key match
-  for (const [name, code] of Object.entries(IATA_MAP)) {
-    if (cityKey.includes(name) || name.includes(cityKey)) {
-      return code;
-    }
-  }
-
   return defaultFallback;
 }
+
+export { findNearestCommercialAirport };

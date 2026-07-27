@@ -368,35 +368,70 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
     currentDate.setDate(start.getDate() + i - 1);
     const activeCity = getActiveStopCity(i)
 
-    const activityTemplates = [
-      { name: `Morning Walking Tour — ${activeCity} Old Town`, category: 'culture', desc: `Discover historic streets and local life in ${activeCity}'s old quarter.` },
-      { name: `Local Street Food Experience — ${activeCity} Night Market`, category: 'dining', desc: `Savoring authentic flavors at highly-rated ${activeCity} street stalls.` },
-      { name: `${activeCity} City Museum — Cultural District`, category: 'culture', desc: `Discovering art, history and heritage at ${activeCity}'s premier museum.` },
-      { name: `Nature Reserve & Gardens — ${activeCity} Outskirts`, category: 'nature', desc: `Enjoying scenic views and fresh air in ${activeCity}'s green spaces.` },
-      { name: `${activeCity} Local Market Shopping — Central Bazaar`, category: 'shopping', desc: `Exploring local markets and boutiques for unique ${activeCity} finds.` },
-      { name: `Sunset Viewpoint — ${activeCity} Hilltop District`, category: 'activity', desc: `Panoramic views of ${activeCity} as the day ends. Best spot for photos.` }
-    ];
-    
-    const places = [];
-    const numPlaces = Math.floor(Math.random() * 2) + 2; // 2-3 places per day
-    
-    for (let j = 0; j < numPlaces; j++) {
-      const template = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
-      places.push({
-        name: template.name,
-        time: j === 0 ? '10:00' : j === 1 ? '14:00' : '18:00',
-        category: template.category,
-        coordinates: [20.0 + Math.random(), 70.0 + Math.random()],
-        description: template.desc,
-        estimatedCost: Math.floor((budget / (totalDays * (numPlaces || 1))) * 0.8)
-      });
-    }
+    const morningPool = [
+      { name: `Heritage Walking Tour — {city} Old Quarter`, category: 'culture', desc: `Discover historic architecture, landmark monuments, and morning local life.` },
+      { name: `Botanical Gardens & Conservatory — {city}`, category: 'nature', desc: `Enjoy crisp morning air amidst rare flora and peaceful walking paths.` },
+      { name: `Ancient Fort & Viewpoint — {city} Citadel`, category: 'culture', desc: `Panoramic morning views of the skyline from the historical fortress.` },
+      { name: `Grand Temple & Cultural Plaza — {city}`, category: 'culture', desc: `Explore iconic spiritual heritage and traditional artisan craftsmanship.` },
+      { name: `Morning Farmers & Flower Market — {city} Center`, category: 'shopping', desc: `Vibrant morning colors, fresh local produce, and breakfast stalls.` },
+    ]
+
+    const afternoonPool = [
+      { name: `{city} City Museum & Art Gallery`, category: 'culture', desc: `Discovering art, regional history, and royal heritage artifacts.` },
+      { name: `Central Bazaar & Artisan Handicrafts — {city}`, category: 'shopping', desc: `Exploring local markets and boutiques for unique regional souvenirs.` },
+      { name: `Heritage Diner & Culinary Tasting — {city}`, category: 'dining', desc: `Savoring authentic traditional lunch recipes passed down for generations.` },
+      { name: `{city} Science & Cultural Heritage Center`, category: 'culture', desc: `Interactive exhibits showcasing local innovation and regional history.` },
+      { name: `Craft Village & Pottery Workshop — {city}`, category: 'activity', desc: `Hands-on experience with traditional local crafts and master artisans.` },
+    ]
+
+    const eveningPool = [
+      { name: `Sunset Viewpoint — {city} Hilltop Terrace`, category: 'activity', desc: `Breathtaking sunset views overlooking the city as dusk settles.` },
+      { name: `Local Street Food Experience — {city} Night Market`, category: 'dining', desc: `Savoring authentic night stalls, local street food delicacies, and desserts.` },
+      { name: `Waterfront Promenade & Evening Stroll — {city}`, category: 'explore', desc: `Relaxing evening walk along the illuminated riverbank and night cafes.` },
+      { name: `Evening Cultural Show & Folk Performance — {city}`, category: 'culture', desc: `Traditional music, dance, and storytelling performance at the open-air theater.` },
+      { name: `Rooftop Lounge & Night Skyline — {city}`, category: 'dining', desc: `Enjoying evening beverages and panoramic night lights of the city.` },
+    ]
+
+    const places = []
+
+    // 1. Morning stop (10:00)
+    const morningTemplate = morningPool[(i - 1) % morningPool.length]
+    places.push({
+      name: morningTemplate.name.replace('{city}', activeCity),
+      time: '10:00',
+      category: morningTemplate.category,
+      coordinates: [20.0 + (i * 0.01) + (Math.random() * 0.005), 70.0 + (i * 0.01) + (Math.random() * 0.005)],
+      description: morningTemplate.desc.replace(/\{city\}/g, activeCity),
+      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8)
+    })
+
+    // 2. Afternoon stop (14:00)
+    const afternoonTemplate = afternoonPool[(i - 1) % afternoonPool.length]
+    places.push({
+      name: afternoonTemplate.name.replace('{city}', activeCity),
+      time: '14:00',
+      category: afternoonTemplate.category,
+      coordinates: [20.0 + (i * 0.01) + 0.02 + (Math.random() * 0.005), 70.0 + (i * 0.01) + 0.02 + (Math.random() * 0.005)],
+      description: afternoonTemplate.desc.replace(/\{city\}/g, activeCity),
+      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8)
+    })
+
+    // 3. Evening stop (18:00)
+    const eveningTemplate = eveningPool[(i - 1) % eveningPool.length]
+    places.push({
+      name: eveningTemplate.name.replace('{city}', activeCity),
+      time: '18:00',
+      category: eveningTemplate.category,
+      coordinates: [20.0 + (i * 0.01) + 0.04 + (Math.random() * 0.005), 70.0 + (i * 0.01) + 0.04 + (Math.random() * 0.005)],
+      description: eveningTemplate.desc.replace(/\{city\}/g, activeCity),
+      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8)
+    })
 
     itinerary.push({
       day: i,
       date: currentDate.toISOString().split('T')[0],
       places
-    });
+    })
   }
 
   const primaryCity = isMultiCity && stops.length > 0 ? stops[0].city.split(',')[0].trim() : destination.split(',')[0].trim()

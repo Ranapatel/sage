@@ -43,7 +43,9 @@ export default function TripHistory() {
           apiTrips = response.data.data
         }
       } catch (err: any) {
-        console.warn('[TripHistory] Could not load trips:', err.response?.status || err.message)
+        console.warn('[TripHistory] Could not load trips:', (err as any).response?.status || (err as Error).message)
+      } finally {
+        // loading will be set at the end of fetchTrips
       }
 
       const localTrips: TripData[] = (tripHistory || []).map((t: any) => ({

@@ -1209,7 +1209,10 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
   }
 
   const currentDay = itinerary[activeDay] || itinerary[0]
-  const routeUrl = buildRouteUrl(currentDay.places, destination)
+  const sortedCurrentDayPlaces = currentDay?.places
+    ? [...currentDay.places].sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'))
+    : []
+  const routeUrl = buildRouteUrl(sortedCurrentDayPlaces, destination)
 
   return (
     <div className="space-y-6">
@@ -1307,7 +1310,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
         {/* Left: timeline */}
         <div>
-          {currentDay.places.length === 0 ? (
+          {sortedCurrentDayPlaces.length === 0 ? (
             <div
               className="flex items-center justify-center py-16 rounded-2xl text-center"
               style={{ background: '#FFFFFF', border: '1px dashed #E8E0D8' }}
@@ -1316,14 +1319,14 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
             </div>
           ) : (
             <div className="space-y-1">
-              {currentDay.places.map((place: any, i: number) => (
+              {sortedCurrentDayPlaces.map((place: any, i: number) => (
                 <StopCard
                   key={`${activeDay}-${i}-${place.name}`}
                   place={place}
                   index={i}
                   dayIndex={activeDay}
                   destination={destination}
-                  isLast={i === currentDay.places.length - 1}
+                  isLast={i === sortedCurrentDayPlaces.length - 1}
                   onReplace={handleReplaceStop}
                 />
               ))}
