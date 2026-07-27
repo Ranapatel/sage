@@ -33,6 +33,12 @@ const isValidLngLat = (coords: any): coords is [number, number] => {
   )
 }
 
+const isDummyOceanCoords = (lat: number, lng: number): boolean => {
+  if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return true
+  // Ocean dummy zone off Diu/Gujarat coast: lat 18.0 to 22.0, lng 68.0 to 72.0
+  return (lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0)
+}
+
 const getHaversineDistance = (c1: [number, number], c2: [number, number]) => {
   const [lat1, lon1] = c1
   const [lat2, lon2] = c2
@@ -207,43 +213,89 @@ export default function MapView({
   }, [propHotels, destination, tripContext])
 
   // ── Resolve destination reference coordinate ──────────────────────────────
-  const refCoords = useMemo((): [number, number] | null => {
-    if (destCoord?.coordinates) return destCoord.coordinates
-    const clean = destination.toLowerCase()
-    for (const [key, coords] of Object.entries(FALLBACK_COORDS)) {
-      if (clean.includes(key)) return coords
-    }
-    for (const day of itinerary) {
-      for (const p of day?.places || []) {
-        const rawLat = p.lat ?? (Array.isArray(p.coordinates) ? p.coordinates[0] : undefined)
-        const rawLng = p.lng ?? (Array.isArray(p.coordinates) ? p.coordinates[1] : undefined)
-        if (rawLat != null && rawLng != null && !isNaN(+rawLat) && !isNaN(+rawLng)) {
-          const lat = +rawLat, lng = +rawLng
-          if (Math.abs(lat - 20) > 2 || Math.abs(lng - 70) > 2) return [lat, lng]
+  // ── Dynamic Client-side Geocoding State ─────────────────────────────────
+  const [geocodedStops, setGeocodedStops] = useState<Record<string, { lat: number; lng: number }>>({})
+
+  // Asynchronously geocode places with missing or dummy coordinates
+  useEffect(() => {
+    if (!itinerary || itinerary.length === 0) return
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+    const cleanDest = (destination || '').toLowerCase()
+    const cityStops = cleanDest.split(/->|--| to /i).map((s: string) => s.trim()).filter(Boolean)
+
+    itinerary.forEach((day, dayIdx) => {
+      const targetCity = day?.city || day?.destination || (cityStops.length > 0 ? cityStops[Math.min(dayIdx, cityStops.length - 1)] : cleanDest)
+      const cleanCityName = targetCity.split(',')[0].trim()
+
+      ;(day?.places || []).forEach((p: any, placeIdx: number) => {
+        const key = `${dayIdx}-${placeIdx}-${p.name}`
+        if (geocodedStops[key]) return
+
+        let rawLat = p.lat ?? (Array.isArray(p.coordinates) ? p.coordinates[0] : p.latitude ?? undefined)
+        let rawLng = p.lng ?? (Array.isArray(p.coordinates) ? p.coordinates[1] : p.longitude ?? undefined)
+        let lat = rawLat != null ? +rawLat : NaN
+        let lng = rawLng != null ? +rawLng : NaN
+
+        if (isNaN(lat) || isNaN(lng) || isDummyOceanCoords(lat, lng)) {
+          const q = `${p.name}, ${cleanCityName}`
+          fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(q)}&apiKey=${apiKey}`)
+            .then(r => r.json())
+            .then(data => {
+              const feat = data?.features?.[0]
+              if (feat?.properties?.lat && feat?.properties?.lon) {
+                const gLat = parseFloat(feat.properties.lat)
+                const gLng = parseFloat(feat.properties.lon)
+                if (!isDummyOceanCoords(gLat, gLng)) {
+                  setGeocodedStops(prev => ({ ...prev, [key]: { lat: gLat, lng: gLng } }))
+                }
+              }
+            })
+            .catch(() => {})
         }
-      }
+      })
+    })
+  }, [itinerary, destination])
+
+  // ── Multi-city Day Reference Coordinate Resolver ─────────────────────────
+  const getDayRefCoords = (dayIdx: number): [number, number] => {
+    if (destCoord?.coordinates) return destCoord.coordinates
+    const cleanDest = (destination || '').toLowerCase()
+    const cityStops = cleanDest.split(/->|--| to /i).map((s: string) => s.trim()).filter(Boolean)
+    const targetCity = cityStops.length > 0 ? cityStops[Math.min(dayIdx, cityStops.length - 1)] : cleanDest
+
+    for (const [key, coords] of Object.entries(FALLBACK_COORDS)) {
+      if (targetCity.includes(key)) return coords
     }
-    return null
-  }, [destCoord, destination, itinerary])
+    for (const [key, coords] of Object.entries(FALLBACK_COORDS)) {
+      if (cleanDest.includes(key)) return coords
+    }
+    return [15.2993, 74.1240] // Default Goa
+  }
+
+  // ── Resolve default destination reference coordinate ─────────────────────
+  const refCoords = useMemo((): [number, number] | null => {
+    return getDayRefCoords(0)
+  }, [destCoord, destination])
 
   // ── Map validated itinerary stops with full details ──────────────────────
   const allValidStops = useMemo(() => {
     const stops: { lat: number; lng: number; name: string; dayIdx: number; placeIdx: number; time?: string; description?: string; category?: string; price?: string; duration?: string; rating?: number; image?: string }[] = []
     itinerary.forEach((day, dayIdx) => {
       ;(day?.places || []).forEach((p: any, placeIdx: number) => {
-        let rawLat = p.lat ?? (Array.isArray(p.coordinates) ? p.coordinates[0] : p.latitude ?? undefined)
-        let rawLng = p.lng ?? (Array.isArray(p.coordinates) ? p.coordinates[1] : p.longitude ?? undefined)
-        
-        let lat = rawLat != null ? +rawLat : NaN
-        let lng = rawLng != null ? +rawLng : NaN
+        const key = `${dayIdx}-${placeIdx}-${p.name}`
+        const dynamicGeo = geocodedStops[key]
 
-        // Fallback: If coordinates are missing or invalid, derive them from destination center with a deterministic offset
-        if (isNaN(lat) || isNaN(lng) || !isValidLngLat([lng, lat])) {
-          const baseLat = refCoords ? refCoords[0] : 15.2993
-          const baseLng = refCoords ? refCoords[1] : 74.1240
-          // Offset based on day & place index so every stop renders cleanly on the map
-          lat = baseLat + (dayIdx * 0.04) + (placeIdx * 0.015) - 0.03
-          lng = baseLng + (dayIdx * 0.03) - (placeIdx * 0.015) + 0.02
+        let lat = dynamicGeo ? dynamicGeo.lat : (p.lat ?? (Array.isArray(p.coordinates) ? p.coordinates[0] : p.latitude ?? NaN))
+        let lng = dynamicGeo ? dynamicGeo.lng : (p.lng ?? (Array.isArray(p.coordinates) ? p.coordinates[1] : p.longitude ?? NaN))
+        
+        lat = lat != null ? +lat : NaN
+        lng = lng != null ? +lng : NaN
+
+        // Fallback: If coordinates are missing or ocean dummy, derive from day center
+        if (isNaN(lat) || isNaN(lng) || isDummyOceanCoords(lat, lng) || !isValidLngLat([lng, lat])) {
+          const baseCoords = getDayRefCoords(dayIdx)
+          lat = baseCoords[0] + (placeIdx * 0.012) - 0.01
+          lng = baseCoords[1] + (placeIdx * 0.012) - 0.01
         }
 
         stops.push({
@@ -263,7 +315,7 @@ export default function MapView({
       })
     })
     return stops
-  }, [itinerary, refCoords])
+  }, [itinerary, geocodedStops, destination, destCoord])
 
   // Active day stops (or all stops if selectedDay === 0)
   const activeStops = useMemo(() => {

@@ -56,7 +56,7 @@ function BusCard({ bus }: BusCardProps) {
             </span>
           </div>
           <div className="flex flex-wrap gap-1 justify-end">
-            {bus.aiRank?.reasons.map((reason, idx) => (
+            {(Array.isArray(bus.aiRank?.reasons) ? bus.aiRank.reasons : []).map((reason, idx) => (
               <span
                 key={idx}
                 className="text-[9px] font-bold bg-blue-500/15 text-blue-800 px-2 py-0.5 rounded-full"

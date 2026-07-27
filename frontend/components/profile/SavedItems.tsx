@@ -23,30 +23,19 @@ export default function SavedItems() {
   const fetchSavedItems = async () => {
     try {
       const token = await getToken()
-<<<<<<< HEAD
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      let apiItems: SavedItemData[] = []
-      try {
-        const response = await axios.get(`${apiUrl}/api/profile/saved`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        if (response.data?.success && Array.isArray(response.data.data)) {
-          apiItems = response.data.data
-        }
-      } catch (err) {
-        console.warn('API saved items fetch warning:', err)
-=======
-      if (!token) {
-        setLoading(false)
-        return
-      }
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-      const response = await axios.get(`${apiUrl}/api/profile/saved`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (response.data?.success) {
-        setItems(response.data.data || [])
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
+      let apiItems: SavedItemData[] = []
+      if (token) {
+        try {
+          const response = await axios.get(`${apiUrl}/api/profile/saved`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (response.data?.success && Array.isArray(response.data.data)) {
+            apiItems = response.data.data
+          }
+        } catch (err) {
+          console.warn('[SavedItems] Could not load saved items:', err)
+        }
       }
 
       const localItems = getLocalBookmarks()
@@ -61,11 +50,7 @@ export default function SavedItems() {
 
       setItems(Array.from(mergedMap.values()))
     } catch (err: any) {
-<<<<<<< HEAD
-      console.error('Error fetching saved items:', err)
-=======
-      console.warn('[SavedItems] Could not load saved items:', err.response?.status || err.message)
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
+      console.warn('[SavedItems] Error in saved items pipeline:', err)
     } finally {
       setLoading(false)
     }
@@ -82,23 +67,9 @@ export default function SavedItems() {
     const delToast = toast.loading('Removing bookmark...')
     try {
       const token = await getToken()
-<<<<<<< HEAD
       await removeBookmark(id, referenceId, token)
       toast.success('Bookmark removed!', { id: delToast })
       setItems((prev) => prev.filter((item) => item.id !== id && item.referenceId !== referenceId))
-=======
-      if (!token) return
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-      const response = await axios.delete(`${apiUrl}/api/profile/saved/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (response.data?.success) {
-        toast.success('Bookmark removed!', { id: delToast })
-        setItems((prev) => prev.filter((item) => item.id !== id))
-      } else {
-        toast.error(response.data?.message || 'Failed to remove bookmark.', { id: delToast })
-      }
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     } catch (err: any) {
       console.error('Error removing saved item:', err)
       toast.error('Failed to remove bookmark.', { id: delToast })

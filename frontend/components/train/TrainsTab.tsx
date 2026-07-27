@@ -1,8 +1,17 @@
 'use client'
 
 import React from 'react'
-import AiSmartTrainPlanner from './AiSmartTrainPlanner'
+import TrainsPanel from '../transport/TrainsPanel'
+import { useTripStore } from '@/store/tripStore'
 
 export default function TrainsTab() {
-  return <AiSmartTrainPlanner />
+  const { tripContext } = useTripStore()
+  return (
+    <TrainsPanel
+      origin={tripContext?.startLocation || ''}
+      destination={tripContext?.destination || ''}
+      date={tripContext?.startDate || ''}
+      passengers={(tripContext as any)?.travelers || (tripContext as any)?.members || 1}
+    />
+  )
 }

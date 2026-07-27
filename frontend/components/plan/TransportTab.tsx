@@ -571,15 +571,23 @@ function ComparisonCard({
       className="bg-white border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-orange-400 transition-all duration-300 flex flex-col justify-between h-full group relative"
       style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
     >
-                  Top Pick
-                </span>
-              ) : (
-                <span className="bg-white/25 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-                  {typeLabel}
-                </span>
-              )}
-              <SageScoreRing score={score} dark />
-            </div>
+      {bgImg ? (
+        <div className="relative h-28 w-full overflow-hidden">
+          <img src={bgImg} alt={carrierName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+
+          <div className="absolute top-2.5 left-3 right-3 flex items-center justify-between">
+            {isTopPick ? (
+              <span className="bg-[#EA580C] text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide shadow-sm">
+                Top Pick
+              </span>
+            ) : (
+              <span className="bg-white/25 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+                {typeLabel}
+              </span>
+            )}
+            <SageScoreRing score={score} dark />
+          </div>
 
             {/* Official Carrier Logo Badge Overlay */}
             <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
@@ -667,9 +675,8 @@ function ComparisonCard({
             </div>
           )}
         </div>
-      </div>
 
-      {/* â”€â”€ Fixed Bottom CTA Row â”€â”€ */}
+      {/* ── Fixed Bottom CTA Row ── */}
       <div className="p-4 pt-0 mt-auto flex items-center gap-2">
         <a
           href={item.bookingLink ?? '#'}
@@ -1008,10 +1015,6 @@ function TransportTab({
           />
         )}
 
-<<<<<<< HEAD
-        {/* â”€â”€ BEST VALUE CARD (for Recommended & Cabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
-=======
         {/* ── CABS / RENTAL CARS PANEL ────────────────────────────────── */}
         {segment === 'cabs' && (
           <CarsTab />
@@ -1019,7 +1022,6 @@ function TransportTab({
 
         {/* ── BEST VALUE CARD (for Recommended Overview) ──────────────── */}
         {segment === 'recommended' && (loading ? (
->>>>>>> 5f116d2f81dd81cb53265927dca5ed2f39e14fe5
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -1040,13 +1042,8 @@ function TransportTab({
           />
         ))}
 
-<<<<<<< HEAD
-        {/* â”€â”€ COMPARISON GRID (for Recommended & Cabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && !loading && gridItems.length > 0 && (
-=======
         {/* ── COMPARISON GRID (for Recommended Overview) ──────────────── */}
         {segment === 'recommended' && !loading && gridItems.length > 0 && (
->>>>>>> 5f116d2f81dd81cb53265927dca5ed2f39e14fe5
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-[#1A1A1A]">

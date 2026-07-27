@@ -67,7 +67,7 @@ export class SmartItineraryIntelligenceService {
           name: placeName,
           category: place.category || 'culture',
           time: place.time || `${9 + pIdx * 3}:00`,
-          coordinates: place.coordinates || [20.0 + idx * 0.01, 70.0 + idx * 0.01],
+          coordinates: place.coordinates || null,
           description: place.description || `Explore ${cleanName} in ${destinationCity}.`,
           estimatedCost: place.estimatedCost || Math.round(budget * 0.03),
 
@@ -98,7 +98,7 @@ export class SmartItineraryIntelligenceService {
           name: `${bookedHotel.name} — Accommodation Check-In`,
           category: 'accommodation',
           time: '12:00',
-          coordinates: bookedHotel.coordinates || [20.0, 70.0],
+          coordinates: bookedHotel.coordinates || null,
           description: `Check-in and refresh at your booked stay: ${bookedHotel.name}`,
           estimatedCost: 0,
           whySelected: 'Your explicitly booked accommodation.',

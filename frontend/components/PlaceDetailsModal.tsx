@@ -76,8 +76,18 @@ export default function PlaceDetailsModal({
   useEffect(() => {
     if (!place) return;
 
+    const isDummyOcean = (lat: number, lng: number) => {
+      return lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0
+    }
+
     // 1. Try flat lat/lng properties
-    if (place.lat != null && !isNaN(Number(place.lat)) && place.lng != null && !isNaN(Number(place.lng))) {
+    if (
+      place.lat != null &&
+      !isNaN(Number(place.lat)) &&
+      place.lng != null &&
+      !isNaN(Number(place.lng)) &&
+      !isDummyOcean(Number(place.lat), Number(place.lng))
+    ) {
       Promise.resolve().then(() => {
         setResolvedCoords({ lat: Number(place.lat), lng: Number(place.lng) });
         setIsGeocoding(false);
@@ -95,7 +105,8 @@ export default function PlaceDetailsModal({
       coords[1] !== null &&
       coords[1] !== undefined &&
       !isNaN(Number(coords[0])) &&
-      !isNaN(Number(coords[1]))
+      !isNaN(Number(coords[1])) &&
+      !isDummyOcean(Number(coords[0]), Number(coords[1]))
     ) {
       Promise.resolve().then(() => {
         setResolvedCoords({ lat: Number(coords[0]), lng: Number(coords[1]) });
