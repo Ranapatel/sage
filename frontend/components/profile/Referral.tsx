@@ -38,11 +38,19 @@ export default function Referral() {
       const response = await axios.get(`${apiUrl}/api/profile/referrals`, {
         headers: { Authorization: `Bearer ${token}` }
       })
+<<<<<<< HEAD
+      if (response.data?.success && Array.isArray(response.data.data)) {
+        setReferrals(response.data.data)
+      }
+    } catch (err) {
+      console.warn('Referrals fetch notice:', err)
+=======
       if (response.data?.success) {
         setReferrals(response.data.data || [])
       }
     } catch (err) {
       console.warn('[Referral] Could not load referrals:', err)
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
     }
   }
 
@@ -119,9 +127,14 @@ export default function Referral() {
 
     try {
       const token = await getToken()
+<<<<<<< HEAD
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      await axios.post(
+=======
       if (!token) return
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
       const response = await axios.post(
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
         `${apiUrl}/api/profile/referrals`,
         { email, reward: 200 },
         { headers: { Authorization: `Bearer ${token}` } }

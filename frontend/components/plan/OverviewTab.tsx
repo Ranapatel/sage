@@ -17,6 +17,7 @@ import toast from 'react-hot-toast'
 import TransportCard from '../transport/TransportCard'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
+<<<<<<< HEAD
 import LocationAutocomplete from '../ui/LocationAutocomplete'
 import { 
   Icon3DOverview, 
@@ -26,6 +27,8 @@ import {
 } from '@/components/ui/TripSageIcons'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
+=======
+>>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
 // ── Destination background images ─────────────────────────────────────────────
 const DESTINATION_IMAGES: Record<string, string> = {
@@ -1576,7 +1579,26 @@ function OverviewTab({
     const loadToast = toast.loading("Generating your travel plan PDF...")
 
     try {
+<<<<<<< HEAD
+=======
+      let html2canvasModule: any = null
+      let jsPDFModule: any = null
+      try {
+        html2canvasModule = (await import(/* webpackIgnore: true */ 'html2canvas' as any)).default
+        const jspdf = await import(/* webpackIgnore: true */ 'jspdf' as any)
+        jsPDFModule = jspdf.jsPDF || jspdf.default
+      } catch {
+        toast.dismiss(loadToast)
+        window.print()
+        setPdfGenerating(false)
+        return
+      }
+
+      const html2canvas = html2canvasModule
+      const jsPDF = jsPDFModule
+
       // Setup high DPI options for crisp text rendering
+>>>>>>> 269f806458071f98c773aa696ee1e7a248e06005
       const options = {
         scale: 2,
         useCORS: true,
