@@ -3,12 +3,8 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
 import Image from 'next/image'
-<<<<<<< HEAD
-import { Plus, Trash2, MapPin, X, Film, Camera } from 'lucide-react'
-=======
 import { Plus, Trash2, MapPin, X, Film, Upload, Camera, Loader2, Check } from 'lucide-react'
 import { usePhotoApi } from '@/lib/photoApi'
->>>>>>> 269f806458071f98c773aa696ee1e7a248e06005
 
 interface MemoryData {
   id: string

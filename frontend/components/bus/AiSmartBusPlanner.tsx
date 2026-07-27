@@ -4,9 +4,10 @@ import React, { useState, useMemo, useEffect } from 'react'
 import {
   Bus, Clock, MapPin, ArrowRight, ShieldCheck, Sparkles,
   Zap, Award, PiggyBank, ArrowUpDown, ChevronDown, CheckCircle2,
-  Calendar, Users, Info, ExternalLink, RefreshCw, Star
+  Calendar, Users, Info, ExternalLink, RefreshCw, Star, AlertCircle
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
+import { isSameCountry } from '@/lib/countryUtils'
 import {
   generateSmartBusRoutes, SmartBusPlannerResult, SmartBusRoute, buildRedBusDeepLink
 } from '@/lib/smartBusPlanner'
@@ -77,6 +78,22 @@ export default function AiSmartBusPlanner() {
 
   if (storeLoading || isSearching) {
     return <TrainsSkeleton />
+  }
+
+  if (!isSameCountry(fromCity, toCity)) {
+    return (
+      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-10 text-center space-y-3 my-4">
+        <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+          <AlertCircle size={28} />
+        </div>
+        <h3 className="text-lg font-black text-amber-950 dark:text-amber-100">
+          International Bus Services Unavailable
+        </h3>
+        <p className="text-xs text-amber-800 dark:text-amber-300 max-w-md mx-auto leading-relaxed">
+          International bus services are not available for this route.
+        </p>
+      </div>
+    )
   }
 
   return (
@@ -217,11 +234,11 @@ export default function AiSmartBusPlanner() {
               </select>
             </div>
 
-            {/* Search Routes Button (redBus Theme) */}
+            {/* Search Routes Button (Brand Orange) */}
             <button
               type="button"
               onClick={handleSearchRoutes}
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#c2410c] text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Bus size={15} />
               <span>Search Smart Bus Routes</span>

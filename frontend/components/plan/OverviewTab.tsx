@@ -1576,6 +1576,8 @@ function OverviewTab({
     const loadToast = toast.loading("Generating your travel plan PDF...")
 
     try {
+
+
       // Setup high DPI options for crisp text rendering
       const options = {
         scale: 2,

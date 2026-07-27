@@ -7,6 +7,7 @@ import {
   Calendar, Users, Info, ExternalLink, RefreshCw, AlertCircle
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
+import { isSameCountry } from '@/lib/countryUtils'
 import {
   generateSmartTrainRoutes, SmartTrainPlannerResult, SmartTrainRoute, buildIrctcDeepLink
 } from '@/lib/smartTrainPlanner'
@@ -77,6 +78,22 @@ export default function AiSmartTrainPlanner() {
 
   if (storeLoading || isSearching) {
     return <TrainsSkeleton />
+  }
+
+  if (!isSameCountry(fromCity, toCity)) {
+    return (
+      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-10 text-center space-y-3 my-4">
+        <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+          <AlertCircle size={28} />
+        </div>
+        <h3 className="text-lg font-black text-amber-950 dark:text-amber-100">
+          International Train Services Unavailable
+        </h3>
+        <p className="text-xs text-amber-800 dark:text-amber-300 max-w-md mx-auto leading-relaxed">
+          International train services are not available for this route.
+        </p>
+      </div>
+    )
   }
 
   return (
@@ -217,11 +234,11 @@ export default function AiSmartTrainPlanner() {
               </select>
             </div>
 
-            {/* Search Routes Button (Dark Blue Theme as shown in Image) */}
+            {/* Search Routes Button (Brand Orange) */}
             <button
               type="button"
               onClick={handleSearchRoutes}
-              className="w-full py-3 bg-[#001E62] hover:bg-[#00174c] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#c2410c] text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Train size={15} />
               <span>Search Routes</span>

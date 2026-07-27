@@ -4,37 +4,41 @@ import React, { useState, useMemo, useEffect } from 'react'
 import {
   Car, ShieldCheck, CheckCircle2, Sparkles, Filter, ChevronLeft, ChevronRight,
   ExternalLink, Share2, Heart, Star, Users, Briefcase, Zap, Info, Clock, ArrowUpDown,
-  MapPin, Calendar, Award, PiggyBank, RefreshCw, X
+  MapPin, Calendar, Award, PiggyBank, RefreshCw, X, AlertCircle, Fuel, Gauge, SlidersHorizontal
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
 import { formatPrice } from '@/lib/currency'
+import { isSameCountry } from '@/lib/countryUtils'
 import {
-  generateSmartCarPlanner, SmartCarPlannerResult, CarVehicle, getSupplierLogo
+  generateSmartCarPlanner, SmartCarPlannerResult, CarVehicle, getSupplierLogo, VehicleCategory
 } from '@/lib/smartCarPlanner'
 
 export default function AiDiscoverCarsPlanner() {
-  const { tripContext, loading: storeLoading } = useTripStore()
+  const { tripContext } = useTripStore()
 
   // Form State
   const [destination, setDestination] = useState<string>(tripContext.destination || 'Goa')
   const [pickupDate, setPickupDate] = useState<string>(tripContext.startDate || '2026-06-25')
   const [dropoffDate, setDropoffDate] = useState<string>(tripContext.endDate || '2026-06-28')
 
-  // Filter States
-  const [activeCategory, setActiveCategory] = useState<string>('all')
-  const [activeTransmission, setActiveTransmission] = useState<string>('all')
-  const [activeFuel, setActiveFuel] = useState<string>('all')
-  const [selectedSupplier, setSelectedSupplier] = useState<string>('all')
-  const [maxPriceLimit, setMaxPriceLimit] = useState<number>(10000)
-  const [activeSort, setActiveSort] = useState<'recommended' | 'cheapest' | 'value' | 'premium' | 'instant'>('recommended')
+  // Filter States (Matching Screenshot Layout)
+  const [rentalType, setRentalType] = useState<'day' | 'hour'>('day')
+  const [minPrice, setMinPrice] = useState<number>(500)
+  const [maxPrice, setMaxPrice] = useState<number>(15000)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedTransmission, setSelectedTransmission] = useState<string>('all')
+  const [selectedFuel, setSelectedFuel] = useState<string>('all')
+  const [selectedBrand, setSelectedBrand] = useState<string>('all')
+  const [selectedSeats, setSelectedSeats] = useState<string>('all')
+  const [freeCancellationOnly, setFreeCancellationOnly] = useState<boolean>(false)
+  const [unlimitedKmOnly, setUnlimitedKmOnly] = useState<boolean>(false)
 
-  // Carousel & Image index state per car ID
+  // Smart Sorting State
+  const [activeSort, setActiveSort] = useState<'recommended' | 'lowest' | 'rated' | 'popular' | 'efficient' | 'family'>('recommended')
+
+  // Favorites & Carousel index state per car ID
   const [imageIndices, setImageIndices] = useState<Record<string, number>>({})
-
-  // Favorites & Comparison state
   const [favorites, setFavorites] = useState<Record<string, boolean>>({})
-  const [comparedCarIds, setComparedCarIds] = useState<string[]>([])
-  const [isCompareOpen, setIsCompareOpen] = useState(false)
 
   // Sync state if tripContext updates
   useEffect(() => {
@@ -43,18 +47,30 @@ export default function AiDiscoverCarsPlanner() {
     if (tripContext.endDate) setDropoffDate(tripContext.endDate)
   }, [tripContext.destination, tripContext.startDate, tripContext.endDate])
 
-  // Generate Smart DiscoverCars Data
+  // Domestic route validation check
+  const originCity = tripContext.startLocation || searchFromCity(tripContext) || ''
+  const isDomesticRoute = useMemo(() => {
+    if (!originCity || !destination) return true
+    return isSameCountry(originCity, destination)
+  }, [originCity, destination])
+
+  function searchFromCity(ctx: any): string {
+    return ctx?.from || ctx?.startCity || ctx?.origin || ''
+  }
+
+  // Generate Smart Car Planner Data
   const plannerData: SmartCarPlannerResult = useMemo(() => {
     const passengersCount = (tripContext as any)?.travelers || (tripContext as any)?.groupSize || 2
     return generateSmartCarPlanner({
+      origin: originCity,
       destination,
       pickupDate,
       dropoffDate,
       passengers: passengersCount,
     })
-  }, [destination, pickupDate, dropoffDate, tripContext])
+  }, [originCity, destination, pickupDate, dropoffDate, tripContext])
 
-  // Image Navigation Handler
+  // Handle Image Navigation
   const handlePrevImage = (carId: string, maxIdx: number, e: React.MouseEvent) => {
     e.stopPropagation()
     setImageIndices(prev => {
@@ -77,640 +93,467 @@ export default function AiDiscoverCarsPlanner() {
     setFavorites(prev => ({ ...prev, [carId]: !prev[carId] }))
   }
 
-  // Toggle Compare
-  const toggleCompare = (carId: string) => {
-    setComparedCarIds(prev => {
-      if (prev.includes(carId)) {
-        return prev.filter(id => id !== carId)
-      }
-      if (prev.length >= 3) return prev
-      return [...prev, carId]
-    })
+  // Reset Filters
+  const resetFilters = () => {
+    setMinPrice(500)
+    setMaxPrice(15000)
+    setSelectedCategory('all')
+    setSelectedTransmission('all')
+    setSelectedFuel('all')
+    setSelectedBrand('all')
+    setSelectedSeats('all')
+    setFreeCancellationOnly(false)
+    setUnlimitedKmOnly(false)
   }
 
-  // Filter cars based on left sidebar & controls
+  // Filter Vehicles
   const filteredCars = useMemo(() => {
     return plannerData.cars.filter(car => {
-      // 1. Category Filter
-      if (activeCategory !== 'all' && car.category.toLowerCase() !== activeCategory.toLowerCase()) {
-        return false
+      // Rental price filter
+      if (car.pricePerDay < minPrice || car.pricePerDay > maxPrice) return false
+
+      // Category filter
+      if (selectedCategory !== 'all' && car.category.toLowerCase() !== selectedCategory.toLowerCase()) return false
+
+      // Transmission filter
+      if (selectedTransmission !== 'all' && car.transmission.toLowerCase() !== selectedTransmission.toLowerCase()) return false
+
+      // Fuel type filter
+      if (selectedFuel !== 'all' && car.fuelType.toLowerCase() !== selectedFuel.toLowerCase()) return false
+
+      // Brand filter
+      if (selectedBrand !== 'all' && car.brand.toLowerCase() !== selectedBrand.toLowerCase()) return false
+
+      // Seats filter
+      if (selectedSeats !== 'all') {
+        const minS = parseInt(selectedSeats, 10)
+        if (car.seats < minS) return false
       }
-      // 2. Transmission Filter
-      if (activeTransmission !== 'all' && car.transmission.toLowerCase() !== activeTransmission.toLowerCase()) {
-        return false
-      }
-      // 3. Fuel Filter
-      if (activeFuel !== 'all' && car.fuelType.toLowerCase() !== activeFuel.toLowerCase()) {
-        return false
-      }
-      // 4. Supplier Filter
-      if (selectedSupplier !== 'all' && car.supplier.name.toLowerCase() !== selectedSupplier.toLowerCase()) {
-        return false
-      }
-      // 5. Price Limit Filter
-      if (car.pricePerDay > maxPriceLimit) {
-        return false
-      }
+
+      // Free cancellation
+      if (freeCancellationOnly && car.cancellationPolicy !== 'Free Cancellation') return false
+
+      // Unlimited KM
+      if (unlimitedKmOnly && car.mileagePolicy !== 'Unlimited Kilometres') return false
+
       return true
     })
-  }, [plannerData.cars, activeCategory, activeTransmission, activeFuel, selectedSupplier, maxPriceLimit])
+  }, [plannerData.cars, minPrice, maxPrice, selectedCategory, selectedTransmission, selectedFuel, selectedBrand, selectedSeats, freeCancellationOnly, unlimitedKmOnly])
 
-  // Sort filtered cars
+  // Sorted Vehicles
   const sortedCars = useMemo(() => {
     const list = [...filteredCars]
     switch (activeSort) {
-      case 'cheapest':
+      case 'lowest':
         return list.sort((a, b) => a.pricePerDay - b.pricePerDay)
-      case 'value':
-        return list.sort((a, b) => b.score - a.score)
-      case 'premium':
-        return list.sort((a, b) => b.pricePerDay - a.pricePerDay)
-      case 'instant':
-        return list.filter(c => c.instantConfirmation).concat(list.filter(c => !c.instantConfirmation))
+      case 'rated':
+        return list.sort((a, b) => b.rating - a.rating)
+      case 'popular':
+        return list.sort((a, b) => (b.badge === 'Popular' ? 1 : 0) - (a.badge === 'Popular' ? 1 : 0))
+      case 'efficient':
+        return list.sort((a, b) => (a.fuelType === 'Hybrid' || a.fuelType === 'Electric' ? -1 : 1))
+      case 'family':
+        return list.sort((a, b) => b.seats - a.seats)
       case 'recommended':
       default:
-        return list.sort((a, b) => (b.badge === 'Top Pick' || b.badge === 'Best Value' ? 1 : 0) - (a.badge === 'Top Pick' || a.badge === 'Best Value' ? 1 : 0))
+        return list.sort((a, b) => b.score - a.score)
     }
   }, [filteredCars, activeSort])
 
-  const comparedVehicles = useMemo(() => {
-    return plannerData.cars.filter(c => comparedCarIds.includes(c.id))
-  }, [plannerData.cars, comparedCarIds])
+  // Domestic Only Guard
+  if (!isDomesticRoute) {
+    return (
+      <div className="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-10 text-center space-y-4 my-6 shadow-sm">
+        <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200 shadow-inner">
+          <AlertCircle size={32} />
+        </div>
+        <div className="space-y-1.5 max-w-md mx-auto">
+          <h3 className="text-xl font-black text-amber-950 dark:text-amber-100">
+            Domestic Only Service
+          </h3>
+          <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed font-medium">
+            Rental cars are available only for domestic travel. Please use Flights or local transport at your destination.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const heroCar = plannerData.heroVehicle || sortedCars[0] || plannerData.cars[0]
 
   return (
-    <div className="space-y-6 w-full text-slate-900 dark:text-slate-100 animate-fade-in">
+    <div className="space-y-8 w-full text-slate-900 dark:text-slate-100 animate-fade-in pb-12">
       
-      {/* ── TOP HEADER BANNER (DiscoverCars Branding) ── */}
-      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-        
-        {/* Title & Dates Row */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-black px-2.5 py-0.5 rounded-md uppercase tracking-wide">
-                Rental Cars in {plannerData.destination}
-              </span>
-              <span className="text-xs text-slate-500 font-medium">
-                {plannerData.pickupDate} – {plannerData.dropoffDate} ({plannerData.daysCount} Days)
-              </span>
-            </div>
-
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white leading-tight">
-              Compare 500+ Car Hire Brands in {plannerData.destination}
-            </h2>
-          </div>
-
-          {/* DiscoverCars Official Affiliate Partner Badge */}
-          <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 px-4 py-2.5 rounded-xl shrink-0">
-            <div className="text-right">
-              <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider block">Official Partner</span>
-              <span className="text-xs font-extrabold text-slate-900 dark:text-white">DiscoverCars.com ↗</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Highlights Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-            <ShieldCheck size={16} className="text-purple-600 shrink-0" />
-            <span>Best Price Guarantee</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-            <span>Free Cancellation (Up to 48h)</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-            <Sparkles size={16} className="text-amber-500 shrink-0" />
-            <span>No Hidden Charges</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-            <Clock size={16} className="text-blue-500 shrink-0" />
-            <span>24/7 Customer Support</span>
-          </div>
-        </div>
-
-      </div>
-
-      {/* ── MAIN LAYOUT GRID: Left Sidebar + Right Car Cards Column ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        
-        {/* ── LEFT SIDEBAR: Search Controls & Filters ── */}
-        <div className="lg:col-span-1 space-y-5">
+      {/* ── HERO BANNER (Responsive & Dynamic matching screenshot) ── */}
+      {heroCar && (
+        <div className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-xl border border-slate-800">
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-transparent z-10" />
           
-          {/* Your Search Details Box */}
-          <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-black text-sm uppercase tracking-wider text-purple-400">Your Search</h3>
-              <span className="text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded text-slate-300">Edit</span>
+          <img
+            src={heroCar.image}
+            alt={heroCar.name}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-40 scale-105 transition-transform duration-1000 ease-out"
+          />
+
+          <div className="relative z-20 p-6 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="space-y-3 max-w-xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-purple-500/20 text-purple-300 border border-purple-400/30 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles size={13} />
+                  Top Pick in {plannerData.destination}
+                </span>
+                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  Free Cancellation
+                </span>
+                <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  Unlimited KM
+                </span>
+              </div>
+
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                Experience Your Drive in {plannerData.destination}
+              </h1>
+
+              <p className="text-xs md:text-sm text-slate-300 font-medium leading-relaxed">
+                Featured Deal: <strong className="text-white font-bold">{heroCar.name}</strong> ({heroCar.category}) with {heroCar.transmission} drive & {heroCar.fuelType} efficiency.
+              </p>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pick-up Location</label>
-                <div className="font-extrabold text-white flex items-center gap-1.5 mt-0.5">
-                  <MapPin size={13} className="text-purple-400" />
-                  <span>{destination} Airport / City Center</span>
-                </div>
+            {/* Price & CTA Badge */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-center space-y-3 min-w-[220px]">
+              <span className="text-xs font-bold text-purple-200 uppercase tracking-wider block">Starting from</span>
+              <div className="text-3xl font-black text-white">
+                {formatPrice(heroCar.pricePerDay)}
+                <span className="text-xs font-normal text-slate-300"> / day</span>
               </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pick-up Date & Time</label>
-                <div className="font-extrabold text-white flex items-center gap-1.5 mt-0.5">
-                  <Calendar size={13} className="text-purple-400" />
-                  <span>{pickupDate} • 10:00 AM</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Drop-off Date & Time</label>
-                <div className="font-extrabold text-white flex items-center gap-1.5 mt-0.5">
-                  <Calendar size={13} className="text-purple-400" />
-                  <span>{dropoffDate} • 10:00 AM</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Driver's Age</label>
-                <span className="font-extrabold text-white">25 – 70 years</span>
-              </div>
+              <p className="text-[11px] text-slate-300 font-medium">
+                Est. {formatPrice(heroCar.totalPrice)} for {plannerData.daysCount} days
+              </p>
+              <a
+                href={heroCar.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-extrabold px-5 py-3 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Reserve Featured Car</span>
+                <ExternalLink size={14} />
+              </a>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Filters Card */}
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="font-black text-xs uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
-                <Filter size={14} className="text-purple-600" /> Filters
-              </h3>
+      {/* ── MAIN CONTENT LAYOUT (Sidebar Filters + Vehicle Grid matching screenshot) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+
+        {/* ── LEFT SIDEBAR FILTERS ── */}
+        <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6 sticky top-6">
+          
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div className="flex items-center gap-2 font-black text-slate-900 dark:text-white text-base">
+              <SlidersHorizontal size={18} className="text-purple-600 dark:text-purple-400" />
+              <span>Filter by</span>
+            </div>
+            <button
+              onClick={resetFilters}
+              className="text-xs text-purple-600 dark:text-purple-400 font-bold hover:underline"
+            >
+              Reset all
+            </button>
+          </div>
+
+          {/* Rental Type (Per Day / Per Hour) */}
+          <div className="space-y-2">
+            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Rental Rate</label>
+            <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
               <button
-                type="button"
-                onClick={() => {
-                  setActiveCategory('all')
-                  setActiveTransmission('all')
-                  setActiveFuel('all')
-                  setSelectedSupplier('all')
-                  setMaxPriceLimit(10000)
-                }}
-                className="text-[11px] font-bold text-purple-600 hover:underline cursor-pointer"
+                onClick={() => setRentalType('day')}
+                className={`py-1.5 text-xs font-bold rounded-lg transition-all ${rentalType === 'day' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
               >
-                Reset All
+                Per day
+              </button>
+              <button
+                onClick={() => setRentalType('hour')}
+                className={`py-1.5 text-xs font-bold rounded-lg transition-all ${rentalType === 'hour' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >
+                Per hour
               </button>
             </div>
-
-            {/* Car Type Filter */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-                Car Type
-              </label>
-              <div className="space-y-1.5 text-xs font-bold">
-                {[
-                  { key: 'all', label: 'All Cars', count: plannerData.cars.length },
-                  { key: 'economy', label: 'Economy', count: plannerData.cars.filter(c => c.category === 'Economy').length },
-                  { key: 'hatchback', label: 'Hatchback', count: plannerData.cars.filter(c => c.category === 'Hatchback').length },
-                  { key: 'suv', label: 'SUV', count: plannerData.cars.filter(c => c.category === 'SUV').length },
-                  { key: 'compact', label: 'Compact / Sedan', count: plannerData.cars.filter(c => c.category === 'Compact' || c.category === 'Sedan').length },
-                  { key: 'luxury', label: 'Luxury', count: plannerData.cars.filter(c => c.category === 'Luxury').length },
-                  { key: 'ev', label: 'Electric (EV)', count: plannerData.cars.filter(c => c.category === 'EV').length },
-                  { key: 'van', label: 'Van / Minivan', count: plannerData.cars.filter(c => c.category === 'Van').length },
-                ].map(cat => (
-                  <label key={cat.key} className="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="carCategory"
-                        checked={activeCategory === cat.key}
-                        onChange={() => setActiveCategory(cat.key)}
-                        className="accent-purple-600"
-                      />
-                      <span>{cat.label}</span>
-                    </div>
-                    <span className="text-[11px] font-bold text-slate-400">{cat.count}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Transmission Filter */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-                Transmission
-              </label>
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl text-center text-xs font-extrabold">
-                {['all', 'manual', 'automatic'].map(tr => (
-                  <button
-                    key={tr}
-                    type="button"
-                    onClick={() => setActiveTransmission(tr)}
-                    className={`py-1.5 rounded-lg capitalize transition-all cursor-pointer ${
-                      activeTransmission === tr
-                        ? 'bg-purple-600 text-white shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    {tr}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Fuel Type Filter */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-                Fuel Type
-              </label>
-              <div className="space-y-1 text-xs font-bold">
-                {[
-                  { key: 'all', label: 'All Fuel Types' },
-                  { key: 'petrol', label: 'Petrol' },
-                  { key: 'diesel', label: 'Diesel' },
-                  { key: 'electric', label: 'Electric (EV)' },
-                ].map(f => (
-                  <label key={f.key} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="fuelType"
-                      checked={activeFuel === f.key}
-                      onChange={() => setActiveFuel(f.key)}
-                      className="accent-purple-600"
-                    />
-                    <span>{f.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Supplier Filter */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-                Supplier
-              </label>
-              <select
-                value={selectedSupplier}
-                onChange={e => setSelectedSupplier(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-600 cursor-pointer"
-              >
-                <option value="all">🚗 All Suppliers (500+)</option>
-                <option value="discovercars">DiscoverCars Partner</option>
-                <option value="hertz">Hertz</option>
-                <option value="avis">Avis</option>
-                <option value="europcar">Europcar</option>
-                <option value="sixt">Sixt</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
-            </div>
-
           </div>
 
-        </div>
+          {/* Price Range Slider */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center text-xs font-extrabold text-slate-700 dark:text-slate-300">
+              <span>Price Range</span>
+              <span className="text-purple-600 dark:text-purple-400">{formatPrice(maxPrice)}/day</span>
+            </div>
+            <input
+              type="range"
+              min="1000"
+              max="15000"
+              step="500"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              className="w-full accent-purple-600 bg-slate-200 dark:bg-slate-800 rounded-lg h-2 cursor-pointer"
+            />
+            <div className="flex justify-between text-[11px] text-slate-400 font-medium">
+              <span>₹1,000</span>
+              <span>₹15,000</span>
+            </div>
+          </div>
 
-        {/* ── RIGHT COLUMN: Sort Tabs & Vehicle Cards List ── */}
-        <div className="lg:col-span-3 space-y-5">
-          
-          {/* Quick Sort Tabs Header */}
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2 rounded-2xl shadow-xs flex flex-wrap items-center justify-between gap-2">
-            
-            <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar">
-              {[
-                { key: 'recommended', label: '⭐ Recommended' },
-                { key: 'cheapest', label: '💰 Cheapest' },
-                { key: 'value', label: '🚗 Best Value' },
-                { key: 'premium', label: '🏆 Premium' },
-                { key: 'instant', label: '⚡ Instant Pickup' },
-              ].map(tab => (
+          {/* Category Filter */}
+          <div className="space-y-2.5">
+            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">Body / Category</label>
+            <div className="flex flex-wrap gap-1.5">
+              {['all', 'Economy', 'Budget', 'Compact', 'Sedan', 'SUV', 'Family', 'Premium'].map(cat => (
                 <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setActiveSort(tab.key as any)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer ${
-                    activeSort === tab.key
-                      ? 'bg-purple-600 text-white shadow-xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'
-                  }`}
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${selectedCategory.toLowerCase() === cat.toLowerCase() ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'}`}
                 >
-                  {tab.label}
+                  {cat === 'all' ? 'All' : cat}
                 </button>
               ))}
             </div>
-
-            <div className="text-xs font-bold text-slate-500 px-3">
-              <span>{sortedCars.length} Cars Available</span>
-            </div>
-
           </div>
 
-          {/* AI Recommendation Alert Banner */}
-          <div className="bg-gradient-to-r from-purple-50/80 via-indigo-50/80 to-blue-50/80 dark:from-purple-950/40 dark:via-indigo-950/40 dark:to-blue-950/40 border border-purple-200 dark:border-purple-800/60 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-              <Sparkles size={18} />
-            </div>
-            <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
-              <strong className="font-extrabold text-purple-900 dark:text-purple-300">AI Recommendation for {plannerData.destination}: </strong>
-              <span>
-                All cars include <strong>Free Cancellation up to 48 hours</strong>, <strong>Full to Full Fuel Policy</strong>, and <strong>Unlimited Kilometres</strong> with instant voucher confirmation.
-              </span>
-            </div>
-          </div>
-
-          {/* ── VEHICLE CARDS LIST (Matching Image 2 Reference) ── */}
-          <div className="space-y-6">
-            {sortedCars.map(car => {
-              const currImgIdx = imageIndices[car.id] || 0
-              const currentPhotoUrl = car.gallery[currImgIdx] || car.image
-              const isFav = !!favorites[car.id]
-              const isCompared = comparedCarIds.includes(car.id)
-
-              return (
-                <div
-                  key={car.id}
-                  className="bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 grid grid-cols-1 md:grid-cols-12 gap-0 relative group"
+          {/* Transmission Filter */}
+          <div className="space-y-2.5">
+            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">Transmission</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {['all', 'Automatic', 'Manual'].map(t => (
+                <button
+                  key={t}
+                  onClick={() => setSelectedTransmission(t)}
+                  className={`py-1.5 rounded-lg text-xs font-bold border text-center transition-all ${selectedTransmission.toLowerCase() === t.toLowerCase() ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}
                 >
-                  
-                  {/* LEFT: 16:9 Vehicle Image & Photo Carousel (md:col-span-4) */}
-                  <div className="md:col-span-4 bg-slate-50 dark:bg-slate-900 relative min-h-[220px] flex items-center justify-center p-3">
-                    
-                    {/* Category / Badge Overlay Top-Left */}
-                    <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 items-start">
-                      {car.badge && (
-                        <span className="bg-emerald-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
-                          {car.badge}
-                        </span>
-                      )}
-                    </div>
+                  {t === 'all' ? 'Any' : t}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    {/* Vehicle Photo Display */}
-                    <img
-                      src={currentPhotoUrl}
-                      alt={car.name}
-                      className="w-full h-44 object-contain transition-transform duration-300 group-hover:scale-105"
-                    />
+          {/* Fuel Type */}
+          <div className="space-y-2">
+            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">Fuel Type</label>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {['all', 'Petrol', 'Diesel', 'Hybrid', 'Electric'].map(fuel => (
+                <label key={fuel} className="flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 font-medium">
+                  <input
+                    type="radio"
+                    name="fuelFilter"
+                    checked={selectedFuel.toLowerCase() === fuel.toLowerCase()}
+                    onChange={() => setSelectedFuel(fuel)}
+                    className="accent-purple-600"
+                  />
+                  <span>{fuel === 'all' ? 'All Fuels' : fuel}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
-                    {/* Photo Navigation Buttons (< 1/6 >) */}
-                    {car.gallery.length > 1 && (
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-10">
+          {/* Brand Filter */}
+          <div className="space-y-2">
+            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">Vehicle Brand</label>
+            <select
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">All Brands</option>
+              <option value="Maruti Suzuki">Maruti Suzuki</option>
+              <option value="Tata">Tata Motors</option>
+              <option value="Hyundai">Hyundai</option>
+              <option value="Kia">Kia</option>
+              <option value="Toyota">Toyota</option>
+              <option value="Honda">Honda</option>
+              <option value="Mahindra">Mahindra</option>
+              <option value="Renault">Renault</option>
+              <option value="Nissan">Nissan</option>
+            </select>
+          </div>
+
+          {/* Toggles */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs font-medium">
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-slate-700 dark:text-slate-300 font-semibold">Free Cancellation</span>
+              <input
+                type="checkbox"
+                checked={freeCancellationOnly}
+                onChange={(e) => setFreeCancellationOnly(e.target.checked)}
+                className="accent-purple-600 rounded w-4 h-4"
+              />
+            </label>
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-slate-700 dark:text-slate-300 font-semibold">Unlimited KM</span>
+              <input
+                type="checkbox"
+                checked={unlimitedKmOnly}
+                onChange={(e) => setUnlimitedKmOnly(e.target.checked)}
+                className="accent-purple-600 rounded w-4 h-4"
+              />
+            </label>
+          </div>
+
+        </div>
+
+        {/* ── RIGHT VEHICLE GRID & CONTROLS ── */}
+        <div className="lg:col-span-3 space-y-6">
+
+          {/* Header Row with Sort Dropdown */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                {sortedCars.length} Vehicles Available for Rent in {plannerData.destination}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Pick-up & Drop-off: {plannerData.pickupDate} – {plannerData.dropoffDate} ({plannerData.daysCount} days)
+              </p>
+            </div>
+
+            {/* Smart Sort */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown size={15} className="text-slate-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Sort by:</span>
+              <select
+                value={activeSort}
+                onChange={(e: any) => setActiveSort(e.target.value)}
+                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="recommended">Recommended</option>
+                <option value="lowest">Lowest Price</option>
+                <option value="rated">Best Rated</option>
+                <option value="popular">Most Popular</option>
+                <option value="efficient">Fuel Efficient</option>
+                <option value="family">Family Friendly</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 3-Column Vehicle Grid Matching Screenshot */}
+          {sortedCars.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {sortedCars.map((car) => {
+                const isFav = favorites[car.id] || false
+
+                return (
+                  <div
+                    key={car.id}
+                    className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                  >
+                    {/* Top Image Container */}
+                    <div className="relative aspect-[16/10] bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <img
+                        src={car.image}
+                        alt={car.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                      />
+
+                      {/* Rating Badge (Top-Left) */}
+                      <div className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-slate-900 dark:text-white flex items-center gap-1 shadow-md border border-slate-200/50">
+                        <Star size={13} className="fill-amber-400 text-amber-400" />
+                        <span>{car.rating}</span>
+                      </div>
+
+                      {/* Badge / Availability (Top-Right) */}
+                      <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                        {car.badge && (
+                          <span className="bg-purple-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md">
+                            {car.badge}
+                          </span>
+                        )}
                         <button
-                          type="button"
-                          onClick={e => handlePrevImage(car.id, car.gallery.length, e)}
-                          className="w-7 h-7 rounded-full bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
-                          title="Previous photo"
+                          onClick={(e) => toggleFavorite(car.id, e)}
+                          className="p-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 hover:text-red-500 transition-colors shadow-md"
                         >
-                          <ChevronLeft size={16} />
-                        </button>
-
-                        <span className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                          View Photos ({currImgIdx + 1}/{car.gallery.length})
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={e => handleNextImage(car.id, car.gallery.length, e)}
-                          className="w-7 h-7 rounded-full bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
-                          title="Next photo"
-                        >
-                          <ChevronRight size={16} />
+                          <Heart size={14} className={isFav ? 'fill-red-500 text-red-500' : ''} />
                         </button>
                       </div>
-                    )}
+                    </div>
 
-                  </div>
-
-                  {/* CENTER: Specs & Features Details (md:col-span-5) */}
-                  <div className="md:col-span-5 p-5 border-t md:border-t-0 md:border-r border-slate-100 dark:border-slate-800 flex flex-col justify-between space-y-3">
-                    
-                    <div>
-                      {/* Car Name & Category Badge */}
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight">
+                    {/* Card Content */}
+                    <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        {/* Title & Brand */}
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="font-extrabold text-base text-slate-900 dark:text-white leading-snug group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                             {car.name}
                           </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">
-                              {car.category}
-                            </span>
-                            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
-                              <span>Supplier:</span>
-                              <strong className="text-slate-800 dark:text-slate-200">{car.supplier.name}</strong>
-                              <Star size={11} className="text-amber-500 fill-amber-500" />
-                              <span>{car.supplier.rating}</span>
-                            </span>
-                          </div>
                         </div>
-                      </div>
 
-                      {/* Specs Icons Grid (Seats, Bags, Doors, A/C, Transmission, Fuel) */}
-                      <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/60">
-                        <div className="flex items-center gap-1.5">
-                          <Users size={14} className="text-purple-600" />
-                          <span>{car.seats} Seats</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Briefcase size={14} className="text-purple-600" />
-                          <span>{car.bags} Bags</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Car size={14} className="text-purple-600" />
-                          <span>{car.doors} Doors</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-purple-600">❄️</span>
-                          <span>{car.airConditioning ? 'Air Conditioning' : 'No A/C'}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-purple-600">⚙️</span>
+                        {/* Specs Line: Transmission • Fuel • Seats */}
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
                           <span>{car.transmission}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-purple-600">⛽</span>
+                          <span>•</span>
                           <span>{car.fuelType}</span>
-                        </div>
+                          <span>•</span>
+                          <span>{car.seats} Seats</span>
+                          <span>•</span>
+                          <span>{car.bags} Bags</span>
+                        </p>
                       </div>
 
-                      {/* Green Included Features List (Matching Reference Image 2) */}
-                      <div className="mt-3 space-y-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                        <div className="flex items-center gap-1.5">
-                          <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
-                          <span>{car.cancellationPolicy} (Up to 48 hours before pick-up)</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
-                          <span>{car.fuelPolicy} Fuel Policy</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
-                          <span>{car.mileagePolicy}</span>
-                        </div>
+                      {/* Highlights / Policies */}
+                      <div className="flex flex-wrap gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                        <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-900/40">
+                          ✓ Free Cancellation
+                        </span>
+                        <span className="bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-900/40">
+                          ✓ Unlimited KM
+                        </span>
                       </div>
 
-                      {/* AI Explanation Callout */}
-                      {car.aiExplanation && (
-                        <div className="mt-3 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 rounded-xl p-2.5 text-[11px] text-purple-900 dark:text-purple-300 font-medium">
-                          <span className="font-extrabold text-purple-700 dark:text-purple-400">AI Note: </span>
-                          {car.aiExplanation}
+                      {/* Price & Booking Footer */}
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 mt-auto">
+                        <div>
+                          <div className="text-lg font-black text-slate-900 dark:text-white leading-none">
+                            {formatPrice(rentalType === 'day' ? car.pricePerDay : Math.round(car.pricePerDay / 10))}
+                            <span className="text-[11px] font-normal text-slate-400">/{rentalType === 'day' ? 'day' : 'hr'}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
+                            Est. {formatPrice(car.totalPrice)} for {car.daysCount} days
+                          </span>
                         </div>
-                      )}
-                    </div>
 
-                  </div>
-
-                  {/* RIGHT: Price & DiscoverCars Affiliate CTA (md:col-span-3) */}
-                  <div className="md:col-span-3 p-5 bg-slate-50/50 dark:bg-slate-900/40 flex flex-col justify-between space-y-4">
-                    
-                    {/* Top Action Icons (Share & Favorite & Compare Checkbox) */}
-                    <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={isCompared}
-                          onChange={() => toggleCompare(car.id)}
-                          className="accent-purple-600 rounded"
-                        />
-                        <span>Compare</span>
-                      </label>
-
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={e => toggleFavorite(car.id, e)}
-                          className={`p-1.5 rounded-full transition-colors ${
-                            isFav ? 'text-red-500 bg-red-50 dark:bg-red-950/40' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'
-                          }`}
-                          title="Save to favorites"
+                        <a
+                          href={car.bookingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 transform active:scale-95"
                         >
-                          <Heart size={16} className={isFav ? 'fill-current' : ''} />
-                        </button>
+                          <span>Book Now</span>
+                          <ExternalLink size={13} />
+                        </a>
                       </div>
                     </div>
-
-                    {/* Price Block */}
-                    <div>
-                      <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                        Price for {car.daysCount} days
-                      </div>
-                      <div className="text-2xl font-black text-slate-900 dark:text-white leading-none mt-0.5">
-                        {formatPrice(car.totalPrice, car.currency)}
-                      </div>
-                      <div className="text-xs font-extrabold text-purple-600 dark:text-purple-400 mt-1">
-                        {formatPrice(car.pricePerDay, car.currency)} / day
-                      </div>
-                      <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-1">
-                        <CheckCircle2 size={11} /> Includes taxes and fees
-                      </div>
-                    </div>
-
-                    {/* CTA Button: View on DiscoverCars ↗ */}
-                    <div className="space-y-1.5">
-                      <a
-                        href={car.bookingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 text-center cursor-pointer"
-                      >
-                        <span>View on DiscoverCars</span>
-                        <ExternalLink size={14} />
-                      </a>
-                      
-                      <div className="text-[9.5px] font-medium text-slate-400 text-center leading-tight">
-                        You will be redirected to our affiliate partner DiscoverCars.com
-                      </div>
-                    </div>
-
                   </div>
-
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center space-y-4 shadow-sm">
+              <Car size={40} className="mx-auto text-slate-300 dark:text-slate-600" />
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                No vehicles match your active filters
+              </h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try widening your price slider or clearing selected body categories.
+              </p>
+              <button
+                onClick={resetFilters}
+                className="bg-purple-600 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow-md"
+              >
+                Reset All Filters
+              </button>
+            </div>
+          )}
 
         </div>
 
       </div>
-
-      {/* ── FLOATING VEHICLE COMPARISON DRAWER ── */}
-      {comparedVehicles.length > 0 && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white border border-slate-800 rounded-2xl shadow-2xl p-4 z-50 flex items-center justify-between gap-6 max-w-2xl w-full mx-auto animate-bounce-short">
-          <div className="flex items-center gap-3">
-            <span className="bg-purple-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">
-              {comparedVehicles.length} / 3
-            </span>
-            <div className="text-xs font-bold">
-              <div>Comparing Selected Vehicles</div>
-              <div className="text-[10px] text-slate-400">
-                {comparedVehicles.map(c => c.name.split('or')[0]).join(', ')}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsCompareOpen(true)}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 font-extrabold text-xs rounded-xl transition-all cursor-pointer"
-            >
-              Compare Cars
-            </button>
-            <button
-              type="button"
-              onClick={() => setComparedCarIds([])}
-              className="p-2 text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* COMPARISON MODAL */}
-      {isCompareOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <Car size={20} className="text-purple-600" /> Vehicle Specs Comparison
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsCompareOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Comparison Table Grid */}
-            <div className="grid grid-cols-3 gap-4">
-              {comparedVehicles.map(car => (
-                <div key={car.id} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
-                  <img src={car.image} alt={car.name} className="w-full h-28 object-contain" />
-                  <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">{car.name}</h4>
-                  
-                  <div className="space-y-2 text-xs font-bold text-slate-600 dark:text-slate-300">
-                    <div className="flex justify-between"><span>Daily Price:</span> <strong className="text-purple-600">{formatPrice(car.pricePerDay, car.currency)}</strong></div>
-                    <div className="flex justify-between"><span>Supplier:</span> <span>{car.supplier.name}</span></div>
-                    <div className="flex justify-between"><span>Category:</span> <span>{car.category}</span></div>
-                    <div className="flex justify-between"><span>Transmission:</span> <span>{car.transmission}</span></div>
-                    <div className="flex justify-between"><span>Fuel:</span> <span>{car.fuelType}</span></div>
-                    <div className="flex justify-between"><span>Seats:</span> <span>{car.seats} Seats</span></div>
-                    <div className="flex justify-between"><span>Bags:</span> <span>{car.bags} Bags</span></div>
-                    <div className="flex justify-between"><span>Cancellation:</span> <span className="text-emerald-600">{car.cancellationPolicy}</span></div>
-                  </div>
-
-                  <a
-                    href={car.bookingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full py-2 bg-purple-600 text-white font-extrabold text-xs rounded-xl text-center"
-                  >
-                    Book on DiscoverCars ↗
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   )

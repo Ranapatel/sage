@@ -70,11 +70,19 @@ Return JSON in this exact schema:
           "category": "culture|nature|dining|activity|transport|shopping|accommodation",
           "coordinates": [latitude, longitude],
           "description": "Brief description mentioning local city context, under 100 chars",
-          "estimatedCost": 20
+          "estimatedCost": 20,
+          "why": "Specific rationale for why this item was chosen at this timing"
         }
       ]
     }
   ],
+  "explanations": {
+    "whyHotel": "Explanation of why the stay location was selected based on budget and convenience.",
+    "whyActivity": "Explanation of why these specific activities match traveler interests.",
+    "whyRestaurant": "Explanation of dining choices based on regional cuisine and timing.",
+    "whyRoute": "Explanation of route sequence optimization to minimize travel distance.",
+    "whyTiming": "Explanation of why times were scheduled (avoiding crowds/heat)."
+  },
   "totalEstimatedCost": 500,
   "budgetBreakdown": {
     "flightsEstimate": 0,
@@ -89,8 +97,8 @@ Return JSON in this exact schema:
   } else {
     // Single city mode
     const destinationCity = destination.split(',')[0].trim()
-    systemPrompt = `You are TripSage, a professional AI travel planner.
-Your job: generate a precise, day-by-day itinerary ONLY for the destination city.
+    systemPrompt = `You are TripSage, a professional AI travel planner with contextual travel intelligence.
+Your job: generate a precise, day-by-day itinerary ONLY for the destination city, along with explicit contextual explanations for your choices.
 
 CRITICAL LOCATION RULES — NEVER VIOLATE:
 1. DESTINATION CITY: "${destinationCity}". Every single place, activity, landmark, restaurant, and attraction MUST be physically located in ${destinationCity} or its immediate surrounding area.
@@ -107,6 +115,7 @@ ${originCity ? `2. ORIGIN CITY: "${originCity}" is ONLY where the traveler depar
    - "City Exploration" (no neighborhood specified)
 4. COORDINATES: GPS coordinates must be REAL coordinates inside ${destinationCity}, not generic or approximate.
 5. DESCRIPTIONS: All descriptions must reference specific ${destinationCity} landmarks, streets, or local context.
+6. EXPLANATIONS: You MUST provide an "explanations" block answering: why this hotel, why these activities, why these restaurants, why this route, and why this timing.
 
 OTHER RULES:
 - Return ONLY valid JSON, no explanations, no markdown
@@ -142,11 +151,19 @@ Return JSON in this exact schema:
           "category": "culture|nature|dining|activity|transport|shopping|accommodation",
           "coordinates": [latitude, longitude],
           "description": "Brief description mentioning specific ${destinationCity} context, under 100 chars",
-          "estimatedCost": 20
+          "estimatedCost": 20,
+          "why": "Rationale for selecting this activity and timing"
         }
       ]
     }
   ],
+  "explanations": {
+    "whyHotel": "Chosen for prime central location and optimal budget balance.",
+    "whyActivity": "Curated to match preferred travel style and interest tags.",
+    "whyRestaurant": "Selected for authentic local culinary rating and convenient proximity.",
+    "whyRoute": "Sequenced geographically to minimize intra-city travel time.",
+    "whyTiming": "Scheduled during ideal daylight and lower crowd hours."
+  },
   "totalEstimatedCost": 500,
   "budgetBreakdown": {
     "transportEstimate": 0,
@@ -402,7 +419,8 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
       category: morningTemplate.category,
       coordinates: [20.0 + (i * 0.01) + (Math.random() * 0.005), 70.0 + (i * 0.01) + (Math.random() * 0.005)],
       description: morningTemplate.desc.replace(/\{city\}/g, activeCity),
-      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8)
+      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8),
+      why: `Optimal morning schedule to avoid peak crowds in ${activeCity}.`
     })
 
     // 2. Afternoon stop (14:00)
@@ -413,7 +431,8 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
       category: afternoonTemplate.category,
       coordinates: [20.0 + (i * 0.01) + 0.02 + (Math.random() * 0.005), 70.0 + (i * 0.01) + 0.02 + (Math.random() * 0.005)],
       description: afternoonTemplate.desc.replace(/\{city\}/g, activeCity),
-      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8)
+      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8),
+      why: `Selected for indoor comfort and authentic local experiences in ${activeCity}.`
     })
 
     // 3. Evening stop (18:00)
@@ -424,7 +443,8 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
       category: eveningTemplate.category,
       coordinates: [20.0 + (i * 0.01) + 0.04 + (Math.random() * 0.005), 70.0 + (i * 0.01) + 0.04 + (Math.random() * 0.005)],
       description: eveningTemplate.desc.replace(/\{city\}/g, activeCity),
-      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8)
+      estimatedCost: Math.floor((budget / (totalDays * 3)) * 0.8),
+      why: `Perfect sunset & nightlife atmosphere in ${activeCity}.`
     })
 
     itinerary.push({
@@ -438,6 +458,13 @@ function getMockItinerary({ destination, days, budget, members, startDate, isMul
 
   return {
     itinerary,
+    explanations: {
+      whyHotel: `Central stay chosen in ${primaryCity} to keep transit times under 15 minutes.`,
+      whyActivity: `Activities selected match travel preferences for culture, nature, and local living.`,
+      whyRestaurant: `Dining spots feature top-rated authentic regional fare within your allocated food budget.`,
+      whyRoute: `Sequential route minimizes backtracking across city districts.`,
+      whyTiming: `Time slots organized to avoid noon heat and peak rush hours.`
+    },
     totalEstimatedCost: Math.floor(budget * 0.9),
     tips: [
       `Book local transport in ${primaryCity} in advance for better rates.`,

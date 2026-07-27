@@ -1,3 +1,5 @@
+import { isSameCountry } from './countryUtils'
+
 // ─── AI Smart Train Planner Engine & IRCTC Deep Link Builder ──────────────────
 
 export interface TrainLeg {
@@ -197,6 +199,38 @@ export function generateSmartTrainRoutes(params: {
   travelClass?: string
   rawTrains?: any[]
 }): SmartTrainPlannerResult {
+  if (!isSameCountry(params.origin, params.destination)) {
+    const emptyRoute: SmartTrainRoute = {
+      id: 'empty-international',
+      type: 'best',
+      title: 'International Train Unavailable',
+      isRecommended: false,
+      isDirectRoute: false,
+      comparisonLabel: 'International train services are not available for this route.',
+      totalDurationStr: 'N/A',
+      totalDurationMinutes: 0,
+      changesCount: 0,
+      totalCostMin: 0,
+      totalCostMax: 0,
+      aiConfidenceScore: 0,
+      legs: [],
+      transfers: [],
+      metrics: { comfort: 'Low', comfortStars: 1, crowd: 'High', reliability: 'Low' }
+    }
+    return {
+      origin: { name: params.origin, code: 'N/A' },
+      destination: { name: params.destination, code: 'N/A' },
+      distanceKm: 0,
+      hasDirectTrains: false,
+      aiAnalysisText: 'International train services are not available for this route.',
+      routes: {
+        best: emptyRoute,
+        fastest: emptyRoute,
+        cheapest: emptyRoute
+      }
+    }
+  }
+
   const originStation = resolveStation(params.origin)
   const destStation = resolveStation(params.destination)
 

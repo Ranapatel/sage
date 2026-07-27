@@ -1,3 +1,5 @@
+import { isSameCountry } from './countryUtils'
+
 // ─── AI Smart Bus Planner Engine & redBus Deep Link Builder ──────────────────
 
 export interface BusLeg {
@@ -170,6 +172,38 @@ export function generateSmartBusRoutes(params: {
 }): SmartBusPlannerResult {
   const originClean = (params.origin || 'Hyderabad').trim()
   const destClean = (params.destination || 'Goa').trim()
+
+  if (!isSameCountry(originClean, destClean)) {
+    const emptyRoute: SmartBusRoute = {
+      id: 'empty-international',
+      type: 'best',
+      title: 'International Bus Unavailable',
+      isRecommended: false,
+      isDirectRoute: false,
+      comparisonLabel: 'International bus services are not available for this route.',
+      totalDurationStr: 'N/A',
+      totalDurationMinutes: 0,
+      changesCount: 0,
+      totalCostMin: 0,
+      totalCostMax: 0,
+      aiConfidenceScore: 0,
+      legs: [],
+      transfers: [],
+      metrics: { comfort: 'Low', comfortStars: 1, crowd: 'High', reliability: 'Low' }
+    }
+    return {
+      origin: { name: originClean, terminal: 'N/A' },
+      destination: { name: destClean, terminal: 'N/A' },
+      distanceKm: 0,
+      hasDirectBuses: false,
+      aiAnalysisText: 'International bus services are not available for this route.',
+      routes: {
+        best: emptyRoute,
+        fastest: emptyRoute,
+        cheapest: emptyRoute
+      }
+    }
+  }
 
   const originLower = originClean.toLowerCase()
   const destLower = destClean.toLowerCase()

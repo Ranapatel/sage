@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUser, useClerk } from '@clerk/nextjs'
@@ -20,9 +21,39 @@ export default function UserMenu() {
   const { user: storeUser, isLoggedIn: isStoreLoggedIn, logout: storeLogout } = useAuthStore()
 
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [coords, setCoords] = useState<{ top: number; right: number }>({ top: 60, right: 16 })
+
   const menuRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   const isSignedIn = isClerkSignedIn || isStoreLoggedIn
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const updateCoords = useCallback(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setCoords({
+        top: rect.bottom + 8,
+        right: Math.max(12, window.innerWidth - rect.right),
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      updateCoords()
+      window.addEventListener('resize', updateCoords)
+      window.addEventListener('scroll', updateCoords, true)
+    }
+    return () => {
+      window.removeEventListener('resize', updateCoords)
+      window.removeEventListener('scroll', updateCoords, true)
+    }
+  }, [isOpen, updateCoords])
 
   const user = isClerkSignedIn && clerkUser
     ? {
@@ -44,7 +75,11 @@ export default function UserMenu() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      if (
+        menuRef.current && !menuRef.current.contains(target) &&
+        buttonRef.current && !buttonRef.current.contains(target)
+      ) {
         setIsOpen(false)
       }
     }
@@ -114,52 +149,24 @@ export default function UserMenu() {
     },
   ]
 
-  return (
-    <div className="relative inline-block text-left" ref={menuRef}>
-
-      {/* ── Trigger Button ── */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        className={`flex items-center gap-2.5 border transition-all duration-200 px-2.5 py-1.5 rounded-full cursor-pointer bg-white select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C] ${
-          isOpen
-            ? 'border-slate-300 shadow-lg'
-            : 'border-slate-200/80 hover:border-slate-300 hover:shadow-md'
-        }`}
-      >
-        <Menu size={16} strokeWidth={1.5} className={`transition-colors ${isOpen ? 'text-[#1C1917]' : 'text-[#57534E]'}`} />
-
-        {isSignedIn && user ? (
-          user.imageUrl ? (
-            <img
-              src={user.imageUrl}
-              alt={user.name}
-              className="w-7 h-7 rounded-full object-cover ring-2 ring-white shadow"
-            />
-          ) : (
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-black text-xs shadow">
-              {user.initial}
-            </div>
-          )
-        ) : (
-          <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-            <User size={16} strokeWidth={1.5} className="text-[#57534E]" />
-          </div>
-        )}
-      </button>
-
-      {/* ── Dropdown ── */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -8 }}
-            transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute right-0 mt-2 w-[280px] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[1000] focus:outline-none"
-            role="menu"
-          >
+  const dropdownJSX = (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          ref={menuRef}
+          initial={{ opacity: 0, scale: 0.96, y: -8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: -8 }}
+          transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'fixed',
+            top: `${coords.top}px`,
+            right: `${coords.right}px`,
+            zIndex: 999999,
+          }}
+          className="w-[290px] sm:w-[320px] bg-white rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] border border-slate-200 overflow-hidden focus:outline-none"
+          role="menu"
+        >
             {isSignedIn && user ? (
               <>
                 {/* ── User Header ── */}
@@ -295,7 +302,48 @@ export default function UserMenu() {
             )}
           </motion.div>
         )}
-      </AnimatePresence>
+    </AnimatePresence>
+  )
+
+  return (
+    <div className="relative inline-block text-left">
+      {/* ── Trigger Button ── */}
+      <button
+        ref={buttonRef}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        className={`flex items-center gap-2.5 border transition-all duration-200 px-2.5 py-1.5 rounded-full cursor-pointer bg-white select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C] ${
+          isOpen
+            ? 'border-slate-300 shadow-lg'
+            : 'border-slate-200/80 hover:border-slate-300 hover:shadow-md'
+        }`}
+      >
+        <Menu size={16} strokeWidth={1.5} className={`transition-colors ${isOpen ? 'text-[#1C1917]' : 'text-[#57534E]'}`} />
+
+        {isSignedIn && user ? (
+          user.imageUrl ? (
+            <img
+              src={user.imageUrl}
+              alt={user.name}
+              className="w-7 h-7 rounded-full object-cover ring-2 ring-white shadow"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-black text-xs shadow">
+              {user.initial}
+            </div>
+          )
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+            <User size={16} strokeWidth={1.5} className="text-[#57534E]" />
+          </div>
+        )}
+      </button>
+
+      {/* ── Portal Rendered Dropdown Menu ── */}
+      {mounted && typeof document !== 'undefined'
+        ? createPortal(dropdownJSX, document.body)
+        : null}
     </div>
   )
 }

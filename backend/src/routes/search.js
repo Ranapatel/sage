@@ -15,6 +15,7 @@ try {
 }
 const { v4: uuidv4 } = require('uuid')
 const { fetchWithRetry } = require('../utils/fetchWithRetry')
+const { isSameCountry } = require('../utils/countryUtils')
 const axios = require('axios')
 
 // Input validation
@@ -141,6 +142,8 @@ router.post('/', searchValidation, async (req, res) => {
     }
 
     // Single city fallback (existing path)
+    const isDomesticRoute = isSameCountry(from, to);
+
     const [flightResult, hotelResult, busResult, carResult, weatherResult, trainResult] = await Promise.all([
       fetchWithRetry(
         () => searchFlights({ from, to, date: startDate, returnDate: endDate, travelers, budget }),
@@ -150,10 +153,12 @@ router.post('/', searchValidation, async (req, res) => {
         () => searchHotels({ destination: to, checkin: startDate, checkout: endDate, members: travelers, budget, rooms, adults, children }),
         { timeout: 12000, maxRetries: 2, label: 'Hotels' }
       ).catch(() => ({ data: generateMockHotels(to, startDate, endDate, travelers, budget), meta: { source: 'fallback' } })),
-      fetchWithRetry(
-        () => searchBuses({ from, to, date: startDate, budget }),
-        { timeout: 4000, maxRetries: 1, label: 'Buses' }
-      ).catch(() => ({ data: [] })),
+      isDomesticRoute
+        ? fetchWithRetry(
+            () => searchBuses({ from, to, date: startDate, budget }),
+            { timeout: 4000, maxRetries: 1, label: 'Buses' }
+          ).catch(() => ({ data: [] }))
+        : Promise.resolve({ success: false, results: [], isDomestic: false, message: 'International bus services are not available for this route.' }),
       fetchWithRetry(
         () => searchCars({ destination: to, date: startDate, budget }),
         { timeout: 4000, maxRetries: 1, label: 'Cars' }
@@ -162,23 +167,25 @@ router.post('/', searchValidation, async (req, res) => {
         () => getWeather(to),
         { timeout: 4000, maxRetries: 1, label: 'Weather' }
       ).catch(() => ({ data: null })),
-      fetchWithRetry(
-        async () => {
-          const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
-          const response = await axios.post(`${nestUrl}/api/train/search`, {
-            departureCity: from,
-            destinationCity: to,
-            departureDate: startDate,
-            passengers: travelers || 1,
-            travelClass: 'ALL'
-          }, { timeout: 3000 });
-          return response.data;
-        },
-        { timeout: 4000, maxRetries: 0, label: 'Trains' }
-      ).catch((err) => {
-        console.warn('[Search Route] Train search fallback:', err.message);
-        return [];
-      }),
+      isDomesticRoute
+        ? fetchWithRetry(
+            async () => {
+              const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
+              const response = await axios.post(`${nestUrl}/api/train/search`, {
+                departureCity: from,
+                destinationCity: to,
+                departureDate: startDate,
+                passengers: travelers || 1,
+                travelClass: 'ALL'
+              }, { timeout: 3000 });
+              return response.data;
+            },
+            { timeout: 4000, maxRetries: 0, label: 'Trains' }
+          ).catch((err) => {
+            console.warn('[Search Route] Train search fallback:', err.message);
+            return [];
+          })
+        : Promise.resolve({ trains: [], isDomestic: false, message: 'International train services are not available for this route.' }),
     ])
 
     const hotels = hotelResult.data || []

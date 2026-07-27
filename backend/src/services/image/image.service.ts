@@ -49,13 +49,13 @@ export class ImageService {
    * provider priority + intelligent scoring.
    *
    * Priority matrix (from product requirements):
-   * - Hotels:       Hotelbeds → Google → Unsplash → Pexels → Placeholder
-   * - Restaurants:  Google → Unsplash → Pexels → Placeholder
-   * - Attractions:  Google → Unsplash → Pexels → Placeholder
-   * - Destinations: Unsplash → Pexels → Google → Placeholder
-   * - Hero:         Unsplash → Pexels → Placeholder
-   * - Activities:   Google → Pexels → Unsplash → Placeholder
-   * - Rental Cars:  Pexels → Unsplash → Placeholder
+   * - Hotels:       Hotelbeds → Google → Pexels → Unsplash → TripSage Placeholder
+   * - Restaurants:  Google → Pexels → Unsplash → Placeholder
+   * - Attractions:  Google → Pexels → Unsplash → Placeholder
+   * - Destinations: Pexels → Unsplash → Google → Placeholder
+   * - Hero:         Pexels → Unsplash → Google
+   * - Activities:   Google → Pexels → Unsplash
+   * - Rental Cars:  Pexels → Unsplash → Placeholder (No Google Places)
    */
   public static async resolveImage(
     rawQuery: string,
