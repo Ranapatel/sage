@@ -27,8 +27,8 @@ import {
 } from '@/components/ui/TripSageIcons'
 
 export const handleUniversalShare = (item: any) => {
-  const cleanName = item.name?.split('â€”')[0]?.trim() ?? 'Transit Option'
-  const fareStr = item.price ? `â‚¹${Math.round(item.price)}` : 'Estimate'
+  const cleanName = item.name?.split('Ã¢â‚¬â€')[0]?.trim() ?? 'Transit Option'
+  const fareStr = item.price ? `Ã¢â€šÂ¹${Math.round(item.price)}` : 'Estimate'
   
   const shareTitle = `TripSage Travel Recommendation`
   const shareText = `Check out this travel option on TripSage:\n\n* ${cleanName}\nTiming: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\nPrice: ${fareStr}/person\n\nPlan and view details on TripSage!`
@@ -47,7 +47,7 @@ export const handleUniversalShare = (item: any) => {
   }
 }
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Types Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 interface Props {
   transport: any[]
@@ -62,7 +62,7 @@ interface Props {
 
 type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-routes'
 
-// ─── Airline badge data ───────────────────────────────────────────────────────
+// â”€â”€â”€ Airline badge data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const AIRLINE_LOGOS: Record<string, string> = {
   indigo:    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/IndiGo_Airlines_logo.svg/200px-IndiGo_Airlines_logo.svg.png',
@@ -84,7 +84,7 @@ const AIRLINE_COLORS: Record<string, string> = {
   qatar: '#5C0632', singapore: '#1E3A5F', default: '#EA580C',
 }
 
-// ─── Airline aircraft background photos ───────────────────────────────────────
+// â”€â”€â”€ Airline aircraft background photos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const AIRLINE_IMAGES: Record<string, string> = {
   indigo:       'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1200&q=85&auto=format&fit=crop',
   '6e':         'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1200&q=85&auto=format&fit=crop',
@@ -151,13 +151,13 @@ function getAirlineColor(name: string): string {
 }
 
 function getAirlineInitials(name: string): string {
-  const clean = name.split('—')[0].split('-')[0].trim()
+  const clean = name.split('â€”')[0].split('-')[0].trim()
   const words = clean.split(' ').filter(Boolean)
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
   return clean.slice(0, 2).toUpperCase()
 }
 
-// â”€â”€â”€ Sage Score calculation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Sage Score calculation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function calcSageScore(item: any, allItems: any[]): number {
   if (!item) return 75
@@ -211,7 +211,7 @@ function calcSageScore(item: any, allItems: any[]): number {
   return Math.max(65, Math.min(99, finalScore))
 }
 
-// â”€â”€â”€ Sage Score Badge (SVG ring) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Sage Score Badge (SVG ring) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function SageScoreRing({ score: rawScore, dark }: { score: number; dark?: boolean }) {
   const score = Number.isFinite(rawScore) ? Math.max(0, Math.min(100, Math.round(rawScore))) : 70
@@ -338,7 +338,7 @@ function SkeletonCompactCard() {
   )
 }
 
-// â”€â”€â”€ Route Match Indicator Pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Route Match Indicator Pill Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function MatchPill({
   icon: Icon, label, value, color
@@ -361,7 +361,7 @@ function MatchPill({
   )
 }
 
-// â”€â”€â”€ Budget Fit Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Budget Fit Bar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price: number; budget: number; label?: string; totalPrice?: number; passengers?: number }) {
   const totalCost = totalPrice || (price * (passengers || 1))
@@ -383,7 +383,7 @@ function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price:
   )
 }
 
-// â”€â”€â”€ Best Value Route Card (hero) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Best Value Route Card (hero) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function BestValueCard({
   item, allItems, budget, symbol, locale, from, to, topPick
@@ -399,14 +399,14 @@ function BestValueCard({
   const ctaText = isFlight ? 'Book Flight' : isBus ? 'Book Bus' : isTrain ? 'Book Train' : 'Book Rental'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
-  const cleanName = item.name?.split('â€”')[0]?.trim() ?? 'Best Route'
+  const cleanName = item.name?.split('Ã¢â‚¬â€')[0]?.trim() ?? 'Best Route'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
   const bgImg = getCardBgImage(item)
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
 
-      {/* â”€â”€ Aircraft hero image â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Aircraft hero image Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {bgImg && (
         <div className="relative w-full h-52 overflow-hidden">
           <img
@@ -429,7 +429,7 @@ function BestValueCard({
               </span>
             )}
           </div>
-          <span className="absolute top-4 right-4 text-[12px] text-white/90 font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">{typeLabel} Â· Recommended</span>
+          <span className="absolute top-4 right-4 text-[12px] text-white/90 font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">{typeLabel} Ã‚Â· Recommended</span>
           
           {/* Route + Carrier logo bottom of image */}
           <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
@@ -438,7 +438,7 @@ function BestValueCard({
                 className="text-[22px] font-extrabold text-white leading-tight drop-shadow-sm"
                 style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
               >
-                {from?.split(',')[0]} â†’ {to?.split(',')[0]}
+                {from?.split(',')[0]} Ã¢â€ â€™ {to?.split(',')[0]}
               </p>
               <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1 rounded-xl shadow-md border border-white/40 mt-1.5 inline-flex">
                 {getAirlineLogo(cleanName) ? (
@@ -460,7 +460,7 @@ function BestValueCard({
         </div>
       )}
 
-      {/* â”€â”€ White content area â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ White content area Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="p-6 sm:p-7 flex flex-col justify-between">
         {/* If no image (bus/cab), show header row */}
         {!bgImg && (
@@ -475,7 +475,7 @@ function BestValueCard({
                 </span>
               )}
             </div>
-            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} Â· Recommended route</span>
+            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} Ã‚Â· Recommended route</span>
           </div>
         )}
 
@@ -502,7 +502,7 @@ function BestValueCard({
               {symbol}{Math.round(item.perPassengerPrice || item.price).toLocaleString(locale)}
             </p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[12px] font-semibold text-slate-500">per person Â· estimated</span>
+              <span className="text-[12px] font-semibold text-slate-500">per person Ã‚Â· estimated</span>
               {item.totalPrice && item.passengers > 1 && (
                 <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
                   {symbol}{Math.round(item.totalPrice).toLocaleString(locale)} total ({item.passengers} travelers)
@@ -546,7 +546,7 @@ function BestValueCard({
   )
 }
 
-// â”€â”€â”€ Compact Comparison Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Compact Comparison Card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function ComparisonCard({
   item, allItems, budget, symbol, locale, isTopPick
@@ -563,7 +563,7 @@ function ComparisonCard({
   const comfortColor = item.rating >= 4.5 ? 'bg-blue-100 text-blue-800' : item.rating >= 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
   const bgImg = getCardBgImage(item)
-  const carrierName = item.name?.split('â€”')[0]?.trim() ?? typeLabel
+  const carrierName = item.name?.split('Ã¢â‚¬â€')[0]?.trim() ?? typeLabel
   const logoUrl = getAirlineLogo(item.name ?? '')
 
   return (
@@ -630,7 +630,7 @@ function ComparisonCard({
                   )}
                 </div>
                 <p className="text-slate-500 text-xs font-medium mt-0.5">
-                  {item.name?.split('â€”')[0]?.trim()}
+                  {item.name?.split('Ã¢â‚¬â€')[0]?.trim()}
                 </p>
               </div>
             </div>
@@ -638,7 +638,7 @@ function ComparisonCard({
           </div>
         )}
 
-        {/* â”€â”€ Card Content Body â”€â”€ */}
+        {/* Ã¢â€â‚¬Ã¢â€â‚¬ Card Content Body Ã¢â€â‚¬Ã¢â€â‚¬ */}
         <div className="p-4 flex flex-col gap-3">
           {/* Route info / Comfort pills */}
           <div className="flex flex-wrap gap-1.5 items-center">
@@ -647,7 +647,7 @@ function ComparisonCard({
             </span>
             {item.departure && item.arrival && (
               <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                {item.departure} â†’ {item.arrival}
+                {item.departure} Ã¢â€ â€™ {item.arrival}
               </span>
             )}
             {item.duration && (
@@ -664,7 +664,7 @@ function ComparisonCard({
             </div>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <span className="text-xs font-semibold text-slate-400">
-                per person â€¢ estimated
+                per person Ã¢â‚¬Â¢ estimated
               </span>
               {item.totalPrice && item.passengers > 1 && (
                 <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
@@ -682,7 +682,7 @@ function ComparisonCard({
           )}
         </div>
 
-      {/* â”€â”€ Fixed Bottom CTA Row â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Fixed Bottom CTA Row Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="p-4 pt-0 mt-auto flex items-center gap-2">
         <a
           href={item.bookingLink ?? '#'}
@@ -691,7 +691,7 @@ function ComparisonCard({
           onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
           className="flex-1 py-2.5 px-4 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all text-center"
         >
-          {ctaText} â†’
+          {ctaText} Ã¢â€ â€™
         </a>
         <button
           onClick={() => handleUniversalShare(item)}
@@ -705,7 +705,7 @@ function ComparisonCard({
   )
 }
 
-// â”€â”€â”€ Empty State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Empty State Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function EmptyState({ type, error, onSwitch }: { type: string; error?: string | null; onSwitch?: () => void }) {
   if (type === 'flights') {
@@ -784,7 +784,7 @@ function EmptyState({ type, error, onSwitch }: { type: string; error?: string | 
   )
 }
 
-// â”€â”€â”€ ROOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ ROOT Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 function TransportTab({
   transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR', error
@@ -799,7 +799,7 @@ function TransportTab({
   const from = tripContext?.startLocation || searchForm?.from || ''
   const destCity = dest.split(',')[0].trim()
 
-  // Split transport list by type â€” flights enabled
+  // Split transport list by type Ã¢â‚¬â€ flights enabled
   const { flights, trains, buses, cabs } = useMemo(() => {
     const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure && t.type !== 'train' && t.type !== 'bus' && t.type !== 'car' && t.type !== 'cab'))
     const trains = transport.filter(t => t.type === 'train')
@@ -881,7 +881,7 @@ function TransportTab({
 
       <div className="space-y-6">
 
-        {/* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Ã¢â€â‚¬Ã¢â€â‚¬ HEADER Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
         <div>
           <h1
             className="text-[24px] font-bold text-[#1A1A1A] leading-tight mb-1.5"
@@ -890,11 +890,11 @@ function TransportTab({
             Travel to {destCity || 'your destination'}
           </h1>
           <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-xl">
-            Compare the best ways to reach your destination â€” time, comfort, and budget all in one view.
+            Compare the best ways to reach your destination Ã¢â‚¬â€ time, comfort, and budget all in one view.
           </p>
         </div>
 
-        {/* â”€â”€ SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Ã¢â€â‚¬Ã¢â€â‚¬ SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
         <div className="space-y-2">
           {/* Top Swipe Hint */}
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">
@@ -947,7 +947,7 @@ function TransportTab({
           </div>
         </div>
 
-        {/* â”€â”€ SMART ROUTES (Transport Intelligence) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* â€”â€”â€”â€” SMART ROUTES (Transport Intelligence) â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€” */}
         {segment === 'smart-routes' && (
           <TransportPlanner
             defaultOrigin={from}
@@ -956,7 +956,7 @@ function TransportTab({
           />
         )}
 
-        {/* â”€â”€ TRAINS PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* â€”â€”â€”â€” TRAINS PANEL â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€” */}
         {segment === 'trains' && (
           isSameCountry(from, dest) ? (
             <TrainsPanel
@@ -980,7 +980,7 @@ function TransportTab({
           )
         )}
 
-        {/* â”€â”€ BUSES PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* â€”â€”â€”â€” BUSES PANEL â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€” */}
         {segment === 'buses' && (
           isSameCountry(from, dest) ? (
             <BusesPanel
@@ -1004,7 +1004,7 @@ function TransportTab({
           )
         )}
 
-        {/* â”€â”€ FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) â”€â”€â”€â”€â”€ */}
+        {/* Ã¢â€â‚¬Ã¢â€â‚¬ FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
         {segment === 'flights' && (
           <AiFlightSearch
             flights={flights}
@@ -1021,18 +1021,13 @@ function TransportTab({
           />
         )}
 
-<<<<<<< HEAD
-        {/* â”€â”€ BEST VALUE CARD (for Recommended & Cabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
-=======
-        {/* ── CABS / RENTAL CARS PANEL ────────────────────────────────── */}
+        {/* â”€â”€ CABS / RENTAL CARS PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment === 'cabs' && (
           <CarsTab />
         )}
 
-        {/* ── BEST VALUE CARD (for Recommended Overview) ──────────────── */}
+        {/* â”€â”€ BEST VALUE CARD (for Recommended Overview) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment === 'recommended' && (loading ? (
->>>>>>> 5f116d2f81dd81cb53265927dca5ed2f39e14fe5
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -1053,13 +1048,8 @@ function TransportTab({
           />
         ))}
 
-<<<<<<< HEAD
-        {/* â”€â”€ COMPARISON GRID (for Recommended & Cabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && !loading && gridItems.length > 0 && (
-=======
-        {/* ── COMPARISON GRID (for Recommended Overview) ──────────────── */}
+        {/* â”€â”€ COMPARISON GRID (for Recommended Overview) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment === 'recommended' && !loading && gridItems.length > 0 && (
->>>>>>> 5f116d2f81dd81cb53265927dca5ed2f39e14fe5
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-[#1A1A1A]">
@@ -1093,7 +1083,7 @@ function TransportTab({
           </div>
         )}      </div>
 
-      {/* â”€â”€ MOBILE STICKY BOTTOM CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ MOBILE STICKY BOTTOM CTA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="lg:hidden fixed bottom-[60px] left-0 right-0 z-40 px-4 pb-3 pt-3 bg-gradient-to-t from-[#FFFBF7] via-[#FFFBF7]/90 to-transparent">
         {bestForSegment ? (
           <a
