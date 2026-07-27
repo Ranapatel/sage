@@ -136,13 +136,13 @@ router.get('/autocomplete', async (req, res) => {
 
   const rawQuery = (req.query.query || '').trim()
   if (!rawQuery || rawQuery.length < 2) {
-    return res.status(400).json({ success: false, error: 'Query must be at least 2 characters' })
+    return res.json({ success: true, data: cityFallback(rawQuery || 'a'), source: 'builtin' })
   }
 
   // Normalize: strip country part — "goa, indi" → "goa", "Paris, France" → "Paris"
   const query = rawQuery.split(',')[0].trim()
   if (query.length < 2) {
-    return res.status(400).json({ success: false, error: 'Query must be at least 2 characters' })
+    return res.json({ success: true, data: cityFallback(query || 'a'), source: 'builtin' })
   }
 
   // ── 1. Built-in city list — instant, always accurate ─────────────────────

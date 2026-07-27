@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react';
-import { Train, ExternalLink, Shield } from 'lucide-react';
+import { Train, ExternalLink, Shield, AlertCircle } from 'lucide-react';
 import BookingButton from '../BookingButton';
+import { isSameCountry } from '@/lib/countryUtils';
 
 interface TrainsEmptyProps {
   searchUrl: string;
@@ -11,6 +12,28 @@ interface TrainsEmptyProps {
 }
 
 export function TrainsEmpty({ searchUrl, origin = 'your origin', destination = 'your destination' }: TrainsEmptyProps) {
+  const isDomestic = isSameCountry(origin, destination);
+
+  if (!isDomestic) {
+    return (
+      <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
+        <div className="glass rounded-2xl border border-slate-200/60 p-8 text-center bg-white shadow-sm flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+            <Train size={32} />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xl font-black text-slate-800">International Train Services Not Available</h4>
+            <p className="text-sm text-slate-600 leading-relaxed max-w-md mx-auto font-medium">
+              International train services are not available for this route.
+            </p>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
+              Train travel is only available for domestic routes within the same country. Please check flight options for your international trip to <span className="font-bold text-slate-700">{destination}</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Branded Header */}

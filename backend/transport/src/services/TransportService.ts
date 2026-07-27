@@ -17,6 +17,7 @@ import {
   SearchBusesResult,
   CreateUberLinkDto,
 } from '../types/transport';
+import { isSameCountry } from '../utils/countryUtils';
 
 @Injectable()
 export class TransportService {
@@ -74,6 +75,23 @@ export class TransportService {
 
     // 1. Validate date
     this.validateDate(departureDate);
+
+    // International Route Check: Do not search for international train routes
+    if (!isSameCountry(departureCity, destinationCity)) {
+      return {
+        provider: 'MakeMyTrip',
+        origin: { name: departureCity, code: departureCity, city: departureCity },
+        destination: { name: destinationCity, code: destinationCity, city: destinationCity },
+        travelDate: departureDate,
+        preferredClass: travelClass || 'ALL',
+        searchUrl: '',
+        results: [],
+        cacheHit: false,
+        generatedAt: new Date().toISOString(),
+        message: 'International train services are not available for this route.',
+        isDomestic: false,
+      } as any;
+    }
 
     // 2. Resolve stations asynchronously
     const origin = await this.stationResolver.resolve(departureCity);
@@ -148,9 +166,29 @@ export class TransportService {
     // 1. Validate date
     this.validateDate(departureDate);
 
-    // 2. Resolve slugs asynchronously
-    const origin = await this.citySlugService.resolve(departureCity);
-    const destination = await this.citySlugService.resolve(destinationCity);
+    // 2. Resolve slugs asynchronously (catch resolution errors for unmapped international cities)
+    let origin;
+    let destination;
+    try {
+      origin = await this.citySlugService.resolve(departureCity);
+      destination = await this.citySlugService.resolve(destinationCity);
+    } catch (err) {
+      if (!isSameCountry(departureCity, destinationCity)) {
+        return {
+          provider: 'MakeMyTrip',
+          origin: { name: departureCity, slug: departureCity },
+          destination: { name: destinationCity, slug: destinationCity },
+          travelDate: departureDate,
+          searchUrl: '',
+          results: [],
+          cacheHit: false,
+          generatedAt: new Date().toISOString(),
+          message: 'International bus services are not available for this route.',
+          isDomestic: false,
+        } as any;
+      }
+      throw err;
+    }
 
     // 3. Check Cache
     const cacheKey = this.cacheService.generateKey(
@@ -184,11 +222,33 @@ export class TransportService {
       result.origin.name = origin.name;
       result.destination.name = destination.name;
 
+      if (!isSameCountry(departureCity, destinationCity)) {
+        (result as any).isDomestic = false;
+        if (!result.results || result.results.length === 0) {
+          (result as any).message = 'International bus services are not available for this route.';
+        }
+      }
+
       // 5. Save in cache
       await this.cacheService.set(cacheKey, result);
 
       return result;
     } catch (err) {
+      if (!isSameCountry(departureCity, destinationCity)) {
+        return {
+          provider: 'MakeMyTrip',
+          origin: { name: origin.name, slug: origin.slug },
+          destination: { name: destination.name, slug: destination.slug },
+          travelDate: departureDate,
+          searchUrl,
+          results: [],
+          cacheHit: false,
+          generatedAt: new Date().toISOString(),
+          message: 'International bus services are not available for this route.',
+          isDomestic: false,
+        } as any;
+      }
+
       const error = err as Error;
       console.error(
         '[TransportService] MakeMyTrip bus search failed:',

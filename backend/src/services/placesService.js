@@ -234,7 +234,16 @@ async function geocodePlace(placeName, cityContext = '') {
 }
 
 async function enrichItineraryWithRealCoords(itinerary, destination) {
+<<<<<<< Updated upstream
   const allPlaces = itinerary.flatMap(d => d.places || [])
+=======
+  if (!Array.isArray(itinerary)) {
+    console.warn('[Places] Warning: itinerary is not an array, skipping enrichment:', itinerary)
+    return itinerary || []
+  }
+
+  const allPlaces = itinerary.flatMap(d => (d && Array.isArray(d.places)) ? d.places : [])
+>>>>>>> Stashed changes
   const total = allPlaces.length
   const hasGoogle = process.env.GOOGLE_PLACES_API_KEY &&
     process.env.GOOGLE_PLACES_API_KEY !== 'your_google_places_key'

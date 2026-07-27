@@ -185,6 +185,29 @@ export function resolveStation(cityOrCode: string): { code: string; name: string
   return { code: uppercaseCode, name: cityOrCode }
 }
 
+import { isSameCountry } from './countryUtils'
+
+export interface SmartTrainPlannerResult {
+  origin: {
+    name: string
+    code: string
+  }
+  destination: {
+    name: string
+    code: string
+  }
+  distanceKm: number
+  hasDirectTrains: boolean
+  isDomestic?: boolean
+  aiAnalysisText: string
+  directVsSmartComparisonText?: string
+  routes: {
+    best: SmartTrainRoute
+    fastest: SmartTrainRoute
+    cheapest: SmartTrainRoute
+  }
+}
+
 /**
  * Synthesizes AI Smart Train Routes applying exact Smart Selection Rules:
  * Rule 1: Prioritize Direct Route if available & convenient.
@@ -199,38 +222,49 @@ export function generateSmartTrainRoutes(params: {
   travelClass?: string
   rawTrains?: any[]
 }): SmartTrainPlannerResult {
+  // International Route Check: Do not generate train routes or multi-leg combinations for international routes
   if (!isSameCountry(params.origin, params.destination)) {
-    const emptyRoute: SmartTrainRoute = {
-      id: 'empty-international',
+    const dummyLeg: TrainLeg = {
+      id: 'intl_unavailable',
+      fromCode: 'N/A',
+      fromName: params.origin || 'Origin',
+      toCode: 'N/A',
+      toName: params.destination || 'Destination',
+      departureTime: '--:--',
+      arrivalTime: '--:--',
+      durationStr: 'N/A',
+      durationMinutes: 0,
+      distanceKm: 0,
+      fares: {}
+    }
+    const dummyRoute: SmartTrainRoute = {
+      id: 'intl_unavailable_route',
       type: 'best',
-      title: 'International Train Unavailable',
-      isRecommended: false,
-      isDirectRoute: false,
-      comparisonLabel: 'International train services are not available for this route.',
+      title: 'International Train Services Not Available',
       totalDurationStr: 'N/A',
       totalDurationMinutes: 0,
       changesCount: 0,
       totalCostMin: 0,
       totalCostMax: 0,
       aiConfidenceScore: 0,
-      legs: [],
+      legs: [dummyLeg],
       transfers: [],
-      metrics: { comfort: 'Low', comfortStars: 1, crowd: 'High', reliability: 'Low' }
+      metrics: { comfort: 'Low', comfortStars: 1, crowd: 'Low', reliability: 'Low' }
     }
     return {
-      origin: { name: params.origin, code: 'N/A' },
-      destination: { name: params.destination, code: 'N/A' },
+      origin: { name: params.origin || 'Origin', code: 'N/A' },
+      destination: { name: params.destination || 'Destination', code: 'N/A' },
       distanceKm: 0,
       hasDirectTrains: false,
+      isDomestic: false,
       aiAnalysisText: 'International train services are not available for this route.',
       routes: {
-        best: emptyRoute,
-        fastest: emptyRoute,
-        cheapest: emptyRoute
+        best: dummyRoute,
+        fastest: dummyRoute,
+        cheapest: dummyRoute,
       }
     }
   }
-
   const originStation = resolveStation(params.origin)
   const destStation = resolveStation(params.destination)
 

@@ -139,6 +139,7 @@ app.use('/api/photos',        require('./modules/photos/photo.routes').default)
 // Transport Intelligence Module (Multi-Modal Journey Planning)
 app.use('/api/transport-intelligence', require('./modules/transport-intelligence/transportIntelligence.routes').default)
 
+<<<<<<< Updated upstream
 // Contextual Travel Intelligence (8-Phase Engine)
 app.use('/api/intelligence',  require('./routes/contextualIntelligence.routes').default)
 
@@ -151,6 +152,11 @@ app.use('/api/itinerary-intelligence', require('./routes/smartItinerary.routes')
 // Centralized Image Service (Google Places, Pexels, Unsplash, Redis)
 app.use('/api/images',        require('./routes/image.routes').default)
 app.use('/api/v1/images',     require('./routes/image.routes').default)
+=======
+// Multi-Source Image Service (Centralized Google Places, Pexels & Unsplash Orchestrator)
+app.use('/api/v1/images', require('./routes/image.routes').default)
+app.use('/api/images',    require('./routes/image.routes').default)
+>>>>>>> Stashed changes
 
 // Health check
 // Health check

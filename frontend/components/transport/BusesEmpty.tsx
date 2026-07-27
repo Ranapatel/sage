@@ -1,9 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Bus, Train, ArrowRight } from 'lucide-react'
+import { Bus, Train, ArrowRight, AlertCircle } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
 import BookingButton from '../BookingButton'
+import { isSameCountry } from '@/lib/countryUtils'
 
 interface BusesEmptyProps {
   origin?: string
@@ -18,6 +19,28 @@ export default function BusesEmpty({
 }: BusesEmptyProps) {
   const { setActiveTab } = useTripStore()
   const fallbackUrl = searchUrl || 'https://www.makemytrip.com/bus-tickets/'
+  const isDomestic = isSameCountry(origin, destination)
+
+  if (!isDomestic) {
+    return (
+      <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
+        <div className="glass rounded-2xl border border-slate-200/60 p-8 text-center bg-white shadow-sm flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+            <Bus size={32} />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xl font-black text-slate-800">International Bus Services Not Available</h4>
+            <p className="text-sm text-slate-600 leading-relaxed max-w-md mx-auto font-medium">
+              International bus services are not available for this route.
+            </p>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
+              Bus travel is only available for domestic routes within the same country. Please check flight options for your international trip to <span className="font-bold text-slate-700">{destination}</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">

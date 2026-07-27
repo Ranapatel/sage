@@ -205,7 +205,7 @@ export function ExploreSection({ destination: initialDestination }: Props) {
 
   const [searchDest, setSearchDest] = useState(initialDestination || '')
   const [activeDest, setActiveDest] = useState(initialDestination || '')
-  const [activeType, setActiveType] = useState<'activities' | 'restaurants' | 'rentals'>('activities')
+  const [activeType, setActiveType] = useState<'activities' | 'restaurants'>('activities')
   const [activeCategory, setActiveCategory] = useState('All')
 
   const [ratingFilter, setRatingFilter] = useState<number>(0)
@@ -342,9 +342,8 @@ export function ExploreSection({ destination: initialDestination }: Props) {
         </div>
       </div>
 
-      {/* Filters (not for Rentals) */}
-      {activeType !== 'rentals' && (
-        <div className="bg-slate-950/10 border border-slate-800/40 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+      {/* Filters */}
+      <div className="bg-slate-950/10 border border-slate-800/40 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Min Rating</label>
@@ -382,7 +381,6 @@ export function ExploreSection({ destination: initialDestination }: Props) {
             </select>
           </div>
         </div>
-      )}
 
       {/* ── ACTIVITIES TAB ── */}
       {activeType === 'activities' && (
@@ -457,6 +455,9 @@ export function ExploreSection({ destination: initialDestination }: Props) {
           )}
         </div>
       )}
+      
+
+
 
       {/* Details Modal */}
       <PlaceDetailsModal

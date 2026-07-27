@@ -149,7 +149,17 @@ export default function LocationAutocomplete({
 
   // ── Fetch suggestions from backend ──────────────────────────────────────────
   const fetchSuggestions = useCallback(async (searchTerm: string) => {
-    const cacheKey = searchTerm.toLowerCase()
+    const cleanTerm = (searchTerm || '').trim()
+
+    // Short terms (< 2 chars): Instant local city suggestions without API call
+    if (cleanTerm.length < 2) {
+      setState({ status: 'success', data: LOCAL_CITIES.slice(0, 6) })
+      if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
+      setIsFetching(false)
+      return
+    }
+
+    const cacheKey = cleanTerm.toLowerCase()
 
     // Double check cache in case it got populated during debounce
     if (queryCache.has(cacheKey)) {
@@ -171,7 +181,6 @@ export default function LocationAutocomplete({
     // Set 5 seconds timeout fallback timer
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => {
-      console.warn('[LocationAutocomplete] Request timed out. Showing fallback cities.')
       abortRef.current?.abort()
       setIsFetching(false)
       setState({ status: 'success', data: LOCAL_CITIES.slice(0, 6) })
@@ -181,7 +190,7 @@ export default function LocationAutocomplete({
     setIsFetching(true)
 
     try {
-      const res = await tripAPI.getAutocomplete(searchTerm)
+      const res = await tripAPI.getAutocomplete(cleanTerm)
       
       // Clear timeout since response is received
       if (timeoutRef.current) {
@@ -227,12 +236,7 @@ export default function LocationAutocomplete({
       setState({ status: 'success', data: locations })
       if (isFocusedRef.current && hasUserInteractedRef.current) setIsOpen(true)
     } catch (err: any) {
-      if (err?.name === 'AbortError') return // Silently ignore cancelled requests
-      // Throttle: only log once per failure session to avoid console spam
-      if (!networkErrorLogged) {
-        networkErrorLogged = true
-        console.warn('[LocationAutocomplete] Backend unavailable — using fallback cities.')
-      }
+      if (err?.name === 'AbortError' || err?.message?.includes('aborted') || err?.message?.includes('canceled')) return // Silently ignore cancelled requests
       
       // Clear timeout
       if (timeoutRef.current) {

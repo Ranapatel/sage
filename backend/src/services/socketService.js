@@ -52,6 +52,7 @@ module.exports = function setupSocket(io) {
       try {
         const fetchStart = Date.now()
         const axios = require('axios');
+        const { isSameCountry } = require('../utils/countryUtils');
         // Execute parallel requests for fast transport/hotel results
         const [flightRes, hotelRes, busRes, carRes, trainRes] = await Promise.allSettled([
           searchFlights({ from, to: destination, date: startDate, returnDate: endDate, travelers, budget }),
@@ -59,6 +60,15 @@ module.exports = function setupSocket(io) {
           searchBuses({ from, to: destination, date: startDate, budget }),
           searchCars({ destination, date: startDate, budget }),
           (async () => {
+            if (!isSameCountry(from, destination)) {
+              return {
+                trains: [],
+                results: [],
+                searchUrl: '',
+                message: 'International train services are not available for this route.',
+                isDomestic: false
+              };
+            }
             const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
             const response = await axios.post(`${nestUrl}/api/train/search`, {
               departureCity: from,

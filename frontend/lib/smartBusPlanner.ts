@@ -2,6 +2,8 @@ import { isSameCountry } from './countryUtils'
 
 // ─── AI Smart Bus Planner Engine & redBus Deep Link Builder ──────────────────
 
+import { isSameCountry } from './countryUtils'
+
 export interface BusLeg {
   id: string
   operatorName: string
@@ -78,6 +80,7 @@ export interface SmartBusPlannerResult {
   }
   distanceKm: number
   hasDirectBuses: boolean
+  isDomestic?: boolean
   aiAnalysisText: string
   directVsSmartComparisonText?: string
   routes: {
@@ -157,8 +160,8 @@ export function buildOtherBusBookingLinks(fromCity: string, toCity: string, date
 }
 
 /**
- * Synthesizes AI Smart Bus Routes applying exact Selection Rules:
- * Rule 1: Direct Route Available (Preferred if reasonable duration/fare)
+ * Synthesizes AI Smart Bus Routes applying exact Smart Selection Rules:
+ * Rule 1: Prioritize Direct Route if available.
  * Rule 2: No Direct Route -> Build 1-2 transfer multi-hop route
  * Rule 3: Compare Direct vs. Smart Route (Label if smart route is >2h faster or saves fare)
  */
@@ -173,34 +176,50 @@ export function generateSmartBusRoutes(params: {
   const originClean = (params.origin || 'Hyderabad').trim()
   const destClean = (params.destination || 'Goa').trim()
 
-  if (!isSameCountry(originClean, destClean)) {
-    const emptyRoute: SmartBusRoute = {
-      id: 'empty-international',
+  const rawList = params.rawBuses || []
+
+  // International Route Check: If different countries and no live buses available, do not generate fake multi-hop routes
+  if (!isSameCountry(originClean, destClean) && rawList.length === 0) {
+    const dummyLeg: BusLeg = {
+      id: 'intl_unavailable_bus_leg',
+      operatorName: 'N/A',
+      busType: 'N/A',
+      fromCity: originClean,
+      fromTerminal: `${originClean} Terminal`,
+      toCity: destClean,
+      toTerminal: `${destClean} Terminal`,
+      departureTime: '--:--',
+      arrivalTime: '--:--',
+      durationStr: 'N/A',
+      durationMinutes: 0,
+      distanceKm: 0,
+      fares: {}
+    }
+    const dummyRoute: SmartBusRoute = {
+      id: 'intl_unavailable_bus_route',
       type: 'best',
-      title: 'International Bus Unavailable',
-      isRecommended: false,
-      isDirectRoute: false,
-      comparisonLabel: 'International bus services are not available for this route.',
+      title: 'International Bus Services Not Available',
       totalDurationStr: 'N/A',
       totalDurationMinutes: 0,
       changesCount: 0,
       totalCostMin: 0,
       totalCostMax: 0,
       aiConfidenceScore: 0,
-      legs: [],
+      legs: [dummyLeg],
       transfers: [],
-      metrics: { comfort: 'Low', comfortStars: 1, crowd: 'High', reliability: 'Low' }
+      metrics: { comfort: 'Low', comfortStars: 1, crowd: 'Low', reliability: 'Low' }
     }
     return {
-      origin: { name: originClean, terminal: 'N/A' },
-      destination: { name: destClean, terminal: 'N/A' },
+      origin: { name: originClean, terminal: `${originClean} Terminal` },
+      destination: { name: destClean, terminal: `${destClean} Terminal` },
       distanceKm: 0,
       hasDirectBuses: false,
+      isDomestic: false,
       aiAnalysisText: 'International bus services are not available for this route.',
       routes: {
-        best: emptyRoute,
-        fastest: emptyRoute,
-        cheapest: emptyRoute
+        best: dummyRoute,
+        fastest: dummyRoute,
+        cheapest: dummyRoute,
       }
     }
   }
@@ -445,7 +464,6 @@ export function generateSmartBusRoutes(params: {
   }
 
   // ──────── 2. DYNAMIC ROUTE GENERATION FOR OTHER CITIES ────────
-  const rawList = params.rawBuses || []
   const hasDirect = rawList.length > 0
   const estDistance = Math.floor(350 + Math.random() * 400)
 

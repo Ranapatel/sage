@@ -80,18 +80,23 @@ export default function AiSmartTrainPlanner() {
     return <TrainsSkeleton />
   }
 
-  if (!isSameCountry(fromCity, toCity)) {
+  if (plannerData.isDomestic === false) {
     return (
-      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-10 text-center space-y-3 my-4">
-        <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
-          <AlertCircle size={28} />
+      <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
+        <div className="glass rounded-2xl border border-slate-200/60 p-8 text-center bg-white dark:bg-slate-900 shadow-sm flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+            <Train size={32} />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xl font-black text-slate-800 dark:text-white">International Train Services Not Available</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto font-medium">
+              International train services are not available for this route.
+            </p>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
+              Train travel is only available for domestic routes within the same country. Please check flight options for your international trip.
+            </p>
+          </div>
         </div>
-        <h3 className="text-lg font-black text-amber-950 dark:text-amber-100">
-          International Train Services Unavailable
-        </h3>
-        <p className="text-xs text-amber-800 dark:text-amber-300 max-w-md mx-auto leading-relaxed">
-          International train services are not available for this route.
-        </p>
       </div>
     )
   }

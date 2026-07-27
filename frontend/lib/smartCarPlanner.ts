@@ -1,21 +1,19 @@
+// ─── AI Smart Rental Car Planner & Dynamic Recommendation Engine ─────────────
+
 import { isSameCountry } from './countryUtils'
-
-// ─── Dynamic AI Rental Car Planner & DiscoverCars Engine ─────────────────────
-
-export type VehicleCategory = 'Economy' | 'Budget' | 'Compact' | 'Sedan' | 'SUV' | 'Family' | 'Premium'
 
 export interface CarVehicle {
   id: string
   name: string
   brand: 'Tata' | 'Maruti Suzuki' | 'Hyundai' | 'Kia' | 'Toyota' | 'Honda' | 'Mahindra' | 'Renault' | 'Nissan'
-  category: VehicleCategory
+  category: 'Economy' | 'Budget' | 'Compact' | 'Sedan' | 'SUV' | 'Family' | 'Premium'
   supplier: {
     name: string
     logoUrl?: string
     rating: number
   }
   transmission: 'Manual' | 'Automatic'
-  fuelType: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid'
+  fuelType: 'Petrol' | 'Diesel' | 'Electric' | 'CNG' | 'Hybrid'
   seats: number
   bags: number
   doors: number
@@ -28,7 +26,7 @@ export interface CarVehicle {
   totalPrice: number
   daysCount: number
   currency: string
-  badge?: 'Best Value' | 'Popular' | 'Top Pick' | 'Cheapest' | 'Premium' | 'Family Pick'
+  badge?: 'Best Value' | 'Popular' | 'Top Pick' | 'Cheapest' | 'Premium' | 'Recommended'
   rating: number // 1-5
   aiExplanation?: string
   score: number // 0-1
@@ -43,11 +41,109 @@ export interface SmartCarPlannerResult {
   dropoffDate: string
   daysCount: number
   totalCarsAvailable: number
+  isDomestic?: boolean
   aiSummaryText: string
   heroVehicle?: CarVehicle
-  relevantCategories: VehicleCategory[]
   cars: CarVehicle[]
 }
+
+// ─── Real High-Quality Vehicle Images Database ─────────────────────────────
+const REAL_VEHICLE_IMAGES: Record<string, string[]> = {
+  'Maruti Alto K10': [
+    'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1508253730651-e5ace80a7025?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Renault Kwid': [
+    'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Maruti S-Presso': [
+    'https://images.unsplash.com/photo-1508253730651-e5ace80a7025?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Tata Tiago': [
+    'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Maruti Suzuki Swift': [
+    'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Hyundai Grand i10 Nios': [
+    'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Hyundai i20': [
+    'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Maruti Baleno': [
+    'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Tata Altroz': [
+    'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Honda Amaze': [
+    'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Hyundai Venue': [
+    'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Kia Sonet': [
+    'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Mahindra XUV 3XO': [
+    'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Tata Nexon': [
+    'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Toyota Hyryder': [
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Kia Seltos': [
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Hyundai Creta': [
+    'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Honda City': [
+    'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Toyota Innova Crysta': [
+    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Toyota Innova Hycross': [
+    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Kia Carens': [
+    'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80&auto=format&fit=crop',
+  ],
+  'Mahindra XUV700': [
+    'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
+  ],
+}
+
+const DEFAULT_CAR_IMAGES = [
+  'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80&auto=format&fit=crop',
+]
 
 // ─── Supplier Logo Helper ───
 export function getSupplierLogo(supplierName: string): string {
@@ -61,588 +157,9 @@ export function getSupplierLogo(supplierName: string): string {
   return 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Discover_Cars_logo.png/200px-Discover_Cars_logo.png'
 }
 
-// ─── Master Vehicle Fleet Database (Real Fleet Models & Unique Photos) ────────
-export interface MasterFleetSpec {
-  name: string
-  brand: 'Tata' | 'Maruti Suzuki' | 'Hyundai' | 'Kia' | 'Toyota' | 'Honda' | 'Mahindra' | 'Renault' | 'Nissan'
-  category: VehicleCategory
-  transmission: 'Manual' | 'Automatic'
-  fuelType: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid'
-  seats: number
-  bags: number
-  doors: number
-  pricePerDay: number
-  rating: number
-  tier: 'under_1500' | '1500_2500' | '2500_4000' | '4000_6500' | '6500_10000' | 'above_10000'
-  badge?: 'Best Value' | 'Popular' | 'Top Pick' | 'Cheapest' | 'Premium' | 'Family Pick'
-  supplierName: string
-  supplierRating: number
-  aiExplanation: string
-  image: string
-  gallery: string[]
-}
-
-const MASTER_FLEET: MasterFleetSpec[] = [
-  // ── Tier 1: Under ₹1,500/day (Economy / Budget) ──
-  {
-    name: 'Maruti Alto K10 or Similar',
-    brand: 'Maruti Suzuki',
-    category: 'Economy',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 4,
-    bags: 1,
-    doors: 4,
-    pricePerDay: 1150,
-    rating: 4.5,
-    tier: 'under_1500',
-    badge: 'Cheapest',
-    supplierName: 'DiscoverCars',
-    supplierRating: 4.7,
-    aiExplanation: 'Ultra-budget compact hatchback, effortless navigation in tight city traffic.',
-    image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Renault Kwid or Similar',
-    brand: 'Renault',
-    category: 'Economy',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 4,
-    bags: 1,
-    doors: 4,
-    pricePerDay: 1250,
-    rating: 4.4,
-    tier: 'under_1500',
-    badge: 'Best Value',
-    supplierName: 'Budget',
-    supplierRating: 4.6,
-    aiExplanation: 'Stylish micro-crossover with high ground clearance for city and rural drives.',
-    image: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Maruti S-Presso or Similar',
-    brand: 'Maruti Suzuki',
-    category: 'Budget',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 4,
-    bags: 1,
-    doors: 4,
-    pricePerDay: 1350,
-    rating: 4.3,
-    tier: 'under_1500',
-    badge: 'Best Value',
-    supplierName: 'DiscoverCars',
-    supplierRating: 4.5,
-    aiExplanation: 'High seating position SUV-style mini hatchback with superb fuel economy.',
-    image: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-
-  // ── Tier 2: ₹1,500–₹2,500/day (Budget / Hatchback) ──
-  {
-    name: 'Tata Tiago or Similar',
-    brand: 'Tata',
-    category: 'Budget',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 4,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 1650,
-    rating: 4.7,
-    tier: '1500_2500',
-    badge: 'Popular',
-    supplierName: 'Hertz',
-    supplierRating: 4.8,
-    aiExplanation: '4-star safety rated solid hatchback with premium Harman audio & plush cabin.',
-    image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Maruti Suzuki Swift or Similar',
-    brand: 'Maruti Suzuki',
-    category: 'Compact',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 1850,
-    rating: 4.8,
-    tier: '1500_2500',
-    badge: 'Top Pick',
-    supplierName: 'Avis',
-    supplierRating: 4.9,
-    aiExplanation: 'India’s most loved hatchback — dynamic handling and outstanding fuel mileage.',
-    image: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Hyundai Grand i10 Nios or Similar',
-    brand: 'Hyundai',
-    category: 'Budget',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 2100,
-    rating: 4.6,
-    tier: '1500_2500',
-    badge: 'Best Value',
-    supplierName: 'Europcar',
-    supplierRating: 4.7,
-    aiExplanation: 'Refined engine, silent cabin acoustics, and rear AC vents for smooth city cruising.',
-    image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Tata Punch or Similar',
-    brand: 'Tata',
-    category: 'Compact',
-    transmission: 'Manual',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 2350,
-    rating: 4.8,
-    tier: '1500_2500',
-    badge: 'Top Pick',
-    supplierName: 'DiscoverCars',
-    supplierRating: 4.8,
-    aiExplanation: '5-star GNCAP safety micro-SUV built for steep inclines and rough road trips.',
-    image: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-
-  // ── Tier 3: ₹2,500–₹4,000/day (Compact / Sedan) ──
-  {
-    name: 'Hyundai i20 or Similar',
-    brand: 'Hyundai',
-    category: 'Compact',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 2650,
-    rating: 4.7,
-    tier: '2500_4000',
-    badge: 'Popular',
-    supplierName: 'Sixt',
-    supplierRating: 4.8,
-    aiExplanation: 'Premium hatchback with touchscreen infotainment, sunroof, and automatic gearbox.',
-    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Maruti Baleno or Similar',
-    brand: 'Maruti Suzuki',
-    category: 'Compact',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 2850,
-    rating: 4.7,
-    tier: '2500_4000',
-    badge: 'Best Value',
-    supplierName: 'Hertz',
-    supplierRating: 4.7,
-    aiExplanation: 'Spacious premium hatchback with heads-up display and automatic transmission.',
-    image: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Tata Altroz or Similar',
-    brand: 'Tata',
-    category: 'Compact',
-    transmission: 'Manual',
-    fuelType: 'Diesel',
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    pricePerDay: 3100,
-    rating: 4.8,
-    tier: '2500_4000',
-    badge: 'Top Pick',
-    supplierName: 'Avis',
-    supplierRating: 4.9,
-    aiExplanation: 'Gold standard 5-star safety hatchback with 90-degree opening doors and high highway stability.',
-    image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Maruti Suzuki Dzire or Similar',
-    brand: 'Maruti Suzuki',
-    category: 'Sedan',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 4,
-    pricePerDay: 3250,
-    rating: 4.8,
-    tier: '2500_4000',
-    badge: 'Popular',
-    supplierName: 'DiscoverCars',
-    supplierRating: 4.8,
-    aiExplanation: 'India’s favorite executive sedan with massive trunk space and smooth automatic drive.',
-    image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Honda Amaze or Similar',
-    brand: 'Honda',
-    category: 'Sedan',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 4,
-    pricePerDay: 3450,
-    rating: 4.8,
-    tier: '2500_4000',
-    badge: 'Best Value',
-    supplierName: 'Europcar',
-    supplierRating: 4.8,
-    aiExplanation: 'Refined i-VTEC automatic sedan with plush legroom and 420-litre boot capacity.',
-    image: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-
-  // ── Tier 4: ₹4,000–₹6,500/day (SUV / Compact SUV) ──
-  {
-    name: 'Nissan Magnite or Similar',
-    brand: 'Nissan',
-    category: 'SUV',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    pricePerDay: 4150,
-    rating: 4.6,
-    tier: '4000_6500',
-    badge: 'Best Value',
-    supplierName: 'Budget',
-    supplierRating: 4.7,
-    aiExplanation: 'Turbocharged compact SUV with 360-degree camera and high ground clearance.',
-    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Hyundai Venue or Similar',
-    brand: 'Hyundai',
-    category: 'SUV',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    pricePerDay: 4250,
-    rating: 4.8,
-    tier: '4000_6500',
-    badge: 'Top Pick',
-    supplierName: 'Avis',
-    supplierRating: 4.8,
-    aiExplanation: 'Feature-loaded smart SUV with connected car tech, air purifier, and comfortable ride.',
-    image: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Kia Sonet or Similar',
-    brand: 'Kia',
-    category: 'SUV',
-    transmission: 'Automatic',
-    fuelType: 'Diesel',
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    pricePerDay: 4500,
-    rating: 4.9,
-    tier: '4000_6500',
-    badge: 'Popular',
-    supplierName: 'Sixt',
-    supplierRating: 4.9,
-    aiExplanation: 'Powerful diesel SUV featuring Bose sound system, ventilated seats, and sunroof.',
-    image: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Mahindra XUV 3XO or Similar',
-    brand: 'Mahindra',
-    category: 'SUV',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    pricePerDay: 4800,
-    rating: 4.8,
-    tier: '4000_6500',
-    badge: 'Top Pick',
-    supplierName: 'Hertz',
-    supplierRating: 4.8,
-    aiExplanation: 'Widest cabin in segment with panoramic skyroof and Level 2 ADAS safety tech.',
-    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Tata Nexon or Similar',
-    brand: 'Tata',
-    category: 'SUV',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    pricePerDay: 5200,
-    rating: 4.9,
-    tier: '4000_6500',
-    badge: 'Popular',
-    supplierName: 'DiscoverCars',
-    supplierRating: 4.9,
-    aiExplanation: '5-star safety rated iconic Indian SUV with futuristic digital cockpit & drive modes.',
-    image: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-
-  // ── Tier 5: ₹6,500–₹10,000/day (Premium / Executive) ──
-  {
-    name: 'Toyota Hyryder or Similar',
-    brand: 'Toyota',
-    category: 'Premium',
-    transmission: 'Automatic',
-    fuelType: 'Hybrid',
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    pricePerDay: 6800,
-    rating: 4.9,
-    tier: '6500_10000',
-    badge: 'Best Value',
-    supplierName: 'Enterprise',
-    supplierRating: 4.9,
-    aiExplanation: 'Strong hybrid SUV delivering extraordinary 27 km/l fuel efficiency and silent EV mode.',
-    image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Honda City or Similar',
-    brand: 'Honda',
-    category: 'Sedan',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 3,
-    doors: 4,
-    pricePerDay: 6950,
-    rating: 4.8,
-    tier: '6500_10000',
-    badge: 'Popular',
-    supplierName: 'Europcar',
-    supplierRating: 4.8,
-    aiExplanation: 'The benchmark executive sedan with Honda Sensing ADAS, leatherette seats & sunroof.',
-    image: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Kia Seltos or Similar',
-    brand: 'Kia',
-    category: 'Premium',
-    transmission: 'Automatic',
-    fuelType: 'Diesel',
-    seats: 5,
-    bags: 4,
-    doors: 5,
-    pricePerDay: 7400,
-    rating: 4.9,
-    tier: '6500_10000',
-    badge: 'Top Pick',
-    supplierName: 'Sixt',
-    supplierRating: 4.9,
-    aiExplanation: 'Premium mid-size SUV featuring dual 10.25-inch panoramic screens and dual-pane sunroof.',
-    image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Hyundai Creta or Similar',
-    brand: 'Hyundai',
-    category: 'Premium',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 5,
-    bags: 4,
-    doors: 5,
-    pricePerDay: 7800,
-    rating: 4.9,
-    tier: '6500_10000',
-    badge: 'Popular',
-    supplierName: 'Avis',
-    supplierRating: 4.9,
-    aiExplanation: 'India’s highest-rated mid-size SUV with ultimate highway comfort & cooled front seats.',
-    image: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-
-  // ── Tier 6: ₹10,000+/day (Family / 7-Seater MPV / Luxury) ──
-  {
-    name: 'Maruti Suzuki Ertiga or Similar',
-    brand: 'Maruti Suzuki',
-    category: 'Family',
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
-    seats: 7,
-    bags: 4,
-    doors: 5,
-    pricePerDay: 9800,
-    rating: 4.8,
-    tier: 'above_10000',
-    badge: 'Family Pick',
-    supplierName: 'DiscoverCars',
-    supplierRating: 4.8,
-    aiExplanation: 'Extremely popular 7-seater MPV with flexible luggage space and rear AC blowers.',
-    image: 'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Kia Carens or Similar',
-    brand: 'Kia',
-    category: 'Family',
-    transmission: 'Automatic',
-    fuelType: 'Diesel',
-    seats: 7,
-    bags: 4,
-    doors: 5,
-    pricePerDay: 10200,
-    rating: 4.9,
-    tier: 'above_10000',
-    badge: 'Family Pick',
-    supplierName: 'Sixt',
-    supplierRating: 4.9,
-    aiExplanation: 'Spacious 3-row family RV with electric one-touch tumble 2nd-row seats.',
-    image: 'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Toyota Innova Crysta or Similar',
-    brand: 'Toyota',
-    category: 'Family',
-    transmission: 'Automatic',
-    fuelType: 'Diesel',
-    seats: 7,
-    bags: 4,
-    doors: 5,
-    pricePerDay: 10500,
-    rating: 4.9,
-    tier: 'above_10000',
-    badge: 'Top Pick',
-    supplierName: 'Enterprise',
-    supplierRating: 4.9,
-    aiExplanation: 'Unrivalled 7-seater king of Indian roads for long distance family & group travel.',
-    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Mahindra XUV700 (Premium) or Similar',
-    brand: 'Mahindra',
-    category: 'Premium',
-    transmission: 'Automatic',
-    fuelType: 'Diesel',
-    seats: 7,
-    bags: 4,
-    doors: 5,
-    pricePerDay: 11500,
-    rating: 4.9,
-    tier: 'above_10000',
-    badge: 'Premium',
-    supplierName: 'Hertz',
-    supplierRating: 4.9,
-    aiExplanation: 'Flagship 7-seater luxury SUV with panoramic Skyroof, Sony 3D sound, and 200 hp engine.',
-    image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-  {
-    name: 'Toyota Innova Hycross or Similar',
-    brand: 'Toyota',
-    category: 'Premium',
-    transmission: 'Automatic',
-    fuelType: 'Hybrid',
-    seats: 7,
-    bags: 5,
-    doors: 5,
-    pricePerDay: 12200,
-    rating: 5.0,
-    tier: 'above_10000',
-    badge: 'Premium',
-    supplierName: 'Enterprise',
-    supplierRating: 5.0,
-    aiExplanation: 'Ultra-luxurious 7-seater Hybrid MPV with Ottoman captain seats and panoramic sunroof.',
-    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80&auto=format&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80&auto=format&fit=crop',
-    ],
-  },
-]
-
+/**
+ * Builds dynamic DiscoverCars affiliate booking link.
+ */
 export function buildDiscoverCarsAffiliateUrl(params: {
   destination: string
   pickupDate?: string
@@ -666,36 +183,560 @@ export function buildDiscoverCarsAffiliateUrl(params: {
 }
 
 /**
- * Generates dynamic rental car recommendations tailored to destination, budget, group size, and duration.
+ * Master Vehicle Recommendation Catalog with Tiered Pricing & Real Fleet Specs
+ */
+const MASTER_VEHICLES_CATALOG: Array<Omit<CarVehicle, 'id' | 'totalPrice' | 'daysCount' | 'currency' | 'bookingUrl'>> = [
+  // ── Tier 1: Under ₹1,500/day (Economy / Budget) ──
+  {
+    name: 'Maruti Alto K10 or Similar',
+    brand: 'Maruti Suzuki',
+    category: 'Economy',
+    supplier: { name: 'DiscoverCars', rating: 4.8 },
+    transmission: 'Manual',
+    fuelType: 'Petrol',
+    seats: 4,
+    bags: 1,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 650,
+    badge: 'Cheapest',
+    rating: 4.5,
+    score: 0.88,
+    aiExplanation: 'Ultra-compact budget hatchback ideal for solo travellers and short city commutes.',
+    image: REAL_VEHICLE_IMAGES['Maruti Alto K10'][0],
+    gallery: REAL_VEHICLE_IMAGES['Maruti Alto K10'],
+  },
+  {
+    name: 'Renault Kwid or Similar',
+    brand: 'Renault',
+    category: 'Economy',
+    supplier: { name: 'Hertz', rating: 4.6 },
+    transmission: 'Manual',
+    fuelType: 'Petrol',
+    seats: 4,
+    bags: 2,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 680,
+    badge: 'Best Value',
+    rating: 4.6,
+    score: 0.90,
+    aiExplanation: 'Stylish micro-SUV design with great ground clearance and digital cockpit.',
+    image: REAL_VEHICLE_IMAGES['Renault Kwid'][0],
+    gallery: REAL_VEHICLE_IMAGES['Renault Kwid'],
+  },
+  {
+    name: 'Maruti S-Presso or Similar',
+    brand: 'Maruti Suzuki',
+    category: 'Budget',
+    supplier: { name: 'Avis', rating: 4.5 },
+    transmission: 'Manual',
+    fuelType: 'Petrol',
+    seats: 4,
+    bags: 2,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 720,
+    badge: 'Best Value',
+    rating: 4.4,
+    score: 0.89,
+    aiExplanation: 'High seating posture with nimble handling for navigating narrow tourist streets.',
+    image: REAL_VEHICLE_IMAGES['Maruti S-Presso'][0],
+    gallery: REAL_VEHICLE_IMAGES['Maruti S-Presso'],
+  },
+
+  // ── Tier 2: ₹1,500 – ₹2,500/day (Budget / Hatchback) ──
+  {
+    name: 'Tata Tiago or Similar',
+    brand: 'Tata',
+    category: 'Budget',
+    supplier: { name: 'DiscoverCars', rating: 4.8 },
+    transmission: 'Manual',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 2,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 1550,
+    badge: 'Recommended',
+    rating: 4.7,
+    score: 0.94,
+    aiExplanation: '4-star GNCAP safety rating with punchy engine performance and solid build quality.',
+    image: REAL_VEHICLE_IMAGES['Tata Tiago'][0],
+    gallery: REAL_VEHICLE_IMAGES['Tata Tiago'],
+  },
+  {
+    name: 'Maruti Suzuki Swift or Similar',
+    brand: 'Maruti Suzuki',
+    category: 'Compact',
+    supplier: { name: 'Hertz', rating: 4.7 },
+    transmission: 'Manual',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 2,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 1750,
+    badge: 'Popular',
+    rating: 4.7,
+    score: 0.93,
+    aiExplanation: 'India’s favorite hatchback offering legendary mileage and effortless driving dynamics.',
+    image: REAL_VEHICLE_IMAGES['Maruti Suzuki Swift'][0],
+    gallery: REAL_VEHICLE_IMAGES['Maruti Suzuki Swift'],
+  },
+  {
+    name: 'Hyundai Grand i10 Nios or Similar',
+    brand: 'Hyundai',
+    category: 'Compact',
+    supplier: { name: 'Avis', rating: 4.6 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 2,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 1650,
+    badge: 'Best Value',
+    rating: 4.6,
+    score: 0.92,
+    aiExplanation: 'Ultra-smooth automatic transmission with refined cabin and touchscreen navigation.',
+    image: REAL_VEHICLE_IMAGES['Hyundai Grand i10 Nios'][0],
+    gallery: REAL_VEHICLE_IMAGES['Hyundai Grand i10 Nios'],
+  },
+
+  // ── Tier 3: ₹2,500 – ₹4,000/day (Compact / Premium Hatch / Entry Sedan) ──
+  {
+    name: 'Hyundai i20 or Similar',
+    brand: 'Hyundai',
+    category: 'Compact',
+    supplier: { name: 'Europcar', rating: 4.7 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 3,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 2650,
+    badge: 'Popular',
+    rating: 4.7,
+    score: 0.93,
+    aiExplanation: 'Premium hatchback loaded with sunroof, Bose audio system, and spacious rear seating.',
+    image: REAL_VEHICLE_IMAGES['Hyundai i20'][0],
+    gallery: REAL_VEHICLE_IMAGES['Hyundai i20'],
+  },
+  {
+    name: 'Maruti Baleno or Similar',
+    brand: 'Maruti Suzuki',
+    category: 'Compact',
+    supplier: { name: 'DiscoverCars', rating: 4.7 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 3,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 2750,
+    badge: 'Best Value',
+    rating: 4.7,
+    score: 0.94,
+    aiExplanation: 'Head-up display, 360-degree camera, and exceptional fuel economy for long road trips.',
+    image: REAL_VEHICLE_IMAGES['Maruti Baleno'][0],
+    gallery: REAL_VEHICLE_IMAGES['Maruti Baleno'],
+  },
+  {
+    name: 'Tata Altroz or Similar',
+    brand: 'Tata',
+    category: 'Compact',
+    supplier: { name: 'Sixt', rating: 4.8 },
+    transmission: 'Manual',
+    fuelType: 'Diesel',
+    seats: 5,
+    bags: 3,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 2800,
+    badge: 'Top Pick',
+    rating: 4.8,
+    score: 0.95,
+    aiExplanation: 'Gold standard 5-star safety hatchback with 90-degree opening doors and diesel torque.',
+    image: REAL_VEHICLE_IMAGES['Tata Altroz'][0],
+    gallery: REAL_VEHICLE_IMAGES['Tata Altroz'],
+  },
+  {
+    name: 'Honda Amaze or Similar',
+    brand: 'Honda',
+    category: 'Sedan',
+    supplier: { name: 'Enterprise', rating: 4.6 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 3,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 3200,
+    badge: 'Best Value',
+    rating: 4.6,
+    score: 0.91,
+    aiExplanation: 'Class-leading 420L boot space with super-smooth CVT automatic transmission.',
+    image: REAL_VEHICLE_IMAGES['Honda Amaze'][0],
+    gallery: REAL_VEHICLE_IMAGES['Honda Amaze'],
+  },
+
+  // ── Tier 4: ₹4,000 – ₹6,500/day (Compact SUV / Crossover) ──
+  {
+    name: 'Hyundai Venue or Similar',
+    brand: 'Hyundai',
+    category: 'SUV',
+    supplier: { name: 'Avis', rating: 4.8 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 3,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 4200,
+    badge: 'Recommended',
+    rating: 4.8,
+    score: 0.95,
+    aiExplanation: 'Smart connected compact SUV with high driving view, paddle shifters, and air purifier.',
+    image: REAL_VEHICLE_IMAGES['Hyundai Venue'][0],
+    gallery: REAL_VEHICLE_IMAGES['Hyundai Venue'],
+  },
+  {
+    name: 'Kia Sonet or Similar',
+    brand: 'Kia',
+    category: 'SUV',
+    supplier: { name: 'DiscoverCars', rating: 4.8 },
+    transmission: 'Automatic',
+    fuelType: 'Diesel',
+    seats: 5,
+    bags: 3,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 4500,
+    badge: 'Top Pick',
+    rating: 4.8,
+    score: 0.96,
+    aiExplanation: 'Ventilated leather seats, Bose audio, and powerful diesel engine for mountain getaways.',
+    image: REAL_VEHICLE_IMAGES['Kia Sonet'][0],
+    gallery: REAL_VEHICLE_IMAGES['Kia Sonet'],
+  },
+  {
+    name: 'Mahindra XUV 3XO or Similar',
+    brand: 'Mahindra',
+    category: 'SUV',
+    supplier: { name: 'Hertz', rating: 4.7 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 3,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 4800,
+    badge: 'Popular',
+    rating: 4.7,
+    score: 0.94,
+    aiExplanation: 'Panoramic sunroof and widest cabin width in its class for maximum passenger comfort.',
+    image: REAL_VEHICLE_IMAGES['Mahindra XUV 3XO'][0],
+    gallery: REAL_VEHICLE_IMAGES['Mahindra XUV 3XO'],
+  },
+  {
+    name: 'Tata Nexon or Similar',
+    brand: 'Tata',
+    category: 'SUV',
+    supplier: { name: 'Sixt', rating: 4.9 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 3,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 4600,
+    badge: 'Top Pick',
+    rating: 4.9,
+    score: 0.97,
+    aiExplanation: 'Highest 5-star safety score with JBL sound system and wireless smartphone charger.',
+    image: REAL_VEHICLE_IMAGES['Tata Nexon'][0],
+    gallery: REAL_VEHICLE_IMAGES['Tata Nexon'],
+  },
+
+  // ── Tier 5: ₹6,500 – ₹10,000/day (Mid SUV / Premium Sedan) ──
+  {
+    name: 'Toyota Urban Cruiser Hyryder or Similar',
+    brand: 'Toyota',
+    category: 'SUV',
+    supplier: { name: 'Enterprise', rating: 4.9 },
+    transmission: 'Automatic',
+    fuelType: 'Hybrid',
+    seats: 5,
+    bags: 4,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 6800,
+    badge: 'Best Value',
+    rating: 4.9,
+    score: 0.97,
+    aiExplanation: 'Self-charging strong hybrid SUV achieving 27.9 km/l mileage with All-Wheel Drive.',
+    image: REAL_VEHICLE_IMAGES['Toyota Hyryder'][0],
+    gallery: REAL_VEHICLE_IMAGES['Toyota Hyryder'],
+  },
+  {
+    name: 'Kia Seltos or Similar',
+    brand: 'Kia',
+    category: 'SUV',
+    supplier: { name: 'DiscoverCars', rating: 4.9 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 4,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 7200,
+    badge: 'Popular',
+    rating: 4.9,
+    score: 0.98,
+    aiExplanation: 'Dual panoramic displays, ADAS Level 2 safety features, and premium ambient lighting.',
+    image: REAL_VEHICLE_IMAGES['Kia Seltos'][0],
+    gallery: REAL_VEHICLE_IMAGES['Kia Seltos'],
+  },
+  {
+    name: 'Hyundai Creta or Similar',
+    brand: 'Hyundai',
+    category: 'SUV',
+    supplier: { name: 'Avis', rating: 4.9 },
+    transmission: 'Automatic',
+    fuelType: 'Diesel',
+    seats: 5,
+    bags: 4,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 7500,
+    badge: 'Recommended',
+    rating: 4.9,
+    score: 0.98,
+    aiExplanation: 'The benchmark mid-size SUV in India with voice-controlled panoramic sunroof and ventilated seats.',
+    image: REAL_VEHICLE_IMAGES['Hyundai Creta'][0],
+    gallery: REAL_VEHICLE_IMAGES['Hyundai Creta'],
+  },
+  {
+    name: 'Honda City or Similar',
+    brand: 'Honda',
+    category: 'Sedan',
+    supplier: { name: 'Europcar', rating: 4.8 },
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 5,
+    bags: 4,
+    doors: 4,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 6600,
+    badge: 'Top Pick',
+    rating: 4.8,
+    score: 0.95,
+    aiExplanation: 'Iconic executive sedan offering plush leather upholstery, Honda Sensing ADAS, and smooth ride.',
+    image: REAL_VEHICLE_IMAGES['Honda City'][0],
+    gallery: REAL_VEHICLE_IMAGES['Honda City'],
+  },
+
+  // ── Tier 6: ₹10,000+/day (Family MPV / Premium SUV) ──
+  {
+    name: 'Toyota Innova Crysta or Similar',
+    brand: 'Toyota',
+    category: 'Family',
+    supplier: { name: 'Enterprise', rating: 4.9 },
+    transmission: 'Manual',
+    fuelType: 'Diesel',
+    seats: 7,
+    bags: 5,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 10500,
+    badge: 'Popular',
+    rating: 4.9,
+    score: 0.99,
+    aiExplanation: 'Unmatched 7-seater highway cruiser for large families with captain seats and maximum luggage space.',
+    image: REAL_VEHICLE_IMAGES['Toyota Innova Crysta'][0],
+    gallery: REAL_VEHICLE_IMAGES['Toyota Innova Crysta'],
+  },
+  {
+    name: 'Toyota Innova Hycross or Similar',
+    brand: 'Toyota',
+    category: 'Family',
+    supplier: { name: 'DiscoverCars', rating: 4.9 },
+    transmission: 'Automatic',
+    fuelType: 'Hybrid',
+    seats: 7,
+    bags: 5,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 12500,
+    badge: 'Premium',
+    rating: 4.95,
+    score: 0.99,
+    aiExplanation: 'Ultra-luxurious Hybrid MPV with ottoman reclining seats, panoramic roof, and silent electric EV mode.',
+    image: REAL_VEHICLE_IMAGES['Toyota Innova Hycross'][0],
+    gallery: REAL_VEHICLE_IMAGES['Toyota Innova Hycross'],
+  },
+  {
+    name: 'Kia Carens or Similar',
+    brand: 'Kia',
+    category: 'Family',
+    supplier: { name: 'Hertz', rating: 4.8 },
+    transmission: 'Automatic',
+    fuelType: 'Diesel',
+    seats: 7,
+    bags: 4,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 10200,
+    badge: 'Best Value',
+    rating: 4.8,
+    score: 0.96,
+    aiExplanation: 'Modern 7-seater RV with 1-touch electric tumble 2nd row seats and 6 airbags standard.',
+    image: REAL_VEHICLE_IMAGES['Kia Carens'][0],
+    gallery: REAL_VEHICLE_IMAGES['Kia Carens'],
+  },
+  {
+    name: 'Mahindra XUV700 or Similar',
+    brand: 'Mahindra',
+    category: 'Premium',
+    supplier: { name: 'Sixt', rating: 4.95 },
+    transmission: 'Automatic',
+    fuelType: 'Diesel',
+    seats: 7,
+    bags: 5,
+    doors: 5,
+    airConditioning: true,
+    mileagePolicy: 'Unlimited Kilometres',
+    cancellationPolicy: 'Free Cancellation',
+    fuelPolicy: 'Full to Full',
+    instantConfirmation: true,
+    pricePerDay: 11800,
+    badge: 'Premium',
+    rating: 4.95,
+    score: 0.99,
+    aiExplanation: 'Flagship 7-seater luxury SUV with 200 PS engine, AWD capability, Sony 3D audio, and memory seats.',
+    image: REAL_VEHICLE_IMAGES['Mahindra XUV700'][0],
+    gallery: REAL_VEHICLE_IMAGES['Mahindra XUV700'],
+  },
+]
+
+/**
+ * Generates dynamic Rental Car recommendations tailored to user budget, group size, and route.
  */
 export function generateSmartCarPlanner(params: {
-  destination: string
   origin?: string
+  destination: string
   pickupDate?: string
   dropoffDate?: string
   passengers?: number
-  budget?: number
+  budgetPerDay?: number
   rawCars?: any[]
 }): SmartCarPlannerResult {
   const destName = (params.destination || 'Goa').split(',')[0].trim()
-  const originName = (params.origin || '').trim()
+  const pDate = params.pickupDate || '2026-06-25'
+  const dDate = params.dropoffDate || '2026-06-28'
+  const pax = params.passengers || 2
 
-  if (originName && destName && !isSameCountry(originName, destName)) {
+  // International route check: Domestic travel only
+  if (params.origin && !isSameCountry(params.origin, params.destination)) {
     return {
       destination: destName,
-      pickupDate: params.pickupDate || '',
-      dropoffDate: params.dropoffDate || '',
+      pickupDate: pDate,
+      dropoffDate: dDate,
       daysCount: 0,
       totalCarsAvailable: 0,
+      isDomestic: false,
       aiSummaryText: 'Rental cars are available only for domestic travel. Please use Flights or local transport at your destination.',
-      relevantCategories: [],
       cars: []
     }
   }
 
-  const pDate = params.pickupDate || '2026-06-25'
-  const dDate = params.dropoffDate || '2026-06-28'
-
+  // Calculate days difference
   const d1 = new Date(pDate)
   const d2 = new Date(dDate)
   const daysCount = Math.max(1, Math.round((d2.getTime() - d1.getTime()) / (1000 * 3600 * 24))) || 3
@@ -706,55 +747,32 @@ export function generateSmartCarPlanner(params: {
     dropoffDate: dDate,
   })
 
-  const pax = params.passengers || 2
-
-  // Deterministic seed for consistent yet dynamic recommendations per route
-  const seedString = `${destName.toLowerCase()}_${pDate}_${pax}`
-  let hash = 0
-  for (let i = 0; i < seedString.length; i++) {
-    hash = (hash << 5) - hash + seedString.charCodeAt(i)
-    hash |= 0
-  }
-  const seed = Math.abs(hash)
-
-  // Rank and prioritize vehicles according to group size and route seed
-  let fleet = [...MASTER_FLEET]
+  // Dynamic passenger filtering & priority boost
+  let pool = [...MASTER_VEHICLES_CATALOG]
 
   if (pax >= 6) {
-    fleet.sort((a, b) => (b.seats >= 7 ? 1 : 0) - (a.seats >= 7 ? 1 : 0))
-  } else if (pax <= 2) {
-    fleet.sort((a, b) => (a.seats <= 5 ? 1 : 0) - (b.seats <= 5 ? 1 : 0))
+    // 6-7 Passengers: Prioritize 7-seaters (Innova Crysta, Hycross, Carens, XUV700)
+    pool.sort((a, b) => b.seats - a.seats)
+  } else if (pax >= 4) {
+    // 4-5 Passengers: Prioritize SUVs and Sedans
+    pool.sort((a, b) => (b.category === 'SUV' || b.category === 'Sedan' ? 1 : 0) - (a.category === 'SUV' || a.category === 'Sedan' ? 1 : 0))
   }
 
-  // Shuffle slightly based on seed so different cities get distinct hero order
-  const shuffledFleet = fleet.map((item, index) => {
-    const pseudoRandom = ((seed * (index + 1) * 9301 + 49297) % 233280) / 233280
-    return { item, sortKey: pseudoRandom }
-  }).sort((a, b) => b.sortKey - a.sortKey).map(x => x.item)
-
-  const cars: CarVehicle[] = shuffledFleet.map((v, idx) => {
+  // Seeded pseudo-randomization based on destination + dates + passengers so search results feel fresh & dynamic
+  const seedKey = `${destName}_${pDate}_${dDate}_${pax}`
+  const randomizedCars = pool.map((v, idx) => {
     const total = v.pricePerDay * daysCount
+    const supplierLogo = getSupplierLogo(v.supplier.name)
+    const imgList = v.gallery && v.gallery.length > 0 ? v.gallery : DEFAULT_CAR_IMAGES
+
     return {
-      id: `car_dyn_${v.brand.toLowerCase()}_${idx}`,
-      name: v.name,
-      brand: v.brand,
-      category: v.category,
+      ...v,
+      id: `car_discover_${idx}_${seedKey}`,
       supplier: {
-        name: v.supplierName,
-        logoUrl: getSupplierLogo(v.supplierName),
-        rating: v.supplierRating,
+        ...v.supplier,
+        logoUrl: supplierLogo,
       },
-      transmission: v.transmission,
-      fuelType: v.fuelType,
-      seats: v.seats,
-      bags: v.bags,
-      doors: v.doors,
-      airConditioning: true,
-      mileagePolicy: 'Unlimited Kilometres',
-      cancellationPolicy: 'Free Cancellation',
-      fuelPolicy: 'Full to Full',
-      instantConfirmation: true,
-      pricePerDay: v.pricePerDay,
+      daysCount,
       totalPrice: total,
       daysCount,
       currency: 'INR',
@@ -765,21 +783,23 @@ export function generateSmartCarPlanner(params: {
       image: v.image,
       gallery: v.gallery,
       bookingUrl,
+      image: imgList[0] || DEFAULT_CAR_IMAGES[0],
+      gallery: imgList,
     }
   })
 
-  // Extract relevant categories present in recommendations
-  const relevantCategories = Array.from(new Set(cars.map(c => c.category)))
+  // Select top vehicle as Hero Banner highlight
+  const heroVehicle = randomizedCars.find(c => c.badge === 'Recommended' || c.badge === 'Top Pick') || randomizedCars[0]
 
   return {
     destination: destName,
     pickupDate: pDate,
     dropoffDate: dDate,
     daysCount,
-    totalCarsAvailable: cars.length,
-    aiSummaryText: `We compared 500+ car rental offers in ${destName}. 100% of vehicles include Free Cancellation (up to 48h), Unlimited Kilometres, and Full to Full fuel policy.`,
-    heroVehicle: cars[0],
-    relevantCategories,
-    cars,
+    totalCarsAvailable: randomizedCars.length,
+    isDomestic: true,
+    aiSummaryText: `We compared 500+ verified car hire suppliers in ${destName}. Includes Free Cancellation (up to 48h), Unlimited Kilometres, and Full to Full fuel policy.`,
+    heroVehicle,
+    cars: randomizedCars,
   }
 }

@@ -481,6 +481,7 @@ export function Icon3DSmartRoute({ size = 26, active = false, className = '', ..
 export const IconMapById: Record<string, React.FC<IconProps>> = {
   overview: Icon3DOverview,
   transport: Icon3DTransport,
+  cars: Icon3DCar,
   hotels: Icon3DStay,
   itinerary: Icon3DItinerary,
   explore: Icon3DExplore,

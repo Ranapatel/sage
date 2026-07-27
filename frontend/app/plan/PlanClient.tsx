@@ -27,6 +27,7 @@ import { addBookmark } from '@/lib/bookmarkUtils'
 import { 
   Icon3DOverview, 
   Icon3DTransport, 
+  Icon3DCar,
   Icon3DStay, 
   Icon3DItinerary, 
   Icon3DExplore, 
@@ -65,12 +66,6 @@ const TabLoader = () => (
   </div>
 )
 
-
-
-// IMPORTANT: Every tab in TABS must have a matching render block
-// in the content area. Adding a tab without the content block
-// causes a blank screen. Bus tab was missing from TABS config.
-// Trains panel was returning null during idle/loading state.
 const TABS = [
   { id: 'overview', label: 'Overview', icon: Icon3DOverview },
   { id: 'transport', label: 'Transport', icon: Icon3DTransport },

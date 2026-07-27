@@ -15,6 +15,8 @@ import BusesPanel from '@/components/transport/BusesPanel'
 import AiFlightSearch from '@/components/flight/AiFlightSearch'
 import CarsTab from '@/components/transport/CarsTab'
 import LiveBookingToast from '@/components/ui/LiveBookingToast'
+import AiDiscoverCarsPlanner from '@/components/car/AiDiscoverCarsPlanner'
+import { isSameCountry } from '@/lib/countryUtils'
 import toast from 'react-hot-toast'
 import { isSameCountry } from '@/lib/countryUtils'
 import { 
@@ -1016,13 +1018,10 @@ function TransportTab({
           />
         )}
 
-        {/* â”€â”€ CABS / RENTAL CARS PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        {segment === 'cabs' && (
-          <CarsTab />
-        )}
-
-        {/* Ã¢â€â‚¬Ã¢â€â‚¬ BEST VALUE CARD (for Recommended Overview) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
-        {segment === 'recommended' && (loading ? (
+        {/* ── RENTAL CARS / CABS DYNAMIC PLANNER ───────────────────── */}
+        {segment === 'cabs' ? (
+          <AiDiscoverCarsPlanner />
+        ) : segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -1043,8 +1042,8 @@ function TransportTab({
           />
         ))}
 
-        {/* â”€â”€ COMPARISON GRID (for Recommended Overview) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        {segment === 'recommended' && !loading && gridItems.length > 0 && (
+        {/* ── COMPARISON GRID (for Recommended) ───────────────────── */}
+        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && segment !== 'cabs' && !loading && gridItems.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-[#1A1A1A]">
