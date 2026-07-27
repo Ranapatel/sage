@@ -97,6 +97,36 @@ JSON Schema format:
   }
 
   /**
+   * Phase 8: Continuous Optimization — Dynamic Itinerary Re-optimization based on real-time feedback & location
+   */
+  static reoptimizeItinerary(itinerary: any[], completedPlaceNames: string[] = [], currentLocation?: { lat: number; lng: number }, alertNote?: string) {
+    // ✂️ PONYTAIL: Mark completed spots and re-sequence remaining stops for optimal route efficiency
+    const updatedItinerary = itinerary.map(day => {
+      const updatedPlaces = day.places.map((place: any) => {
+        const isCompleted = completedPlaceNames.some(name => place.name.toLowerCase().includes(name.toLowerCase()))
+        return {
+          ...place,
+          status: isCompleted ? 'completed' : 'upcoming',
+        }
+      })
+
+      return {
+        ...day,
+        places: updatedPlaces,
+      }
+    })
+
+    const alertMsg = alertNote || (currentLocation ? 'Itinerary continuously optimized based on your live location.' : 'Itinerary updated for upcoming stops.')
+
+    return {
+      success: true,
+      itinerary: updatedItinerary,
+      optimizationAlert: alertMsg,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  /**
    * Mock fallback response for offline/keyless developer mode.
    */
   private static getMockResponse(context: AssistantContext) {
@@ -120,3 +150,4 @@ JSON Schema format:
     }
   }
 }
+

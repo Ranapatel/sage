@@ -912,7 +912,7 @@ export default function PlanClient() {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* TOP HEADER */}
-        <header className="bg-white border-b border-[#E8E0D8] px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-45 h-[68px] box-border">
+        <header className="bg-white border-b border-[#E8E0D8] px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-[1000] shadow-xs h-[68px] box-border">
           {/* Left: Metadata info */}
           <div className="flex items-center gap-6 min-w-0">
             {tripContext.destination ? (

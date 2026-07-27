@@ -13,8 +13,10 @@ import TransportPlanner from '@/components/transport-intelligence/TransportPlann
 import TrainsPanel from '@/components/transport/TrainsPanel'
 import BusesPanel from '@/components/transport/BusesPanel'
 import AiFlightSearch from '@/components/flight/AiFlightSearch'
+import CarsTab from '@/components/transport/CarsTab'
 import LiveBookingToast from '@/components/ui/LiveBookingToast'
 import toast from 'react-hot-toast'
+import { isSameCountry } from '@/lib/countryUtils'
 import { 
   Icon3DOverview, 
   Icon3DTransport, 
@@ -939,13 +941,15 @@ function TransportTab({
     [segment, flights, trains, buses, cabs, transport]
   )
 
+  const isDomesticRoute = useMemo(() => isSameCountry(from, dest), [from, dest])
+
   const segments: { id: Segment; label: string; icon: React.FC<any>; count?: number }[] = [
     { id: 'recommended', label: 'Recommended', icon: Icon3DOverview },
     { id: 'smart-routes', label: 'Smart Routes', icon: Icon3DSmartRoute },
     { id: 'flights', label: 'Flights', icon: Icon3DTransport, count: flights.length },
-    { id: 'trains', label: 'Trains', icon: Icon3DTrain, count: trains.length },
-    { id: 'buses', label: 'Buses', icon: Icon3DBus, count: buses.length },
-    { id: 'cabs', label: 'Rental Cars / Cabs', icon: Icon3DCar, count: cabs.length },
+    { id: 'trains', label: 'Trains', icon: Icon3DTrain, count: isDomesticRoute ? trains.length : 0 },
+    { id: 'buses', label: 'Buses', icon: Icon3DBus, count: isDomesticRoute ? buses.length : 0 },
+    { id: 'cabs', label: 'Rental Cars / Cabs', icon: Icon3DCar, count: isDomesticRoute ? cabs.length : 0 },
   ]
 
   const ctaText = segment === 'flights' ? 'Book Flight'
@@ -1042,22 +1046,50 @@ function TransportTab({
 
         {/* ── TRAINS PANEL ───────────────────────────────────────────── */}
         {segment === 'trains' && (
-          <TrainsPanel
-            origin={from}
-            destination={dest}
-            date={searchForm?.startDate || ''}
-            passengers={userProfile.members || 1}
-          />
+          isSameCountry(from, dest) ? (
+            <TrainsPanel
+              origin={from}
+              destination={dest}
+              date={searchForm?.startDate || ''}
+              passengers={userProfile.members || 1}
+            />
+          ) : (
+            <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-10 text-center space-y-3 my-4">
+              <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+                <AlertCircle size={28} />
+              </div>
+              <h3 className="text-lg font-black text-amber-950 dark:text-amber-100">
+                International Train Services Unavailable
+              </h3>
+              <p className="text-xs text-amber-800 dark:text-amber-300 max-w-md mx-auto leading-relaxed">
+                International train services are not available for this route.
+              </p>
+            </div>
+          )
         )}
 
         {/* ── BUSES PANEL ────────────────────────────────────────────── */}
         {segment === 'buses' && (
-          <BusesPanel
-            origin={from}
-            destination={dest}
-            date={searchForm?.startDate || ''}
-            passengers={userProfile.members || 1}
-          />
+          isSameCountry(from, dest) ? (
+            <BusesPanel
+              origin={from}
+              destination={dest}
+              date={searchForm?.startDate || ''}
+              passengers={userProfile.members || 1}
+            />
+          ) : (
+            <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-10 text-center space-y-3 my-4">
+              <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+                <AlertCircle size={28} />
+              </div>
+              <h3 className="text-lg font-black text-amber-950 dark:text-amber-100">
+                International Bus Services Unavailable
+              </h3>
+              <p className="text-xs text-amber-800 dark:text-amber-300 max-w-md mx-auto leading-relaxed">
+                International bus services are not available for this route.
+              </p>
+            </div>
+          )
         )}
 
         {/* ── FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) ───── */}
@@ -1077,8 +1109,13 @@ function TransportTab({
           />
         )}
 
-        {/* ── BEST VALUE CARD (for Recommended & Cabs) ───────────────────── */}
-        {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
+        {/* ── CABS / RENTAL CARS PANEL ────────────────────────────────── */}
+        {segment === 'cabs' && (
+          <CarsTab />
+        )}
+
+        {/* ── BEST VALUE CARD (for Recommended Overview) ──────────────── */}
+        {segment === 'recommended' && (loading ? (
           <SkeletonRouteCard />
         ) : bestForSegment ? (
           <BestValueCard
@@ -1093,14 +1130,14 @@ function TransportTab({
           />
         ) : (
           <EmptyState
-            type={segment === 'recommended' ? 'flights' : segment}
+            type="flights"
             error={error}
-            onSwitch={segment === 'recommended' ? () => setSegment('smart-routes') : undefined}
+            onSwitch={() => setSegment('smart-routes')}
           />
         ))}
 
-        {/* ── COMPARISON GRID (for Recommended & Cabs) ───────────────────── */}
-        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && !loading && gridItems.length > 0 && (
+        {/* ── COMPARISON GRID (for Recommended Overview) ──────────────── */}
+        {segment === 'recommended' && !loading && gridItems.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-[#1A1A1A]">

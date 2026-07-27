@@ -1579,8 +1579,6 @@ function OverviewTab({
     const loadToast = toast.loading("Generating your travel plan PDF...")
 
     try {
-<<<<<<< HEAD
-=======
       let html2canvasModule: any = null
       let jsPDFModule: any = null
       try {
@@ -1598,7 +1596,6 @@ function OverviewTab({
       const jsPDF = jsPDFModule
 
       // Setup high DPI options for crisp text rendering
->>>>>>> 269f806458071f98c773aa696ee1e7a248e06005
       const options = {
         scale: 2,
         useCORS: true,

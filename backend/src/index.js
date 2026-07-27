@@ -139,6 +139,19 @@ app.use('/api/photos',        require('./modules/photos/photo.routes').default)
 // Transport Intelligence Module (Multi-Modal Journey Planning)
 app.use('/api/transport-intelligence', require('./modules/transport-intelligence/transportIntelligence.routes').default)
 
+// Contextual Travel Intelligence (8-Phase Engine)
+app.use('/api/intelligence',  require('./routes/contextualIntelligence.routes').default)
+
+// Smart Budget Intelligence (5-Phase Engine)
+app.use('/api/budget',        require('./routes/smartBudget.routes').default)
+
+// Smart Itinerary Intelligence (8-Phase Engine)
+app.use('/api/itinerary-intelligence', require('./routes/smartItinerary.routes').default)
+
+// Centralized Image Service (Google Places, Pexels, Unsplash, Redis)
+app.use('/api/images',        require('./routes/image.routes').default)
+app.use('/api/v1/images',     require('./routes/image.routes').default)
+
 // Health check
 // Health check
 app.get('/health', async (req, res) => {

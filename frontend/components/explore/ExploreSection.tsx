@@ -330,13 +330,13 @@ export function ExploreSection({ destination: initialDestination }: Props) {
       {/* Tabs */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-px">
         <div className="flex gap-2">
-          {(['activities', 'restaurants', 'rentals'] as const).map(t => (
+          {(['activities', 'restaurants'] as const).map(t => (
             <button
               key={t}
               onClick={() => { setActiveType(t); setError(null) }}
               className={`px-4 py-2 text-xs font-bold capitalize border-b-2 transition-all ${activeType === t ? 'border-[var(--primary)] text-white' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
             >
-              {t === 'activities' ? '🏂 Activities' : t === 'restaurants' ? '🍴 Restaurants' : '🚗 Car Rentals'}
+              {t === 'activities' ? '🏂 Activities' : '🍴 Restaurants'}
             </button>
           ))}
         </div>
@@ -455,15 +455,6 @@ export function ExploreSection({ destination: initialDestination }: Props) {
               <span className="text-slate-400 text-xs font-semibold">No restaurants found matching your filters.</span>
             </div>
           )}
-        </div>
-      )}
-
-      {/* ── CAR RENTALS TAB ── */}
-      {activeType === 'rentals' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MOCK_CARS.map(car => (
-            <CarCard key={car.id} item={car} />
-          ))}
         </div>
       )}
 
