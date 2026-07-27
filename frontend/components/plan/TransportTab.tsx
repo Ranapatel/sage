@@ -25,8 +25,8 @@ import {
 } from '@/components/ui/TripSageIcons'
 
 export const handleUniversalShare = (item: any) => {
-  const cleanName = item.name?.split('—')[0]?.trim() ?? 'Transit Option'
-  const fareStr = item.price ? `₹${Math.round(item.price)}` : 'Estimate'
+  const cleanName = item.name?.split('â€”')[0]?.trim() ?? 'Transit Option'
+  const fareStr = item.price ? `â‚¹${Math.round(item.price)}` : 'Estimate'
   
   const shareTitle = `TripSage Travel Recommendation`
   const shareText = `Check out this travel option on TripSage:\n\n* ${cleanName}\nTiming: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\nPrice: ${fareStr}/person\n\nPlan and view details on TripSage!`
@@ -45,7 +45,7 @@ export const handleUniversalShare = (item: any) => {
   }
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface Props {
   transport: any[]
@@ -60,10 +60,6 @@ interface Props {
 
 type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-routes'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 // ─── Airline badge data ───────────────────────────────────────────────────────
 
 const AIRLINE_LOGOS: Record<string, string> = {
@@ -87,7 +83,6 @@ const AIRLINE_COLORS: Record<string, string> = {
 }
 
 // ─── Airline aircraft background photos ───────────────────────────────────────
-// Curated high-res official aircraft livery photography.
 const AIRLINE_IMAGES: Record<string, string> = {
   indigo:       'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1200&q=85&auto=format&fit=crop',
   '6e':         'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1200&q=85&auto=format&fit=crop',
@@ -123,7 +118,7 @@ function getCardBgImage(item: any): string {
   if (item.image && !item.image.includes('placeholder')) return item.image
   const name = (item.name ?? '').toLowerCase()
   const type = (item.type ?? '').toLowerCase()
-  
+
   if (type === 'car' || type === 'cab' || name.includes('hertz') || name.includes('avis') || name.includes('rental')) {
     for (const [key, url] of Object.entries(CAB_IMAGES)) {
       if (name.includes(key)) return url
@@ -159,13 +154,8 @@ function getAirlineInitials(name: string): string {
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
   return clean.slice(0, 2).toUpperCase()
 }
-<<<<<<< HEAD
-=======
->>>>>>> e444a81 (Save local changes)
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
-// ─── Sage Score calculation ───────────────────────────────────────────────────
+// â”€â”€â”€ Sage Score calculation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function calcSageScore(item: any, allItems: any[]): number {
   if (!item) return 75
@@ -219,7 +209,7 @@ function calcSageScore(item: any, allItems: any[]): number {
   return Math.max(65, Math.min(99, finalScore))
 }
 
-// ─── Sage Score Badge (SVG ring) ─────────────────────────────────────────────
+// â”€â”€â”€ Sage Score Badge (SVG ring) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function SageScoreRing({ score: rawScore, dark }: { score: number; dark?: boolean }) {
   const score = Number.isFinite(rawScore) ? Math.max(0, Math.min(100, Math.round(rawScore))) : 70
@@ -346,7 +336,7 @@ function SkeletonCompactCard() {
   )
 }
 
-// ─── Route Match Indicator Pill ───────────────────────────────────────────────
+// â”€â”€â”€ Route Match Indicator Pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function MatchPill({
   icon: Icon, label, value, color
@@ -369,7 +359,7 @@ function MatchPill({
   )
 }
 
-// ─── Budget Fit Bar ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Budget Fit Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price: number; budget: number; label?: string; totalPrice?: number; passengers?: number }) {
   const totalCost = totalPrice || (price * (passengers || 1))
@@ -391,7 +381,7 @@ function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price:
   )
 }
 
-// ─── Best Value Route Card (hero) ─────────────────────────────────────────────
+// â”€â”€â”€ Best Value Route Card (hero) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BestValueCard({
   item, allItems, budget, symbol, locale, from, to, topPick
@@ -407,23 +397,14 @@ function BestValueCard({
   const ctaText = isFlight ? 'Book Flight' : isBus ? 'Book Bus' : isTrain ? 'Book Train' : 'Book Rental'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
-  const cleanName = item.name?.split('—')[0]?.trim() ?? 'Best Route'
+  const cleanName = item.name?.split('â€”')[0]?.trim() ?? 'Best Route'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
-<<<<<<< HEAD
-<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
-=======
-
-  const bgImg = null
->>>>>>> e444a81 (Save local changes)
-=======
-  const bgImg = getCardBgImage(item)
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
 
-      {/* ── Aircraft hero image ── */}
+      {/* â”€â”€ Aircraft hero image â”€â”€ */}
       {bgImg && (
         <div className="relative w-full h-52 overflow-hidden">
           <img
@@ -446,7 +427,7 @@ function BestValueCard({
               </span>
             )}
           </div>
-          <span className="absolute top-4 right-4 text-[12px] text-white/90 font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">{typeLabel} · Recommended</span>
+          <span className="absolute top-4 right-4 text-[12px] text-white/90 font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">{typeLabel} Â· Recommended</span>
           
           {/* Route + Carrier logo bottom of image */}
           <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
@@ -455,7 +436,7 @@ function BestValueCard({
                 className="text-[22px] font-extrabold text-white leading-tight drop-shadow-sm"
                 style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
               >
-                {from?.split(',')[0]} → {to?.split(',')[0]}
+                {from?.split(',')[0]} â†’ {to?.split(',')[0]}
               </p>
               <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1 rounded-xl shadow-md border border-white/40 mt-1.5 inline-flex">
                 {getAirlineLogo(cleanName) ? (
@@ -477,7 +458,7 @@ function BestValueCard({
         </div>
       )}
 
-      {/* ── White content area ── */}
+      {/* â”€â”€ White content area â”€â”€ */}
       <div className="p-6 sm:p-7 flex flex-col justify-between">
         {/* If no image (bus/cab), show header row */}
         {!bgImg && (
@@ -492,7 +473,7 @@ function BestValueCard({
                 </span>
               )}
             </div>
-            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} · Recommended route</span>
+            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} Â· Recommended route</span>
           </div>
         )}
 
@@ -519,7 +500,7 @@ function BestValueCard({
               {symbol}{Math.round(item.perPassengerPrice || item.price).toLocaleString(locale)}
             </p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[12px] font-semibold text-slate-500">per person · estimated</span>
+              <span className="text-[12px] font-semibold text-slate-500">per person Â· estimated</span>
               {item.totalPrice && item.passengers > 1 && (
                 <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
                   {symbol}{Math.round(item.totalPrice).toLocaleString(locale)} total ({item.passengers} travelers)
@@ -563,7 +544,7 @@ function BestValueCard({
   )
 }
 
-// ─── Compact Comparison Card ──────────────────────────────────────────────────
+// â”€â”€â”€ Compact Comparison Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ComparisonCard({
   item, allItems, budget, symbol, locale, isTopPick
@@ -579,97 +560,15 @@ function ComparisonCard({
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor = item.rating >= 4.5 ? 'bg-blue-100 text-blue-800' : item.rating >= 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
-<<<<<<< HEAD
-<<<<<<< HEAD
   const bgImg = getCardBgImage(item)
-  const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
+  const carrierName = item.name?.split('â€”')[0]?.trim() ?? typeLabel
   const logoUrl = getAirlineLogo(item.name ?? '')
-=======
-
-  const bgImg = null
->>>>>>> e444a81 (Save local changes)
-=======
-  const bgImg = getCardBgImage(item)
-  const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
-  const logoUrl = getAirlineLogo(item.name ?? '')
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
 
   return (
     <div
       className="bg-white border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-orange-400 transition-all duration-300 flex flex-col justify-between h-full group relative"
       style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
     >
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
-      <div>
-        {/* ── Photo strip if available ── */}
-        {bgImg ? (
-          <div className="relative w-full h-36 overflow-hidden">
-            <img
-              src={bgImg}
-              alt={carrierName}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
-            
-            {/* Top Badges */}
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-              {isTopPick ? (
-                <span className="bg-[#EA580C] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
-<<<<<<< HEAD
-=======
-      {/* ── Aircraft photo strip ── */}
-      {bgImg && (
-        <div className="relative w-full" style={{ height: 140 }}>
-          <img
-            src={bgImg}
-            alt={item.name?.split('—')[0]?.trim() ?? 'Flight'}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(0.60)' }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(160deg,rgba(0,0,0,0.10) 0%,rgba(0,0,0,0.65) 100%)' }}
-          />
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-semibold text-white drop-shadow-sm">{item.name?.split('—')[0]?.trim()}</span>
-            </div>
-            {isTopPick && (
-              <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow">
-                Top Pick
-              </span>
-            )}
-          </div>
-          {/* Score top right */}
-          <div className="absolute top-2 right-2">
-            <SageScoreRing score={score} dark />
-          </div>
-        </div>
-      )}
-
-      {/* ── White content ── */}
-      <div className="p-4 flex flex-col gap-3">
-        {/* If no image, show airline/mode row */}
-        {!bgImg && (
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg border border-[#E8E0D8] bg-[#F5F5F4] flex items-center justify-center shrink-0">
-                <Icon size={18} strokeWidth={1.75} className="text-[#6B6B6B]" />
-              </div>
-              <div>
-                <p className="text-[14px] font-semibold text-[#1A1A1A] leading-tight">{typeLabel}</p>
-                <p className="text-[12px] text-[#6B6B6B]">{item.name?.split('—')[0]?.trim()}</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              {isTopPick && (
-                <span className="bg-[#EA580C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
->>>>>>> e444a81 (Save local changes)
-=======
->>>>>>> 6d14ce1 (Fix itinerary photo upload system improvements)
                   Top Pick
                 </span>
               ) : (
@@ -715,7 +614,7 @@ function ComparisonCard({
                   )}
                 </div>
                 <p className="text-slate-500 text-xs font-medium mt-0.5">
-                  {item.name?.split('—')[0]?.trim()}
+                  {item.name?.split('â€”')[0]?.trim()}
                 </p>
               </div>
             </div>
@@ -723,7 +622,7 @@ function ComparisonCard({
           </div>
         )}
 
-        {/* ── Card Content Body ── */}
+        {/* â”€â”€ Card Content Body â”€â”€ */}
         <div className="p-4 flex flex-col gap-3">
           {/* Route info / Comfort pills */}
           <div className="flex flex-wrap gap-1.5 items-center">
@@ -732,7 +631,7 @@ function ComparisonCard({
             </span>
             {item.departure && item.arrival && (
               <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                {item.departure} → {item.arrival}
+                {item.departure} â†’ {item.arrival}
               </span>
             )}
             {item.duration && (
@@ -749,7 +648,7 @@ function ComparisonCard({
             </div>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <span className="text-xs font-semibold text-slate-400">
-                per person • estimated
+                per person â€¢ estimated
               </span>
               {item.totalPrice && item.passengers > 1 && (
                 <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
@@ -768,7 +667,7 @@ function ComparisonCard({
         </div>
       </div>
 
-      {/* ── Fixed Bottom CTA Row ── */}
+      {/* â”€â”€ Fixed Bottom CTA Row â”€â”€ */}
       <div className="p-4 pt-0 mt-auto flex items-center gap-2">
         <a
           href={item.bookingLink ?? '#'}
@@ -777,7 +676,7 @@ function ComparisonCard({
           onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
           className="flex-1 py-2.5 px-4 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all text-center"
         >
-          {ctaText} →
+          {ctaText} â†’
         </a>
         <button
           onClick={() => handleUniversalShare(item)}
@@ -791,7 +690,7 @@ function ComparisonCard({
   )
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Empty State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function EmptyState({ type, error, onSwitch }: { type: string; error?: string | null; onSwitch?: () => void }) {
   if (type === 'flights') {
@@ -870,7 +769,7 @@ function EmptyState({ type, error, onSwitch }: { type: string; error?: string | 
   )
 }
 
-// ─── ROOT ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ ROOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function TransportTab({
   transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR', error
@@ -885,7 +784,7 @@ function TransportTab({
   const from = tripContext?.startLocation || searchForm?.from || ''
   const destCity = dest.split(',')[0].trim()
 
-  // Split transport list by type — flights enabled
+  // Split transport list by type â€” flights enabled
   const { flights, trains, buses, cabs } = useMemo(() => {
     const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure && t.type !== 'train' && t.type !== 'bus' && t.type !== 'car' && t.type !== 'cab'))
     const trains = transport.filter(t => t.type === 'train')
@@ -965,7 +864,7 @@ function TransportTab({
 
       <div className="space-y-6">
 
-        {/* ── HEADER ──────────────────────────────────────────────────────── */}
+        {/* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div>
           <h1
             className="text-[24px] font-bold text-[#1A1A1A] leading-tight mb-1.5"
@@ -974,11 +873,11 @@ function TransportTab({
             Travel to {destCity || 'your destination'}
           </h1>
           <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-xl">
-            Compare the best ways to reach your destination — time, comfort, and budget all in one view.
+            Compare the best ways to reach your destination â€” time, comfort, and budget all in one view.
           </p>
         </div>
 
-        {/* ── SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) ───────── */}
+        {/* â”€â”€ SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="space-y-2">
           {/* Top Swipe Hint */}
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">
@@ -1031,7 +930,7 @@ function TransportTab({
           </div>
         </div>
 
-        {/* ── SMART ROUTES (Transport Intelligence) ───────────────────── */}
+        {/* â”€â”€ SMART ROUTES (Transport Intelligence) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment === 'smart-routes' && (
           <TransportPlanner
             defaultOrigin={from}
@@ -1040,7 +939,7 @@ function TransportTab({
           />
         )}
 
-        {/* ── TRAINS PANEL ───────────────────────────────────────────── */}
+        {/* â”€â”€ TRAINS PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment === 'trains' && (
           <TrainsPanel
             origin={from}
@@ -1050,7 +949,7 @@ function TransportTab({
           />
         )}
 
-        {/* ── BUSES PANEL ────────────────────────────────────────────── */}
+        {/* â”€â”€ BUSES PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment === 'buses' && (
           <BusesPanel
             origin={from}
@@ -1060,7 +959,7 @@ function TransportTab({
           />
         )}
 
-        {/* ── FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) ───── */}
+        {/* â”€â”€ FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) â”€â”€â”€â”€â”€ */}
         {segment === 'flights' && (
           <AiFlightSearch
             flights={flights}
@@ -1077,7 +976,7 @@ function TransportTab({
           />
         )}
 
-        {/* ── BEST VALUE CARD (for Recommended & Cabs) ───────────────────── */}
+        {/* â”€â”€ BEST VALUE CARD (for Recommended & Cabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
           <SkeletonRouteCard />
         ) : bestForSegment ? (
@@ -1099,7 +998,7 @@ function TransportTab({
           />
         ))}
 
-        {/* ── COMPARISON GRID (for Recommended & Cabs) ───────────────────── */}
+        {/* â”€â”€ COMPARISON GRID (for Recommended & Cabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && !loading && gridItems.length > 0 && (
           <>
             <div className="flex items-center justify-between">
@@ -1134,7 +1033,7 @@ function TransportTab({
           </div>
         )}      </div>
 
-      {/* ── MOBILE STICKY BOTTOM CTA ──────────────────────────────────── */}
+      {/* â”€â”€ MOBILE STICKY BOTTOM CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="lg:hidden fixed bottom-[60px] left-0 right-0 z-40 px-4 pb-3 pt-3 bg-gradient-to-t from-[#FFFBF7] via-[#FFFBF7]/90 to-transparent">
         {bestForSegment ? (
           <a
