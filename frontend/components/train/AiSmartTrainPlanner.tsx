@@ -239,11 +239,11 @@ export default function AiSmartTrainPlanner() {
               </select>
             </div>
 
-            {/* Search Routes Button (Brand Orange) */}
+            {/* Search Routes Button (Deep Navy) */}
             <button
               type="button"
               onClick={handleSearchRoutes}
-              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#c2410c] text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+              className="w-full py-3.5 bg-[#001E62] hover:bg-[#00174c] text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Train size={15} />
               <span>Search Routes</span>
