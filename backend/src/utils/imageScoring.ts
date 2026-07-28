@@ -127,25 +127,28 @@ function providerCategoryBonus(
   const cat = (category || '').toLowerCase()
 
   if (provider === 'hotelbeds') {
-    return cat === 'hotels' ? 18 : 8
+    return cat === 'hotels' ? 20 : 8
   }
 
   if (provider === 'google') {
-    if (['hotels', 'restaurants', 'attractions', 'activities'].includes(cat)) return 16
-    if (cat === 'destinations') return 8
-    return 10
+    if (['hotels', 'restaurants', 'attractions'].includes(cat)) return 18
+    if (cat === 'activities') return 18
+    if (cat === 'destinations') return 10
+    return 0
   }
 
   if (provider === 'unsplash') {
-    if (['destinations', 'hero'].includes(cat)) return 16
-    if (cat === 'cars') return 10
-    // Secondary fallback only for place-specific entities
-    if (['hotels', 'restaurants', 'attractions'].includes(cat)) return 6
-    return 12
+    if (['destinations', 'hero'].includes(cat)) return 18
+    if (['hotels', 'restaurants', 'attractions'].includes(cat)) return 14
+    if (cat === 'cars') return 14
+    if (cat === 'activities') return 12
+    return 10
   }
 
   if (provider === 'pexels') {
-    if (['cars', 'activities', 'destinations', 'hero'].includes(cat)) return 15
+    if (cat === 'cars') return 18
+    if (['activities', 'destinations', 'hero'].includes(cat)) return 15
+    if (['hotels', 'restaurants', 'attractions'].includes(cat)) return 10
     return 10
   }
 

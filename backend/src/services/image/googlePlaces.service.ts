@@ -254,6 +254,10 @@ export class GooglePlacesImageService {
     const maxPhotos = options?.maxPhotos ?? 5
     const apiKey = getApiKey()
 
+    if (category === 'hero' || category === 'cars') {
+      return []
+    }
+
     if (!apiKey) {
       console.warn('[GooglePlacesImageService] GOOGLE_PLACES_API_KEY not configured')
       return []

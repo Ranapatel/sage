@@ -87,11 +87,11 @@ export const UNSPLASH_PRIMARY_CATEGORIES: ImageCategory[] = ['destinations', 'he
  * First successful provider with candidates wins; ranking still picks best among candidates.
  */
 export const PROVIDER_PRIORITY: Record<ImageCategory, Array<'google' | 'pexels' | 'unsplash'>> = {
-  hotels: ['google', 'pexels', 'unsplash'],
-  restaurants: ['google', 'pexels', 'unsplash'],
-  attractions: ['google', 'pexels', 'unsplash'],
-  destinations: ['pexels', 'unsplash', 'google'],
-  hero: ['pexels', 'unsplash', 'google'],
+  hotels: ['google', 'unsplash', 'pexels'],
+  restaurants: ['google', 'unsplash', 'pexels'],
+  attractions: ['google', 'unsplash', 'pexels'],
+  destinations: ['unsplash', 'pexels', 'google'],
+  hero: ['unsplash', 'pexels'],
   activities: ['google', 'pexels', 'unsplash'],
   cars: ['pexels', 'unsplash'],
 }
