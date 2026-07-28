@@ -22,7 +22,7 @@ export interface InteractivePlace {
   name: string
   category: 'culture' | 'nature' | 'dining' | 'activity' | 'transport' | 'shopping' | 'accommodation'
   time: string
-  coordinates: [number, number]
+  coordinates?: [number, number] | null
   description: string
   estimatedCost: number
   // Phase 5: Rationale & Explanations
