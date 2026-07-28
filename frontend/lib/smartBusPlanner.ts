@@ -2,8 +2,6 @@ import { isSameCountry } from './countryUtils'
 
 // ─── AI Smart Bus Planner Engine & redBus Deep Link Builder ──────────────────
 
-import { isSameCountry } from './countryUtils'
-
 export interface BusLeg {
   id: string
   operatorName: string

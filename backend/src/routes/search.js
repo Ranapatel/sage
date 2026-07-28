@@ -167,7 +167,6 @@ router.post('/', searchValidation, async (req, res) => {
         () => getWeather(to),
         { timeout: 4000, maxRetries: 1, label: 'Weather' }
       ).catch(() => ({ data: null })),
-<<<<<<< Updated upstream
       isDomesticRoute
         ? fetchWithRetry(
             async () => {
@@ -187,33 +186,6 @@ router.post('/', searchValidation, async (req, res) => {
             return [];
           })
         : Promise.resolve({ trains: [], isDomestic: false, message: 'International train services are not available for this route.' }),
-=======
-      fetchWithRetry(
-        async () => {
-          if (!isSameCountry(from, to)) {
-            return {
-              results: [],
-              searchUrl: '',
-              message: 'International train services are not available for this route.',
-              isDomestic: false
-            };
-          }
-          const nestUrl = process.env.TRANSPORT_SERVICE_URL || 'http://localhost:4001';
-          const response = await axios.post(`${nestUrl}/api/train/search`, {
-            departureCity: from,
-            destinationCity: to,
-            departureDate: startDate,
-            passengers: travelers || 1,
-            travelClass: 'ALL'
-          }, { timeout: 3000 });
-          return response.data;
-        },
-        { timeout: 4000, maxRetries: 0, label: 'Trains' }
-      ).catch((err) => {
-        console.warn('[Search Route] Train search fallback:', err.message);
-        return [];
-      }),
->>>>>>> Stashed changes
     ])
 
     const hotels = hotelResult.data || []

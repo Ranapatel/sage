@@ -185,7 +185,6 @@ export function resolveStation(cityOrCode: string): { code: string; name: string
   return { code: uppercaseCode, name: cityOrCode }
 }
 
-import { isSameCountry } from './countryUtils'
 
 export interface SmartTrainPlannerResult {
   origin: {

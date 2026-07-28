@@ -10,7 +10,7 @@ import { useTripStore } from '@/store/tripStore'
 import { formatPrice } from '@/lib/currency'
 import { isSameCountry } from '@/lib/countryUtils'
 import {
-  generateSmartCarPlanner, SmartCarPlannerResult, CarVehicle, getSupplierLogo, VehicleCategory
+  generateSmartCarPlanner, SmartCarPlannerResult, CarVehicle, getSupplierLogo
 } from '@/lib/smartCarPlanner'
 import TrainsSkeleton from '../train/TrainsSkeleton'
 
@@ -160,7 +160,7 @@ export default function AiDiscoverCarsPlanner() {
   const sortedCars = useMemo(() => {
     const list = [...filteredCars]
     switch (activeSort) {
-      case 'lowest':
+      case 'cheapest':
         return list.sort((a, b) => a.pricePerDay - b.pricePerDay)
       case 'best_rated':
         return list.sort((a, b) => b.rating - a.rating)
@@ -178,7 +178,7 @@ export default function AiDiscoverCarsPlanner() {
 
   const heroCar = plannerData.heroVehicle || sortedCars[0]
 
-  if (storeLoading) {
+  if (!plannerData.cars || plannerData.cars.length === 0) {
     return <TrainsSkeleton />
   }
 
