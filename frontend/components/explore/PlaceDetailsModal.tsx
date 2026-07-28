@@ -54,7 +54,7 @@ function Lightbox({ images, startIndex, onClose }: {
   if (!img) return null
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+    <div className="fixed inset-0 z-[10000] bg-black/95 flex items-center justify-center"
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Close */}
       <button onClick={onClose}
@@ -216,7 +216,7 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
         />
       )}
 
-      <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/60 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/60 backdrop-blur-sm">
         <div className="absolute inset-0" onClick={onClose} />
 
         <div className="relative w-full max-w-2xl h-full bg-slate-900 border-l border-slate-800 text-slate-100 flex flex-col shadow-2xl overflow-hidden" style={{ animation: 'slideInRight 0.3s ease-out' }}>
