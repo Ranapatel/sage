@@ -170,6 +170,16 @@ const STATION_DB: Record<string, { code: string; name: string }> = {
   ooty: { code: 'UAM', name: 'Udhagamandalam (Ooty)' },
   kochi: { code: 'ERS', name: 'Ernakulam Junction' },
   trivandrum: { code: 'TVC', name: 'Thiruvananthapuram Central' },
+  munnar: { code: 'ERS', name: 'Ernakulam Junction' },
+  rishikesh: { code: 'HW', name: 'Haridwar Junction' },
+  haridwar: { code: 'HW', name: 'Haridwar Junction' },
+  nainital: { code: 'KGM', name: 'Kathgodam' },
+  pondicherry: { code: 'PDY', name: 'Puducherry' },
+  puducherry: { code: 'PDY', name: 'Puducherry' },
+  udaipur: { code: 'UDZ', name: 'Udaipur City' },
+  agra: { code: 'AGC', name: 'Agra Cantt' },
+  varanasi: { code: 'BSB', name: 'Varanasi Junction' },
+  amritsar: { code: 'ASR', name: 'Amritsar Junction' },
 }
 
 export function resolveStation(cityOrCode: string): { code: string; name: string } {
