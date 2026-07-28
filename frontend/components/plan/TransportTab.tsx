@@ -18,7 +18,6 @@ import LiveBookingToast from '@/components/ui/LiveBookingToast'
 import AiDiscoverCarsPlanner from '@/components/car/AiDiscoverCarsPlanner'
 import { isSameCountry } from '@/lib/countryUtils'
 import toast from 'react-hot-toast'
-import { isSameCountry } from '@/lib/countryUtils'
 import { 
   Icon3DOverview, 
   Icon3DTransport, 

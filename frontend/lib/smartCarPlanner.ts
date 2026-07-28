@@ -774,17 +774,14 @@ export function generateSmartCarPlanner(params: {
       },
       daysCount,
       totalPrice: total,
-      daysCount,
       currency: 'INR',
       badge: v.badge || (idx === 0 ? 'Best Value' : idx === 1 ? 'Top Pick' : 'Popular'),
       rating: v.rating,
       aiExplanation: v.aiExplanation,
       score: parseFloat((0.85 + (v.rating / 5) * 0.14).toFixed(2)),
-      image: v.image,
-      gallery: v.gallery,
+      image: imgList[0] || v.image || DEFAULT_CAR_IMAGES[0],
+      gallery: imgList.length > 0 ? imgList : v.gallery,
       bookingUrl,
-      image: imgList[0] || DEFAULT_CAR_IMAGES[0],
-      gallery: imgList,
     }
   })
 

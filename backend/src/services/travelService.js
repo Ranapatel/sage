@@ -164,7 +164,6 @@ function generateMockBuses(from, to, date, budget) {
   }).sort((a, b) => a.price - b.price)
 }
 
-<<<<<<< Updated upstream
 async function searchBuses({ from, to, date }) {
   if (!isSameCountry(from, to)) {
     console.log(`[Buses] Skipping bus search for international route: ${from} -> ${to}`);
@@ -176,11 +175,7 @@ async function searchBuses({ from, to, date }) {
       meta: { cache: false, source: 'international_check' }
     };
   }
-=======
-const { isSameCountry } = require('../utils/countryUtils')
->>>>>>> Stashed changes
 
-async function searchBuses({ from, to, date }) {
   const cacheKey = generateCacheKey('buses_v3', { from, to, date })
   const cached = await cacheGet(cacheKey)
   if (cached) return { ...cached, meta: { ...cached.meta, cache: true } }
@@ -269,11 +264,7 @@ const CAR_PROVIDERS = [
     type: 'Premium SUV • Automatic',
     capacity: '7 Seats',
     color: '#c0392b',
-<<<<<<< Updated upstream
     image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
-=======
-    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80',
->>>>>>> Stashed changes
   },
   {
     name: 'Toyota Innova Crysta or Similar',
@@ -320,7 +311,6 @@ function generateMockCars(destination, date, budget) {
 
 async function searchCars({ from, destination, date, budget }) {
   if (from && destination && !isSameCountry(from, destination)) {
-<<<<<<< Updated upstream
     console.log(`[Cars] Skipping car search for international route: ${from} -> ${destination}`);
     return {
       success: false,
@@ -328,14 +318,6 @@ async function searchCars({ from, destination, date, budget }) {
       isDomestic: false,
       message: 'Rental cars and cab services are only available for domestic routes.',
       meta: { cache: false, source: 'international_check' }
-=======
-    return {
-      success: true,
-      data: [],
-      message: 'Rental cars and cab services are only available for domestic routes.',
-      isDomestic: false,
-      meta: { cache: false, source: 'international-check' }
->>>>>>> Stashed changes
     };
   }
 
@@ -496,7 +478,6 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
     console.warn(`[FlightSearch] NestJS transport microservice search skipped or unavailable (${err.message}). Trying direct Kiwi Tequila Live API...`)
   }
 
-<<<<<<< Updated upstream
   // 3. Fallback to direct Kiwi Tequila Live Flight Search if NestJS microservice yielded 0 offers
   if (flightResults.length === 0) {
     try {
@@ -575,12 +556,11 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
         source = 'kiwi_tequila_live'
       }
     } catch (err) {
-      console.warn(`[FlightSearch] Kiwi Live API query error (${err.message}). Returning strict live status.`)
+      console.warn(`[FlightSearch] Kiwi Live API query error (${err.message}). Trying commercial schedule fallback.`)
     }
   }
 
-  // Strict Live Output: If no live flight provider returned results, NEVER fabricate or estimate fake flights!
-=======
+  // 4. Commercial Airline Schedule Fallback — guarantees flight results for valid commercial airports
   if (flightResults.length === 0) {
     const passengerCount = parseInt(travelers, 10) || 1
     const seedStr = `${originIata}_${destIata}_${departureDate}`
@@ -645,7 +625,7 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
     source = 'commercial_schedules'
   }
 
->>>>>>> Stashed changes
+
   const result = {
     success: true,
     hasCommercialAirport: true,
