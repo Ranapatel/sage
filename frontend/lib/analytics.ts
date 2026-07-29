@@ -1,3 +1,10 @@
+/**
+ * Backward compatibility adapter for TripSage Analytics
+ * Delegates to the centralized AnalyticsService.
+ */
+
+import { analytics, GA_MEASUREMENT_ID } from './analytics/service';
+
 declare global {
   interface Window {
     gtag: (...args: any[]) => void;
@@ -5,20 +12,14 @@ declare global {
   }
 }
 
-export const GA_TRACKING_ID = 'G-2F49Z4DK2H'
+export const GA_TRACKING_ID = GA_MEASUREMENT_ID;
 
-// https://developers.google.com/analytics/devguides/collection/gtagjs/pages
-export const pageview = (url: string) => {
-  if (typeof window.gtag !== 'undefined') {
-    window.gtag('config', GA_TRACKING_ID, {
-      page_path: url,
-    })
-  }
-}
+export const pageview = (url: string, title?: string) => {
+  analytics.pageview(url, title);
+};
 
-// https://developers.google.com/analytics/devguides/collection/gtagjs/events
 export const trackEvent = (action: string, params?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && typeof window.gtag !== 'undefined') {
-    window.gtag('event', action, params)
-  }
-}
+  analytics.trackEvent(action, params);
+};
+
+export * from './analytics/index';

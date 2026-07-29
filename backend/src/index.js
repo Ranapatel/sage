@@ -148,6 +148,9 @@ app.use('/api/budget',        require('./routes/smartBudget.routes').default)
 // Smart Itinerary Intelligence (8-Phase Engine)
 app.use('/api/itinerary-intelligence', require('./routes/smartItinerary.routes').default)
 
+// Contextual Intelligence Layer (central brain — every feature consumes it)
+app.use('/api/context',               require('./context/routes/context.routes').default)
+
 // Multi-Source Image Service (Centralized Google Places, Pexels & Unsplash Orchestrator)
 app.use('/api/images',        require('./routes/image.routes').default)
 app.use('/api/v1/images',     require('./routes/image.routes').default)
@@ -246,6 +249,14 @@ function createAndListen(port) {
 
   // Socket.IO setup
   require('./services/socketService')(io)
+
+  // Phase 7 wiring — let the notification engine broadcast via this io instance.
+  try {
+    const { setSocketIO } = require('./utils/socketEmitter')
+    setSocketIO(io)
+  } catch (err) {
+    console.warn('[TripSage] ⚠️ Could not register SocketIO with notification engine:', err.message)
+  }
 
   server.listen(port, '0.0.0.0')
 

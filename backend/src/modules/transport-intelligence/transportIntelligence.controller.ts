@@ -57,12 +57,15 @@ export async function planJourneyHandler(req: any, res: any): Promise<void> {
     }
 
     // ── Execute ───────────────────────────────────────────────────────────
+    // If auth middleware ran (req.user populated), forward the userId so the
+    // search history persists. Otherwise omit it (public search).
     const request: PlanRequest = {
       origin: origin.trim(),
       destination: destination.trim(),
       date,
       passengers: pax,
       rankPreference: pref || 'balanced',
+      userId: req.user?.id,
     };
 
     const result = await planJourney(request);

@@ -214,9 +214,9 @@ function JourneyCard({ journey, isRecommended }: JourneyCardProps) {
 
         <button
           onClick={handleBook}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#E8461E] text-white hover:opacity-90 transition-opacity whitespace-nowrap shadow-md shadow-red-500/10"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white transition-opacity whitespace-nowrap shadow-md shadow-blue-500/10"
         >
-          Book on MakeMyTrip <ExternalLink size={13} />
+          Book Journey <ExternalLink size={13} />
         </button>
       </div>
 

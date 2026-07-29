@@ -29,6 +29,12 @@ model User {
   walletTransactions WalletTransaction[]
   userLocations      UserLocation[]
   mapPreference      MapPreference?
+  userPreference     UserPreference?
+  favoriteHotels     FavoriteHotel[]
+  favoriteActivities FavoriteActivity[]
+  feedback           Feedback[]
+  notifications      Notification[]
+  searchHistory      UserSearchHistory[]
 }
 
 model Trip {
@@ -322,13 +328,16 @@ model JourneyPlans {
 
 model UserSearchHistory {
   id             String   @id @default(uuid())
-  userId         String?
+  userId         String
   origin         String
   destination    String
   searchDate     String
   passengers     Int      @default(1)
   rankPreference String   @default("balanced")
   createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model PriceWatch {
@@ -339,4 +348,119 @@ model PriceWatch {
   targetPrice Float?
   currentPrice Float?
   createdAt DateTime @default(now())
+}
+
+// ─── CONTEXT INTELLIGENCE LAYER MODELS ─────────────────────────────────────────
+// Phase 1 of the Contextual Intelligence Layer plan: persistent memory
+// (preferences, favorites, feedback, notifications, recommendation log).
+// Consumed by backend/src/context/memory.service.ts and recommendation.service.ts.
+
+enum FeedbackAction {
+  SAVED
+  SKIPPED
+  RATED
+  BOOKED
+  CANCELLED
+  CLICKED
+  IGNORED
+}
+
+enum NotificationKind {
+  DELAY
+  GATE_CHANGE
+  WEATHER
+  PRICE_DROP
+  VISA
+  PASSPORT
+  COUNTDOWN
+  BUDGET
+  TRAFFIC
+  GENERIC
+}
+
+model UserPreference {
+  id                   String   @id @default(uuid())
+  userId               String   @unique
+  currency             String?  @default("INR")
+  language             String?  @default("en")
+  homeCity             String?
+  favoriteAirlines     String[]
+  favoriteHotelChains  String[]
+  favoriteCuisines     String[]
+  dietaryRestrictions  String[]
+  accessibilityNotes   String?
+  preferredTransport   String?
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FavoriteHotel {
+  id        String   @id @default(uuid())
+  userId    String
+  hotelId   String
+  hotelName String
+  city      String?
+  rating    Float?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hotelId])
+  @@index([userId])
+}
+
+model FavoriteActivity {
+  id         String   @id @default(uuid())
+  userId     String
+  activityId String
+  name       String
+  city       String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Feedback {
+  id        String         @id @default(uuid())
+  userId    String
+  tripId    String?
+  module    String         // "flights" | "hotels" | "trains" | "buses" | "budget" | ...
+  targetId  String
+  action    FeedbackAction
+  rating    Int?
+  metadata  Json?
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, module])
+  @@index([module, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  kind      NotificationKind
+  title     String
+  body      String
+  tripId    String?
+  metadata  Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+}
+
+model RecommendationLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  module       String
+  inputHash    String
+  outputJson   Json
+  aiConfidence Int
+  accepted     Boolean?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, module, createdAt])
+  @@index([inputHash])
 }

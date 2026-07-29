@@ -105,7 +105,17 @@ function formatRedBusDate(dateStr?: string): string {
 
 /**
  * Builds official redBus deep links dynamically using city names & journey date.
- * Environment variable fallback: process.env.NEXT_PUBLIC_BUS_BOOKING_URL
+ *
+ * Env-driven override (per spec):
+ *   - NEXT_PUBLIC_BUS_BOOKING_URL — when set, takes precedence and is returned
+ *     as the canonical deep link (env-var deep links are treated as fully
+ *     pre-configured; we do NOT append additional query params to them).
+ *   - NEXT_PUBLIC_AFFILIATE_BUSES — legacy/affiliate fallback (same precedence
+ *     rules as above).
+ *
+ * If neither env var is set, falls back to a safe redBus URL pattern using
+ * only the well-known query params (fromCityName / toCityName / do). Unsupported
+ * query parameters are never fabricated.
  */
 export function buildRedBusDeepLink(params: {
   fromCity: string
@@ -113,11 +123,17 @@ export function buildRedBusDeepLink(params: {
   dateStr?: string
   passengers?: number
 }): string {
-  const envUrl = process.env.NEXT_PUBLIC_BUS_BOOKING_URL
+  // 1. Honor operator-provided deep link (spec: configurable deep links via env).
+  //    Per spec: "If deep-link parameters are unsupported by the booking partner,
+  //    redirect users to the partner's homepage instead of fabricating parameters."
+  const envUrl =
+    process.env.NEXT_PUBLIC_BUS_BOOKING_URL ||
+    process.env.NEXT_PUBLIC_AFFILIATE_BUSES
   if (envUrl && envUrl.trim().length > 0) {
     return envUrl
   }
 
+  // 2. Fallback: safe redBus route page with only well-known supported params.
   const fromSlug = (params.fromCity || 'hyderabad')
     .toLowerCase()
     .trim()
@@ -131,7 +147,7 @@ export function buildRedBusDeepLink(params: {
 
   const formattedDate = formatRedBusDate(params.dateStr)
   const baseUrl = `https://www.redbus.in/bus-tickets/${fromSlug}-to-${toSlug}`
-  
+
   const urlParams = new URLSearchParams()
   urlParams.set('fromCityName', params.fromCity || 'Hyderabad')
   urlParams.set('toCityName', params.toCity || 'Goa')

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { SYMBOLS } from '@/lib/currency'
 import { useTripStore } from '@/store/tripStore'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import TransportPlanner from '@/components/transport-intelligence/TransportPlanner'
 import TrainsPanel from '@/components/transport/TrainsPanel'
 import BusesPanel from '@/components/transport/BusesPanel'
@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/TripSageIcons'
 
 export const handleUniversalShare = (item: any) => {
-  const cleanName = item.name?.split('ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â')[0]?.trim() ?? 'Transit Option'
+  const cleanName = item.name?.split('ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ')[0]?.trim() ?? 'Transit Option'
   const fareStr = item.price ? `ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹${Math.round(item.price)}` : 'Estimate'
   
   const shareTitle = `TripSage Travel Recommendation`
@@ -36,12 +36,14 @@ export const handleUniversalShare = (item: any) => {
   const shareUrl = `https://tripsage.in/plan`
 
   if (navigator.share) {
+    analytics.itineraryShared({ shareMethod: 'social', itemName: cleanName })
     navigator.share({
       title: shareTitle,
       text: shareText,
       url: shareUrl,
     }).catch(() => {})
   } else {
+    analytics.itineraryShared({ shareMethod: 'copy', itemName: cleanName })
     navigator.clipboard.writeText(`${shareText}\n${shareUrl}`)
       .then(() => toast.success('Link & route details copied! Paste it in WhatsApp, Email, or anywhere.'))
       .catch(() => toast.error('Could not copy link.'))

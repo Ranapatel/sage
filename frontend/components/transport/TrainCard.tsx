@@ -1,11 +1,12 @@
 'use client'
 
 import React from 'react';
-import { Train, ExternalLink } from 'lucide-react';
+import { Train, ExternalLink, Clock } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import { useAuthStore } from '@/store/authStore';
 import { formatPrice } from '@/lib/currency';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { buildIrctcDeepLink } from '@/lib/smartTrainPlanner';
 
 export interface ClassAvailability {
   class: string;
@@ -21,7 +22,7 @@ export interface TrainResult {
   departure: string;
   arrival: string;
   duration: string;
-  runsOn: string[];
+  runsOn?: string[];
   availableClasses: ClassAvailability[];
   bookingUrl: string;
   originCode: string;
@@ -33,12 +34,13 @@ interface TrainCardProps {
 }
 
 const CLASS_LABELS: Record<string, string> = {
-  SL: "Sleeper",
-  "3A": "AC 3",
-  "2A": "AC 2",
-  "1A": "AC 1",
-  CC: "Chair",
-  EC: "Exec",
+  SL: 'Sleeper',
+  '3A': 'AC 3 Tier',
+  '2A': 'AC 2 Tier',
+  '1A': 'First AC',
+  CC: 'Chair Car',
+  EC: 'Exec. Chair',
+  '2S': '2nd Sitting',
 };
 
 export function TrainCard({ train }: TrainCardProps) {
@@ -46,14 +48,17 @@ export function TrainCard({ train }: TrainCardProps) {
   const currency = user?.currency ?? 'INR';
   const { requireAuth } = useRequireAuth();
 
-  const handleBook = requireAuth((e: React.MouseEvent) => {
+  const handleBook = requireAuth((e?: React.MouseEvent) => {
     trackEvent('booking_click', {
       type: 'train',
       trainNumber: train.trainNumber,
       trainName: train.trainName,
       url: train.bookingUrl,
     });
-    window.open(train.bookingUrl, '_blank', 'noopener,noreferrer');
+    const url = (train.bookingUrl && !train.bookingUrl.includes('makemytrip.com'))
+      ? train.bookingUrl
+      : buildIrctcDeepLink({ srcStn: train.originCode, destStn: train.destinationCode });
+    window.open(url, '_blank', 'noopener,noreferrer');
   });
 
   // Helper to determine availability badge styles
@@ -171,9 +176,9 @@ export function TrainCard({ train }: TrainCardProps) {
             e.preventDefault();
             handleBook(e);
           }}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#E8461E] text-white hover:opacity-90 transition-opacity whitespace-nowrap shadow-md shadow-red-500/10 ml-auto"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#001E62] hover:bg-[#00174c] text-white transition-opacity whitespace-nowrap shadow-md shadow-blue-900/10 ml-auto"
         >
-          Book on MakeMyTrip <ExternalLink size={13} />
+          Book on IRCTC <ExternalLink size={13} />
         </a>
       </div>
     </div>

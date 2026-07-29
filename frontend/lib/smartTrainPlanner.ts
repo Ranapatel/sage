@@ -43,9 +43,11 @@ export interface TransferInfo {
   waitingTimeMinutes: number
 }
 
+// ponytail: Offline static station DB and route heuristics. Ceiling: No live NTES/IRCTC seat availability socket. Upgrade path: Connect live IRCTC/NTES authorized API provider.
+
 export interface SmartTrainRoute {
   id: string
-  type: 'best' | 'fastest' | 'cheapest'
+  type: 'best' | 'fastest' | 'cheapest' | 'comfortable'
   title: string
   isRecommended?: boolean
   isDirectRoute?: boolean
@@ -65,6 +67,24 @@ export interface SmartTrainRoute {
     crowd: 'Low' | 'Moderate' | 'High'
     reliability: 'High' | 'Moderate' | 'Low'
   }
+  scores?: {
+    journeyScore: number // e.g. 94
+    comfortScore: number // e.g. 4.6
+    budgetScore: number // e.g. 88
+    reliabilityScore: number // e.g. 92
+  }
+  fareBreakdown?: {
+    items: { label: string; costMin: number; costMax: number; type: 'train' | 'lastmile' }[]
+    totalMin: number
+    totalMax: number
+  }
+  summary?: {
+    totalTime: string
+    transfersCount: number
+    waitingTime: string
+    lastMile: string
+    estimatedTotalStr: string
+  }
 }
 
 export interface SmartTrainPlannerResult {
@@ -78,12 +98,14 @@ export interface SmartTrainPlannerResult {
   }
   distanceKm: number
   hasDirectTrains: boolean
+  isDomestic?: boolean
   aiAnalysisText: string
   directVsSmartComparisonText?: string
   routes: {
     best: SmartTrainRoute
     fastest: SmartTrainRoute
     cheapest: SmartTrainRoute
+    comfortable: SmartTrainRoute
   }
 }
 
@@ -196,26 +218,7 @@ export function resolveStation(cityOrCode: string): { code: string; name: string
 }
 
 
-export interface SmartTrainPlannerResult {
-  origin: {
-    name: string
-    code: string
-  }
-  destination: {
-    name: string
-    code: string
-  }
-  distanceKm: number
-  hasDirectTrains: boolean
-  isDomestic?: boolean
-  aiAnalysisText: string
-  directVsSmartComparisonText?: string
-  routes: {
-    best: SmartTrainRoute
-    fastest: SmartTrainRoute
-    cheapest: SmartTrainRoute
-  }
-}
+
 
 /**
  * Synthesizes AI Smart Train Routes applying exact Smart Selection Rules:
@@ -271,6 +274,7 @@ export function generateSmartTrainRoutes(params: {
         best: dummyRoute,
         fastest: dummyRoute,
         cheapest: dummyRoute,
+        comfortable: dummyRoute,
       }
     }
   }
@@ -531,6 +535,84 @@ export function generateSmartTrainRoutes(params: {
             reliability: 'Moderate',
           },
         },
+
+        comfortable: {
+          id: 'route-comfortable-hyd-goa',
+          type: 'comfortable',
+          title: 'Most Comfortable Route',
+          isRecommended: false,
+          isDirectRoute: false,
+          comparisonLabel: '⭐ Maximum Comfort (AC 2 Tier / 1st AC via Pune)',
+          totalDurationStr: '17h 10m',
+          totalDurationMinutes: 1030,
+          changesCount: 1,
+          totalCostMin: 2400,
+          totalCostMax: 3600,
+          aiConfidenceScore: 94,
+          legs: [
+            {
+              id: 'leg-1-comfortable',
+              trainNumber: '12702',
+              trainName: 'Hussainsagar Superfast Express',
+              fromCode: 'HYB',
+              fromName: 'Hyderabad Deccan (HYB)',
+              toCode: 'PUNE',
+              toName: 'Pune Junction (PUNE)',
+              departureTime: '14:50',
+              arrivalTime: '03:15',
+              durationStr: '12h 25m',
+              durationMinutes: 745,
+              distanceKm: 576,
+              isOvernight: true,
+              fares: {
+                firstAC: { min: 2400, max: 3100 },
+                secondAC: { min: 1600, max: 2100 },
+              },
+            },
+            {
+              id: 'leg-2-comfortable',
+              trainNumber: '12133',
+              trainName: 'Vande Bharat / Express',
+              fromCode: 'PUNE',
+              fromName: 'Pune Junction (PUNE)',
+              toCode: 'MAO',
+              toName: 'Madgaon Junction (MAO)',
+              departureTime: '04:45',
+              arrivalTime: '09:30',
+              durationStr: '4h 45m',
+              durationMinutes: 285,
+              distanceKm: 460,
+              fares: {
+                firstAC: { min: 1400, max: 1800 },
+                chairCar: { min: 850, max: 1200 },
+              },
+            },
+          ],
+          transfers: [
+            {
+              stationCode: 'PUNE',
+              stationName: 'Pune Junction',
+              waitingTimeStr: '1h 30m',
+              waitingTimeMinutes: 90,
+            },
+          ],
+          lastMile: {
+            type: 'taxi',
+            fromLocation: 'Madgaon Junction (MAO)',
+            toLocation: 'Goa / Luxury Resort',
+            durationStr: '~45m',
+            distanceKm: 30,
+            estimatedCostMin: 700,
+            estimatedCostMax: 1100,
+            details: 'Premium AC Taxi: ~45m | ~30 km | ₹700 - ₹1,100',
+          },
+          metrics: {
+            comfort: 'High',
+            comfortStars: 5,
+            crowd: 'Low',
+            reliability: 'High',
+          },
+        },
       },
     }
   }
@@ -722,6 +804,60 @@ export function generateSmartTrainRoutes(params: {
     },
   }
 
+  // Most Comfortable Route Object (⭐ 1st AC / Executive Class)
+  const comfortableRoute: SmartTrainRoute = {
+    id: `route-comfortable-${originStation.code}-${destStation.code}`,
+    type: 'comfortable',
+    title: 'Most Comfortable Route',
+    isRecommended: false,
+    isDirectRoute: true,
+    comparisonLabel: '⭐ Maximum Comfort (AC 1st Class / Executive)',
+    totalDurationStr: '13h 40m',
+    totalDurationMinutes: 820,
+    changesCount: 0,
+    totalCostMin: 2200,
+    totalCostMax: 3400,
+    aiConfidenceScore: 95,
+    legs: [
+      {
+        id: 'leg-comfortable-1',
+        trainNumber: '12425',
+        trainName: `${originStation.name} Rajdhani / Tejas Superfast`,
+        fromCode: originStation.code,
+        fromName: `${originStation.name} (${originStation.code})`,
+        toCode: destStation.code,
+        toName: `${destStation.name} (${destStation.code})`,
+        departureTime: '19:30',
+        arrivalTime: '09:10',
+        durationStr: '13h 40m',
+        durationMinutes: 820,
+        distanceKm: estDistance,
+        isOvernight: true,
+        fares: {
+          firstAC: { min: 2800, max: 3400 },
+          secondAC: { min: 2200, max: 2700 },
+        },
+      },
+    ],
+    transfers: [],
+    lastMile: {
+      type: 'taxi',
+      fromLocation: `${destStation.name} (${destStation.code})`,
+      toLocation: `${params.destination} Hotel / Resort`,
+      durationStr: '~20m',
+      distanceKm: 12,
+      estimatedCostMin: 400,
+      estimatedCostMax: 650,
+      details: 'Premium AC Taxi: ~20m | ~12 km | ₹400 - ₹650',
+    },
+    metrics: {
+      comfort: 'High',
+      comfortStars: 5,
+      crowd: 'Low',
+      reliability: 'High',
+    },
+  }
+
   return {
     origin: { name: `${originStation.name} (${originStation.code})`, code: originStation.code },
     destination: { name: `${destStation.name} (${destStation.code})`, code: destStation.code },
@@ -735,6 +871,7 @@ export function generateSmartTrainRoutes(params: {
       best: directRoute,
       fastest: smartFasterRoute,
       cheapest: cheapestRoute,
+      comfortable: comfortableRoute,
     },
   }
 }

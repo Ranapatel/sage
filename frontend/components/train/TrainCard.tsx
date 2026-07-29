@@ -6,6 +6,7 @@ import { trackEvent } from '@/lib/analytics'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { handleUniversalShare } from '../plan/TransportTab'
+import { buildIrctcDeepLink } from '@/lib/smartTrainPlanner'
 
 interface TrainClassFare {
   classCode: string
@@ -28,16 +29,18 @@ interface TrainCardProps {
     arrivalTime: string
     duration: string
     price: number
-    bookingUrl: string
     travelClass: string
-    transfers?: number
-    lastUpdated?: string
-    runsOn?: string[]
     classes?: TrainClassFare[]
+    runsOn?: string[]
+    lastUpdated?: string
     aiRecommendation?: {
-      badge: string
-      reasons: string[]
-    } | null
+      badge?: string
+      reason?: string
+      score?: number
+      reasons?: string[]
+    }
+    bookingUrl: string
+    transfers?: number
   }
 }
 
@@ -45,8 +48,7 @@ const ALL_WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export default function TrainCard({ train }: TrainCardProps) {
   const [expanded, setExpanded] = useState(false)
-  const { user } = useAuthStore()
-  const currency = user?.currency ?? 'INR'
+  const currency = useAuthStore((state) => state.user?.currency || 'INR')
 
   // Manage which class is selected for booking
   const classesList = train.classes || []
@@ -67,7 +69,14 @@ export default function TrainCard({ train }: TrainCardProps) {
       class: activeClassCode,
       price: activePrice,
     })
-    window.open(train.bookingUrl, '_blank', 'noopener,noreferrer')
+    const irctcUrl = (train.bookingUrl && !train.bookingUrl.includes('makemytrip.com'))
+      ? train.bookingUrl
+      : buildIrctcDeepLink({
+          srcStn: train.originCode,
+          destStn: train.destinationCode,
+          journeyClass: activeClassCode,
+        })
+    window.open(irctcUrl, '_blank', 'noopener,noreferrer')
   }
 
   const hasAiBadge = train.aiRecommendation && train.aiRecommendation.badge
@@ -90,7 +99,7 @@ export default function TrainCard({ train }: TrainCardProps) {
             </span>
           </div>
           <div className="flex flex-wrap gap-1.5 justify-end">
-            {train.aiRecommendation?.reasons.map((reason: string, idx: number) => (
+            {train.aiRecommendation?.reasons?.map((reason: string, idx: number) => (
               <span
                 key={idx}
                 className="text-[10px] font-bold bg-amber-500/15 text-amber-800 px-2 py-0.5 rounded-full"
@@ -307,14 +316,14 @@ export default function TrainCard({ train }: TrainCardProps) {
           {/* Booking CTA Bar */}
           <div className="flex items-center justify-between border-t border-slate-200/60 pt-4 mt-2">
             <div className="text-slate-400 text-[10px]">
-              Last Checked: {train.lastUpdated ? new Date(train.lastUpdated).toLocaleTimeString() : new Date().toLocaleTimeString()} &bull; Partner: MakeMyTrip railways
+              Last Checked: {train.lastUpdated ? new Date(train.lastUpdated).toLocaleTimeString() : new Date().toLocaleTimeString()} &bull; Official IRCTC Railways
             </div>
             <div className="flex gap-2.5 items-center">
               <button
                 onClick={handleBookClick}
-                className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl font-bold text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-lg shadow-orange-600/10 cursor-pointer animate-fade-in active:scale-95"
+                className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl font-bold text-sm bg-[#001E62] hover:bg-[#00174c] text-white transition-all shadow-lg shadow-blue-900/10 cursor-pointer animate-fade-in active:scale-95"
               >
-                Book {activeClassCode} on MakeMyTrip <ExternalLink size={14} />
+                Book {activeClassCode} on IRCTC <ExternalLink size={14} />
               </button>
 
               <button

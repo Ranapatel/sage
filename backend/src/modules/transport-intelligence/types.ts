@@ -6,6 +6,17 @@ export type TransportMode = 'train' | 'bus' | 'taxi' | 'metro' | 'auto';
 /** Ranking preferences for the AI optimizer */
 export type RankType = 'fastest' | 'cheapest' | 'comfort' | 'balanced';
 
+/** Inputs accepted by the planJourney orchestrator. */
+export interface PlanRequest {
+  origin: string;
+  destination: string;
+  date: string;             // ISO date (YYYY-MM-DD)
+  passengers?: number;
+  rankPreference?: RankType;
+  /** Optional authenticated user — used for persisting search history. */
+  userId?: string;
+}
+
 /** A single leg of a multi-modal journey */
 export interface TransportLeg {
   mode: TransportMode;

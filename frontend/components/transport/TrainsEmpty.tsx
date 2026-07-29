@@ -51,7 +51,7 @@ export function TrainsEmpty({ searchUrl, origin = 'your origin', destination = '
               </div>
               <p className="text-xs font-bold text-blue-700/80 mt-2 flex items-center gap-1.5">
                 <Shield size={11} className="text-blue-600" />
-                Routed via MakeMyTrip
+                Official IRCTC Integration
               </p>
               <p className="text-[11px] text-[var(--text-muted)] mt-1">
                 Live routes &bull; Instant availability &bull; Official Deep Links
@@ -61,23 +61,23 @@ export function TrainsEmpty({ searchUrl, origin = 'your origin', destination = '
         </div>
       </div>
 
-      {/* Prominent MMT Card */}
+      {/* Prominent IRCTC Card */}
       <div className="glass p-8 border border-slate-200/60 rounded-2xl bg-white shadow-md text-center max-w-2xl mx-auto space-y-6">
         <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto text-blue-600">
           <Train size={32} />
         </div>
         <div className="space-y-2">
-          <h4 className="text-lg font-black text-slate-800">Book Trains on MakeMyTrip</h4>
+          <h4 className="text-lg font-black text-slate-800">Book Trains on IRCTC</h4>
           <p className="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-            We have generated a direct listing search for your route from <span className="font-extrabold text-slate-700">{origin}</span> to <span className="font-extrabold text-slate-700">{destination}</span> on MakeMyTrip.
+            We have generated a direct listing search for your route from <span className="font-extrabold text-slate-700">{origin}</span> to <span className="font-extrabold text-slate-700">{destination}</span> on IRCTC.
           </p>
         </div>
         <div className="max-w-xs mx-auto">
           <BookingButton
-            label="Book on MakeMyTrip"
+            label="Book on IRCTC"
             icon="train"
-            url={searchUrl}
-            provider="makemytrip"
+            url={searchUrl && !searchUrl.includes('makemytrip.com') ? searchUrl : 'https://www.irctc.co.in/nget/train-search'}
+            provider="irctc"
           />
         </div>
       </div>

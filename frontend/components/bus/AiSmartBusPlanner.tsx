@@ -2,14 +2,13 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import {
-  Bus, Clock, MapPin, ArrowRight, ShieldCheck, Sparkles,
-  Zap, Award, PiggyBank, ArrowUpDown, ChevronDown, CheckCircle2,
-  Calendar, Users, Info, ExternalLink, RefreshCw, Star, AlertCircle
+  Bus, Clock, MapPin, ShieldCheck, Sparkles,
+  Zap, Award, PiggyBank, ArrowUpDown, CheckCircle2,
+  Users, Info, ExternalLink, Star
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
-import { isSameCountry } from '@/lib/countryUtils'
 import {
-  generateSmartBusRoutes, SmartBusPlannerResult, SmartBusRoute, buildRedBusDeepLink
+  generateSmartBusRoutes, SmartBusPlannerResult, SmartBusRoute
 } from '@/lib/smartBusPlanner'
 import RedBusBookingModal from './RedBusBookingModal'
 import TrainsSkeleton from '../train/TrainsSkeleton'

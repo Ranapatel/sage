@@ -37,18 +37,23 @@ export async function planJourney(request: PlanRequest): Promise<PlanResponse> {
     date,
     passengers = 1,
     rankPreference = 'balanced' as RankType,
+    userId,
   } = request;
 
-  // Save search query to DB for analytics/history
-  await prisma.userSearchHistory.create({
-    data: {
-      origin,
-      destination,
-      searchDate: date,
-      passengers,
-      rankPreference,
-    },
-  }).catch(err => console.warn('[DB Error] Failed to save search history:', err.message));
+  // Save search query to DB for analytics/history. Only persists when the
+  // user is authenticated — public searches don't have a userId yet.
+  if (userId) {
+    await prisma.userSearchHistory.create({
+      data: {
+        userId,
+        origin,
+        destination,
+        searchDate: date,
+        passengers,
+        rankPreference,
+      },
+    }).catch(err => console.warn('[DB Error] Failed to save search history:', err.message));
+  }
 
   // ── 1. Check cache ──────────────────────────────────────────────────────
   const cacheKey = generateCacheKey(CACHE_PREFIX, {

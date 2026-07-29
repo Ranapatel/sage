@@ -160,11 +160,28 @@ const _API = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Request interceptor — inject session
+// Request interceptor — inject session + Clerk bearer token if available.
 _API.interceptors.request.use((config) => {
   if (typeof sessionStorage !== 'undefined') {
     const sessionId = sessionStorage.getItem('sessionId')
     if (sessionId) config.headers['x-session-id'] = sessionId
+  }
+  // Inject the Clerk bearer token if present in localStorage. The backend's
+  // authMiddleware requires it on protected endpoints (e.g. /api/context/*).
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const raw = localStorage.getItem('tripsage-auth')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        const token = parsed?.state?.token
+        if (token && !config.headers?.Authorization) {
+          config.headers = config.headers ?? {}
+          ;(config.headers as any).Authorization = `Bearer ${token}`
+        }
+      }
+    } catch {
+      // Ignore parse errors — protected endpoints will return 401.
+    }
   }
   return config
 })
@@ -345,8 +362,235 @@ export const authAPI = {
   signup: async (data: any): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
   login: async (email: string, password: string): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
   logout: async (): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
-  me: async (): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
+  me: async (data: any): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
   updateProfile: async (data: any): Promise<ApiResponse<any>> => ({ success: true, message: 'Mock success', data: {} }),
+}
+
+// ─── Contextual Intelligence API ─────────────────────────────────────────────
+// Wired in Phase 4 of the Contextual Intelligence Layer plan. All endpoints
+// require an authenticated Clerk session (Authorization: Bearer <token>) —
+// the axios instance below adds it automatically when the caller passes
+// `token` via `headers`. When called from `lib/apiClient.ts` (which holds
+// the session token), auth happens automatically.
+
+export type ScoreDimension =
+  | 'journeyScore'
+  | 'comfortScore'
+  | 'budgetScore'
+  | 'safetyScore'
+  | 'convenienceScore'
+  | 'reliabilityScore'
+  | 'familyScore'
+  | 'businessScore'
+  | 'accessibilityScore'
+  | 'aiConfidenceScore'
+
+export interface ScoringWeights {
+  journeyScore: number
+  comfortScore: number
+  budgetScore: number
+  safetyScore: number
+  convenienceScore: number
+  reliabilityScore: number
+  familyScore: number
+  businessScore: number
+  accessibilityScore: number
+  aiConfidenceScore: number
+}
+
+export interface ContextUser {
+  id: string
+  clerkUserId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  homeCity?: string | null
+  country?: string | null
+  language?: string
+  currency?: string
+  preferredTransport?: string | null
+  dietaryRestrictions?: string[]
+  accessibilityNotes?: string | null
+  favoriteAirlines?: string[]
+  favoriteHotelChains?: string[]
+  favoriteCuisines?: string[]
+}
+
+export interface ContextTrip {
+  id: string
+  destination: string
+  title: string
+  startDate: string
+  endDate: string
+  budget: number
+  travelers: number
+  status: string
+  daysUntilStart: number
+  durationDays: number
+}
+
+export interface ContextDestination {
+  city: string
+  country?: string
+  timezone?: string
+  currency?: string
+  lat?: number
+  lng?: number
+}
+
+export interface ContextBudget {
+  totalBudget: number
+  perDay: number
+  currency: string
+  allocation: {
+    accommodation: number
+    transportation: number
+    food: number
+    activities: number
+    emergency: number
+  }
+}
+
+export interface ContextWeather {
+  available: boolean
+  currentTempC?: number
+  forecastSummary?: string
+  dailyForecast?: Array<{ date: string; minC: number; maxC: number; conditions: string }>
+  recommendation?: string
+}
+
+export interface ContextPreferences {
+  travelStyle?: string | null
+  budgetRange?: string | null
+  interests: string[]
+  foodPreference: string[]
+  accommodationPreference?: string | null
+  tripDuration?: string | null
+  favoriteCuisines: string[]
+}
+
+export interface ContextObject {
+  version: number
+  builtAt: string
+  user: ContextUser
+  trip: ContextTrip | null
+  destination: ContextDestination | null
+  budget: ContextBudget | null
+  transport: { preferredMode?: string; recentSearches: Array<{ origin: string; destination: string; rankPreference?: string; createdAt: string }> }
+  preferences: ContextPreferences
+  liveData: { weather: ContextWeather; fx?: any; traffic?: any; delays?: any; safety?: any }
+  itinerary: { dayCount: number; totalActivities: number; days: Array<{ dayNumber: number; title: string; activityCount: number }> } | null
+  history: { totalTrips: number; totalSearches: number; recentFeedback: Array<{ module: string; action: string; rating?: number | null; createdAt: string }>; averageSpend?: number }
+  scoringWeights: ScoringWeights
+}
+
+export type ModuleId =
+  | 'budget' | 'transport' | 'weather' | 'hotel' | 'restaurant'
+  | 'route' | 'itinerary' | 'rental' | 'activity' | 'notification'
+
+export interface BudgetAllocation {
+  category: 'accommodation' | 'transportation' | 'food' | 'activities' | 'emergency'
+  perDay: number
+  total: number
+  percentage: number
+}
+
+export interface BudgetPlan {
+  tripId?: string
+  destination: string
+  durationDays: number
+  travelers: number
+  totalBudget: number
+  currency: string
+  perDayBudget: number
+  allocation: BudgetAllocation[]
+  alternatives: Array<{ label: string; deltaCost: number; rationale: string }>
+  warnings: Array<{ level: 'info' | 'warning' | 'critical'; message: string }>
+}
+
+export interface ContextRecommendation<T = any> {
+  id: string
+  module: ModuleId
+  type: string
+  scores: Partial<Record<ScoreDimension, number>>
+  overallScore: number
+  aiConfidence: number
+  data: T
+  explanation: string
+  generatedAt: string
+  inputHash: string
+}
+
+export const contextAPI = {
+  /**
+   * POST /api/context/build — build the ContextObject for the authenticated user.
+   * Body: { tripId?: string, bypassCache?: boolean }
+   */
+  build: (params: { tripId?: string; bypassCache?: boolean } = {}): Promise<{ success: boolean; context: ContextObject }> =>
+    API.post('/api/context/build', params),
+
+  /**
+   * POST /api/context/recommend — get recommendations for a module.
+   * Body: { module, input, tripId?, bypassCache? }
+   */
+  recommend: <T = any>(params: {
+    module: ModuleId
+    input?: unknown
+    tripId?: string
+    bypassCache?: boolean
+  }): Promise<{ success: boolean; module: ModuleId; recommendations: ContextRecommendation<T>[] }> =>
+    API.post('/api/context/recommend', params),
+
+  /**
+   * POST /api/context/feedback — record user feedback.
+   */
+  feedback: (params: {
+    module: string
+    targetId: string
+    action: 'SAVED' | 'SKIPPED' | 'RATED' | 'BOOKED' | 'CANCELLED' | 'CLICKED' | 'IGNORED'
+    rating?: number
+    tripId?: string
+    metadata?: any
+  }): Promise<{ success: boolean; feedback: any }> =>
+    API.post('/api/context/feedback', params),
+
+  /**
+   * GET /api/context/notifications?onlyUnread=true&limit=50
+   */
+  listNotifications: (params?: { onlyUnread?: boolean; limit?: number }): Promise<{ success: boolean; notifications: any[] }> =>
+    API.get('/api/context/notifications', { params }),
+
+  markNotificationRead: (id: string): Promise<{ success: boolean; id: string; read: true }> =>
+    API.post(`/api/context/notifications/${id}/read`),
+
+  /**
+   * POST /api/context/memory/favorite
+   */
+  toggleFavorite: (params: {
+    type: 'hotel' | 'activity'
+    action: 'add' | 'remove'
+    hotelId?: string
+    hotelName?: string
+    city?: string
+    rating?: number
+    activityId?: string
+    name?: string
+    id?: string
+  }): Promise<{ success: boolean; favorite?: any }> =>
+    API.post('/api/context/memory/favorite', params),
+}
+
+/**
+ * Budget Intelligence — front-end convenience wrapper.
+ * Phase 4's first fully-wired module end-to-end.
+ */
+export const budgetAPI = {
+  /**
+   * Get the AI-recommended budget plan for a trip.
+   * Wraps `contextAPI.recommend({ module: 'budget' })`.
+   */
+  plan: (params: { tripId?: string; bypassCache?: boolean; input?: any } = {}): Promise<{ success: boolean; recommendations: ContextRecommendation<BudgetPlan>[] }> =>
+    API.post('/api/context/recommend', { module: 'budget', tripId: params.tripId, bypassCache: params.bypassCache, input: params.input ?? {} }),
 }
 
 export default _API

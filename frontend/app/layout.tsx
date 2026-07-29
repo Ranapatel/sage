@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
@@ -5,7 +6,9 @@ import { Toaster } from 'react-hot-toast'
 import KeepAlive from '@/components/KeepAlive'
 import { ClerkProvider } from '@clerk/nextjs'
 import AuthGuardModal from '@/components/auth/AuthGuardModal'
-// GoogleAnalytics from @next/third-parties omitted — it emits a spurious preload hint.
+import { ContextProvider } from '@/context/ContextProvider'
+import { PageViewTracker } from '@/components/analytics/PageViewTracker'
+import { GA_MEASUREMENT_ID } from '@/lib/analytics/service'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tripsage.in'),
@@ -129,10 +132,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
 
-        {/* Google Analytics — two Script tags avoids the spurious preload warning
-            that @next/third-parties/GoogleAnalytics emits internally. */}
+        {/* Automatic Route Analytics Tracking */}
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
+
+        {/* Google Analytics GA4 */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-2F49Z4DK2H"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"
         />
         <Script id="ga4-init" strategy="afterInteractive">
@@ -140,7 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-2F49Z4DK2H', { send_page_view: true });
+            gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
           `}
         </Script>
 
@@ -166,8 +173,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {/* Keep backend awake */}
         <KeepAlive />
-        
-        {children}
+
+        {/* Contextual Intelligence Layer — fetches ContextObject, BudgetPlan,
+            and unread-count on auth. Wraps children so all hooks can subscribe. */}
+        <ContextProvider>
+          {children}
+        </ContextProvider>
         <Toaster
           position="top-right"
           toastOptions={{
