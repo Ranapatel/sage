@@ -101,8 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
    * disabling hydration for child nodes.
    */
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -122,84 +121,86 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body suppressHydrationWarning>
-        {/* JSON-LD structured data for SEO */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
+        <ClerkProvider clerkJSUrl={process.env.NEXT_PUBLIC_CLERK_JS}>
 
-        {/* Automatic Route Analytics Tracking */}
-        <Suspense fallback={null}>
-          <PageViewTracker />
-        </Suspense>
+          {/* JSON-LD structured data for SEO */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+          />
 
-        {/* Google Analytics GA4 */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="ga4-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
-          `}
-        </Script>
+          {/* Automatic Route Analytics Tracking */}
+          <Suspense fallback={null}>
+            <PageViewTracker />
+          </Suspense>
 
-        {/*
-          * Slow-connection detection — afterInteractive so it only runs client-side.
-          * Adds 'slow-connection' class to <html> to disable animations on 2G/3G.
-          */}
-        <Script
-          id="perf-opt"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                if ('connection' in navigator) {
-                  var conn = navigator.connection;
-                  if (conn && (conn.saveData || /2g|3g/.test(conn.effectiveType || ''))) {
-                    document.documentElement.classList.add('slow-connection');
+          {/* Google Analytics GA4 */}
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="ga4-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+            `}
+          </Script>
+
+          {/*
+            * Slow-connection detection — afterInteractive so it only runs client-side.
+            * Adds 'slow-connection' class to <html> to disable animations on 2G/3G.
+            */}
+          <Script
+            id="perf-opt"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                try {
+                  if ('connection' in navigator) {
+                    var conn = navigator.connection;
+                    if (conn && (conn.saveData || /2g|3g/.test(conn.effectiveType || ''))) {
+                      document.documentElement.classList.add('slow-connection');
+                    }
                   }
-                }
-              } catch(e) {}
-            `,
-          }}
-        />
-        {/* Keep backend awake */}
-        <KeepAlive />
+                } catch(e) {}
+              `,
+            }}
+          />
+          {/* Keep backend awake */}
+          <KeepAlive />
 
-        {/* Contextual Intelligence Layer — fetches ContextObject, BudgetPlan,
-            and unread-count on auth. Wraps children so all hooks can subscribe. */}
-        <ContextProvider>
-          {children}
-        </ContextProvider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border)',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.875rem',
-            },
-            success: {
-              iconTheme: {
-                primary: 'var(--primary)',
-                secondary: 'white',
+          {/* Contextual Intelligence Layer — fetches ContextObject, BudgetPlan,
+              and unread-count on auth. Wraps children so all hooks can subscribe. */}
+          <ContextProvider>
+            {children}
+          </ContextProvider>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border)',
+                fontFamily: 'var(--font-body)',
+                fontSize: '0.875rem',
               },
-            },
-          }}
-        />
-        <AuthGuardModal />
+              success: {
+                iconTheme: {
+                  primary: 'var(--primary)',
+                  secondary: 'white',
+                },
+              },
+            }}
+          />
+          <AuthGuardModal />
+        </ClerkProvider>
       </body>
     </html>
-  </ClerkProvider>
   )
 }
