@@ -2,9 +2,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import {
-  Bus, Clock, MapPin, ShieldCheck, Sparkles,
+  Bus, Clock, MapPin, Sparkles,
   Zap, Award, PiggyBank, ArrowUpDown, CheckCircle2,
-  Users, Info, ExternalLink, Star
+  Users, Info, ExternalLink
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
 import {
@@ -82,17 +82,17 @@ export default function AiSmartBusPlanner() {
   if (plannerData.isDomestic === false && (!buses || buses.length === 0)) {
     return (
       <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
-        <div className="glass rounded-2xl border border-slate-200/60 p-8 text-center bg-white dark:bg-slate-900 shadow-sm flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+        <div className="glass rounded-2xl border border-[#E8E0D8] p-8 text-center bg-white shadow-xs flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
             <Bus size={32} />
           </div>
           <div className="space-y-2">
-            <h4 className="text-xl font-black text-slate-800 dark:text-white">International Bus Services Not Available</h4>
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto font-medium">
+            <h4 className="text-xl font-black text-[#1A1A1A] font-display">International Bus Services Not Available</h4>
+            <p className="text-sm text-[#6B6B6B] leading-relaxed max-w-md mx-auto font-medium">
               International bus services are not available for this route.
             </p>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
-              Bus travel is only available for domestic routes within the same country or supported cross-border routes when live bus listings exist. Please check flight options for your trip to <span className="font-bold text-slate-700 dark:text-slate-200">{toCity}</span>.
+            <p className="text-xs text-[#9CA3AF] max-w-md mx-auto">
+              Bus travel is only available for domestic routes within the same country or supported cross-border routes when live bus listings exist. Please check flight options for your trip to <span className="font-bold text-[#1A1A1A]">{toCity}</span>.
             </p>
           </div>
         </div>
@@ -101,25 +101,25 @@ export default function AiSmartBusPlanner() {
   }
 
   return (
-    <div className="space-y-6 w-full text-slate-900 dark:text-slate-100 animate-fade-in">
+    <div className="space-y-6 w-full text-[#1A1A1A] animate-fade-in">
       
-      {/* ── Top Header Banner (redBus Accent) ── */}
-      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* ── Top Header Banner (TripSage Warm Light Theme) ── */}
+      <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-xs font-black px-2.5 py-0.5 rounded-md uppercase tracking-wide">
-              AI Smart Bus Planner <span className="text-[10px] text-red-500 font-extrabold ml-1">Beta</span>
+            <span className="bg-orange-50 text-[#EA580C] border border-orange-200 text-xs font-black px-2.5 py-0.5 rounded-md uppercase tracking-wide">
+              AI Smart Bus Planner <span className="text-[10px] text-[#EA580C] font-extrabold ml-1">Beta</span>
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-xs text-[#6B6B6B] font-semibold">
               We find the smartest bus routes, even when there is no direct bus.
             </span>
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white leading-tight">
+          <h2 className="text-2xl md:text-3xl font-black text-[#1A1A1A] leading-tight font-display">
             {plannerData.origin.name} → {plannerData.destination.name}
           </h2>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B6B6B] font-semibold mt-1">
             <span>📍 Distance: ~{plannerData.distanceKm} km</span>
             <span>•</span>
             <span className="text-emerald-600 font-bold">
@@ -129,8 +129,8 @@ export default function AiSmartBusPlanner() {
         </div>
 
         {/* AI Powered Badge */}
-        <div className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-red-500/10 via-rose-500/10 to-amber-500/10 border border-red-500/20 rounded-xl text-red-700 dark:text-red-300 font-extrabold text-xs shrink-0 shadow-2xs">
-          <Sparkles size={14} className="animate-pulse text-red-500" />
+        <div className="flex items-center gap-2 px-3.5 py-2 bg-orange-50/80 border border-orange-200 rounded-xl text-[#EA580C] font-extrabold text-xs shrink-0 shadow-2xs">
+          <Sparkles size={14} className="animate-pulse text-[#EA580C]" />
           <span>Powered by AI & redBus ✨</span>
         </div>
       </div>
@@ -142,27 +142,25 @@ export default function AiSmartBusPlanner() {
         <div className="lg:col-span-1 space-y-4">
           
           {/* Search Inputs Card */}
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs space-y-4">
             
             {/* From Input */}
             <div className="relative">
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
                 From
               </label>
               <input
                 type="text"
                 value={fromCity}
                 onChange={(e) => setFromCity(e.target.value)}
-                placeholder="Origin City"
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+                placeholder="Origin City / Boarding Point"
+                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
               />
-              
-              {/* Swap Button */}
               <button
                 type="button"
                 onClick={handleSwapLocations}
-                className="absolute right-3 top-[26px] w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-red-600 transition-colors cursor-pointer"
-                title="Swap cities"
+                className="absolute right-3 top-[26px] w-7 h-7 rounded-full bg-white border border-[#E8E0D8] shadow-xs flex items-center justify-center text-[#1A1A1A] hover:text-[#EA580C] transition-colors cursor-pointer"
+                title="Swap origin & destination"
               >
                 <ArrowUpDown size={14} />
               </button>
@@ -170,421 +168,337 @@ export default function AiSmartBusPlanner() {
 
             {/* To Input */}
             <div>
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
                 To
               </label>
               <input
                 type="text"
                 value={toCity}
                 onChange={(e) => setToCity(e.target.value)}
-                placeholder="Destination City"
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+                placeholder="Destination City / Drop Point"
+                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
               />
             </div>
 
-            {/* Journey Date & Add Return */}
+            {/* Date Input */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  Journey Date
+              <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
+                Journey Date
+              </label>
+              <input
+                type="date"
+                value={journeyDate}
+                onChange={(e) => setJourneyDate(e.target.value)}
+                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
+              />
+            </div>
+
+            {/* Passengers & Bus Preference */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
+                  Passengers
                 </label>
-                <button type="button" className="text-[10px] font-extrabold text-red-600 dark:text-red-400 hover:underline">
-                  + Add Return
-                </button>
+                <select
+                  value={passengers}
+                  onChange={(e) => setPassengers(Number(e.target.value))}
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C] cursor-pointer"
+                >
+                  <option value={1}>1 Passenger</option>
+                  <option value={2}>2 Passengers</option>
+                  <option value={3}>3 Passengers</option>
+                  <option value={4}>4 Passengers</option>
+                </select>
               </div>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={journeyDate}
-                  onChange={(e) => setJourneyDate(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-600"
-                />
+
+              <div>
+                <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
+                  Bus Type
+                </label>
+                <select
+                  value={busType}
+                  onChange={(e) => setBusType(e.target.value)}
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C] cursor-pointer"
+                >
+                  <option value="ALL">All Types</option>
+                  <option value="SLEEPER">AC Sleeper</option>
+                  <option value="VOLVO">Volvo Multi-Axle</option>
+                  <option value="SEATER">AC Seater</option>
+                  <option value="EV">Electric Bus</option>
+                </select>
               </div>
             </div>
 
-            {/* Passengers Dropdown */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                Passengers
-              </label>
-              <select
-                value={passengers}
-                onChange={(e) => setPassengers(Number(e.target.value))}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-600 cursor-pointer"
-              >
-                <option value={1}>👥 1 Passenger</option>
-                <option value={2}>👥 2 Passengers</option>
-                <option value={3}>👥 3 Passengers</option>
-                <option value={4}>👥 4 Passengers</option>
-                <option value={5}>👥 5 Passengers</option>
-              </select>
-            </div>
-
-            {/* Bus Type Dropdown */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                Bus Type
-              </label>
-              <select
-                value={busType}
-                onChange={(e) => setBusType(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-600 cursor-pointer"
-              >
-                <option value="ALL">🚌 All Bus Types</option>
-                <option value="SLEEPER">🛌 AC Sleeper (2+1)</option>
-                <option value="VOLVO">✨ Volvo Multi-Axle</option>
-                <option value="EV">⚡ EV Luxury Bus</option>
-                <option value="SEATER">💺 AC Seater / Executive</option>
-              </select>
-            </div>
-
-            {/* Search Routes Button (Brand Orange) */}
+            {/* Search CTA */}
             <button
               type="button"
               onClick={handleSearchRoutes}
-              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#c2410c] text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
-              <Bus size={15} />
+              <Bus size={16} />
               <span>Search Smart Bus Routes</span>
             </button>
 
           </div>
 
-          {/* AI Route Analysis Box */}
-          <div className="bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 rounded-2xl p-4 space-y-2">
-            <div className="flex items-center gap-2 font-black text-xs text-rose-900 dark:text-rose-300 uppercase tracking-wider">
-              <Sparkles size={14} className="text-red-600" />
-              <span>AI Bus Route Analysis</span>
-            </div>
-            <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-              {plannerData.aiAnalysisText}
-            </p>
-          </div>
-
-          {/* Legend Box */}
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2.5">
-            <h4 className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-wider">
-              Legend
+          {/* Smart Bus Guarantee Box */}
+          <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs space-y-3">
+            <h4 className="font-black text-xs text-[#1A1A1A] uppercase tracking-wider font-display">
+              Smart Bus Guarantee
             </h4>
-            <div className="space-y-2 text-xs font-bold">
-              <div className="flex items-center gap-2 text-red-600">
-                <Bus size={14} /> <span>Bus Journey</span>
+            <div className="space-y-2 text-xs text-[#6B6B6B] font-medium">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={15} className="text-[#EA580C] shrink-0" />
+                <span>redBus Live Inventory & Direct Deep Links</span>
               </div>
-              <div className="flex items-center gap-2 text-emerald-600">
-                <MapPin size={14} /> <span>Taxi / Local Bus</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={15} className="text-[#EA580C] shrink-0" />
+                <span>Multi-hop connector routes when direct buses are full</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500">
-                <Users size={14} /> <span>Transfer Point</span>
-              </div>
-              <div className="flex items-center gap-2 text-amber-600">
-                <Clock size={14} /> <span>Waiting Time</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={15} className="text-[#EA580C] shrink-0" />
+                <span>Top rated operators with sleeper & AC comfort</span>
               </div>
             </div>
-          </div>
-
-          {/* Travel Tips Box */}
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2.5">
-            <h4 className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-wider">
-              Bus Travel Tips
-            </h4>
-            <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-2 font-medium">
-              <li className="flex items-start gap-1.5">
-                <span className="text-red-600 font-bold">✓</span>
-                <span>Arrive at the boarding point 15-20 min before departure.</span>
-              </li>
-              <li className="flex items-start gap-1.5">
-                <span className="text-red-600 font-bold">✓</span>
-                <span>Keep your M-ticket (SMS/WhatsApp) and Govt photo ID ready.</span>
-              </li>
-              <li className="flex items-start gap-1.5">
-                <span className="text-red-600 font-bold">✓</span>
-                <span>Check last-mile taxi / local bus fares to your hotel.</span>
-              </li>
-            </ul>
           </div>
 
         </div>
 
-        {/* ── RIGHT COLUMN: Top Tabs & Smart Route Cards ── */}
-        <div className="lg:col-span-3 space-y-5">
+        {/* ── RIGHT COLUMN: Routes Breakdown ── */}
+        <div className="lg:col-span-3 space-y-6">
           
-          {/* Top Recommendation Route Tabs (Best, Fastest, Cheapest) */}
-          <div className="grid grid-cols-3 gap-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-1.5 rounded-2xl shadow-xs">
+          {/* Top Recommendation Pills */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             
-            {/* Best Route Tab */}
+            {/* Best Route Button */}
             <button
               type="button"
               onClick={() => setActiveTabFilter(activeTabFilter === 'best' ? 'all' : 'best')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+              className={`p-3.5 rounded-2xl border transition-all text-left cursor-pointer ${
                 activeTabFilter === 'best' || activeTabFilter === 'all'
-                  ? 'bg-rose-50/80 dark:bg-rose-950/50 border-red-500 text-red-700 dark:text-red-300 font-extrabold shadow-2xs'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  ? 'bg-orange-50/90 border-[#EA580C] text-[#EA580C] shadow-xs ring-2 ring-[#EA580C]/20'
+                  : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:border-[#EA580C]/40'
               }`}
             >
-              <div className="flex items-center gap-1 text-xs font-black uppercase tracking-wide">
-                <span>🥇 Best Route</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-[#EA580C] uppercase tracking-wider flex items-center gap-1">
+                  <Award size={14} /> BEST ROUTE
+                </span>
+                <span className="text-[9px] font-extrabold bg-orange-100 text-[#EA580C] px-1.5 py-0.5 rounded-full">
+                  Recommended
+                </span>
               </div>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">Recommended</span>
+              <div className="text-xs font-black mt-2 text-[#1A1A1A]">
+                {plannerData.routes.best.totalDurationStr} • ₹{plannerData.routes.best.totalCostMin.toLocaleString()}
+              </div>
             </button>
 
-            {/* Fastest Route Tab */}
+            {/* Fastest Route Button */}
             <button
               type="button"
               onClick={() => setActiveTabFilter(activeTabFilter === 'fastest' ? 'all' : 'fastest')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+              className={`p-3.5 rounded-2xl border transition-all text-left cursor-pointer ${
                 activeTabFilter === 'fastest'
-                  ? 'bg-purple-50/80 dark:bg-purple-950/50 border-purple-500 text-purple-700 dark:text-purple-300 font-extrabold shadow-2xs'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  ? 'bg-[#FFFBF7] border-purple-500 text-purple-900 shadow-xs ring-2 ring-purple-500/20'
+                  : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:border-purple-300'
               }`}
             >
-              <div className="flex items-center gap-1 text-xs font-black uppercase tracking-wide text-purple-600 dark:text-purple-400">
-                <Zap size={13} />
-                <span>Fastest Route</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-purple-700 uppercase tracking-wider flex items-center gap-1">
+                  <Zap size={14} /> FASTEST ROUTE
+                </span>
+                <span className="text-[9px] font-extrabold bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded-full">
+                  Shortest Time
+                </span>
               </div>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">Shortest Time</span>
+              <div className="text-xs font-black mt-2 text-[#1A1A1A]">
+                {plannerData.routes.fastest.totalDurationStr} • ₹{plannerData.routes.fastest.totalCostMin.toLocaleString()}
+              </div>
             </button>
 
-            {/* Cheapest Route Tab */}
+            {/* Cheapest Route Button */}
             <button
               type="button"
               onClick={() => setActiveTabFilter(activeTabFilter === 'cheapest' ? 'all' : 'cheapest')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+              className={`p-3.5 rounded-2xl border transition-all text-left cursor-pointer ${
                 activeTabFilter === 'cheapest'
-                  ? 'bg-emerald-50/80 dark:bg-emerald-950/50 border-emerald-500 text-emerald-700 dark:text-emerald-300 font-extrabold shadow-2xs'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  ? 'bg-emerald-50/90 border-emerald-500 text-emerald-900 shadow-xs ring-2 ring-emerald-500/20'
+                  : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:border-emerald-300'
               }`}
             >
-              <div className="flex items-center gap-1 text-xs font-black uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
-                <PiggyBank size={13} />
-                <span>Cheapest Route</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1">
+                  <PiggyBank size={14} /> CHEAPEST ROUTE
+                </span>
+                <span className="text-[9px] font-extrabold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full">
+                  Lowest Cost
+                </span>
               </div>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">Lowest Cost</span>
+              <div className="text-xs font-black mt-2 text-[#1A1A1A]">
+                {plannerData.routes.cheapest.totalDurationStr} • ₹{plannerData.routes.cheapest.totalCostMin.toLocaleString()}
+              </div>
             </button>
 
           </div>
 
-          {/* AI Recommendation Alert Bar */}
-          <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/60 rounded-xl px-4 py-2.5 flex items-center gap-2 text-amber-900 dark:text-amber-300 text-xs font-bold">
-            <Award size={16} className="text-amber-600 shrink-0" />
-            <span>AI Recommendation: These bus routes are optimized for operator rating, journey time, sleeper comfort, and cost.</span>
-          </div>
-
-          {/* ── SMART ROUTE CARDS LIST ── */}
+          {/* Route Cards List */}
           <div className="space-y-6">
             {routesToDisplay.map((route) => {
-              const badgeBg =
+              const badgeHeaderBg =
                 route.type === 'best'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
+                  ? 'bg-orange-50 text-[#EA580C] border-orange-200'
                   : route.type === 'fastest'
-                  ? 'bg-purple-500/10 border-purple-500/30 text-purple-700 dark:text-purple-400'
-                  : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400'
+                  ? 'bg-purple-50 text-purple-800 border-purple-200'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-200'
 
-              const cardBorder =
+              const cardOuterBorder =
                 route.type === 'best'
-                  ? 'border-emerald-500/40 dark:border-emerald-900/60'
+                  ? 'border-orange-200'
                   : route.type === 'fastest'
-                  ? 'border-purple-500/40 dark:border-purple-900/60'
-                  : 'border-amber-500/40 dark:border-amber-900/60'
+                  ? 'border-purple-200'
+                  : 'border-emerald-200'
 
               return (
                 <div
                   key={route.id}
-                  className={`bg-white dark:bg-slate-950 border ${cardBorder} rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 space-y-4`}
+                  className={`bg-white border ${cardOuterBorder} rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 space-y-0`}
                 >
                   
                   {/* Card Header: Route Badge & Overview Row */}
-                  <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 space-y-3">
-                    
-                    <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="p-5 border-b border-[#E8E0D8] space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <div className={`px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${badgeBg}`}>
-                          {route.type === 'best' && <span>🥇 BEST ROUTE</span>}
-                          {route.type === 'fastest' && <span>⚡ FASTEST ROUTE</span>}
-                          {route.type === 'cheapest' && <span>💰 CHEAPEST ROUTE</span>}
-                        </div>
-
-                        {route.changesCount === 0 && (
-                          <span className="bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-extrabold text-[11px] px-2.5 py-0.5 rounded-lg flex items-center gap-1">
-                            <CheckCircle2 size={12} /> Direct Route
-                          </span>
-                        )}
+                        <span className={`px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider ${badgeHeaderBg}`}>
+                          {route.type === 'best' && '🥇 BEST ROUTE'}
+                          {route.type === 'fastest' && '⚡ FASTEST ROUTE'}
+                          {route.type === 'cheapest' && '💰 CHEAPEST ROUTE'}
+                        </span>
 
                         {route.comparisonLabel && (
-                          <span className="bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-800 text-red-800 dark:text-red-300 font-extrabold text-[11px] px-2.5 py-0.5 rounded-lg">
+                          <span className="bg-orange-50 border border-orange-200 text-[#EA580C] text-[11px] font-extrabold px-2.5 py-0.5 rounded-lg">
                             {route.comparisonLabel}
                           </span>
                         )}
                       </div>
 
-                      {route.isRecommended && (
-                        <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                          <CheckCircle2 size={13} /> Recommended
-                        </span>
-                      )}
+                      <div className="text-xs font-extrabold text-[#EA580C] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
+                        redBus Live Rates
+                      </div>
                     </div>
 
-                    {/* Top Stats Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-center pt-1">
+                    {/* Top Metrics Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-[#E8E0D8] text-[#1A1A1A]">
                       <div>
-                        <div className="text-[11px] font-bold text-slate-400 uppercase">Total Duration</div>
-                        <div className="text-lg font-black text-slate-900 dark:text-white">{route.totalDurationStr}</div>
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">Total Duration</div>
+                        <div className="text-base font-black text-[#1A1A1A] flex items-center gap-1 mt-0.5">
+                          <Clock size={14} className="text-[#EA580C]" />
+                          <span>{route.totalDurationStr}</span>
+                        </div>
                       </div>
 
                       <div>
-                        <div className="text-[11px] font-bold text-slate-400 uppercase">Transfers</div>
-                        <div className="text-lg font-black text-slate-900 dark:text-white">{route.changesCount}</div>
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">Transfers</div>
+                        <div className="text-base font-black text-[#1A1A1A] mt-0.5">
+                          {route.changesCount === 0 ? 'Direct Bus' : `${route.changesCount} Transfer`}
+                        </div>
                       </div>
 
                       <div>
-                        <div className="text-[11px] font-bold text-slate-400 uppercase">Total Est. Cost</div>
-                        <div className="text-lg font-black text-slate-900 dark:text-white">
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">Est. Bus Fare</div>
+                        <div className="text-base font-black text-[#1A1A1A] mt-0.5">
                           ₹{route.totalCostMin.toLocaleString()} – ₹{route.totalCostMax.toLocaleString()}
                         </div>
                       </div>
 
-                      {/* AI Confidence Circular Score */}
-                      <div className="flex items-center justify-end gap-2">
-                        <div className="text-right">
-                          <div className="text-[10px] font-bold text-slate-400 uppercase">AI Confidence</div>
-                          <div className="text-sm font-black text-slate-900 dark:text-white">{route.aiConfidenceScore}%</div>
-                        </div>
-
-                        <div className="relative w-9 h-9 flex items-center justify-center">
-                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path
-                              className="text-slate-200 dark:text-slate-800"
-                              strokeWidth="3.5"
-                              stroke="currentColor"
-                              fill="none"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                            />
-                            <path
-                              className="text-red-500"
-                              strokeDasharray={`${route.aiConfidenceScore}, 100`}
-                              strokeWidth="3.5"
-                              strokeLinecap="round"
-                              stroke="currentColor"
-                              fill="none"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                            />
-                          </svg>
+                      <div>
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">AI Confidence</div>
+                        <div className="text-base font-black text-emerald-600 mt-0.5">
+                          {route.aiConfidenceScore}%
                         </div>
                       </div>
                     </div>
-
                   </div>
 
-                  {/* Multi-Leg Journey Timeline Body */}
-                  <div className="px-5 space-y-4">
-                    
-                    {route.legs.map((leg, legIdx) => (
-                      <React.Fragment key={leg.id}>
-                        
-                        {/* Single Bus Leg Component */}
-                        <div className="bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 space-y-3">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                            
-                            {/* Departure -> Terminal -> Arrival */}
-                            <div className="flex items-center gap-3 flex-1">
-                              <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0">
-                                <Bus size={16} />
-                              </div>
-
-                              <div>
-                                <div className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                                  <span>{leg.departureTime}</span>
-                                  <span className="text-xs font-black text-red-600 dark:text-red-400">{leg.fromCity}</span>
-                                  <span className="text-slate-400">→</span>
-                                  <span className="text-slate-900 dark:text-white">{leg.toCity}</span>
-                                </div>
-                                <div className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
-                                  <span>{leg.operatorName}</span>
-                                  {leg.rating && (
-                                    <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.2 rounded text-[10px] font-bold flex items-center gap-0.5">
-                                      {leg.rating} <Star size={9} fill="currentColor" />
-                                    </span>
-                                  )}
-                                  <span>•</span>
-                                  <span>{leg.busType}</span>
-                                </div>
-                              </div>
+                  {/* Multi-Leg Journey Breakdown */}
+                  <div className="p-5 space-y-4 bg-[#FFFBF7]/60">
+                    {route.legs.map((leg) => (
+                      <div key={leg.id} className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-xs space-y-3">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#E8E0D8] pb-2.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-200 text-[#EA580C] flex items-center justify-center shrink-0">
+                              <Bus size={16} />
                             </div>
-
-                            {/* Duration & Fares Pill */}
-                            <div className="flex flex-col md:items-end gap-1 shrink-0">
-                              <div className="text-xs font-bold text-slate-500">
-                                {leg.durationStr} <span className="text-slate-400">• ~{leg.distanceKm} km</span>
+                            <div>
+                              <div className="text-sm font-black text-[#1A1A1A] flex items-center gap-2">
+                                <span>{leg.departureTime}</span>
+                                <span className="text-[#EA580C] font-bold">{leg.fromCity}</span>
+                                <span className="text-[#9CA3AF]">→</span>
+                                <span>{leg.toCity}</span>
                               </div>
-
-                              {/* Fares Box */}
-                              <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 rounded-lg px-2.5 py-1 text-[11px] font-bold text-rose-900 dark:text-rose-300">
-                                {leg.fares.sleeper && (
-                                  <span>Sleeper: ₹{leg.fares.sleeper.min} – ₹{leg.fares.sleeper.max}</span>
-                                )}
-                                {leg.fares.seater && (
-                                  <span className="ml-2 pl-2 border-l border-rose-300 dark:border-rose-700">
-                                    Seater: ₹{leg.fares.seater.min} – ₹{leg.fares.seater.max}
+                              <div className="text-xs text-[#6B6B6B] font-medium mt-0.5 flex items-center gap-2">
+                                <span>{leg.operatorName}</span>
+                                {leg.rating && (
+                                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded text-[10px] font-bold">
+                                    ⭐ {leg.rating}/5
                                   </span>
                                 )}
+                                <span>•</span>
+                                <span>{leg.busType}</span>
                               </div>
                             </div>
+                          </div>
 
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenBookingModal(route)}
+                              className="px-3.5 py-2 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <span>Book on redBus</span>
+                              <ExternalLink size={13} />
+                            </button>
                           </div>
                         </div>
 
-                        {/* Waiting Time Indicator between legs */}
-                        {route.transfers && route.transfers[legIdx] && (
-                          <div className="flex items-center gap-2 pl-4 text-xs font-extrabold text-amber-700 dark:text-amber-400">
-                            <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/80 flex items-center justify-center shrink-0">
-                              <Clock size={13} className="text-amber-600" />
-                            </div>
-                            <span>
-                              {route.transfers[legIdx].waitingTimeStr} Waiting Time at {route.transfers[legIdx].cityName} ({route.transfers[legIdx].terminalName})
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-[#6B6B6B]">
+                          <div>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Duration</span>
+                            <span className="font-bold text-[#1A1A1A]">{leg.durationStr} (~{leg.distanceKm} km)</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Bus Type</span>
+                            <span className="font-bold text-[#1A1A1A]">{leg.busType}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Est. Fare</span>
+                            <span className="font-bold text-[#EA580C]">
+                              ₹{leg.fares?.sleeper?.min || leg.fares?.seater?.min || 600} – ₹{leg.fares?.sleeper?.max || leg.fares?.seater?.max || 1400}
                             </span>
                           </div>
-                        )}
-
-                      </React.Fragment>
-                    ))}
-
-                    {/* Last-Mile Transport Component (Green Box) */}
-                    {route.lastMile && (
-                      <div className="bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-xl p-3.5 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 font-extrabold text-xs">
-                          <MapPin size={15} className="text-emerald-600" />
                           <div>
-                            <div>{route.lastMile.fromLocation} → {route.lastMile.toLocation}</div>
-                            <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
-                              {route.lastMile.details}
-                            </div>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Confirmation</span>
+                            <span className="font-bold text-emerald-600">Instant</span>
                           </div>
                         </div>
                       </div>
-                    )}
-
+                    ))}
                   </div>
 
-                  {/* Card Bottom Bar: Comfort, Crowd, Reliability & Action Button */}
-                  <div className="p-4 bg-slate-50/80 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-                    
-                    {/* Metrics Row */}
-                    <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-600 dark:text-slate-300">
-                      <span>Comfort: <strong className="text-slate-900 dark:text-white">{route.metrics.comfort}</strong> ⭐⭐⭐⭐⭐</span>
+                  {/* Card Bottom Bar */}
+                  <div className="p-4 bg-[#FFFBF7] border-t border-[#E8E0D8] flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-bold text-[#6B6B6B]">
+                    <div className="flex items-center gap-4">
+                      <span>Comfort: <strong className="text-[#1A1A1A]">{route.metrics.comfort}</strong> ⭐⭐⭐⭐⭐</span>
                       <span>•</span>
-                      <span>Crowd: <strong className="text-slate-900 dark:text-white">{route.metrics.crowd}</strong></span>
-                      <span>•</span>
-                      <span>Reliability: <strong className="text-slate-900 dark:text-white">{route.metrics.reliability}</strong></span>
+                      <span>Reliability: <strong className="text-[#1A1A1A]">{route.metrics.reliability}</strong></span>
                     </div>
 
-                    {/* View Details & Book Button (redBus theme) */}
                     <button
                       type="button"
                       onClick={() => handleOpenBookingModal(route)}
-                      className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                      className="px-5 py-2 bg-[#EA580C] hover:bg-[#C2410C] text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>View Details & Book on redBus</span>
                     </button>
-
                   </div>
 
                 </div>
@@ -593,8 +507,8 @@ export default function AiSmartBusPlanner() {
           </div>
 
           {/* Footer Disclaimer */}
-          <div className="bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-slate-500 dark:text-slate-400 text-xs flex items-center gap-2 font-medium">
-            <Info size={16} className="text-slate-400 shrink-0" />
+          <div className="bg-white border border-[#E8E0D8] rounded-xl p-3.5 text-[#6B6B6B] text-xs flex items-center gap-2 font-medium">
+            <Info size={16} className="text-[#9CA3AF] shrink-0" />
             <span>Prices and seat availability are estimated and live on redBus. Check actual seat map at the time of booking.</span>
           </div>
 

@@ -38,11 +38,11 @@ export default function IrctcBookingModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-3xl shadow-2xl overflow-hidden my-8 transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-3xl border border-[#E8E0D8] w-full max-w-3xl shadow-2xl overflow-hidden my-8 transition-all">
         
         {/* ── Modal Header ── */}
-        <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-950 text-white p-6 relative">
+        <div className="bg-[#1A1A1A] text-white p-6 relative">
           <button
             type="button"
             onClick={onClose}
@@ -52,32 +52,32 @@ export default function IrctcBookingModal({
           </button>
 
           <div className="flex items-center gap-2.5 mb-2">
-            <span className="px-3 py-1 rounded-full bg-orange-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1 shadow-xs">
+            <span className="px-3 py-1 rounded-full bg-[#EA580C] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1 shadow-xs">
               <Sparkles size={13} /> {route.title}
             </span>
-            <span className="text-xs text-blue-200 font-semibold">
+            <span className="text-xs text-orange-200 font-semibold">
               AI Confidence: {route.aiConfidenceScore}%
             </span>
           </div>
 
-          <h3 className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+          <h3 className="text-xl md:text-2xl font-black text-white flex items-center gap-2 font-display">
             <span>Complete Journey Details & IRCTC Booking</span>
           </h3>
 
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-blue-100 font-medium border-t border-blue-800/60 pt-3">
-            <span>⏱ Total Duration: <strong className="text-white font-bold">{route.totalDurationStr}</strong></span>
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-300 font-medium border-t border-white/10 pt-3">
+            <span>⏱ Duration: <strong className="text-white font-bold">{route.totalDurationStr}</strong></span>
             <span>🔁 Changes: <strong className="text-white font-bold">{route.changesCount}</strong></span>
-            <span>💰 Est. Total Cost: <strong className="text-white font-bold">₹{route.totalCostMin.toLocaleString()} - ₹{route.totalCostMax.toLocaleString()}</strong></span>
+            <span>💰 Est. Cost: <strong className="text-white font-bold">₹{route.totalCostMin.toLocaleString()} - ₹{route.totalCostMax.toLocaleString()}</strong></span>
           </div>
         </div>
 
         {/* ── Modal Body ── */}
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto bg-[#FFFBF7]/40">
 
           {/* ── Step-By-Step Journey Timeline ── */}
           <div className="space-y-4">
-            <h4 className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <Train size={16} className="text-blue-600" />
+            <h4 className="text-sm font-black text-[#1A1A1A] uppercase tracking-wider flex items-center gap-2 font-display">
+              <Train size={16} className="text-[#0D9488]" />
               Train Itinerary Breakdown
             </h4>
 
@@ -93,10 +93,10 @@ export default function IrctcBookingModal({
               const otherLinks = buildOtherTrainBookingLinks(leg.fromCode, leg.toCode, dateStr)
 
               return (
-                <div key={leg.id} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs relative space-y-4">
+                <div key={leg.id} className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs relative space-y-4">
                   
                   {/* Leg Title Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E8E0D8] pb-3">
                     <div className="flex items-center gap-2">
                       <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0">
                         {index + 1}

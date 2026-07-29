@@ -8,6 +8,10 @@ export interface AuthenticatedRequest extends Request {
     clerkUserId: string
     email: string
   }
+  /** Populated by multer when a single file is uploaded (upload.single()) */
+  file?: Express.Multer.File
+  /** Populated by multer when multiple files are uploaded (upload.array() / upload.fields()) */
+  files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] }
 }
 
 /**

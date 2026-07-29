@@ -74,18 +74,18 @@ export default function AiDiscoverCarsPlanner() {
   // Domestic only check
   if (plannerData.isDomestic === false) {
     return (
-      <div className="space-y-6 animate-fade-in max-w-3xl mx-auto py-8">
-        <div className="glass rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8 text-center bg-white dark:bg-slate-950 shadow-sm flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+      <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
+        <div className="glass rounded-2xl border border-[#E8E0D8] p-8 text-center bg-white shadow-xs flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
             <Car size={32} />
           </div>
           <div className="space-y-2">
-            <h4 className="text-xl font-black text-slate-800 dark:text-white">Domestic Travel Only</h4>
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto font-medium">
-              Rental cars are available only for domestic travel. Please use Flights or local transport at your destination.
+            <h4 className="text-xl font-black text-[#1A1A1A] font-display">Domestic Travel Only</h4>
+            <p className="text-sm text-[#6B6B6B] leading-relaxed max-w-md mx-auto font-medium">
+              Cab and rental car options are supported for trips within the same country.
             </p>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
-              Cab and rental car options are supported for trips within the same country. You can check flight or train options for your journey to <span className="font-bold text-slate-700 dark:text-slate-200">{destination}</span>.
+            <p className="text-xs text-[#9CA3AF] max-w-md mx-auto">
+              You can check flight or train options for your journey to <span className="font-bold text-[#1A1A1A]">{destination}</span>.
             </p>
           </div>
         </div>
@@ -283,11 +283,11 @@ export default function AiDiscoverCarsPlanner() {
       {/* ── 3. MAIN LAYOUT: LEFT SIDEBAR FILTERS + RIGHT VEHICLES GRID ── */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
 
-        {/* ── LEFT SIDEBAR FILTERS PANEL (Matching reference layout) ── */}
-        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-6 lg:sticky lg:top-24">
+        {/* ── LEFT SIDEBAR FILTERS PANEL ── */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-6 lg:sticky lg:top-24">
           
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h3 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
               <Sliders size={16} className="text-orange-500" /> Filter Vehicles
             </h3>
             <button
@@ -310,16 +310,16 @@ export default function AiDiscoverCarsPlanner() {
 
           {/* Rental Type (Per Day / Per Hour) */}
           <div className="space-y-2">
-            <label className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+            <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider block">
               Rental Rate Type
             </label>
-            <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+            <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
               <button
                 onClick={() => setRentalType('perDay')}
                 className={`py-1.5 text-xs font-extrabold rounded-lg transition-all ${
                   rentalType === 'perDay'
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Per Day
