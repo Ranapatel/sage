@@ -1759,32 +1759,34 @@ function OverviewTab({
       `}</style>
 
       {/* ── OFFICIAL TRIPSAGE BRAND HEADER (Included in PDF Exports) ── */}
-      <div className="mb-4 p-4 bg-white border border-[#E8E0D8] rounded-2xl shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="mb-4 p-3.5 sm:p-4 bg-white border border-[#E8E0D8] rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden">
+        {/* Left: Brand Identity & Subtitle */}
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
           <img
             src="/logo.png"
             alt="TripSage"
-            className="w-9 h-9 rounded-xl object-contain shadow-xs"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain shadow-2xs shrink-0 mt-0.5 sm:mt-0"
           />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-display text-xl font-black text-[#1A1A1A] tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-display text-lg sm:text-xl font-black text-[#1A1A1A] tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 TripSage
               </span>
-              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-orange-50 text-[#EA580C] border border-orange-200 uppercase tracking-wider">
+              <span className="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-orange-50 text-[#EA580C] border border-orange-200 uppercase tracking-wider shrink-0">
                 Official AI Travel Itinerary
               </span>
             </div>
-            <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+            <p className="text-[11px] font-semibold text-slate-500 mt-1 leading-normal">
               Verified travel intelligence, weather forecast, transit comparison & readiness summary
             </p>
           </div>
         </div>
 
-        <div className="text-right">
-          <span className="text-sm font-extrabold text-[#1A1A1A] block">{routeText}</span>
+        {/* Right: Route & Dates */}
+        <div className="text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-[#E8E0D8]/60 flex items-center sm:block justify-between shrink-0">
+          <span className="text-xs sm:text-sm font-extrabold text-[#1A1A1A] block">{routeText}</span>
           {datesText && (
-            <span className="text-xs font-semibold text-[#EA580C] block mt-0.5">{datesText}</span>
+            <span className="text-[11px] sm:text-xs font-semibold text-[#EA580C] block sm:mt-0.5">{datesText}</span>
           )}
         </div>
       </div>

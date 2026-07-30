@@ -283,14 +283,14 @@ export default function AiSmartBusPlanner() {
               return (
                 <div
                   key={route.id}
-                  className={`bg-white border ${cardOuterBorder} rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 space-y-0`}
+                  className={`bg-white border ${cardOuterBorder} rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 space-y-0`}
                 >
                   
                   {/* Card Header: Route Badge & Overview Row */}
-                  <div className="p-5 border-b border-[#E8E0D8] space-y-4">
+                  <div className="p-4 sm:p-5 border-b border-[#E8E0D8] space-y-3.5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider ${badgeHeaderBg}`}>
+                        <span className={`px-3 py-1 rounded-xl border text-xs font-black uppercase tracking-wider ${badgeHeaderBg}`}>
                           {route.type === 'best' && <span className="inline-flex items-center gap-1"><Award size={13} /><span>BEST ROUTE</span></span>}
                           {route.type === 'fastest' && <span className="inline-flex items-center gap-1"><Zap size={13} /><span>FASTEST ROUTE</span></span>}
                           {route.type === 'cheapest' && <span className="inline-flex items-center gap-1"><IndianRupee size={13} /><span>CHEAPEST ROUTE</span></span>}
@@ -303,41 +303,41 @@ export default function AiSmartBusPlanner() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         <SageScoreRing item={route} allItems={routesToDisplay} size={38} />
-                        <span className="text-xs font-extrabold text-[#EA580C] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
+                        <span className="text-[11px] font-extrabold text-[#EA580C] bg-orange-50 px-2.5 py-1 rounded-xl border border-orange-200 shrink-0">
                           redBus Live Rates
                         </span>
                       </div>
                     </div>
 
                     {/* Top Metrics Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-[#E8E0D8] text-[#1A1A1A]">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#E8E0D8]/80 text-[#1A1A1A]">
                       <div>
-                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">Total Duration</div>
-                        <div className="text-base font-black text-[#1A1A1A] flex items-center gap-1 mt-0.5">
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Total Duration</div>
+                        <div className="text-sm sm:text-base font-black text-[#1A1A1A] flex items-center gap-1 mt-0.5 font-display">
                           <Clock size={14} className="text-[#EA580C]" />
                           <span>{route.totalDurationStr}</span>
                         </div>
                       </div>
 
                       <div>
-                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">Transfers</div>
-                        <div className="text-base font-black text-[#1A1A1A] mt-0.5">
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Transfers</div>
+                        <div className="text-sm sm:text-base font-black text-[#1A1A1A] mt-0.5 font-display">
                           {route.changesCount === 0 ? 'Direct Bus' : `${route.changesCount} Transfer`}
                         </div>
                       </div>
 
                       <div>
-                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">Est. Bus Fare</div>
-                        <div className="text-base font-black text-[#1A1A1A] mt-0.5">
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Est. Bus Fare</div>
+                        <div className="text-sm sm:text-base font-black text-[#EA580C] mt-0.5 font-display">
                           ₹{route.totalCostMin.toLocaleString()} – ₹{route.totalCostMax.toLocaleString()}
                         </div>
                       </div>
 
                       <div>
-                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase">AI Confidence</div>
-                        <div className="text-base font-black text-emerald-600 mt-0.5">
+                        <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">AI Confidence</div>
+                        <div className="text-sm sm:text-base font-black text-emerald-600 mt-0.5 font-display">
                           {route.aiConfidenceScore}%
                         </div>
                       </div>
@@ -345,26 +345,25 @@ export default function AiSmartBusPlanner() {
                   </div>
 
                   {/* Multi-Leg Journey Breakdown */}
-                  <div className="p-5 space-y-4 bg-[#FFFBF7]/60">
+                  <div className="p-4 sm:p-5 space-y-3.5 bg-[#FFFBF7]/60">
                     {route.legs.map((leg) => (
-                      <div key={leg.id} className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-xs space-y-3">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#E8E0D8] pb-2.5">
-                          <div className="flex items-center gap-3">
+                      <div key={leg.id} className="bg-white border border-[#E8E0D8] rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8E0D8]/70 pb-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-200 text-[#EA580C] flex items-center justify-center shrink-0">
                               <Bus size={16} />
                             </div>
-                            <div>
-                              <div className="text-sm font-black text-[#1A1A1A] flex items-center gap-2">
-                                <span>{leg.departureTime}</span>
-                                <span className="text-[#EA580C] font-bold">{leg.fromCity}</span>
+                            <div className="min-w-0">
+                              <div className="text-xs sm:text-sm font-black text-[#1A1A1A] flex items-center gap-1.5 flex-wrap">
+                                <span className="font-display text-[#EA580C]">{leg.fromCity}</span>
                                 <span className="text-[#9CA3AF]">→</span>
-                                <span>{leg.toCity}</span>
+                                <span className="font-display">{leg.toCity}</span>
                               </div>
-                              <div className="text-xs text-[#6B6B6B] font-medium mt-0.5 flex items-center gap-2">
+                              <div className="text-[11px] text-[#6B6B6B] font-semibold mt-0.5 flex items-center gap-1.5 flex-wrap">
                                 <span>{leg.operatorName}</span>
                                 {leg.rating && (
-                                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded text-[10px] font-bold inline-flex items-center gap-1">
-                                    <Star size={11} className="fill-emerald-600 text-emerald-600" />
+                                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded-md text-[10px] font-bold inline-flex items-center gap-1">
+                                    <Star size={10} className="fill-emerald-600 text-emerald-600" />
                                     <span>{leg.rating}/5</span>
                                   </span>
                                 )}
@@ -373,37 +372,26 @@ export default function AiSmartBusPlanner() {
                               </div>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenBookingModal(route)}
-                              className="px-3.5 py-2 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-                            >
-                              <span>Book on redBus</span>
-                              <ExternalLink size={13} />
-                            </button>
-                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-[#6B6B6B]">
                           <div>
-                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Duration</span>
-                            <span className="font-bold text-[#1A1A1A]">{leg.durationStr} (~{leg.distanceKm} km)</span>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase tracking-wider">Duration</span>
+                            <span className="font-extrabold text-[#1A1A1A]">{leg.durationStr} (~{leg.distanceKm} km)</span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Bus Type</span>
-                            <span className="font-bold text-[#1A1A1A]">{leg.busType}</span>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase tracking-wider">Bus Type</span>
+                            <span className="font-extrabold text-[#1A1A1A]">{leg.busType}</span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Est. Fare</span>
-                            <span className="font-bold text-[#EA580C]">
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase tracking-wider">Est. Fare</span>
+                            <span className="font-extrabold text-[#EA580C]">
                               ₹{leg.fares?.sleeper?.min || leg.fares?.seater?.min || 600} – ₹{leg.fares?.sleeper?.max || leg.fares?.seater?.max || 1400}
                             </span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase">Confirmation</span>
-                            <span className="font-bold text-emerald-600">Instant</span>
+                            <span className="text-[10px] text-[#9CA3AF] font-bold block uppercase tracking-wider">Status</span>
+                            <span className="font-extrabold text-emerald-600">Instant Booking</span>
                           </div>
                         </div>
                       </div>
@@ -411,15 +399,13 @@ export default function AiSmartBusPlanner() {
                   </div>
 
                   {/* Card Bottom Bar */}
-                  <div className="p-4 bg-[#FFFBF7] border-t border-[#E8E0D8] flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-bold text-[#6B6B6B]">
-                    <div className="flex items-center gap-4">
-                      <span className="inline-flex items-center gap-1">
-                        <span>Comfort:</span>
-                        <strong className="text-[#1A1A1A] mr-1">{route.metrics.comfort}</strong>
-                        <span className="inline-flex text-amber-500"><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /></span>
+                  <div className="p-4 bg-[#FFFBF7] border-t border-[#E8E0D8] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs font-bold text-[#6B6B6B]">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="inline-flex items-center gap-1 text-[#1A1A1A]">
+                        <span className="text-[#9CA3AF]">Comfort:</span>
+                        <strong className="text-[#1A1A1A]">{route.metrics.comfort}</strong>
+                        <span className="inline-flex text-amber-500 ml-1"><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /></span>
                       </span>
-                      <span>•</span>
-                      <span>Reliability: <strong className="text-[#1A1A1A]">{route.metrics.reliability}</strong></span>
                     </div>
 
                     <button
