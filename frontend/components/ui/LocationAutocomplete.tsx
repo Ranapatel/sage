@@ -450,7 +450,7 @@ export default function LocationAutocomplete({
                     key={loc.id}
                     role="option"
                     aria-selected={false}
-                    className="p-2.5 cursor-pointer flex items-center justify-between rounded-xl bg-white hover:bg-[#FFF4EE]/70 hover:border-[#FED7AA] border border-transparent transition-all duration-150 group"
+                    className="p-2.5 min-h-[44px] cursor-pointer flex items-center justify-between rounded-xl bg-white hover:bg-[#FFF4EE]/70 hover:border-[#FED7AA] border border-transparent transition-all duration-150 group active:bg-[#FFF4EE]"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelect(loc)}
                   >

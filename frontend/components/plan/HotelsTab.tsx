@@ -198,9 +198,9 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
               }}
             >
               <option value="">All Ratings</option>
-              <option value="3">3★ & Above</option>
-              <option value="4">4★ & Above</option>
-              <option value="5">5★ Only</option>
+              <option value="3">3 Stars & Above</option>
+              <option value="4">4 Stars & Above</option>
+              <option value="5">5 Stars Only</option>
             </select>
           </div>
 

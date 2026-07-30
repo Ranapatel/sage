@@ -282,7 +282,8 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
           className="w-full py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
         >
           <Sparkles size={16} />
-          <span>{isBuilding ? 'Building Your Trip...' : 'Plan My Trip Now ➔'}</span>
+          <span>{isBuilding ? 'Building Your Trip...' : 'Plan My Trip Now'}</span>
+          {!isBuilding && <ArrowRight size={14} />}
         </button>
       </div>
 

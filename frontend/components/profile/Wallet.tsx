@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
-import { Landmark, ArrowUpRight, ArrowDownLeft, Sparkles, Download, FileText, Gift, Lock, CheckCircle2, ShieldCheck, Zap, Coins } from 'lucide-react'
+import { Landmark, ArrowUpRight, ArrowDownLeft, Sparkles, Download, FileText, Gift, Lock, CheckCircle2, ShieldCheck, Zap, Coins, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 interface Transaction {
@@ -193,7 +193,8 @@ export default function Wallet() {
               href="/profile?tab=referral"
               className="mt-3 text-[11px] font-bold text-[#EA580C] hover:underline flex items-center gap-1"
             >
-              + Earn More Credits ➔
+              <span>+ Earn More Credits</span>
+              <ArrowRight size={13} />
             </Link>
           </div>
         </div>

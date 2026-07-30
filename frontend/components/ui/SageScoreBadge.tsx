@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useTripStore } from '@/store/tripStore'
+import { calculateSageScore } from '@/lib/sageScore'
 
 interface Props {
   item: any
@@ -194,3 +195,67 @@ export default function SageScoreBadge({ item, type }: Props) {
     </div>
   )
 }
+
+export function SageScoreRing({
+  item,
+  allItems,
+  score: rawScore,
+  size = 42,
+  showLabel = true,
+  dark = false,
+}: {
+  item?: any
+  allItems?: any[]
+  score?: number
+  size?: number
+  showLabel?: boolean
+  dark?: boolean
+}) {
+  const score = item
+    ? calculateSageScore(item, allItems)
+    : Number.isFinite(rawScore)
+    ? Math.max(0, Math.min(100, Math.round(rawScore!)))
+    : 88
+  const strokeWidth = 3.5
+  const radius = (size - strokeWidth * 2) / 2
+  const circ = 2 * Math.PI * radius
+  const fill = (score / 100) * circ
+  const color = score >= 80 ? '#16A34A' : score >= 60 ? '#EA580C' : '#9CA3AF'
+  const trackColor = dark ? 'rgba(255,255,255,0.25)' : '#E8E0D8'
+  const textColor = dark ? '#FFFFFF' : color
+
+  return (
+    <div className="flex flex-col items-center justify-center shrink-0 group relative cursor-help">
+      <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rotate-[-90deg]">
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={trackColor} strokeWidth={strokeWidth} />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${fill} ${circ}`}
+            strokeLinecap="round"
+          />
+        </svg>
+        <span
+          className="absolute inset-0 flex items-center justify-center text-xs font-black font-mono leading-none"
+          style={{ color: textColor }}
+        >
+          {score}
+        </span>
+      </div>
+      {showLabel && (
+        <span
+          className="text-[8px] font-black tracking-wider uppercase mt-0.5"
+          style={{ color: dark ? 'rgba(255,255,255,0.7)' : '#9CA3AF' }}
+        >
+          Sage Score
+        </span>
+      )}
+    </div>
+  )
+}
+

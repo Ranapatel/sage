@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import { Info } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 interface Guest {
@@ -55,12 +56,13 @@ function TextInput({
       placeholder={placeholder}
       maxLength={maxLength}
       style={{
-        width: '100%', padding: '10px 14px',
+        width: '100%', padding: '12px 14px',
+        minHeight: '44px',
         background: 'var(--bg-input, rgba(255,255,255,0.05))',
         border: '1px solid var(--border)',
         borderRadius: '10px',
         color: 'var(--text-primary)',
-        fontSize: '0.88rem',
+        fontSize: '16px',
         outline: 'none',
         transition: 'border-color 0.2s',
         boxSizing: 'border-box',
@@ -159,8 +161,9 @@ export default function GuestInfoForm({ rooms = 1, rateType = 'BOOKABLE', onSubm
             />
           </FieldGroup>
         </div>
-        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '-4px' }}>
-          ℹ️ Name must match your photo ID / passport exactly.
+        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '-4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <Info size={12} className="text-blue-500 shrink-0" />
+          <span>Name must match your photo ID / passport exactly.</span>
         </p>
       </SectionCard>
 

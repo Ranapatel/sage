@@ -22,7 +22,7 @@ const AMENITY_MAP: Record<string, { icon: React.ComponentType<any>; label: strin
   ac: { icon: Wind, label: 'A/C' },
 }
 
-function detectAmenities(amenities?: string[], offers?: string[]): { icon: React.ComponentType<any>; label: string }[] {
+function detectAmenities(amenities?: string[], offers?: string[], isMobile?: boolean): { icon: React.ComponentType<any>; label: string }[] {
   const all = [...(amenities || []), ...(offers || [])].join(' ').toLowerCase()
   const found: { icon: React.ComponentType<any>; label: string }[] = []
 
@@ -42,7 +42,7 @@ function detectAmenities(amenities?: string[], offers?: string[]): { icon: React
     found.push(AMENITY_MAP.wifi, AMENITY_MAP.ac)
   }
 
-  return found.slice(0, 4) // Max 4
+  return found.slice(0, isMobile ? 3 : 4) // Max 3 on mobile, 4 on desktop
 }
 
 // ── Hotel type from name/category ────────────────────────────────────────────
@@ -86,7 +86,7 @@ function HotelCard({ item, showDetail }: Props) {
   const displayPrice = item.price ? formatPrice(item.price, currency) : null
   const totalDisplay = item.totalPrice ? formatPrice(item.totalPrice, currency) : null
   const hotelType = getHotelType(item.name, item.categoryName)
-  const amenities = detectAmenities(item.amenities, item.offers)
+  const amenities = detectAmenities(item.amenities, item.offers, isMobile)
   const ratingInfo = getRatingInfo(item.rating || 0)
   const starCount = Math.min(5, Math.max(1, Math.round(item.rating || 3)))
 
@@ -128,7 +128,7 @@ function HotelCard({ item, showDetail }: Props) {
   const sourceBadge = (() => {
  if (item.source === 'live') return { label: 'Live Price', cls: 'badge-green' }
  if (item.source === 'affiliate_redirect') return { label: 'Search Live', cls: 'badge-amber' }
- if (item.source === 'api_error') return { label: '️ Unavailable', cls: 'badge-red' }
+ if (item.source === 'api_error') return { label: 'Unavailable', cls: 'badge-red' }
     return null
   })()
 

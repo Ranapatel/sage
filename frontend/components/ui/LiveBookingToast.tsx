@@ -57,7 +57,7 @@ export default function LiveBookingToast() {
 
   return (
     <div
-      className={`fixed bottom-6 left-6 z-50 max-w-sm bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] flex items-start gap-3 transition-all duration-500 ease-out transform ${
+      className={`fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-6 sm:right-auto z-40 max-w-none sm:max-w-sm bg-white border border-[#E8E0D8] rounded-2xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center gap-3 transition-all duration-500 ease-out transform ${
         visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
       }`}
     >
@@ -65,11 +65,11 @@ export default function LiveBookingToast() {
         <CheckCircle2 size={16} strokeWidth={2.5} />
       </div>
       
-      <div className="flex-1 min-w-0 pr-2">
+      <div className="flex-1 min-w-0 pr-1">
         <p className="text-xs font-bold text-slate-800 leading-tight">
           {currentEvent.message}
         </p>
-        <span className="text-[10px] text-slate-400 font-semibold block mt-1.5 uppercase tracking-wide">
+        <span className="text-[10px] text-slate-400 font-semibold block mt-1 uppercase tracking-wide">
           Verified • {currentEvent.time}
         </span>
       </div>
@@ -79,9 +79,9 @@ export default function LiveBookingToast() {
           setVisible(false)
           setTimeout(() => setClosed(true), 500)
         }}
-        className="text-slate-400 hover:text-slate-600 p-0.5 rounded-lg hover:bg-slate-100 transition-all cursor-pointer"
+        className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
       >
-        <X size={14} />
+        <X size={16} />
       </button>
     </div>
   )

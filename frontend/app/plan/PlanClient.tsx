@@ -1203,26 +1203,7 @@ export default function PlanClient() {
               )}
 
 
-      {/* AI THINKING */}
-      {aiThinking && (
-        <div className="px-4 max-w-7xl mx-auto mb-4">
-          <div className="glass rounded-xl p-4 flex items-center gap-4">
-            <div className="flex gap-1">
-              {[0,1,2].map(i => (
-                <div key={i} className="w-2 h-2 rounded-full bg-[var(--primary)] animate-bounce"
-                  style={{ animationDelay: `${i * 0.2}s` }}></div>
-              ))}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[var(--primary)]">Analyzing user data & fetching real-time info...</p>
-              <p className="text-xs text-[var(--text-muted)]">Estimated time: ~15 seconds · Calling hotel API · weather · AI ranking</p>
-            </div>
-            <div className="ml-auto font-mono text-xs text-[var(--text-muted)]">
-              Direct Hotels · Open-Meteo
-            </div>
-          </div>
-        </div>
-      )}
+
 
 
 

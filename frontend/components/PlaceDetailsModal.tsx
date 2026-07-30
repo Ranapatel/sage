@@ -174,9 +174,9 @@ export default function PlaceDetailsModal({
 
   const handleShare = () => {
     const shareText = `Check out ${place.name} in ${destinationName}!
-📍 Address: ${displayAddress}
-⏱ Hours: ${displayHours}
-⭐ Rating: ${displayRating}/5`;
+Address: ${displayAddress}
+Hours: ${displayHours}
+Rating: ${displayRating}/5`;
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareText);

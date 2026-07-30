@@ -5,6 +5,7 @@ import { useTripStore } from '@/store/tripStore'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
+import { MapPin } from 'lucide-react'
 
 export default function BookingConfirmationPanel() {
   const { bookingFlow, setBookingFlowStep, closeBookingFlow } = useTripStore()
@@ -123,8 +124,9 @@ export default function BookingConfirmationPanel() {
           <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
             {record.hotelName}
           </h3>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            📍 {record.hotelAddress}
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <MapPin size={12} style={{ color: 'var(--primary)' }} />
+            <span>{record.hotelAddress}</span>
           </p>
         </div>
 

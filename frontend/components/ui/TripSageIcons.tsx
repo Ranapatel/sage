@@ -306,11 +306,11 @@ export function Icon3DBookings({ size = 38, active = false, className = '', ...p
   )
 }
 
-// 8. TRAIN SUB-TAB (High-Speed Bullet Train Locomotive)
-export function Icon3DTrain({ size = 26, active = false, className = '', ...props }: IconProps) {
+// 8. TRAIN SUB-TAB (Ultra-Recognizable High-Speed Bullet Train / Locomotive)
+export function Icon3DTrain({ size = 38, active = false, className = '', ...props }: IconProps) {
   const primaryColor = active ? '#10B981' : '#64748B'
-  const accentColor = active ? '#059669' : '#475569'
-  const windowFill = active ? '#BAE6FD' : '#E2E8F0'
+  const roofColor = active ? '#ECFDF5' : '#F8FAFC'
+  const glassColor = active ? '#38BDF8' : '#CBD5E1'
   const strokeColor = active ? '#1E293B' : '#334155'
 
   return (
@@ -320,50 +320,49 @@ export function Icon3DTrain({ size = 26, active = false, className = '', ...prop
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`transition-all duration-300 ${active ? 'scale-105' : ''} ${className}`}
+      className={`transition-all duration-300 transform ${active ? 'scale-110 drop-shadow-md' : 'group-hover:scale-105'} ${className}`}
       {...props}
     >
-      {/* Railway Track Base */}
-      <line x1="6" y1="52" x2="58" y2="52" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round" />
-      <line x1="14" y1="52" x2="14" y2="56" stroke="#CBD5E1" strokeWidth="2.5" />
-      <line x1="28" y1="52" x2="28" y2="56" stroke="#CBD5E1" strokeWidth="2.5" />
-      <line x1="42" y1="52" x2="42" y2="56" stroke="#CBD5E1" strokeWidth="2.5" />
+      {/* Steel Railway Track & Ties */}
+      <line x1="8" y1="52" x2="56" y2="52" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round" />
+      <line x1="16" y1="52" x2="16" y2="56" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="32" y1="52" x2="32" y2="56" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="48" y1="52" x2="48" y2="56" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
 
-      {/* Aerodynamic Bullet Train Body */}
+      {/* Train Locomotive Front Cab Shell */}
       <path
-        d="M8 22H38C48 22 56 28 58 38V48H8V22Z"
+        d="M16 16C16 12 20 10 32 10C44 10 48 12 48 16V46C48 48 46 50 44 50H20C18 50 16 48 16 46V16Z"
         fill={primaryColor}
         stroke={strokeColor}
         strokeWidth="2.5"
         strokeLinejoin="round"
       />
-      {/* Roof Cap */}
-      <path d="M8 22H36C44 22 50 25 52 30H8V22Z" fill="#FFFFFF" stroke={strokeColor} strokeWidth="1.8" />
 
-      {/* Speed Stripe */}
-      <path d="M8 40H58V48H8V40Z" fill={accentColor} stroke={strokeColor} strokeWidth="1.8" />
+      {/* Roof Pantograph Power Lines */}
+      <path d="M26 10L32 4L38 10" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Front Windshield Glass */}
-      <path d="M42 26C48 26 53 30 55 36H42V26Z" fill="#38BDF8" stroke={strokeColor} strokeWidth="1.5" />
+      {/* Panoramic Windshield */}
+      <path d="M20 16H44V26H20V16Z" fill={glassColor} stroke={strokeColor} strokeWidth="1.8" rx="2" />
+      <line x1="32" y1="16" x2="32" y2="26" stroke={strokeColor} strokeWidth="1.2" />
 
-      {/* Passenger Windows Row */}
-      <rect x="12" y="28" width="7" height="6" rx="1.5" fill={windowFill} stroke={strokeColor} strokeWidth="1.2" />
-      <rect x="22" y="28" width="7" height="6" rx="1.5" fill={windowFill} stroke={strokeColor} strokeWidth="1.2" />
-      <rect x="32" y="28" width="7" height="6" rx="1.5" fill={windowFill} stroke={strokeColor} strokeWidth="1.2" />
+      {/* Front Bumper & Locomotive Grill */}
+      <rect x="22" y="32" width="20" height="8" rx="2" fill={roofColor} stroke={strokeColor} strokeWidth="1.5" />
+      <line x1="26" y1="34" x2="26" y2="38" stroke={strokeColor} strokeWidth="1.2" />
+      <line x1="32" y1="34" x2="32" y2="38" stroke={strokeColor} strokeWidth="1.2" />
+      <line x1="38" y1="34" x2="38" y2="38" stroke={strokeColor} strokeWidth="1.2" />
 
-      {/* Wheels & Headlight */}
-      <circle cx="16" cy="48" r="3" fill="#1E293B" />
-      <circle cx="36" cy="48" r="3" fill="#1E293B" />
-      <circle cx="54" cy="42" r="2.5" fill="#F59E0B" stroke={strokeColor} strokeWidth="1" />
+      {/* Dual Front Headlights (Glowing Gold) */}
+      <circle cx="21" cy="44" r="3" fill="#F59E0B" stroke={strokeColor} strokeWidth="1.2" />
+      <circle cx="43" cy="44" r="3" fill="#F59E0B" stroke={strokeColor} strokeWidth="1.2" />
     </svg>
   )
 }
 
-// 9. BUS SUB-TAB (Luxury Intercity Volvo Express Coach)
-export function Icon3DBus({ size = 26, active = false, className = '', ...props }: IconProps) {
+// 9. BUS SUB-TAB (Ultra-Recognizable Luxury Volvo Coach Bus)
+export function Icon3DBus({ size = 38, active = false, className = '', ...props }: IconProps) {
   const primaryColor = active ? '#EA580C' : '#64748B'
-  const roofColor = active ? '#FFEDD5' : '#F1F5F9'
-  const windowFill = active ? '#FEF3C7' : '#E2E8F0'
+  const roofColor = active ? '#FFEDD5' : '#F8FAFC'
+  const glassColor = active ? '#38BDF8' : '#CBD5E1'
   const strokeColor = active ? '#1E293B' : '#334155'
 
   return (
@@ -373,40 +372,44 @@ export function Icon3DBus({ size = 26, active = false, className = '', ...props 
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`transition-all duration-300 ${active ? 'scale-105' : ''} ${className}`}
+      className={`transition-all duration-300 transform ${active ? 'scale-110 drop-shadow-md' : 'group-hover:scale-105'} ${className}`}
       {...props}
     >
-      {/* Main Coach Body */}
-      <rect x="8" y="14" width="48" height="34" rx="6" fill={primaryColor} stroke={strokeColor} strokeWidth="2.5" />
+      {/* Bus Body Outer Box */}
+      <rect x="14" y="10" width="36" height="42" rx="6" fill={primaryColor} stroke={strokeColor} strokeWidth="2.5" />
 
-      {/* Upper Roof Cap */}
-      <path d="M12 14H52C54 14 55 16 55 18H9C9 16 10 14 12 14Z" fill={roofColor} stroke={strokeColor} strokeWidth="1.8" />
+      {/* Top Destination Display Box ('EXPRESS') */}
+      <rect x="22" y="13" width="20" height="5" rx="1.5" fill="#1E293B" stroke={strokeColor} strokeWidth="1" />
 
-      {/* Large Front & Side Windows */}
-      <rect x="12" y="20" width="10" height="10" rx="2" fill={windowFill} stroke={strokeColor} strokeWidth="1.5" />
-      <rect x="25" y="20" width="10" height="10" rx="2" fill={windowFill} stroke={strokeColor} strokeWidth="1.5" />
-      <rect x="38" y="20" width="14" height="10" rx="2" fill="#38BDF8" stroke={strokeColor} strokeWidth="1.5" />
+      {/* Big Front Windshield */}
+      <rect x="18" y="21" width="28" height="15" rx="3" fill={glassColor} stroke={strokeColor} strokeWidth="1.8" />
+      {/* Wiper Lines */}
+      <line x1="24" y1="33" x2="30" y2="27" stroke={strokeColor} strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="34" y1="33" x2="40" y2="27" stroke={strokeColor} strokeWidth="1.2" strokeLinecap="round" />
 
-      {/* Lower Accent Stripe */}
-      <rect x="8" y="34" width="48" height="4" fill="#C2410C" stroke={strokeColor} strokeWidth="1.2" />
+      {/* Front Radiator Grille */}
+      <rect x="24" y="40" width="16" height="5" rx="1" fill={roofColor} stroke={strokeColor} strokeWidth="1.2" />
 
-      {/* Front Headlight */}
-      <circle cx="53" cy="42" r="2.5" fill="#F59E0B" stroke={strokeColor} strokeWidth="1" />
+      {/* Dual Headlights */}
+      <circle cx="19" cy="42" r="2.5" fill="#F59E0B" stroke={strokeColor} strokeWidth="1.2" />
+      <circle cx="45" cy="42" r="2.5" fill="#F59E0B" stroke={strokeColor} strokeWidth="1.2" />
 
-      {/* Dual 3D Wheels */}
-      <circle cx="18" cy="48" r="5" fill="#1E293B" stroke={strokeColor} strokeWidth="2" />
-      <circle cx="18" cy="48" r="2" fill="#94A3B8" />
+      {/* Dual Side Mirrors */}
+      <path d="M14 24H10V28H14" fill="#1E293B" stroke={strokeColor} strokeWidth="1.2" />
+      <path d="M50 24H54V28H50" fill="#1E293B" stroke={strokeColor} strokeWidth="1.2" />
 
-      <circle cx="44" cy="48" r="5" fill="#1E293B" stroke={strokeColor} strokeWidth="2" />
-      <circle cx="44" cy="48" r="2" fill="#94A3B8" />
+      {/* Bus Wheels Underneath */}
+      <rect x="18" y="52" width="6" height="4" rx="1" fill="#1E293B" />
+      <rect x="40" y="52" width="6" height="4" rx="1" fill="#1E293B" />
     </svg>
   )
 }
 
-// 10. CAB / CAR SUB-TAB (Sleek Executive SUV / Rental Sedan)
-export function Icon3DCar({ size = 26, active = false, className = '', ...props }: IconProps) {
-  const primaryColor = active ? '#8B5CF6' : '#64748B'
-  const roofColor = active ? '#EDE9FE' : '#F1F5F9'
+// 10. CAB / CAR SUB-TAB (Ultra-Recognizable Executive Sedan / Rental SUV Car)
+export function Icon3DCar({ size = 38, active = false, className = '', ...props }: IconProps) {
+  const primaryColor = active ? '#0284C7' : '#64748B'
+  const roofColor = active ? '#E0F2FE' : '#F8FAFC'
+  const glassColor = active ? '#38BDF8' : '#CBD5E1'
   const strokeColor = active ? '#1E293B' : '#334155'
 
   return (
@@ -416,31 +419,35 @@ export function Icon3DCar({ size = 26, active = false, className = '', ...props 
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`transition-all duration-300 ${active ? 'scale-105' : ''} ${className}`}
+      className={`transition-all duration-300 transform ${active ? 'scale-110 drop-shadow-md' : 'group-hover:scale-105'} ${className}`}
       {...props}
     >
-      {/* Car Cabin Roof & Pillars */}
-      <path d="M18 24L26 14H42L52 24H18Z" fill={roofColor} stroke={strokeColor} strokeWidth="2.2" strokeLinejoin="round" />
+      {/* Ground Shadow Line */}
+      <line x1="8" y1="52" x2="56" y2="52" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
 
-      {/* Main Body Shell (Hood, Bumper, Sides) */}
-      <path d="M6 32C6 28 9 24 14 24H50C55 24 58 28 58 32V42H6V32Z" fill={primaryColor} stroke={strokeColor} strokeWidth="2.5" strokeLinejoin="round" />
+      {/* Car Roof & Pillars */}
+      <path d="M18 28L26 14H42L50 28H18Z" fill={roofColor} stroke={strokeColor} strokeWidth="2.2" strokeLinejoin="round" />
 
-      {/* Windshield & Side Windows */}
-      <path d="M21 22L27 16H35V22H21Z" fill="#BAE6FD" stroke={strokeColor} strokeWidth="1.2" />
-      <path d="M38 16H44L49 22H38V16Z" fill="#38BDF8" stroke={strokeColor} strokeWidth="1.2" />
+      {/* Windows Glass */}
+      <path d="M21 26L27 17H34V26H21Z" fill={glassColor} stroke={strokeColor} strokeWidth="1.2" />
+      <path d="M37 17H43L47 26H37V17Z" fill={glassColor} stroke={strokeColor} strokeWidth="1.2" />
 
-      {/* Front Headlight */}
-      <circle cx="54" cy="32" r="2.5" fill="#F59E0B" stroke={strokeColor} strokeWidth="1" />
+      {/* Main Car Body Shell */}
+      <path d="M6 36C6 31 10 28 15 28H49C54 28 58 31 58 36V46H6V36Z" fill={primaryColor} stroke={strokeColor} strokeWidth="2.5" strokeLinejoin="round" />
 
-      {/* Rear Taillight */}
-      <rect x="6" y="30" width="3" height="5" rx="1" fill="#EF4444" />
+      {/* Front Headlight (Gold) & Rear Taillight (Red) */}
+      <path d="M54 34C56 34 57 35 57 37V40H54V34Z" fill="#F59E0B" stroke={strokeColor} strokeWidth="1" />
+      <path d="M6 34C7 34 8 35 8 37V40H6V34Z" fill="#EF4444" stroke={strokeColor} strokeWidth="1" />
 
-      {/* Dual Wheels with Chrome Hubcaps */}
-      <circle cx="18" cy="42" r="6" fill="#1E293B" stroke={strokeColor} strokeWidth="2" />
-      <circle cx="18" cy="42" r="2.5" fill="#E2E8F0" />
+      {/* Door Handle Line */}
+      <line x1="28" y1="34" x2="34" y2="34" stroke={strokeColor} strokeWidth="1.5" strokeLinecap="round" />
 
-      <circle cx="46" cy="42" r="6" fill="#1E293B" stroke={strokeColor} strokeWidth="2" />
-      <circle cx="46" cy="42" r="2.5" fill="#E2E8F0" />
+      {/* Dual Large Wheels with Chrome Hubcaps */}
+      <circle cx="18" cy="46" r="6.5" fill="#1E293B" stroke={strokeColor} strokeWidth="2" />
+      <circle cx="18" cy="46" r="2.5" fill="#FFFFFF" />
+
+      <circle cx="46" cy="46" r="6.5" fill="#1E293B" stroke={strokeColor} strokeWidth="2" />
+      <circle cx="46" cy="46" r="2.5" fill="#FFFFFF" />
     </svg>
   )
 }

@@ -8,6 +8,7 @@ import CheckRateGate from './CheckRateGate'
 import BookingConfirmationPanel from '../booking/BookingConfirmationPanel'
 import VoucherPage from '../booking/VoucherPage'
 import toast from 'react-hot-toast'
+import { X } from 'lucide-react'
 
 export default function HotelBookingFlow() {
   const { bookingFlow, setBookingFlowStep, closeBookingFlow, tripContext } = useTripStore()
@@ -168,7 +169,7 @@ export default function HotelBookingFlow() {
             </h3>
           </div>
           {step !== 'booking' && step !== 'verifying' && (
-            <button onClick={closeBookingFlow} aria-label="Close">✕</button>
+            <button onClick={closeBookingFlow} aria-label="Close"><X size={18} /></button>
           )}
         </div>
 

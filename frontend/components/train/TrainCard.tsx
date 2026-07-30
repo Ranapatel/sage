@@ -240,7 +240,7 @@ export default function TrainCard({ train }: TrainCardProps) {
                     return (
                       <div
                         key={day}
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border transition-all ${
+                        className={`min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center font-bold text-xs border transition-all ${
                           active
                             ? 'bg-orange-500/10 text-orange-700 border-orange-200'
                             : 'bg-slate-100 text-slate-300 border-slate-200'

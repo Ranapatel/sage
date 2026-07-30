@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import axios from 'axios'
-import { Calendar, MapPin, DollarSign, Users, ChevronRight, Loader2 } from 'lucide-react'
+import { Calendar, MapPin, DollarSign, Users, ChevronRight, Loader2, Plane } from 'lucide-react'
 import Link from 'next/link'
 
 export default function TripsPage() {
@@ -91,7 +91,9 @@ export default function TripsPage() {
           </div>
         ) : trips.length === 0 ? (
           <div className="border border-slate-800 bg-slate-900/30 rounded-3xl p-16 text-center max-w-xl mx-auto">
-            <div className="text-5xl mb-4">✈️</div>
+            <div className="w-16 h-16 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto mb-4 border border-slate-700/60 text-blue-400">
+              <Plane size={32} />
+            </div>
             <h3 className="text-xl font-bold mb-2">No Saved Trips</h3>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
               You haven't saved any trips to your profile yet. Plan your first trip using our AI engine to get started!

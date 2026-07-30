@@ -6,7 +6,7 @@ import {
   Plus, Minus, Compass, Navigation, AlertTriangle, RefreshCw, X, Check, Plane, MapPin, Map as MapIcon,
   Hotel, Utensils, Coffee, Camera, ShoppingBag, Hospital, Pill, Landmark, Car, Train, Bus,
   Bike, Sparkles, Filter, Zap, Share2, Heart, Download, CloudSun, ShieldAlert, Users, Wind, Layers,
-  CheckCircle2, ArrowRight, Clock, DollarSign, ExternalLink
+  CheckCircle2, ArrowRight, Clock, DollarSign, ExternalLink, Star, IndianRupee, BarChart2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -1057,9 +1057,9 @@ export default function MapView({
           <div>
             <h4 className="text-sm font-black truncate">{selectedStop.name}</h4>
             <div className="flex items-center gap-3 text-[11px] text-slate-300 mt-1 font-semibold">
-              <span>⭐ {selectedStop.rating}</span>
-              <span>⏱️ {selectedStop.duration}</span>
-              <span className="text-emerald-400">💵 {selectedStop.price}</span>
+              <span className="inline-flex items-center gap-1 text-amber-400"><Star size={11} className="fill-amber-400" /><span>{selectedStop.rating}</span></span>
+              <span className="inline-flex items-center gap-1"><Clock size={11} className="text-slate-400" /><span>{selectedStop.duration}</span></span>
+              <span className="inline-flex items-center gap-1 text-emerald-400"><IndianRupee size={11} /><span>{selectedStop.price}</span></span>
             </div>
             {selectedStop.description && (
               <p className="text-[11px] text-slate-300 mt-2 line-clamp-2 leading-relaxed">{selectedStop.description}</p>
@@ -1102,7 +1102,8 @@ export default function MapView({
         >
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <h4 className="text-xs font-black flex items-center gap-1.5 text-blue-400">
-              📊 Trip Statistics Dashboard
+              <BarChart2 size={14} />
+              <span>Trip Statistics Dashboard</span>
             </h4>
             <button onClick={() => setShowStatsDrawer(false)} className="text-slate-400 hover:text-white">
               <X size={14} />

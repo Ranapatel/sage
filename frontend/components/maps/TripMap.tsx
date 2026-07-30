@@ -397,23 +397,23 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           if (res.data?.success && Array.isArray(res.data?.data)) {
             const placesFound = res.data.data.slice(0, 10)
             placesFound.forEach((place: any) => {
-              const emoji =
+              const iconSvg =
                 layer === 'hotels'
-                  ? '🏨'
+                  ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>`
                   : layer === 'restaurants'
-                  ? '🍽'
+                  ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4-12 12-4-4Z"/><path d="m14 6 4 4"/><path d="M4 18 2 22l4-2"/><path d="m9 15 3 3"/></svg>`
                   : layer === 'cafes'
-                  ? '☕'
+                  ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>`
                   : layer === 'activities'
-                  ? '🎭'
+                  ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`
                   : layer === 'shopping'
-                  ? '🛍'
-                  : '📍'
+                  ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
+                  : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`
 
               const el = document.createElement('div')
               el.className =
-                'w-8 h-8 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-full shadow-lg cursor-pointer hover:scale-110 hover:border-blue-500 transition-all font-sans text-base z-20'
-              el.innerHTML = emoji
+                'w-8 h-8 flex items-center justify-center bg-white border border-[#E8E0D8] rounded-full shadow-md cursor-pointer hover:scale-110 hover:border-[#EA580C] transition-all font-sans text-base z-20'
+              el.innerHTML = iconSvg
 
               const popupContent = `
                 <div class="p-2.5 font-sans text-slate-200 bg-slate-950 border border-slate-800 rounded-lg max-w-[200px]">
@@ -505,11 +505,11 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
               const el = document.createElement('div')
               el.className =
                 'w-10 h-10 flex items-center justify-center bg-amber-900 border-2 border-amber-500 rounded-full shadow-2xl cursor-pointer hover:scale-110 transition-all z-50 animate-bounce'
-              el.innerHTML = '🌟'
+              el.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
 
               const popup = new maplibregl.Popup({ offset: 12, closeButton: false }).setHTML(`
                 <div class="p-3 font-sans text-slate-200 bg-slate-950 border border-slate-800 rounded-lg max-w-[200px]">
-                  <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wide">⭐ Assistant Recommendation</h4>
+                  <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wide">Assistant Recommendation</h4>
                   <h4 class="font-bold text-sm text-white mt-1 leading-snug">${recommendedPlace}</h4>
                   <p class="text-[10px] text-slate-400 border-t border-slate-800 pt-1.5 mt-2 leading-relaxed">${reason}</p>
                 </div>

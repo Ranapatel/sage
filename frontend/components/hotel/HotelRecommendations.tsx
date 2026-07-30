@@ -260,7 +260,7 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
           }}
           aria-label="View scores"
         >
-          {showScores ? '✕' : '📊'}
+          {showScores ? <X size={14} /> : <BarChart2 size={14} />}
         </button>
       </div>
 
@@ -309,8 +309,9 @@ function RecommendationCard({ hotel, onSelect, selected }: CardProps) {
         }}>
           {hotel.hotel_name}
         </h3>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-          📍 {hotel.location}
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <MapPin size={12} style={{ color: 'var(--primary)' }} />
+          <span>{hotel.location}</span>
         </p>
 
         {/* Rating row */}
@@ -499,7 +500,7 @@ function EmptyState({ message }: { message: string }) {
       padding:    '48px 24px',
       color:      'var(--text-muted)',
     }}>
-      <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🏨</div>
+      <Building2 size={40} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
       <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
         No Hotels Found
       </p>

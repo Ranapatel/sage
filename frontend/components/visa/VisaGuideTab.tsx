@@ -290,17 +290,17 @@ export default function VisaGuideTab({ destination = '' }: Props) {
                   <div 
                     key={i} 
                     onClick={() => toggleCheck(id)}
-                    className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
+                    className={`p-3.5 sm:p-4 min-h-[44px] rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 active:scale-[0.99] ${
                       checked 
                         ? 'bg-green-500/5 border-green-500/30 shadow-sm' 
                         : 'bg-white/50 border-[var(--border)] hover:border-slate-300'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
-                        checked ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 bg-white'
+                      <div className={`w-6 h-6 min-w-[24px] min-h-[24px] rounded-lg border flex items-center justify-center transition-all ${
+                        checked ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 bg-white shadow-2xs'
                       }`}>
-                        {checked && <Check size={12} strokeWidth={3} />}
+                        {checked && <Check size={14} strokeWidth={3} />}
                       </div>
                       <span className={`text-xs text-left leading-normal ${checked ? 'line-through text-[var(--text-muted)] font-medium' : 'text-[var(--text-primary)] font-semibold'}`}>
                         {item}

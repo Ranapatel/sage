@@ -733,6 +733,8 @@ select.input-field[class*="h-"] {
 .hotel-modal-overlay {
   position: fixed;
   inset: 0;
+  height: 100dvh;
+  max-height: 100dvh;
   z-index: 9999;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -745,7 +747,7 @@ select.input-field[class*="h-"] {
 .hotel-modal {
   width: 100%;
   max-width: 720px;
-  max-height: 92vh;
+  max-height: 92dvh;
   background: var(--bg-card);
   border-radius: 20px 20px 0 0;
   overflow-y: auto;
@@ -758,7 +760,7 @@ select.input-field[class*="h-"] {
   }
   .hotel-modal {
     border-radius: 20px;
-    max-height: 88vh;
+    max-height: 88dvh;
     margin: 20px;
   }
 }
@@ -781,8 +783,10 @@ select.input-field[class*="h-"] {
 }
 
 .hotel-modal-close button {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--bg-card);

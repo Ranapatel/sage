@@ -59,13 +59,13 @@ export default function AiFlightFilterSidebar({
   }
 
   return (
-    <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-6 text-slate-900 dark:text-slate-100">
+    <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs space-y-6 text-[#1A1A1A]">
       
       {/* ── Price Alert Card Header ── */}
-      <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2">
+      <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-4 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 font-extrabold text-sm">
-            <Bell size={16} className="text-orange-500" />
+          <div className="flex items-center gap-2 font-extrabold text-sm text-[#1A1A1A] font-display">
+            <Bell size={16} className="text-[#EA580C]" />
             <span>Set up price alerts</span>
           </div>
           {/* Toggle Switch */}
@@ -75,7 +75,7 @@ export default function AiFlightFilterSidebar({
             aria-checked={priceAlertsEnabled}
             onClick={() => setPriceAlertsEnabled(!priceAlertsEnabled)}
             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              priceAlertsEnabled ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-700'
+              priceAlertsEnabled ? 'bg-[#EA580C]' : 'bg-[#E8E0D8]'
             }`}
           >
             <span
@@ -85,35 +85,35 @@ export default function AiFlightFilterSidebar({
             />
           </button>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
+        <p className="text-xs text-[#6B6B6B] leading-normal font-medium">
           Receive alerts when the prices for this route change.
         </p>
       </div>
 
       {/* Header title & Reset button */}
-      <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-900">
-        <div className="flex items-center gap-2 font-extrabold text-sm uppercase tracking-wider text-slate-700 dark:text-slate-300">
-          <Filter size={15} className="text-orange-500" />
+      <div className="flex items-center justify-between pt-1 border-t border-[#E8E0D8]">
+        <div className="flex items-center gap-2 font-extrabold text-sm uppercase tracking-wider text-[#1A1A1A] font-display">
+          <Filter size={15} className="text-[#EA580C]" />
           <span>Filter Flights</span>
         </div>
         <button
           type="button"
           onClick={onReset}
-          className="text-xs font-bold text-orange-500 hover:text-orange-600 flex items-center gap-1 transition-colors"
+          className="text-xs font-bold text-[#EA580C] hover:text-[#c2410c] flex items-center gap-1 transition-colors cursor-pointer"
         >
           <RotateCcw size={12} /> Reset
         </button>
       </div>
 
       {/* ── Section: Bags ── */}
-      <div className="border-t border-slate-100 dark:border-slate-900 pt-4">
+      <div className="border-t border-[#E8E0D8] pt-4">
         <button
           type="button"
           onClick={() => toggleSection('bags')}
-          className="flex items-center justify-between w-full text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-3"
+          className="flex items-center justify-between w-full text-sm font-extrabold text-[#1A1A1A] mb-3 cursor-pointer"
         >
           <span className="flex items-center gap-2">
-            <Luggage size={16} className="text-orange-500" /> Bags
+            <Luggage size={16} className="text-[#EA580C]" /> Bags
           </span>
           {openSections.bags ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -122,23 +122,23 @@ export default function AiFlightFilterSidebar({
           <div className="space-y-3.5 pl-1">
             {/* Cabin Baggage Counter */}
             <div className="flex items-center justify-between text-xs font-bold">
-              <span className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <Briefcase size={14} className="text-slate-400" /> Cabin baggage
+              <span className="flex items-center gap-2 text-[#6B6B6B]">
+                <Briefcase size={14} className="text-[#9CA3AF]" /> Cabin baggage
               </span>
-              <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1">
+              <div className="flex items-center gap-2 bg-[#FFFBF7] border border-[#E8E0D8] rounded-lg px-2 py-1">
                 <button
                   type="button"
                   disabled={filters.cabinBaggageCount <= 0}
                   onClick={() => onChange({ ...filters, cabinBaggageCount: Math.max(0, filters.cabinBaggageCount - 1) })}
-                  className="w-5 h-5 rounded flex items-center justify-center font-black text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30"
+                  className="w-5 h-5 rounded flex items-center justify-center font-black text-[#6B6B6B] hover:bg-[#E8E0D8] disabled:opacity-30 cursor-pointer"
                 >
                   -
                 </button>
-                <span className="w-4 text-center font-extrabold">{filters.cabinBaggageCount}</span>
+                <span className="w-4 text-center font-extrabold text-[#1A1A1A]">{filters.cabinBaggageCount}</span>
                 <button
                   type="button"
                   onClick={() => onChange({ ...filters, cabinBaggageCount: filters.cabinBaggageCount + 1 })}
-                  className="w-5 h-5 rounded flex items-center justify-center font-black text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"
+                  className="w-5 h-5 rounded flex items-center justify-center font-black text-[#6B6B6B] hover:bg-[#E8E0D8] cursor-pointer"
                 >
                   +
                 </button>
@@ -147,23 +147,23 @@ export default function AiFlightFilterSidebar({
 
             {/* Checked Baggage Counter */}
             <div className="flex items-center justify-between text-xs font-bold">
-              <span className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <Luggage size={14} className="text-slate-400" /> Checked baggage
+              <span className="flex items-center gap-2 text-[#6B6B6B]">
+                <Luggage size={14} className="text-[#9CA3AF]" /> Checked baggage
               </span>
-              <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1">
+              <div className="flex items-center gap-2 bg-[#FFFBF7] border border-[#E8E0D8] rounded-lg px-2 py-1">
                 <button
                   type="button"
                   disabled={filters.checkedBaggageCount <= 0}
                   onClick={() => onChange({ ...filters, checkedBaggageCount: Math.max(0, filters.checkedBaggageCount - 1) })}
-                  className="w-5 h-5 rounded flex items-center justify-center font-black text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30"
+                  className="w-5 h-5 rounded flex items-center justify-center font-black text-[#6B6B6B] hover:bg-[#E8E0D8] disabled:opacity-30 cursor-pointer"
                 >
                   -
                 </button>
-                <span className="w-4 text-center font-extrabold">{filters.checkedBaggageCount}</span>
+                <span className="w-4 text-center font-extrabold text-[#1A1A1A]">{filters.checkedBaggageCount}</span>
                 <button
                   type="button"
                   onClick={() => onChange({ ...filters, checkedBaggageCount: filters.checkedBaggageCount + 1 })}
-                  className="w-5 h-5 rounded flex items-center justify-center font-black text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"
+                  className="w-5 h-5 rounded flex items-center justify-center font-black text-[#6B6B6B] hover:bg-[#E8E0D8] cursor-pointer"
                 >
                   +
                 </button>
@@ -174,11 +174,11 @@ export default function AiFlightFilterSidebar({
       </div>
 
       {/* ── Section: Stops ── */}
-      <div className="border-t border-slate-100 dark:border-slate-900 pt-4">
+      <div className="border-t border-[#E8E0D8] pt-4">
         <button
           type="button"
           onClick={() => toggleSection('stops')}
-          className="flex items-center justify-between w-full text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-3"
+          className="flex items-center justify-between w-full text-sm font-extrabold text-[#1A1A1A] mb-3 cursor-pointer font-display"
         >
           <span>Stops</span>
           {openSections.stops ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -199,9 +199,9 @@ export default function AiFlightFilterSidebar({
                   value={opt.id}
                   checked={filters.stops === opt.id}
                   onChange={() => onChange({ ...filters, stops: opt.id as any })}
-                  className="w-4 h-4 text-orange-500 focus:ring-orange-500 border-slate-300 dark:border-slate-700"
+                  className="w-4 h-4 text-[#EA580C] focus:ring-[#EA580C] border-[#E8E0D8]"
                 />
-                <span className="text-slate-700 dark:text-slate-300">{opt.label}</span>
+                <span className="text-[#1A1A1A]">{opt.label}</span>
               </label>
             ))}
 
@@ -211,9 +211,9 @@ export default function AiFlightFilterSidebar({
                   type="checkbox"
                   checked={filters.allowOvernight}
                   onChange={e => onChange({ ...filters, allowOvernight: e.target.checked })}
-                  className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 border-slate-300 dark:border-slate-700"
+                  className="w-4 h-4 rounded text-[#EA580C] focus:ring-[#EA580C] border-[#E8E0D8]"
                 />
-                <span className="text-slate-700 dark:text-slate-300">Allow overnight stopovers</span>
+                <span className="text-[#1A1A1A]">Allow overnight stopovers</span>
               </label>
             </div>
           </div>
@@ -222,11 +222,11 @@ export default function AiFlightFilterSidebar({
 
       {/* ── Section: Airlines ── */}
       {availableAirlines.length > 0 && (
-        <div className="border-t border-slate-100 dark:border-slate-900 pt-4">
+        <div className="border-t border-[#E8E0D8] pt-4">
           <button
             type="button"
             onClick={() => toggleSection('airlines')}
-            className="flex items-center justify-between w-full text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-3"
+            className="flex items-center justify-between w-full text-sm font-extrabold text-[#1A1A1A] mb-3 cursor-pointer font-display"
           >
             <span>Airlines</span>
             {openSections.airlines ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -242,9 +242,9 @@ export default function AiFlightFilterSidebar({
                       type="checkbox"
                       checked={checked}
                       onChange={() => handleAirlineToggle(airline.name)}
-                      className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 border-slate-300 dark:border-slate-700"
+                      className="w-4 h-4 rounded text-[#EA580C] focus:ring-[#EA580C] border-[#E8E0D8]"
                     />
-                    <span className="text-slate-700 dark:text-slate-300">{airline.name}</span>
+                    <span className="text-[#1A1A1A]">{airline.name}</span>
                   </label>
                 )
               })}
@@ -254,14 +254,14 @@ export default function AiFlightFilterSidebar({
       )}
 
       {/* ── Section: Departure Time Slot ── */}
-      <div className="border-t border-slate-100 dark:border-slate-900 pt-4">
+      <div className="border-t border-[#E8E0D8] pt-4">
         <button
           type="button"
           onClick={() => toggleSection('times')}
-          className="flex items-center justify-between w-full text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-3"
+          className="flex items-center justify-between w-full text-sm font-extrabold text-[#1A1A1A] mb-3 cursor-pointer font-display"
         >
           <span className="flex items-center gap-2">
-            <Clock size={16} className="text-orange-500" /> Departure Time
+            <Clock size={16} className="text-[#EA580C]" /> Departure Time
           </span>
           {openSections.times ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -278,10 +278,10 @@ export default function AiFlightFilterSidebar({
                 key={slot.id}
                 type="button"
                 onClick={() => onChange({ ...filters, departureTimeSlot: slot.id as any })}
-                className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
+                className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                   filters.departureTimeSlot === slot.id
-                    ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-orange-300'
+                    ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-2xs font-black'
+                    : 'bg-[#FFFBF7] border-[#E8E0D8] text-[#6B6B6B] hover:border-[#EA580C]/40'
                 }`}
               >
                 {slot.label}
@@ -292,21 +292,21 @@ export default function AiFlightFilterSidebar({
       </div>
 
       {/* ── Section: Price Range ── */}
-      <div className="border-t border-slate-100 dark:border-slate-900 pt-4">
+      <div className="border-t border-[#E8E0D8] pt-4">
         <button
           type="button"
           onClick={() => toggleSection('price')}
-          className="flex items-center justify-between w-full text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-3"
+          className="flex items-center justify-between w-full text-sm font-extrabold text-[#1A1A1A] mb-3 cursor-pointer font-display"
         >
           <span className="flex items-center gap-2">
-            <DollarSign size={16} className="text-orange-500" /> Max Price Limit
+            <DollarSign size={16} className="text-[#EA580C]" /> Max Price Limit
           </span>
           {openSections.price ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
 
         {openSections.price && (
           <div className="space-y-3">
-            <div className="flex justify-between items-center text-xs font-black text-slate-700 dark:text-slate-300">
+            <div className="flex justify-between items-center text-xs font-black text-[#1A1A1A]">
               <span>Up to ₹{filters.maxPrice.toLocaleString('en-IN')}</span>
             </div>
             <input
@@ -316,7 +316,7 @@ export default function AiFlightFilterSidebar({
               step={500}
               value={filters.maxPrice}
               onChange={e => onChange({ ...filters, maxPrice: Number(e.target.value) })}
-              className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              className="w-full h-2 bg-[#E8E0D8] rounded-lg appearance-none cursor-pointer accent-[#EA580C]"
             />
           </div>
         )}

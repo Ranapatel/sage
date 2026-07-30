@@ -6,6 +6,7 @@ import { tripAPI, VoucherData } from '@/lib/api'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
+import { Printer, MapPin, Phone } from 'lucide-react'
 
 export default function VoucherPage() {
   const { bookingFlow, setBookingFlowStep } = useTripStore()
@@ -186,7 +187,8 @@ export default function VoucherPage() {
             gap: '6px'
           }}
         >
-          🖨️ Print Voucher
+          <Printer size={15} />
+          <span>Print Voucher</span>
         </button>
 
         <button
@@ -281,9 +283,15 @@ export default function VoucherPage() {
               Hotel Information
             </h2>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>{voucher.hotel.name}</h3>
-            <p style={{ fontSize: '0.82rem', color: '#334155', margin: '0 0 4px', lineHeight: 1.4 }}>📍 {voucher.hotel.address}</p>
+            <p style={{ fontSize: '0.82rem', color: '#334155', margin: '0 0 4px', lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <MapPin size={13} style={{ color: '#64748b' }} />
+              <span>{voucher.hotel.address}</span>
+            </p>
             {voucher.hotel.phone && (
-              <p style={{ fontSize: '0.82rem', color: '#334155', margin: 0 }}>📞 Phone: {voucher.hotel.phone}</p>
+              <p style={{ fontSize: '0.82rem', color: '#334155', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Phone size={13} style={{ color: '#64748b' }} />
+                <span>Phone: {voucher.hotel.phone}</span>
+              </p>
             )}
           </div>
 

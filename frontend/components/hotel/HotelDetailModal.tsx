@@ -7,7 +7,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth'
 import HotelImage from './HotelImage'
 import toast from 'react-hot-toast'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
-import { Wifi, Coffee, Waves, Car, Sparkles, Dumbbell, Utensils, Wind, Calendar, Check, X, Building2 } from 'lucide-react'
+import { Wifi, Coffee, Waves, Car, Sparkles, Dumbbell, Utensils, Wind, Calendar, Check, X, Building2, MapPin, Ticket, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
 
 // ── Amenity grid icons ───────────────────────────────────────────────────────
 const AMENITY_GRID = [
@@ -159,7 +159,7 @@ export default function HotelDetailModal() {
   })
 
   const facilitiesToDisplay = content?.facilities?.length
-    ? content.facilities.map((f, idx) => ({ icon: '✓', label: f.name }))
+    ? content.facilities.map((f, idx) => ({ icon: Check, label: f.name }))
     : detectedAmenities.map(a => ({ icon: a.icon, label: a.label }))
 
 
@@ -173,7 +173,7 @@ export default function HotelDetailModal() {
           <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
             Hotel Details
           </span>
-          <button onClick={() => setHotelDetailId(null)} aria-label="Close">✕</button>
+          <button onClick={() => setHotelDetailId(null)} aria-label="Close"><X size={18} /></button>
         </div>
 
         {/* ── Image Gallery ────────────────────────────────────────────── */}
@@ -256,7 +256,12 @@ export default function HotelDetailModal() {
             {content && (
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                 ⏰ Check-in: {content.checkInTime} · Check-out: {content.checkOutTime}
-                {content.latitude && content.longitude && ` · 📍 Coords: ${content.latitude.toFixed(4)}, ${content.longitude.toFixed(4)}`}
+                {content.latitude && content.longitude && (
+                  <span className="inline-flex items-center gap-0.5 ml-1">
+                    <MapPin size={11} className="text-slate-400" />
+                    <span>Coords: {content.latitude.toFixed(4)}, {content.longitude.toFixed(4)}</span>
+                  </span>
+                )}
               </span>
             )}
           </div>
@@ -344,7 +349,7 @@ export default function HotelDetailModal() {
                 borderRadius: '16px',
                 margin: '10px 0 20px'
               }}>
-                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '12px' }}>🎫</span>
+                <Ticket size={40} style={{ color: '#d97706', margin: '0 auto 12px' }} />
                 <h4 style={{ fontWeight: 700, fontSize: '1rem', color: '#d97706', marginBottom: '6px' }}>
                   No bookable rates available
                 </h4>
@@ -457,9 +462,13 @@ export default function HotelDetailModal() {
                                       background: 'rgba(239, 68, 68, 0.1)',
                                       fontSize: '0.72rem',
                                       fontWeight: 700,
-                                      color: '#ef4444'
+                                      color: '#ef4444',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
                                     }}>
-                                      ✕ Sold Out
+                                      <XCircle size={12} />
+                                      <span>Sold Out</span>
                                     </span>
                                   ) : (
                                     <span style={{
@@ -468,9 +477,13 @@ export default function HotelDetailModal() {
                                       background: 'rgba(16, 185, 129, 0.1)',
                                       fontSize: '0.72rem',
                                       fontWeight: 700,
-                                      color: '#10b981'
+                                      color: '#10b981',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
                                     }}>
-                                      ✓ Available ({roomRate.allotment} left)
+                                      <CheckCircle2 size={12} />
+                                      <span>Available ({roomRate.allotment} left)</span>
                                     </span>
                                   )}
                                 </div>
@@ -612,8 +625,9 @@ export default function HotelDetailModal() {
               background: 'rgba(239, 68, 68, 0.06)', border: '1px solid rgba(239, 68, 68, 0.15)',
               marginBottom: '16px', fontSize: '0.75rem'
             }}>
-              <p style={{ fontWeight: 700, color: '#ef4444', marginBottom: '4px' }}>
-                ⚠️ Special Alerts / Issues
+              <p style={{ fontWeight: 700, color: '#ef4444', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={14} />
+                <span>Special Alerts / Issues</span>
               </p>
               <ul style={{ paddingLeft: '14px', margin: 0, color: 'var(--text-secondary)' }}>
                 {content.issues.map((iss: any, idx: number) => (

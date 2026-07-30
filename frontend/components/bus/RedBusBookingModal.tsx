@@ -3,7 +3,7 @@
 import React from 'react'
 import {
   X, ExternalLink, ShieldCheck, Clock, Bus, MapPin,
-  CheckCircle2, AlertCircle, Info, Sparkles, ChevronRight, Copy
+  CheckCircle2, AlertCircle, Info, Sparkles, ChevronRight, Copy, Repeat, IndianRupee
 } from 'lucide-react'
 import {
   SmartBusRoute, buildRedBusDeepLink, buildOtherBusBookingLinks
@@ -44,15 +44,15 @@ export default function RedBusBookingModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl border border-[#E8E0D8] w-full max-w-3xl shadow-2xl overflow-hidden my-8 transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs animate-fade-in overflow-y-auto h-[100dvh] max-h-[100dvh]">
+      <div className="bg-white rounded-3xl border border-[#E8E0D8] w-full max-w-3xl shadow-2xl overflow-hidden my-auto max-h-[92dvh] flex flex-col transition-all">
 
         {/* ── Modal Header (TripSage Warm Accent Theme) ── */}
-        <div className="bg-[#1A1A1A] text-white p-6 relative">
+        <div className="bg-[#1A1A1A] text-white p-5 sm:p-6 relative shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
+            className="absolute top-4 right-4 min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -71,9 +71,9 @@ export default function RedBusBookingModal({
           </h3>
 
           <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-300 font-medium border-t border-white/10 pt-3">
-            <span>⏱ Duration: <strong className="text-white font-bold">{route.totalDurationStr}</strong></span>
-            <span>🔁 Transfers: <strong className="text-white font-bold">{route.changesCount}</strong></span>
-            <span>💰 Est. Cost: <strong className="text-white font-bold">₹{route.totalCostMin.toLocaleString()} - ₹{route.totalCostMax.toLocaleString()}</strong></span>
+            <span className="inline-flex items-center gap-1"><Clock size={13} /> <span>Duration: <strong className="text-white font-bold">{route.totalDurationStr}</strong></span></span>
+            <span className="inline-flex items-center gap-1"><Repeat size={13} /> <span>Transfers: <strong className="text-white font-bold">{route.changesCount}</strong></span></span>
+            <span className="inline-flex items-center gap-1"><IndianRupee size={13} /> <span>Est. Cost: <strong className="text-white font-bold">₹{route.totalCostMin.toLocaleString()} - ₹{route.totalCostMax.toLocaleString()}</strong></span></span>
           </div>
         </div>
 
@@ -134,7 +134,7 @@ export default function RedBusBookingModal({
                       <div className="w-full flex items-center gap-1">
                         <div className="w-2.5 h-2.5 rounded-full border-2 border-red-600 bg-white dark:bg-slate-950 shrink-0" />
                         <div className="flex-1 h-[2px] bg-red-600 relative">
-                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-red-600 text-xs font-bold">🚌</span>
+                          <Bus size={14} className="absolute -top-3.5 left-1/2 -translate-x-1/2 text-red-600 bg-white dark:bg-slate-950 px-0.5" />
                         </div>
                         <div className="w-2.5 h-2.5 rounded-full bg-red-600 shrink-0" />
                       </div>

@@ -211,7 +211,7 @@ export default function CustomDatePicker({
           {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-1 text-center mb-2">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-              <span key={d} className="text-[10px] font-extrabold uppercase tracking-wider text-[#A1A1AA]">
+              <span key={d} className="text-[11px] font-extrabold uppercase tracking-wider text-[#1A1A1A]">
                 {d}
               </span>
             ))}
@@ -234,11 +234,11 @@ export default function CustomDatePicker({
               const isEnd = endDate === formattedDateStr
               const isInRange = startDate && endDate && formattedDateStr > startDate && formattedDateStr < endDate
 
-              let cellStyle = 'hover:bg-[#FFF4EE] text-[#1A1A1A] rounded-full font-semibold'
+              let cellStyle = 'text-[#1A1A1A] font-bold hover:bg-[#EA580C] hover:text-white rounded-full'
               if (isPast) {
-                cellStyle = 'text-slate-300 cursor-not-allowed line-through opacity-40'
+                cellStyle = 'text-[#A1A1AA] cursor-not-allowed opacity-40'
               } else if (isStart || isEnd) {
-                cellStyle = 'bg-[#EA580C] text-white font-extrabold rounded-full shadow-sm scale-105'
+                cellStyle = 'bg-[#EA580C] text-white font-extrabold rounded-full shadow-md scale-105'
               } else if (isInRange) {
                 cellStyle = 'bg-[#FFF4EE] text-[#EA580C] font-bold rounded-none'
               }

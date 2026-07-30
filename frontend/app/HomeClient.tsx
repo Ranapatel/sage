@@ -9,6 +9,7 @@ import { trackEvent } from '@/lib/analytics'
 import { tripAPI } from '@/lib/api'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import Earth3DBackground from '@/components/home/Earth3DBackground'
 import { useInView, motion } from 'framer-motion'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import {
@@ -429,22 +430,6 @@ export default function HomeClient() {
   useEffect(() => {
     // Clear old trip so it doesn't auto-search on /plan if they navigated back to home
     sessionStorage.removeItem('tripContext')
-
-    // Disabled auto-detect location as it was automatically typing the user's IP city (e.g. Hyderabad)
-    /*
-    if (!form.from) {
-      tripAPI.getIpLocation().then((res: any) => {
-        if (res.success && res.data) {
-          const d = res.data
-          const city = d.city?.name || d.city || d.area?.name
-          const country = d.country?.name || d.country_name || d.location?.country?.name || d.country
-          if (city && country) {
-            setForm(p => ({ ...p, from: `${city}, ${country}` }))
-          }
-        }
-      }).catch(() => { })
-    }
-    */
   }, [])
 
   useEffect(() => {
@@ -455,83 +440,69 @@ export default function HomeClient() {
     <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] font-body selection:bg-orange-500/20 selection:text-[#EA580C] antialiased">
       <Navbar />
 
-      {/* ─── HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[50vh] flex flex-col items-center justify-center px-4 md:px-6 overflow-visible bg-[#FFFBF7]">
-        {/* Ambient Radial Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-[#FFEDD5]/40 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+      {/* ─── HERO SECTION (Warm Light Cream Quiet Luxury Theme) ─────────────────── */}
+      <section className="relative min-h-[82vh] flex flex-col items-center justify-center px-4 md:px-8 overflow-visible bg-[#FFFBF7] text-[#6B6B6B] pt-10 pb-14 md:pt-14 md:pb-20">
+        {/* Photorealistic 3D Rotating Earth Background (Light Cream Theme) */}
+        <Earth3DBackground />
 
-        <div className="relative z-10 text-center max-w-5xl mx-auto w-full py-8 md:py-14">
-          
-          {/* Main Headline & Subtitle */}
-          <div className="text-center mb-6 md:mb-10">
+        {/* Soft Ambient Radial Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#FFEDD5]/40 to-transparent rounded-full blur-3xl pointer-events-none z-0" />
+
+        <div className="relative z-10 text-center max-w-4xl mx-auto w-full space-y-6 md:space-y-8">
+
+          {/* Main Headline & Subtitle Container (Minimal Clean Sizing) */}
+          <div className="relative z-10 text-center max-w-2xl mx-auto space-y-2 pt-1">
+            
+            {/* Headline */}
             <h1
-              className="font-display text-[38px] md:text-[68px] font-extrabold text-[#1A1A1A] tracking-tight leading-[1.08] text-center mb-2.5 md:mb-4"
+              className="font-display text-2xl sm:text-3xl md:text-[38px] font-semibold text-[#1A1A1A] tracking-tight leading-[1.18] text-center"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Where to next<span className="text-[#EA580C]">?</span>
+              The smartest way to{' '}
+              <span className="font-bold text-[#EA580C]">
+                explore the world.
+              </span>
             </h1>
-            <p
-              className="text-sm md:text-lg text-[#6B6B6B] font-medium leading-relaxed text-center max-w-lg mx-auto"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            
+            {/* Subtitle - High Contrast Charcoal */}
+            <p 
+              className="text-xs sm:text-sm text-[#334155] font-medium leading-relaxed max-w-lg mx-auto"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              Tell us where you want to go — we plan everything else.
+              From flight tickets to daily schedules, TripSage organizes your entire journey with transparent costs and instant clarity.
             </p>
+
           </div>
 
-          {/* Minimal Mobile Floating Search Bar */}
-          <div className="flex md:hidden flex-col w-full mb-6 text-left">
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={() => setShowSearchDrawer(true)}
-              className="w-full bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EA580C] to-[#F97316] flex items-center justify-center text-white shadow-md shrink-0">
-                  <Search size={20} strokeWidth={2.5} />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-extrabold text-[#1A1A1A]">Where to next?</p>
-                  <p className="text-[11px] font-semibold text-[#6B6B6B]">
-                    {form.to ? form.to : 'Anywhere'} • {form.startDate ? form.startDate : 'Any dates'} • {form.travelers} travelers
-                  </p>
-                </div>
-              </div>
-              <div className="w-8 h-8 rounded-full border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] bg-[#FFFBF7] shrink-0">
-                <SlidersHorizontal size={14} strokeWidth={2} />
-              </div>
-            </button>
-          </div>
-
-          {/* Search Form (Desktop Horizontal) */}
+          {/* Search Form (Desktop Floating Glassmorphism Bar) */}
           <form
             onSubmit={handleSubmit}
             suppressHydrationWarning
-            className="hidden md:flex items-center w-full max-w-4xl bg-white border-[1.5px] border-[#E8E0D8] rounded-[16px] p-2.5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] mx-auto text-left"
+            className="hidden md:flex items-center w-full max-w-4xl bg-white border border-[#E8E0D8] rounded-2xl p-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] mx-auto text-left transition-all"
           >
-            {/* From */}
-            <div className="flex-[1.2] px-4 border-r border-[#E8E0D8]">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">From</label>
+            {/* FROM */}
+            <div className="flex-[1.1] px-4 border-r border-[#E8E0D8]">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] block mb-1">From</label>
               <LocationAutocomplete
-                className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-sm placeholder:text-[#A1A1AA]/60 p-0 focus:ring-0"
-                placeholder="Departure city"
+                className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-sm placeholder:text-[#A1A1AA]/70 p-0 focus:ring-0"
+                placeholder="Where from?"
                 value={form.from}
                 onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
               />
             </div>
 
-            {/* To */}
-            <div className="flex-[1.2] px-4 border-r border-[#E8E0D8]">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">To</label>
+            {/* TO */}
+            <div className="flex-[1.3] px-4 border-r border-[#E8E0D8]">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] block mb-1">To</label>
               <LocationAutocomplete
-                className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-sm placeholder:text-[#A1A1AA]/60 p-0 focus:ring-0"
-                placeholder="Destination"
+                className="w-full bg-transparent border-none outline-none text-[#1A1A1A] font-semibold text-sm placeholder:text-[#A1A1AA]/70 p-0 focus:ring-0"
+                placeholder="Where to?"
                 value={form.to}
                 onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
               />
             </div>
 
-            {/* When (Depart & Return) */}
+            {/* DEPART & RETURN */}
             <div className="flex-[1.6] px-4">
               <CustomDatePicker
                 startDate={form.startDate}
@@ -540,28 +511,57 @@ export default function HomeClient() {
               />
             </div>
 
-            {/* Submit Button */}
+            {/* Primary CTA Button */}
             <button
               type="submit"
               disabled={loading}
               suppressHydrationWarning
-              className="bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold px-8 h-[48px] rounded-xl text-sm flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ml-2 shrink-0"
+              className="bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold px-8 h-[48px] rounded-xl text-sm flex items-center justify-center gap-2 transition-all whitespace-nowrap ml-2 shrink-0 shadow-md shadow-orange-500/20 active:scale-[0.98] cursor-pointer"
             >
               {loading ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Plan my trip</span>
-                  <ArrowRight size={15} strokeWidth={1.5} />
+                  <span>Plan My Trip</span>
+                  <ArrowRight size={15} strokeWidth={2.2} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Micro-copy below search */}
-          <p className="text-[13px] text-[#6B6B6B] italic font-normal text-center mt-6">
-            ₹ Budget and travelers — just one more step
-          </p>
+          {/* Ultra-Premium Mobile Floating Search Bar Widget */}
+          <div className="flex md:hidden flex-col w-full text-left">
+            <button
+              type="button"
+              suppressHydrationWarning
+              onClick={() => setShowSearchDrawer(true)}
+              className="w-full bg-white/95 backdrop-blur-xl border border-[#EA580C]/30 rounded-2xl p-3.5 shadow-[0_12px_40px_rgba(234,88,12,0.12)] flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#FFF5ED] border border-[#FFEDD5] text-[#EA580C] flex items-center justify-center shrink-0 shadow-2xs">
+                  <Search size={18} strokeWidth={2} className="text-[#EA580C]" />
+                </div>
+                <div className="text-left space-y-0.5">
+                  <p className="text-sm font-bold text-[#1A1A1A] tracking-tight">Where to next?</p>
+                  <p className="text-[11px] font-medium text-[#6B6B6B] flex items-center gap-1">
+                    <span>{form.to ? form.to : 'Tap to search flights & itineraries'}</span>
+                    <ArrowRight size={11} strokeWidth={2} className="text-[#EA580C]" />
+                  </p>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-[#F8F6F3] border border-[#E8E0D8] text-[#57534E] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <SlidersHorizontal size={14} strokeWidth={1.8} />
+              </div>
+            </button>
+          </div>
+
+          {/* Meaningful Itinerary Value Proposition Line (Positioned cleanly below the globe) */}
+          <div className="relative z-10 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest text-[#6B6B6B] pt-12 sm:pt-24 md:pt-44 uppercase">
+            <span>Precision Day-by-Day Itineraries</span> &nbsp;·&nbsp;
+            <span>Live Visa Guidance</span> &nbsp;·&nbsp;
+            <span>Transparent Real-Time Fares</span>
+          </div>
+
         </div>
       </section>
 
@@ -602,7 +602,7 @@ export default function HomeClient() {
       {/* ─── DESTINATIONS HUB SECTION ─────────────────────────────────────────── */}
       <section id="destinations" className="py-12 md:py-16 bg-[#FFFBF7]">
         <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-8">
-          
+
           {/* Header & Filter Pill Tabs */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-left border-b border-[#E8E0D8] pb-6">
             <div>
@@ -635,9 +635,8 @@ export default function HomeClient() {
                       setDestTab(tab.id as any)
                       setShowAllDest(false)
                     }}
-                    className={`relative px-5 py-2.5 rounded-full text-xs font-extrabold transition-colors whitespace-nowrap cursor-pointer ${
-                      isActive ? 'text-white font-black' : 'bg-white text-[#6B6B6B] border border-[#E8E0D8] hover:border-[#EA580C] hover:text-[#1A1A1A]'
-                    }`}
+                    className={`relative px-5 py-2.5 rounded-full text-xs font-extrabold transition-colors whitespace-nowrap cursor-pointer ${isActive ? 'text-white font-black' : 'bg-white text-[#6B6B6B] border border-[#E8E0D8] hover:border-[#EA580C] hover:text-[#1A1A1A]'
+                      }`}
                   >
                     {isActive && (
                       <motion.div
@@ -652,83 +651,82 @@ export default function HomeClient() {
               })}
             </div>
           </div>
-          
+
           {/* Compact 4-Column Responsive Grid System (2-Column on Mobile) */}
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {(
               destTab === 'intl'
                 ? BLUEPRINT_DESTINATIONS
                 : destTab === 'domestic'
-                ? DOMESTIC_DESTINATIONS
-                : destTab === 'visafree'
-                ? [...BLUEPRINT_DESTINATIONS, ...DOMESTIC_DESTINATIONS].filter(d => (d as any).visaType === 'success' || (d as any).visa === 'Visa Free')
-                : [...BLUEPRINT_DESTINATIONS, ...DOMESTIC_DESTINATIONS]
+                  ? DOMESTIC_DESTINATIONS
+                  : destTab === 'visafree'
+                    ? [...BLUEPRINT_DESTINATIONS, ...DOMESTIC_DESTINATIONS].filter(d => (d as any).visaType === 'success' || (d as any).visa === 'Visa Free')
+                    : [...BLUEPRINT_DESTINATIONS, ...DOMESTIC_DESTINATIONS]
             )
-            .slice(0, showAllDest ? 16 : 4)
-            .map((d, i) => (
-              <div
-                key={i}
-                className="w-full h-[220px] sm:h-[260px] md:h-[280px] relative rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-[#E8E0D8] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-[#FED7AA]"
-                onClick={() => {
-                  if (d.link) {
-                    router.push(d.link)
-                  } else {
-                    setForm(p => ({ ...p, to: d.name }))
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }
-                }}
-              >
-                {/* Full-bleed Ultra 4K Photo */}
-                <img
-                  src={d.img}
-                  alt={d.name}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-                  loading="lazy"
-                />
-                
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300" />
+              .slice(0, showAllDest ? 16 : 4)
+              .map((d, i) => (
+                <div
+                  key={i}
+                  className="w-full h-[220px] sm:h-[260px] md:h-[280px] relative rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-[#E8E0D8] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-[#FED7AA]"
+                  onClick={() => {
+                    if (d.link) {
+                      router.push(d.link)
+                    } else {
+                      setForm(p => ({ ...p, to: d.name }))
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }
+                  }}
+                >
+                  {/* Full-bleed Ultra 4K Photo */}
+                  <img
+                    src={d.img}
+                    alt={d.name}
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                    loading="lazy"
+                  />
 
-                {/* Top Glassmorphism Badges */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                  <span className={`backdrop-blur-md bg-black/60 border text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1 ${
-                    (d as any).visaType === 'success' || (d as any).badge ? 'border-emerald-400/60 text-emerald-300' : 'border-sky-400/60 text-sky-300'
-                  }`}>
-                    {(d as any).visaType === 'success' ? <ShieldCheck size={11} className="text-emerald-400" /> : (d as any).badge ? <MapPin size={11} className="text-emerald-400" /> : <FileCheck size={11} className="text-sky-400" />}
-                    <span>{(d as any).visa || (d as any).badge}</span>
-                  </span>
+                  {/* Dark Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300" />
 
-                  <span className="backdrop-blur-md bg-black/60 border border-white/30 text-white/90 text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Calendar size={10} className="text-amber-300" />
-                    <span>{d.season}</span>
-                  </span>
-                </div>
-
-                {/* Bottom Information Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 z-10 text-left space-y-2">
-                  <div>
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-300 block">
-                      {d.bestFor}
+                  {/* Top Glassmorphism Badges */}
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+                    <span className={`backdrop-blur-md bg-black/60 border text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1 ${(d as any).visaType === 'success' || (d as any).badge ? 'border-emerald-400/60 text-emerald-300' : 'border-sky-400/60 text-sky-300'
+                      }`}>
+                      {(d as any).visaType === 'success' ? <ShieldCheck size={11} className="text-emerald-400" /> : (d as any).badge ? <MapPin size={11} className="text-emerald-400" /> : <FileCheck size={11} className="text-sky-400" />}
+                      <span>{(d as any).visa || (d as any).badge}</span>
                     </span>
-                    <h3 className="font-display text-lg md:text-xl font-extrabold text-white leading-tight">
-                      {d.city}, <span className="text-white/80 font-medium text-xs md:text-sm">{d.country}</span>
-                    </h3>
+
+                    <span className="backdrop-blur-md bg-black/60 border border-white/30 text-white/90 text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Calendar size={10} className="text-amber-300" />
+                      <span>{d.season}</span>
+                    </span>
                   </div>
 
-                  <div className="pt-2 border-t border-white/20 flex items-center justify-between">
+                  {/* Bottom Information Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 z-10 text-left space-y-2">
                     <div>
-                      <span className="text-[9px] text-white/70 block uppercase font-bold tracking-wider">Est. Budget</span>
-                      <span className="text-xs md:text-sm font-extrabold text-amber-300">{d.budget} <span className="text-[10px] text-white/80 font-normal">• {d.duration}</span></span>
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-300 block">
+                        {d.bestFor}
+                      </span>
+                      <h3 className="font-display text-lg md:text-xl font-extrabold text-white leading-tight">
+                        {d.city}, <span className="text-white/80 font-medium text-xs md:text-sm">{d.country}</span>
+                      </h3>
                     </div>
 
-                    <span className="px-3 py-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-[11px] rounded-lg shadow-md flex items-center gap-1 transition-all active:scale-95">
-                      <span>Plan</span>
-                      <ChevronRight size={13} />
-                    </span>
+                    <div className="pt-2 border-t border-white/20 flex items-center justify-between">
+                      <div>
+                        <span className="text-[9px] text-white/70 block uppercase font-bold tracking-wider">Est. Budget</span>
+                        <span className="text-xs md:text-sm font-extrabold text-amber-300">{d.budget} <span className="text-[10px] text-white/80 font-normal">• {d.duration}</span></span>
+                      </div>
+
+                      <span className="px-3 py-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-[11px] rounded-lg shadow-md flex items-center gap-1 transition-all active:scale-95">
+                        <span>Plan</span>
+                        <ChevronRight size={13} />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
 
           {/* Expand / Collapse Button */}
@@ -939,7 +937,7 @@ export default function HomeClient() {
         </div>
       )}
 
-      {/* ─── AIRBNB-STYLE MOBILE SEARCH SHEET MODAL ────────────────────────────── */}
+      {/* ─── AIRBNB-STYLE MOBILE SEARCH SHEET MODAL (Ultra-Clean & Professional) ─── */}
       {showSearchDrawer && (
         <div className="fixed inset-0 z-[9999] bg-[#FFFBF7] flex flex-col md:hidden animate-fade-in overflow-y-auto">
           {/* Header */}
@@ -947,138 +945,98 @@ export default function HomeClient() {
             <button
               type="button"
               onClick={() => setShowSearchDrawer(false)}
-              className="w-8 h-8 rounded-full bg-white border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] shadow-2xs"
+              className="w-8 h-8 rounded-full bg-white border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] shadow-2xs cursor-pointer active:scale-95"
             >
               <X size={18} strokeWidth={2} />
             </button>
-            <span className="font-display font-extrabold text-base text-[#1A1A1A]">Where to next?</span>
+            <span className="font-display font-extrabold text-base text-[#1A1A1A]">Search & Plan Trip</span>
             <button
               type="button"
               onClick={() => setForm(p => ({ ...p, from: '', to: '', startDate: '', endDate: '' }))}
-              className="text-xs font-bold text-[#EA580C] hover:underline"
+              className="text-xs font-extrabold text-[#EA580C] hover:underline cursor-pointer"
             >
-              Clear
+              Reset
             </button>
           </div>
 
-          {/* Body content */}
-          <div className="p-4 flex-1 space-y-5 text-left">
-            {/* Where to? */}
-            <div className="bg-white border border-[#E8E0D8] rounded-[20px] p-4 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-[#EA580C]">
-                <MapPin size={18} strokeWidth={2} />
-                <h3 className="font-display font-extrabold text-sm text-[#1A1A1A] uppercase tracking-wider">Where to?</h3>
+          {/* Body Content - Tightly Organized Clean Cards */}
+          <div className="p-4 flex-1 space-y-4 text-left">
+
+            {/* CARD 1: DESTINATION & DEPARTURE COMBINED BOX */}
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-3.5">
+              {/* Where to */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                  <MapPin size={14} className="text-[#EA580C]" />
+                  <span>Where to?</span>
+                </label>
+                <LocationAutocomplete
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
+                  placeholder="Search destination (e.g. Bali, Goa, Dubai)"
+                  value={form.to}
+                  onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
+                />
+                {/* Popular Pill Chips */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5 hide-scrollbar">
+                  {['Bali', 'Goa', 'Dubai', 'Ladakh', 'Thailand', 'Singapore'].map((place) => (
+                    <button
+                      key={place}
+                      type="button"
+                      onClick={() => setForm(p => ({ ...p, to: place }))}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold transition-all shrink-0 cursor-pointer ${
+                        form.to === place ? 'bg-[#EA580C] text-white shadow-2xs' : 'bg-[#FFF4EE] text-[#EA580C] border border-[#FED7AA]'
+                      }`}
+                    >
+                      {place}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <LocationAutocomplete
-                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-sm text-[#1A1A1A] font-semibold"
-                placeholder="Search destination (e.g. Bali, Goa, Dubai)"
-                value={form.to}
-                onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
+
+              <div className="h-[1px] bg-[#E8E0D8]/60 w-full" />
+
+              {/* Flying From */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                  <Plane size={14} className="text-[#EA580C]" />
+                  <span>Flying From</span>
+                </label>
+                <LocationAutocomplete
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
+                  placeholder="Departure city (e.g. Bangalore, Delhi)"
+                  value={form.from}
+                  onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
+                />
+              </div>
+            </div>
+
+            {/* CARD 2: TRIP DATES (Modern Interactive Calendar) */}
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-2.5">
+              <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                <Calendar size={14} className="text-[#EA580C]" />
+                <span>Trip Dates</span>
+              </label>
+              
+              <CustomDatePicker
+                startDate={form.startDate}
+                endDate={form.endDate}
+                onChange={(start, end) => setForm(p => ({ ...p, startDate: start, endDate: end }))}
+                labelStart="Departure"
+                labelEnd="Return"
               />
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
-                {['Bali', 'Goa', 'Dubai', 'Ladakh', 'Thailand', 'Singapore'].map((place) => (
-                  <button
-                    key={place}
-                    type="button"
-                    onClick={() => setForm(p => ({ ...p, to: place }))}
-                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                      form.to === place ? 'bg-[#EA580C] text-white' : 'bg-[#FFF4EE] text-[#EA580C] border border-[#FED7AA]'
-                    }`}
-                  >
-                    {place}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Departure City */}
-            <div className="bg-white border border-[#E8E0D8] rounded-[20px] p-4 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-[#EA580C]">
-                <Plane size={18} strokeWidth={2} />
-                <h3 className="font-display font-extrabold text-sm text-[#1A1A1A] uppercase tracking-wider">Departure City</h3>
-              </div>
-              <LocationAutocomplete
-                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-sm text-[#1A1A1A] font-semibold"
-                placeholder="Flying from (e.g. Bangalore, Delhi)"
-                value={form.from}
-                onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
-              />
-            </div>
-
-            {/* Trip Dates */}
-            <div className="bg-white border border-[#E8E0D8] rounded-[20px] p-4 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-[#EA580C]">
-                <Calendar size={18} strokeWidth={2} />
-                <h3 className="font-display font-extrabold text-sm text-[#1A1A1A] uppercase tracking-wider">When?</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Departure</label>
-                  <input
-                    type="date"
-                    value={form.startDate}
-                    onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
-                    className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Return</label>
-                  <input
-                    type="date"
-                    value={form.endDate}
-                    min={form.startDate || undefined}
-                    onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
-                    className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Travelers & Budget */}
-            <div className="bg-white border border-[#E8E0D8] rounded-[20px] p-4 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-[#EA580C]">
-                <Users size={18} strokeWidth={2} />
-                <h3 className="font-display font-extrabold text-sm text-[#1A1A1A] uppercase tracking-wider">Travelers & Budget</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Travelers</label>
-                  <select
-                    value={form.travelers}
-                    onChange={e => setForm(p => ({ ...p, travelers: e.target.value }))}
-                    className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] outline-none"
-                  >
-                    <option value="1">Solo (1)</option>
-                    <option value="2">Couple (2)</option>
-                    <option value="4">Group (4+)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">Max Budget</label>
-                  <select
-                    value={form.budget}
-                    onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
-                    className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] outline-none"
-                  >
-                    <option value="30000">₹30,000</option>
-                    <option value="50000">₹50,000</option>
-                    <option value="100000">₹1,00,000</option>
-                    <option value="200000">₹2,00,000+</option>
-                  </select>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Sticky Bottom Search CTA */}
-          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-4">
+          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-4 shadow-lg">
             <button
               type="button"
               onClick={(e) => {
                 setShowSearchDrawer(false)
                 handleSubmit(e)
               }}
-              className="w-full bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white font-extrabold text-base h-[52px] rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 active:scale-98 transition-transform"
+              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm h-[50px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
             >
               <Search size={18} strokeWidth={2.5} />
               <span>Search & Plan Trip</span>
@@ -1087,16 +1045,16 @@ export default function HomeClient() {
         </div>
       )}
 
-      {/* ─── MOBILE FLOATING QUICK PLAN CTA BAR ───────────────────────── */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
+      {/* ─── MOBILE FLOATING QUICK PLAN CTA FAB (Centred Bottom Capsule) ─── */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
         <button
           type="button"
           onClick={() => setShowSearchDrawer(true)}
-          className="w-full h-12 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-orange-500/25 active:scale-95 transition-transform border border-white/20"
+          className="px-5 py-3 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-xs rounded-full flex items-center justify-center gap-2 shadow-[0_12px_35px_rgba(234,88,12,0.42)] active:scale-95 transition-all border border-white/30 backdrop-blur-xl cursor-pointer whitespace-nowrap"
         >
-          <Sparkles size={16} className="text-white animate-pulse" />
-          <span>Design My AI Trip</span>
-          <ArrowRight size={15} />
+          <Sparkles size={15} className="text-white animate-pulse" />
+          <span>Design AI Trip</span>
+          <ArrowRight size={14} />
         </button>
       </div>
 

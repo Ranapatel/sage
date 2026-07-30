@@ -28,8 +28,8 @@ import {
 } from '@/components/ui/TripSageIcons'
 
 export const handleUniversalShare = (item: any) => {
-  const cleanName = item.name?.split('ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ')[0]?.trim() ?? 'Transit Option'
-  const fareStr = item.price ? `ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹${Math.round(item.price)}` : 'Estimate'
+  const cleanName = item.name?.split('— ')[0]?.trim() ?? 'Transit Option'
+  const fareStr = item.price ? `₹${Math.round(item.price)}` : 'Estimate'
   
   const shareTitle = `TripSage Travel Recommendation`
   const shareText = `Check out this travel option on TripSage:\n\n* ${cleanName}\nTiming: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\nPrice: ${fareStr}/person\n\nPlan and view details on TripSage!`
@@ -50,7 +50,7 @@ export const handleUniversalShare = (item: any) => {
   }
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Types ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Types ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 interface Props {
   transport: any[]
@@ -68,16 +68,33 @@ type Segment = 'recommended' | 'flights' | 'trains' | 'buses' | 'cabs' | 'smart-
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Airline badge data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 const AIRLINE_LOGOS: Record<string, string> = {
-  indigo:    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/IndiGo_Airlines_logo.svg/200px-IndiGo_Airlines_logo.svg.png',
-  '6e':      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/IndiGo_Airlines_logo.svg/200px-IndiGo_Airlines_logo.svg.png',
-  'air india': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Air_India_Logo.svg/200px-Air_India_Logo.svg.png',
-  ai:        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Air_India_Logo.svg/200px-Air_India_Logo.svg.png',
-  spicejet:  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/SpiceJet_logo.svg/200px-SpiceJet_logo.svg.png',
-  sg:        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/SpiceJet_logo.svg/200px-SpiceJet_logo.svg.png',
-  vistara:   'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Vistara_Logo.svg/200px-Vistara_Logo.svg.png',
-  uk:        'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Vistara_Logo.svg/200px-Vistara_Logo.svg.png',
-  akasa:     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Akasa_Air_logo.svg/200px-Akasa_Air_logo.svg.png',
-  qp:        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Akasa_Air_logo.svg/200px-Akasa_Air_logo.svg.png',
+  // Indian Domestic Airlines
+  indigo: 'https://images.kiwi.com/airlines/64/6E.png',
+  '6e': 'https://images.kiwi.com/airlines/64/6E.png',
+  'air india': 'https://images.kiwi.com/airlines/64/AI.png',
+  ai: 'https://images.kiwi.com/airlines/64/AI.png',
+  spicejet: 'https://images.kiwi.com/airlines/64/SG.png',
+  sg: 'https://images.kiwi.com/airlines/64/SG.png',
+  vistara: 'https://images.kiwi.com/airlines/64/UK.png',
+  uk: 'https://images.kiwi.com/airlines/64/UK.png',
+  akasa: 'https://images.kiwi.com/airlines/64/QP.png',
+  qp: 'https://images.kiwi.com/airlines/64/QP.png',
+  airasia: 'https://images.kiwi.com/airlines/64/I5.png',
+  i5: 'https://images.kiwi.com/airlines/64/I5.png',
+
+  // Major International Carriers
+  emirates: 'https://images.kiwi.com/airlines/64/EK.png',
+  ek: 'https://images.kiwi.com/airlines/64/EK.png',
+  qatar: 'https://images.kiwi.com/airlines/64/QR.png',
+  qr: 'https://images.kiwi.com/airlines/64/QR.png',
+  singapore: 'https://images.kiwi.com/airlines/64/SQ.png',
+  sq: 'https://images.kiwi.com/airlines/64/SQ.png',
+  etihad: 'https://images.kiwi.com/airlines/64/EY.png',
+  ey: 'https://images.kiwi.com/airlines/64/EY.png',
+  lufthansa: 'https://images.kiwi.com/airlines/64/LH.png',
+  lh: 'https://images.kiwi.com/airlines/64/LH.png',
+  british: 'https://images.kiwi.com/airlines/64/BA.png',
+  ba: 'https://images.kiwi.com/airlines/64/BA.png',
 }
 
 // Airline brand colors for initials fallback
@@ -119,10 +136,16 @@ const CAB_IMAGES: Record<string, string> = {
 const FALLBACK_FLIGHT_IMG = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=900&q=80&auto=format&fit=crop'
 
 /** Returns the best background image for ANY transport item (Flight, Cab, Train, Bus). */
-function getCardBgImage(item: any): string {
-  if (item.image && !item.image.includes('placeholder')) return item.image
-  const name = (item.name ?? '').toLowerCase()
+function getCardBgImage(item: any): string | null {
   const type = (item.type ?? '').toLowerCase()
+  const name = (item.name ?? '').toLowerCase()
+
+  // No flight image for flight cards as requested
+  if (type === 'flight' || (!type && item.departure && type !== 'train' && type !== 'bus' && type !== 'car' && type !== 'cab')) {
+    return null
+  }
+
+  if (item.image && !item.image.includes('placeholder')) return item.image
 
   if (type === 'car' || type === 'cab' || name.includes('hertz') || name.includes('avis') || name.includes('rental')) {
     for (const [key, url] of Object.entries(CAB_IMAGES)) {
@@ -131,18 +154,21 @@ function getCardBgImage(item: any): string {
     return CAB_IMAGES.default
   }
 
-  for (const [key, url] of Object.entries(AIRLINE_IMAGES)) {
-    if (name.includes(key)) return url
-  }
-  return FALLBACK_FLIGHT_IMG
+  return null
 }
 
 function getAirlineLogo(name: string): string | null {
+  if (!name) return 'https://pics.avs.io/200/200/6E.png'
   const lower = name.toLowerCase()
   for (const [key, url] of Object.entries(AIRLINE_LOGOS)) {
     if (lower.includes(key)) return url
   }
-  return null
+  // Try extracting 2-letter IATA code if available
+  const match = name.match(/\b([A-Z0-9]{2})\b/)
+  if (match && match[1]) {
+    return `https://pics.avs.io/200/200/${match[1].toUpperCase()}.png`
+  }
+  return 'https://pics.avs.io/200/200/6E.png'
 }
 
 function getAirlineColor(name: string): string {
@@ -154,13 +180,13 @@ function getAirlineColor(name: string): string {
 }
 
 function getAirlineInitials(name: string): string {
-  const clean = name.split('Ã¢â‚¬â€')[0].split('-')[0].trim()
+  const clean = name.split('—')[0].split('-')[0].trim()
   const words = clean.split(' ').filter(Boolean)
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
   return clean.slice(0, 2).toUpperCase()
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Sage Score calculation ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Sage Score calculation ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 function calcSageScore(item: any, allItems: any[]): number {
   if (!item) return 75
@@ -214,7 +240,7 @@ function calcSageScore(item: any, allItems: any[]): number {
   return Math.max(65, Math.min(99, finalScore))
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Sage Score Badge (SVG ring) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Sage Score Badge (SVG ring) ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 function SageScoreRing({ score: rawScore, dark }: { score: number; dark?: boolean }) {
   const score = Number.isFinite(rawScore) ? Math.max(0, Math.min(100, Math.round(rawScore))) : 70
@@ -341,7 +367,7 @@ function SkeletonCompactCard() {
   )
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Route Match Indicator Pill ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Route Match Indicator Pill ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 function MatchPill({
   icon: Icon, label, value, color
@@ -364,7 +390,7 @@ function MatchPill({
   )
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Budget Fit Bar ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ Budget Fit Bar ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬
 
 function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price: number; budget: number; label?: string; totalPrice?: number; passengers?: number }) {
   const totalCost = totalPrice || (price * (passengers || 1))
@@ -386,7 +412,7 @@ function BudgetFitBar({ price, budget, label, totalPrice, passengers }: { price:
   )
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Best Value Route Card (hero) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ Best Value Route Card (hero) ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬ÃƒÂ¢ Ã¢â€šÂ¬
 
 function BestValueCard({
   item, allItems, budget, symbol, locale, from, to, topPick
@@ -402,52 +428,50 @@ function BestValueCard({
   const ctaText = isFlight ? 'Book Flight' : isBus ? 'Book Bus' : isTrain ? 'Book Train' : 'Book Rental'
   const comfortLabel = item.rating >= 4.5 ? 'Premium' : item.rating >= 4 ? 'Standard' : 'Economy'
   const comfortColor: 'blue' | 'green' | 'gray' = item.rating >= 4.5 ? 'blue' : item.rating >= 4 ? 'green' : 'gray'
-  const cleanName = item.name?.split('ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â')[0]?.trim() ?? 'Best Route'
+  const cleanName = item.name?.split('— ')[0]?.trim() ?? 'Best Route'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
   const bgImg = getCardBgImage(item)
 
   return (
-    <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
+    <div className="bg-white border border-[#E8E0D8] hover:border-[#EA580C] rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300">
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Aircraft hero image ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+      {/* Aircraft / Transport hero image */}
       {bgImg && (
-        <div className="relative w-full h-52 overflow-hidden">
+        <div className="relative w-full h-56 overflow-hidden">
           <img
             src={bgImg}
             alt={cleanName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           {/* Gradient overlay */}
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30"
-          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
+
           {/* Badges on image */}
           <div className="absolute top-4 left-4 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow">
-              <Sparkles size={10} /> Best Value
+            <span className="inline-flex items-center gap-1.5 bg-[#EA580C] text-white text-[11px] font-black px-3.5 py-1 rounded-xl uppercase tracking-wider shadow-md">
+              <Sparkles size={12} /> Best AI Value
             </span>
             {topPick && (
-              <span className="bg-[#EA580C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow">
+              <span className="bg-white/90 backdrop-blur-md text-[#EA580C] text-[11px] font-black px-3 py-1 rounded-xl uppercase tracking-wider shadow-md border border-orange-200">
                 Top Pick
               </span>
             )}
           </div>
-          <span className="absolute top-4 right-4 text-[12px] text-white/90 font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">{typeLabel} Ãƒâ€šÃ‚Â· Recommended</span>
+          <span className="absolute top-4 right-4 text-[12px] text-white font-extrabold bg-black/40 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20">{typeLabel} • Recommended</span>
           
           {/* Route + Carrier logo bottom of image */}
           <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
             <div>
               <p
-                className="text-[22px] font-extrabold text-white leading-tight drop-shadow-sm"
-                style={{ fontFamily: 'var(--font-plus-jakarta, Inter, sans-serif)' }}
+                className="text-2xl font-black text-white leading-tight drop-shadow-md font-display"
               >
-                {from?.split(',')[0]} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ {to?.split(',')[0]}
+                {from?.split(',')[0]} ➔ {to?.split(',')[0]}
               </p>
-              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1 rounded-xl shadow-md border border-white/40 mt-1.5 inline-flex">
+              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-md border border-white/40 mt-1.5 inline-flex">
                 {getAirlineLogo(cleanName) ? (
                   <img src={getAirlineLogo(cleanName)!} alt={cleanName} className="w-4 h-4 object-contain shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-md bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shrink-0">
+                  <span className="w-4 h-4 rounded-md bg-[#EA580C] text-white font-black text-[9px] flex items-center justify-center shrink-0">
                     {getAirlineInitials(cleanName)}
                   </span>
                 )}
@@ -463,7 +487,7 @@ function BestValueCard({
         </div>
       )}
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ White content area ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+      {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ White content area ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
       <div className="p-6 sm:p-7 flex flex-col justify-between">
         {/* If no image (bus/cab), show header row */}
         {!bgImg && (
@@ -478,7 +502,7 @@ function BestValueCard({
                 </span>
               )}
             </div>
-            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} Ãƒâ€šÃ‚Â· Recommended route</span>
+            <span className="text-[13px] text-slate-500 font-semibold">{typeLabel} • Recommended route</span>
           </div>
         )}
 
@@ -505,7 +529,7 @@ function BestValueCard({
               {symbol}{Math.round(item.perPassengerPrice || item.price).toLocaleString(locale)}
             </p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[12px] font-semibold text-slate-500">per person Ãƒâ€šÃ‚Â· estimated</span>
+              <span className="text-[12px] font-semibold text-slate-500">per person • estimated</span>
               {item.totalPrice && item.passengers > 1 && (
                 <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
                   {symbol}{Math.round(item.totalPrice).toLocaleString(locale)} total ({item.passengers} travelers)
@@ -549,7 +573,7 @@ function BestValueCard({
   )
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Compact Comparison Card ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Compact Comparison Card ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 function ComparisonCard({
   item, allItems, budget, symbol, locale, isTopPick
@@ -566,13 +590,12 @@ function ComparisonCard({
   const comfortColor = item.rating >= 4.5 ? 'bg-blue-100 text-blue-800' : item.rating >= 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
   const typeLabel = isFlight ? 'Flight' : isBus ? 'Bus' : isTrain ? 'Train' : 'Rental/Cab'
   const bgImg = getCardBgImage(item)
-  const carrierName = item.name?.split('ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â')[0]?.trim() ?? typeLabel
+  const carrierName = item.name?.split('—')[0]?.trim() ?? typeLabel
   const logoUrl = getAirlineLogo(item.name ?? '')
 
   return (
     <div
-      className="bg-white border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-orange-400 transition-all duration-300 flex flex-col justify-between h-full group relative"
-      style={{ borderColor: isTopPick ? '#EA580C' : '#E2E8F0' }}
+      className="bg-white border border-[#E8E0D8] hover:border-[#EA580C] rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full group relative"
     >
       {bgImg ? (
         <div className="relative h-28 w-full overflow-hidden">
@@ -628,7 +651,7 @@ function ComparisonCard({
                   )}
                 </div>
                 <p className="text-slate-500 text-xs font-medium mt-0.5">
-                  {item.name?.split('ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â')[0]?.trim()}
+                  {item.name?.split('—')[0]?.trim()}
                 </p>
               </div>
             </div>
@@ -636,7 +659,7 @@ function ComparisonCard({
           </div>
         )}
 
-        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Card Content Body ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+        {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Card Content Body ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
         <div className="p-4 flex flex-col gap-3">
           {/* Route info / Comfort pills */}
           <div className="flex flex-wrap gap-1.5 items-center">
@@ -645,7 +668,7 @@ function ComparisonCard({
             </span>
             {item.departure && item.arrival && (
               <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                {item.departure} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ {item.arrival}
+                {item.departure} → {item.arrival}
               </span>
             )}
             {item.duration && (
@@ -662,7 +685,7 @@ function ComparisonCard({
             </div>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <span className="text-xs font-semibold text-slate-400">
-                per person ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ estimated
+                per person • estimated
               </span>
               {item.totalPrice && item.passengers > 1 && (
                 <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
@@ -689,7 +712,7 @@ function ComparisonCard({
           onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
           className="flex-1 py-2.5 px-4 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all text-center"
         >
-          {ctaText} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢
+          {ctaText} →
         </a>
         <button
           onClick={() => handleUniversalShare(item)}
@@ -703,7 +726,7 @@ function ComparisonCard({
   )
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Empty State ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ Empty State ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 function EmptyState({ type, error, onSwitch }: { type: string; error?: string | null; onSwitch?: () => void }) {
   if (type === 'flights') {
@@ -782,7 +805,7 @@ function EmptyState({ type, error, onSwitch }: { type: string; error?: string | 
   )
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ROOT ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ ROOT ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬
 
 function TransportTab({
   transport, loading, tripContext, searchForm, budget = 0, hotelCostSpent = 0, currency = 'INR', error
@@ -797,7 +820,7 @@ function TransportTab({
   const from = tripContext?.startLocation || searchForm?.from || ''
   const destCity = dest.split(',')[0].trim()
 
-  // Split transport list by type ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â flights enabled
+  // Split transport list by type — flights enabled
   const { flights, trains, buses, cabs } = useMemo(() => {
     const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure && t.type !== 'train' && t.type !== 'bus' && t.type !== 'car' && t.type !== 'cab'))
     const trains = transport.filter(t => t.type === 'train')
@@ -879,7 +902,7 @@ function TransportTab({
 
       <div className="space-y-6">
 
-        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ HEADER ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+        {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ HEADER ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
         <div>
           <h1
             className="text-[24px] font-bold text-[#1A1A1A] leading-tight mb-1.5"
@@ -888,11 +911,11 @@ function TransportTab({
             Travel to {destCity || 'your destination'}
           </h1>
           <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-xl">
-            Compare the best ways to reach your destination ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â time, comfort, and budget all in one view.
+            Compare the best ways to reach your destination — time, comfort, and budget all in one view.
           </p>
         </div>
 
-        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+        {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
         <div className="space-y-2">
           {/* Top Swipe Hint */}
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">
@@ -927,7 +950,7 @@ function TransportTab({
                         : 'bg-white text-slate-700 border-[#E8E0D8] hover:border-orange-300 hover:bg-orange-50/40 hover:shadow-sm'
                     }`}
                   >
-                    <IconComp size={24} active={isActive} />
+                    <IconComp size={28} active={isActive} />
                     <span>{s.label}</span>
                     {s.count != null && s.count > 0 && !loading && (
                       <span
@@ -945,7 +968,7 @@ function TransportTab({
           </div>
         </div>
 
-        {/* Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€ SMART ROUTES (Transport Intelligence) Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€ */}
+        {/* ———— SMART ROUTES (Transport Intelligence) ————————————————————— */}
         {segment === 'smart-routes' && (
           <TransportPlanner
             defaultOrigin={from}
@@ -954,7 +977,7 @@ function TransportTab({
           />
         )}
 
-        {/* Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€ TRAINS PANEL Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€ */}
+        {/* ———— TRAINS PANEL ———————————————————————————————————————————— */}
         {segment === 'trains' && (
           isSameCountry(from, dest) ? (
             <TrainsPanel
@@ -978,7 +1001,7 @@ function TransportTab({
           )
         )}
 
-        {/* Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€ BUSES PANEL Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€Ã¢â‚¬â€ */}
+        {/* ———— BUSES PANEL ————————————————————————————————————————————— */}
         {segment === 'buses' && (
           isSameCountry(from, dest) ? (
             <BusesPanel
@@ -1002,7 +1025,7 @@ function TransportTab({
           )
         )}
 
-        {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+        {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ FLIGHTS PANEL (AI Flight Search & Kiwi Booking Interface) ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
         {segment === 'flights' && (
           <AiFlightSearch
             flights={flights}
@@ -1078,23 +1101,7 @@ function TransportTab({
           </div>
         )}      </div>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MOBILE STICKY BOTTOM CTA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-      <div className="lg:hidden fixed bottom-[60px] left-0 right-0 z-40 px-4 pb-3 pt-3 bg-gradient-to-t from-[#FFFBF7] via-[#FFFBF7]/90 to-transparent">
-        {bestForSegment ? (
-          <a
-            href={bestForSegment.bookingLink ?? '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full h-[52px] bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[15px] rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 transition-colors"
-          >
-            {ctaText} <ArrowRight size={16} />
-          </a>
-        ) : (
-          <div className="w-full h-[52px] bg-[#E8E0D8] rounded-2xl flex items-center justify-center">
-            <span className="text-[14px] text-[#9CA3AF]">Search to see options</span>
-          </div>
-        )}
-      </div>
+      {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ MOBILE STICKY BOTTOM CTA ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
       <LiveBookingToast />
     </>
   )

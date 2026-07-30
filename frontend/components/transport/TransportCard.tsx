@@ -37,12 +37,12 @@ function TransportCard({ item, showDetail }: Props) {
     addNotification({
       id: Date.now().toString(),
       type: 'info',
-      title: 'Flight Selected',
+      title: 'Transport Option Selected',
       message: `${item.name}${displayPrice ? ` - ${displayPrice}` : ''}`,
       timestamp: new Date().toISOString(),
       read: false,
     })
-    toast.success('Flight selected! Complete booking →')
+    toast.success('Option selected! Complete booking →')
   }
 
   const fallbackFlightImage = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80'
@@ -54,11 +54,13 @@ function TransportCard({ item, showDetail }: Props) {
   }, [initialBanner])
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 hover:border-orange-500/50 hover:shadow-lg transition-all duration-300 p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden group">
+    <div className="group bg-white rounded-3xl border border-[#E8E0D8] hover:border-[#EA580C] shadow-xs hover:shadow-xl transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 relative overflow-hidden">
+      {/* Background hover accent glow */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-      {/* LEFT: Carrier Logo & Airline Name */}
-      <div className="flex items-center gap-3.5 w-full md:w-1/4 shrink-0">
-        <div className="w-12 h-12 rounded-xl bg-slate-50 p-2 flex items-center justify-center relative border border-slate-200/60 shrink-0">
+      {/* SECTION 1: Carrier Logo & Airline Name */}
+      <div className="flex items-center gap-3.5 w-full md:w-1/4 shrink-0 relative z-10 border-b md:border-b-0 pb-3 md:pb-0 border-[#E8E0D8]/80">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white border border-[#E8E0D8] p-1.5 md:p-2 flex items-center justify-center relative shadow-2xs shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
           <Image
             src={logoError ? '/logos/default-airline.svg' : logoSrc}
             alt={`${item.name} logo`}
@@ -74,70 +76,70 @@ function TransportCard({ item, showDetail }: Props) {
           />
         </div>
         <div>
-          <h4 className="font-extrabold text-slate-900 text-sm leading-tight group-hover:text-[#EA580C] transition-colors">
+          <h4 className="font-black text-[#1A1A1A] text-base leading-tight font-display group-hover:text-[#EA580C] transition-colors">
             {item.name?.split('—')[0]?.trim()}
           </h4>
-          <p className="text-slate-500 text-xs font-medium mt-0.5">
-            {item.location || 'Economy Class'}
+          <p className="text-[#6B6B6B] text-xs font-semibold mt-0.5 flex items-center gap-1.5">
+            <span>{item.location || 'Economy Class'}</span>
           </p>
         </div>
       </div>
 
-      {/* CENTER: Flight Timeline & Duration Bar */}
-      <div className="flex-1 w-full flex items-center justify-center gap-4 px-2">
-        <div className="text-center min-w-[55px]">
-          <span className="text-base font-black text-slate-900 block leading-tight">
+      {/* SECTION 2: Flight Timeline & Duration Bar (Contained Card on Mobile) */}
+      <div className="flex-1 w-full bg-[#FFFBF7]/80 md:bg-transparent border md:border-0 border-[#E8E0D8]/80 rounded-2xl p-3 md:p-0 flex items-center justify-between md:justify-center gap-2 sm:gap-4 px-2 relative z-10">
+        <div className="text-left md:text-center shrink-0 min-w-[60px]">
+          <span className="text-lg sm:text-xl md:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
             {item.departure || item.departureTime || '--:--'}
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[10px] font-black text-[#EA580C] uppercase tracking-widest mt-1 block">
             DEP
           </span>
         </div>
 
         {/* Duration Timeline Bar */}
-        <div className="flex-1 max-w-[180px] flex flex-col items-center">
-          <span className="text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+        <div className="flex-1 max-w-[200px] flex flex-col items-center">
+          <span className="text-[11px] sm:text-xs font-black text-[#6B6B6B] mb-1 flex items-center gap-1 bg-white md:bg-[#FFFBF7] border border-[#E8E0D8] px-2.5 py-0.5 rounded-full shadow-2xs">
             {item.duration ? (
               <span>{item.duration}</span>
             ) : null}
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-            <span className="text-emerald-700 font-extrabold">{item.stops === 0 ? 'Non-stop' : `${item.stops || 1} stop`}</span>
+            <span className="text-emerald-700 font-extrabold">{item.stops === 0 ? 'Direct' : `${item.stops || 1} stop`}</span>
           </span>
-          <div className="w-full flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full border-2 border-[#EA580C] bg-white shrink-0" />
-            <div className="flex-1 h-[2px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 relative">
-              <Plane size={12} className="absolute -top-1.5 left-1/2 -translate-x-1/2 text-[#EA580C] rotate-90" />
+          <div className="w-full flex items-center gap-1 my-1">
+            <div className="w-2.5 h-2.5 rounded-full border-2 border-[#EA580C] bg-white shrink-0 ring-4 ring-orange-50" />
+            <div className="flex-1 h-[2px] bg-[#E8E0D8] group-hover:bg-[#EA580C]/40 relative transition-colors">
+              <Plane size={14} className="absolute -top-1.5 left-1/2 -translate-x-1/2 text-[#EA580C]" />
             </div>
-            <div className="w-2 h-2 rounded-full bg-[#EA580C] shrink-0" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A] shrink-0 ring-4 ring-gray-100" />
           </div>
         </div>
 
-        <div className="text-center min-w-[55px]">
-          <span className="text-base font-black text-slate-900 block leading-tight">
+        <div className="text-right md:text-center shrink-0 min-w-[60px]">
+          <span className="text-lg sm:text-xl md:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
             {item.arrival || item.arrivalTime || '--:--'}
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest mt-1 block">
             ARR
           </span>
         </div>
       </div>
 
-      {/* RIGHT: SageScore + Price + CTA Button */}
-      <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end shrink-0 border-t md:border-t-0 border-slate-100 pt-3 md:pt-0">
+      {/* SECTION 3: SageScore + Price + CTA Button */}
+      <div className="flex items-center gap-3 sm:gap-4 w-full md:w-auto justify-between md:justify-end shrink-0 border-t md:border-t-0 border-[#E8E0D8]/80 pt-3 md:pt-0 relative z-10">
         <SageScoreBadge item={item} type="flight" />
 
         <div className="text-right">
           {displayPrice ? (
             <>
-              <span className="text-xl font-black text-[#EA580C] block leading-tight">
+              <span className="text-xl sm:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
                 {formatPrice(item.perPassengerPrice || item.price, currency)}
               </span>
-              <span className="text-[11px] font-medium text-slate-400 block">
+              <span className="text-[11px] font-semibold text-[#6B6B6B] block mt-1">
                 per person {item.totalPrice && item.passengers > 1 ? `(${formatPrice(item.totalPrice, currency)} total)` : ''}
               </span>
             </>
           ) : (
-            <span className="text-xs font-semibold text-slate-400 italic">Check Live</span>
+            <span className="text-xs font-bold text-[#9CA3AF] italic">Check Live</span>
           )}
         </div>
 
@@ -150,9 +152,9 @@ function TransportCard({ item, showDetail }: Props) {
               window.open(item.bookingLink, '_blank', 'noopener,noreferrer')
             })()
           }}
-          className="px-5 py-2.5 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all duration-200 shrink-0"
+          className="px-4 sm:px-6 py-3.5 rounded-2xl font-black text-xs sm:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-md hover:shadow-xl transition-all duration-200 shrink-0 cursor-pointer active:scale-95"
         >
-          {item.source === 'affiliate_redirect' ? 'Search Live →' : 'Book Flight →'}
+          {item.source === 'affiliate_redirect' ? 'Search Live →' : 'Book Option →'}
         </a>
       </div>
     </div>

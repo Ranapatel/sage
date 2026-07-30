@@ -135,7 +135,7 @@ export default function AiFlightTabsHeader({
           >
             <option value="earliest">Earliest departure</option>
             <option value="latest">Latest departure</option>
-            <option value="score">Highest AI score</option>
+            <option value="score">Highest TripSage Score</option>
             <option value="stops">Lowest stops</option>
           </select>
           <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />

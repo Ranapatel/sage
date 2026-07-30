@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import {
   X, ExternalLink, ShieldCheck, Clock, Train, Bus, MapPin,
-  CheckCircle2, AlertCircle, Info, Sparkles, ChevronRight, Share2, Copy
+  CheckCircle2, AlertCircle, Info, Sparkles, ChevronRight, Share2, Copy, Repeat, IndianRupee
 } from 'lucide-react'
 import {
   SmartTrainRoute, buildIrctcDeepLink, buildOtherTrainBookingLinks, LastMileTransport
@@ -24,11 +24,12 @@ export default function IrctcBookingModal({
   onClose,
   route,
   dateStr,
-  passengers = 1,
+  passengers = 2,
   selectedClass = 'SL',
 }: IrctcBookingModalProps) {
   const [activeClass, setActiveClass] = useState<string>(selectedClass || 'SL')
   const [quota, setQuota] = useState<string>('GN')
+  const [copiedLink, setCopiedLink] = useState(false)
 
   if (!isOpen || !route) return null
 
@@ -38,25 +39,22 @@ export default function IrctcBookingModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl border border-[#E8E0D8] w-full max-w-3xl shadow-2xl overflow-hidden my-8 transition-all">
-        
-        {/* ── Modal Header ── */}
-        <div className="bg-[#1A1A1A] text-white p-6 relative">
+    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-fade-in h-[100dvh] max-h-[100dvh]">
+      <div className="bg-white border border-[#E8E0D8] rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl space-y-0 my-auto max-h-[92dvh] flex flex-col">
+
+        {/* ── Modal Header: Indian Railways Brand Header ── */}
+        <div className="bg-[#0D9488] p-5 sm:p-6 text-white relative shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <X size={18} />
           </button>
 
-          <div className="flex items-center gap-2.5 mb-2">
-            <span className="px-3 py-1 rounded-full bg-[#EA580C] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1 shadow-xs">
-              <Sparkles size={13} /> {route.title}
-            </span>
-            <span className="text-xs text-orange-200 font-semibold">
-              AI Confidence: {route.aiConfidenceScore}%
+          <div className="flex items-center gap-2 mb-1">
+            <span className="bg-white/15 text-white border border-white/20 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+              Official IRCTC Deep Links
             </span>
           </div>
 
@@ -64,15 +62,15 @@ export default function IrctcBookingModal({
             <span>Complete Journey Details & IRCTC Booking</span>
           </h3>
 
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-300 font-medium border-t border-white/10 pt-3">
-            <span>⏱ Duration: <strong className="text-white font-bold">{route.totalDurationStr}</strong></span>
-            <span>🔁 Changes: <strong className="text-white font-bold">{route.changesCount}</strong></span>
-            <span>💰 Est. Cost: <strong className="text-white font-bold">₹{route.totalCostMin.toLocaleString()} - ₹{route.totalCostMax.toLocaleString()}</strong></span>
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-200 font-medium border-t border-white/10 pt-3">
+            <span className="inline-flex items-center gap-1"><Clock size={13} /> <span>Duration: <strong className="text-white font-bold">{route.totalDurationStr}</strong></span></span>
+            <span className="inline-flex items-center gap-1"><Repeat size={13} /> <span>Changes: <strong className="text-white font-bold">{route.changesCount}</strong></span></span>
+            <span className="inline-flex items-center gap-1"><IndianRupee size={13} /> <span>Est. Cost: <strong className="text-white font-bold">₹{route.totalCostMin.toLocaleString()} - ₹{route.totalCostMax.toLocaleString()}</strong></span></span>
           </div>
         </div>
 
         {/* ── Modal Body ── */}
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto bg-[#FFFBF7]/40">
+        <div className="p-4 sm:p-6 space-y-6 overflow-y-auto bg-[#FFFBF7]/40 flex-1">
 
           {/* ── Step-By-Step Journey Timeline ── */}
           <div className="space-y-4">
@@ -129,7 +127,7 @@ export default function IrctcBookingModal({
                       <div className="w-full flex items-center gap-1">
                         <div className="w-2.5 h-2.5 rounded-full border-2 border-blue-600 bg-white dark:bg-slate-950 shrink-0" />
                         <div className="flex-1 h-[2px] bg-blue-600 relative">
-                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-blue-600 text-xs font-bold">🚆</span>
+                          <Train size={14} className="absolute -top-3.5 left-1/2 -translate-x-1/2 text-blue-600 bg-white dark:bg-slate-950 px-0.5" />
                         </div>
                         <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0" />
                       </div>

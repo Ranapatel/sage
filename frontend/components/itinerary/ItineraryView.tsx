@@ -11,7 +11,7 @@ import {
   Timer, TrendingUp, Wind, Star, X, Check, AlertTriangle,
   Camera, Compass, ShoppingBag, Building2, TreePine, Landmark,
   Plane, UtensilsCrossed, Moon, Sun, Users, Heart,
-  Waves, Leaf
+  Waves, Leaf, Sparkles
 } from 'lucide-react'
 import PlaceCard from '@/components/PlaceCard'
 import PlaceDetailsModal from '@/components/PlaceDetailsModal'
@@ -225,7 +225,7 @@ function deriveSmartLabels(place: Place, index: number): string[] {
 
   const spend = place.estimatedSpend || ''
   const spendNum = parseInt(spend.replace(/[^\d]/g, '')) || 0
-  if (spendNum < 500 || spend.toLowerCase().includes('free') || spend === 'Ã¢â€šÂ¹0') labels.push('Budget fit')
+  if (spendNum < 500 || spend.toLowerCase().includes('free') || spend === '₹0') labels.push('Budget fit')
 
   return labels.slice(0, 3)
 }
@@ -236,7 +236,7 @@ function deriveDayPace(places: Place[]): { label: string; color: string; desc: s
   const n = places.length
   if (n <= 3) return { label: 'Light', color: '#22C55E', desc: 'Easy pace with room to breathe' }
   if (n <= 5) return { label: 'Balanced', color: '#F59E0B', desc: 'Well-paced day with variety' }
-  return { label: 'Packed', color: '#EF4444', desc: 'Action-filled day Ã¢â‚¬â€ start early' }
+  return { label: 'Packed', color: '#EF4444', desc: 'Action-filled day — start early' }
 }
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Build Google Maps route URL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -496,14 +496,14 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
             {/* Right badge: Illustration label OR area chip OR smart label OR verified image notice */}
             {place.isAiIllustration || (imageResult as any)?.isAiIllustration ? (
               <span
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-semibold backdrop-blur-sm"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-extrabold backdrop-blur-md shadow-xs"
                 style={{
-                  background: 'rgba(234,88,12,0.85)',
+                  background: 'rgba(234,88,12,0.9)',
                   color: '#FFFFFF',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.2)',
                 }}
               >
-                Ã°Å¸â€Â® Illustration
+                <Sparkles size={10} /> AI Visual Concept
               </span>
             ) : isAreaImage ? (
               <span
@@ -641,7 +641,7 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
                   onClick={e => e.stopPropagation()}
                 >
                   {imageResult!.attribution}
-                  {imageResult!.license && <> Ã‚Â· {imageResult!.license}</>}
+                  {imageResult!.license && <> • {imageResult!.license}</>}
                 </a>
               </div>
             )}
@@ -737,7 +737,7 @@ const DayIntelligencePanel = memo(({
           {totalSpend > 0 && (
             <div className="rounded-xl p-3" style={{ background: '#FFFBF7', border: '1px solid #F0EBE4' }}>
               <p className="text-[9px] font-bold uppercase tracking-wider text-[#A1A1AA] mb-1">Est. Day Spend</p>
-              <p className="font-bold text-sm text-[#1A1A1A]">Ã¢â€šÂ¹{Math.round(totalSpend).toLocaleString('en-IN')}</p>
+              <p className="font-bold text-sm text-[#1A1A1A]">₹{Math.round(totalSpend).toLocaleString('en-IN')}</p>
             </div>
           )}
           {totalTravel > 0 && (
@@ -1052,7 +1052,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
       time: "13:30",
       category: "food",
       description: "Taste local specialties, organic farm-to-table recipes, and regional desserts in a cosy, highly rated neighbourhood bistro.",
-      estimatedSpend: "Ã¢â€šÂ¹300 - Ã¢â€šÂ¹700",
+      estimatedSpend: "₹300 - ₹700",
       whyItFits: "Fits your group size and budget preference.",
       coordinates: currentDay.places[0]?.coordinates || [12.9716, 77.5946]
     }
@@ -1077,7 +1077,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
       time: "16:30",
       category: "explore",
       description: "Discover hidden historic alleyways, interact with local artisans, and view scenic vistas away from usual tourist crowds.",
-      estimatedSpend: "Ã¢â€šÂ¹250 - Ã¢â€šÂ¹500",
+      estimatedSpend: "₹250 - ₹500",
       whyItFits: "Recommended by our local culture intelligence.",
       coordinates: currentDay.places[0]?.coordinates || [12.9716, 77.5946]
     }
@@ -1117,7 +1117,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
         time: stopToReplace.time,
         category: stopToReplace.category,
         description: selected.description || stopToReplace.description || "A wonderful local spot recommended by our travel guide.",
-        estimatedSpend: selected.price || stopToReplace.estimatedSpend || "Ã¢â€šÂ¹200 - Ã¢â€šÂ¹500",
+        estimatedSpend: selected.price || stopToReplace.estimatedSpend || "₹200 - ₹500",
         whyItFits: "Custom swap replacement based on your preferences.",
         coordinates: selected.coordinates || stopToReplace.coordinates,
         duration: selected.duration || stopToReplace.duration || "1.5 hours",
@@ -1170,11 +1170,11 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
   const handleShareDay = useCallback(() => {
     const url = typeof window !== 'undefined' ? window.location.href : 'https://tripsage.in'
-    const brandedMessage = `TripSage AI Ã¢â‚¬â€ Smart Travel Plan\nCheck out my AI-planned itinerary for ${destination || 'my trip'}!\n\nPlan your own custom trip at: ${url}`
+    const brandedMessage = `TripSage AI — Smart Travel Plan\nCheck out my AI-planned itinerary for ${destination || 'my trip'}!\n\nPlan your own custom trip at: ${url}`
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
-        title: `TripSage AI Plan Ã¢â‚¬â€ ${destination || 'My Trip'}`,
+        title: `TripSage AI Plan — ${destination || 'My Trip'}`,
         text: brandedMessage,
         url: url,
       }).then(() => toast.success("Shared via TripSage!"))

@@ -62,23 +62,23 @@ function CarCard({ item }: Props) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-300 hover:shadow-xl hover:shadow-[var(--primary)]/20 group cursor-pointer min-h-[200px] flex flex-col justify-end">
+    <div className="relative overflow-hidden rounded-3xl border border-[#E8E0D8] hover:border-[#EA580C] transition-all duration-300 hover:shadow-2xl group cursor-pointer min-h-[220px] flex flex-col justify-end">
 
       {/* ── Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
         style={{ backgroundImage: `url(${bgImage})` }}
       />
 
       {/* ── Gradient overlay: dark at bottom, lighter at top */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 group-hover:from-black/95 transition-colors" />
 
       {/* ── Availability badge: top-right */}
-      <div className="absolute top-3 right-3">
+      <div className="absolute top-3.5 right-3.5 z-10">
         <span
-          className={`text-[0.6rem] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm border ${
+          className={`text-[10px] font-black px-3 py-1 rounded-xl backdrop-blur-md border uppercase tracking-wider shadow-2xs ${
             isAvailable
-              ? 'bg-green-500/20 text-green-300 border-green-500/40'
+              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
               : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
           }`}
         >
@@ -87,34 +87,34 @@ function CarCard({ item }: Props) {
       </div>
 
       {/* ── Car type badge: top-left */}
-      <div className="absolute top-3 left-3 flex gap-1.5">
-        <span className="text-[0.6rem] font-bold px-2.5 py-1 rounded-full bg-white/15 text-white border border-white/20 backdrop-blur-sm">
+      <div className="absolute top-3.5 left-3.5 flex gap-2 z-10">
+        <span className="text-[10px] font-black px-3 py-1 rounded-xl bg-black/50 text-white border border-white/20 backdrop-blur-md uppercase tracking-wider">
           {item.carType}
         </span>
         {item.capacity && (
-          <span className="text-[0.6rem] font-bold px-2 py-1 rounded-full bg-white/15 text-white border border-white/20 backdrop-blur-sm flex items-center gap-1">
-            <Users size={9} /> {item.capacity}
+          <span className="text-[10px] font-black px-2.5 py-1 rounded-xl bg-black/50 text-white border border-white/20 backdrop-blur-md flex items-center gap-1">
+            <Users size={11} className="text-[#EA580C]" /> {item.capacity} Seats
           </span>
         )}
       </div>
 
       {/* ── Card content: bottom */}
-      <div className="relative z-10 p-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+      <div className="relative z-10 p-5 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
 
         {/* Left: name + offers */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-white text-[1rem] leading-tight truncate drop-shadow">
+          <p className="font-black text-white text-lg leading-tight truncate drop-shadow-md font-display">
             {item.name}
           </p>
 
           {item.offers?.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="flex flex-wrap gap-1.5 mt-2">
               {item.offers.map((o: string, i: number) => (
                 <span
                   key={i}
-                  className="text-[0.6rem] font-semibold px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-300 border border-amber-500/30 flex items-center gap-0.5 backdrop-blur-sm"
+                  className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-orange-500/25 text-orange-200 border border-orange-500/40 flex items-center gap-1 backdrop-blur-md"
                 >
-                  <Tag size={8} /> {o}
+                  <Tag size={10} /> {o}
                 </span>
               ))}
             </div>
@@ -124,8 +124,8 @@ function CarCard({ item }: Props) {
         {/* Right: price + CTA */}
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-3 shrink-0">
           <div className="text-right">
-            <p className="text-[0.6rem] text-white/60 font-medium">per day</p>
-            <p className="text-xl font-black text-white leading-tight drop-shadow">
+            <p className="text-[10px] text-gray-300 font-bold uppercase tracking-wider">per day</p>
+            <p className="text-2xl font-black text-white leading-none drop-shadow-md font-display mt-0.5">
               {displayPrice}
             </p>
           </div>
@@ -135,9 +135,9 @@ function CarCard({ item }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleBook}
-            className="shrink-0 py-2 px-5 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--primary)] to-purple-600 text-white hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/30 whitespace-nowrap"
+            className="shrink-0 py-2.5 px-5 rounded-2xl font-black text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-md hover:shadow-xl whitespace-nowrap active:scale-95 cursor-pointer"
           >
-            Book Now
+            Book Rental
           </a>
         </div>
       </div>

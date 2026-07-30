@@ -4,13 +4,14 @@ import React, { useState, useMemo, useEffect } from 'react'
 import {
   Bus, Clock, MapPin, Sparkles,
   Zap, Award, PiggyBank, ArrowUpDown, CheckCircle2,
-  Users, Info, ExternalLink
+  Users, Info, ExternalLink, IndianRupee, Star, ChevronUp, ChevronDown, SlidersHorizontal, X
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
 import {
-  generateSmartBusRoutes, SmartBusPlannerResult, SmartBusRoute
+  generateSmartBusRoutes, SmartBusPlannerResult, SmartBusRoute, buildRedBusDeepLink
 } from '@/lib/smartBusPlanner'
 import RedBusBookingModal from './RedBusBookingModal'
+import { SageScoreRing } from '@/components/ui/SageScoreBadge'
 import TrainsSkeleton from '../train/TrainsSkeleton'
 
 export default function AiSmartBusPlanner() {
@@ -23,10 +24,12 @@ export default function AiSmartBusPlanner() {
   const [passengers, setPassengers] = useState<number>(2)
   const [busType, setBusType] = useState<string>('ALL') // 'ALL', 'SLEEPER', 'VOLVO', 'SEATER', 'EV'
   const [activeTabFilter, setActiveTabFilter] = useState<'all' | 'best' | 'fastest' | 'cheapest'>('all')
+  const [showAllRoutes, setShowAllRoutes] = useState<boolean>(false)
 
   // Modal state
   const [selectedRouteForModal, setSelectedRouteForModal] = useState<SmartBusRoute | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isBusDrawerOpen, setIsBusDrawerOpen] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
 
   // Sync state if tripContext updates
@@ -67,13 +70,19 @@ export default function AiSmartBusPlanner() {
     setIsModalOpen(true)
   }
 
-  // Filter routes based on top tabs
+  // Filter routes based on top tabs & show top 3 highlights by default
   const routesToDisplay = useMemo(() => {
     if (activeTabFilter === 'best') return [plannerData.routes.best]
     if (activeTabFilter === 'fastest') return [plannerData.routes.fastest]
     if (activeTabFilter === 'cheapest') return [plannerData.routes.cheapest]
-    return [plannerData.routes.best, plannerData.routes.fastest, plannerData.routes.cheapest]
-  }, [plannerData, activeTabFilter])
+    
+    // Default view: Show Top 3 AI Decision Highlights unless user clicks Expand
+    if (!showAllRoutes) {
+      return [plannerData.routes.best, plannerData.routes.fastest, plannerData.routes.cheapest].filter(Boolean)
+    }
+
+    return [plannerData.routes.best, plannerData.routes.fastest, plannerData.routes.cheapest].filter(Boolean)
+  }, [plannerData, activeTabFilter, showAllRoutes])
 
   if (storeLoading || isSearching) {
     return <TrainsSkeleton />
@@ -120,10 +129,14 @@ export default function AiSmartBusPlanner() {
           </h2>
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B6B6B] font-semibold mt-1">
-            <span>📍 Distance: ~{plannerData.distanceKm} km</span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin size={13} className="text-[#EA580C]" />
+              <span>Distance: ~{plannerData.distanceKm} km</span>
+            </span>
             <span>•</span>
-            <span className="text-emerald-600 font-bold">
-              🚌 Smart Multi-Hop Connections Available
+            <span className="text-emerald-600 font-bold inline-flex items-center gap-1">
+              <Bus size={13} className="text-emerald-600" />
+              <span>Smart Multi-Hop Connections Available</span>
             </span>
           </div>
         </div>
@@ -131,141 +144,32 @@ export default function AiSmartBusPlanner() {
         {/* AI Powered Badge */}
         <div className="flex items-center gap-2 px-3.5 py-2 bg-orange-50/80 border border-orange-200 rounded-xl text-[#EA580C] font-extrabold text-xs shrink-0 shadow-2xs">
           <Sparkles size={14} className="animate-pulse text-[#EA580C]" />
-          <span>Powered by AI & redBus ✨</span>
+          <span>Powered by AI & redBus</span>
         </div>
       </div>
 
-      {/* ── Main Layout Grid: Left Sidebar + Right Routes Column ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        
-        {/* ── LEFT SIDEBAR: Controls & Tips ── */}
-        <div className="lg:col-span-1 space-y-4">
-          
-          {/* Search Inputs Card */}
-          <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs space-y-4">
-            
-            {/* From Input */}
-            <div className="relative">
-              <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
-                From
-              </label>
-              <input
-                type="text"
-                value={fromCity}
-                onChange={(e) => setFromCity(e.target.value)}
-                placeholder="Origin City / Boarding Point"
-                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
-              />
-              <button
-                type="button"
-                onClick={handleSwapLocations}
-                className="absolute right-3 top-[26px] w-7 h-7 rounded-full bg-white border border-[#E8E0D8] shadow-xs flex items-center justify-center text-[#1A1A1A] hover:text-[#EA580C] transition-colors cursor-pointer"
-                title="Swap origin & destination"
-              >
-                <ArrowUpDown size={14} />
-              </button>
-            </div>
-
-            {/* To Input */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
-                To
-              </label>
-              <input
-                type="text"
-                value={toCity}
-                onChange={(e) => setToCity(e.target.value)}
-                placeholder="Destination City / Drop Point"
-                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
-              />
-            </div>
-
-            {/* Date Input */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
-                Journey Date
-              </label>
-              <input
-                type="date"
-                value={journeyDate}
-                onChange={(e) => setJourneyDate(e.target.value)}
-                className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
-              />
-            </div>
-
-            {/* Passengers & Bus Preference */}
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
-                  Passengers
-                </label>
-                <select
-                  value={passengers}
-                  onChange={(e) => setPassengers(Number(e.target.value))}
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C] cursor-pointer"
-                >
-                  <option value={1}>1 Passenger</option>
-                  <option value={2}>2 Passengers</option>
-                  <option value={3}>3 Passengers</option>
-                  <option value={4}>4 Passengers</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-extrabold text-[#6B6B6B] uppercase tracking-wider mb-1">
-                  Bus Type
-                </label>
-                <select
-                  value={busType}
-                  onChange={(e) => setBusType(e.target.value)}
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-2.5 py-2 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C] cursor-pointer"
-                >
-                  <option value="ALL">All Types</option>
-                  <option value="SLEEPER">AC Sleeper</option>
-                  <option value="VOLVO">Volvo Multi-Axle</option>
-                  <option value="SEATER">AC Seater</option>
-                  <option value="EV">Electric Bus</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Search CTA */}
-            <button
-              type="button"
-              onClick={handleSearchRoutes}
-              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-            >
-              <Bus size={16} />
-              <span>Search Smart Bus Routes</span>
-            </button>
-
-          </div>
-
-          {/* Smart Bus Guarantee Box */}
-          <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs space-y-3">
-            <h4 className="font-black text-xs text-[#1A1A1A] uppercase tracking-wider font-display">
-              Smart Bus Guarantee
-            </h4>
-            <div className="space-y-2 text-xs text-[#6B6B6B] font-medium">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-[#EA580C] shrink-0" />
-                <span>redBus Live Inventory & Direct Deep Links</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-[#EA580C] shrink-0" />
-                <span>Multi-hop connector routes when direct buses are full</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-[#EA580C] shrink-0" />
-                <span>Top rated operators with sleeper & AC comfort</span>
-              </div>
-            </div>
-          </div>
-
+      {/* ── Top Quick-Filter Toolbar & Filter Button ── */}
+      <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3 shadow-xs flex items-center justify-between gap-3 text-xs font-bold text-[#6B6B6B]">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsBusDrawerOpen(true)}
+            className="px-3.5 py-1.5 bg-[#FFFBF7] hover:bg-orange-50 text-[#1A1A1A] hover:text-[#EA580C] border border-[#E8E0D8] hover:border-orange-200 font-extrabold rounded-xl text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer font-display"
+          >
+            <SlidersHorizontal size={13} className="text-[#EA580C]" />
+            <span>Search & Bus Filters</span>
+          </button>
         </div>
 
-        {/* ── RIGHT COLUMN: Routes Breakdown ── */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[#6B6B6B] font-semibold">
+            Showing <strong className="text-[#1A1A1A] font-black">{routesToDisplay.length}</strong> Smart Bus Routes
+          </span>
+        </div>
+      </div>
+
+      {/* ── Main Full-Width Bus Routes Column (100% Widescreen Grid) ── */}
+      <div className="w-full space-y-6">
           
           {/* Top Recommendation Pills */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -274,22 +178,28 @@ export default function AiSmartBusPlanner() {
             <button
               type="button"
               onClick={() => setActiveTabFilter(activeTabFilter === 'best' ? 'all' : 'best')}
-              className={`p-3.5 rounded-2xl border transition-all text-left cursor-pointer ${
+              className={`p-2.5 md:p-3.5 rounded-2xl border transition-all text-left cursor-pointer flex flex-col justify-between ${
                 activeTabFilter === 'best' || activeTabFilter === 'all'
                   ? 'bg-orange-50/90 border-[#EA580C] text-[#EA580C] shadow-xs ring-2 ring-[#EA580C]/20'
                   : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:border-[#EA580C]/40'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-[#EA580C] uppercase tracking-wider flex items-center gap-1">
-                  <Award size={14} /> BEST ROUTE
+              <div className="flex items-center justify-between gap-1 w-full">
+                <span className="text-[10px] md:text-xs font-black text-[#EA580C] uppercase tracking-wider flex items-center gap-1 font-display whitespace-nowrap">
+                  <Award size={12} className="shrink-0" />
+                  <span>Best Route</span>
                 </span>
-                <span className="text-[9px] font-extrabold bg-orange-100 text-[#EA580C] px-1.5 py-0.5 rounded-full">
-                  Recommended
+                <span className="text-[8px] md:text-[9px] font-extrabold bg-orange-100 text-[#EA580C] px-1.5 py-0.5 rounded-full shrink-0">
+                  Top Pick
                 </span>
               </div>
-              <div className="text-xs font-black mt-2 text-[#1A1A1A]">
-                {plannerData.routes.best.totalDurationStr} • ₹{plannerData.routes.best.totalCostMin.toLocaleString()}
+              <div className="mt-2 space-y-0.5">
+                <div className="text-xs font-extrabold text-[#1A1A1A] font-display">
+                  {plannerData.routes.best.totalDurationStr}
+                </div>
+                <div className="text-sm font-black text-[#EA580C] font-display">
+                  ₹{plannerData.routes.best.totalCostMin.toLocaleString()}
+                </div>
               </div>
             </button>
 
@@ -297,22 +207,28 @@ export default function AiSmartBusPlanner() {
             <button
               type="button"
               onClick={() => setActiveTabFilter(activeTabFilter === 'fastest' ? 'all' : 'fastest')}
-              className={`p-3.5 rounded-2xl border transition-all text-left cursor-pointer ${
+              className={`p-2.5 md:p-3.5 rounded-2xl border transition-all text-left cursor-pointer flex flex-col justify-between ${
                 activeTabFilter === 'fastest'
-                  ? 'bg-[#FFFBF7] border-purple-500 text-purple-900 shadow-xs ring-2 ring-purple-500/20'
+                  ? 'bg-purple-50/90 border-purple-500 text-purple-900 shadow-xs ring-2 ring-purple-500/20'
                   : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:border-purple-300'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-purple-700 uppercase tracking-wider flex items-center gap-1">
-                  <Zap size={14} /> FASTEST ROUTE
+              <div className="flex items-center justify-between gap-1 w-full">
+                <span className="text-[10px] md:text-xs font-black text-purple-700 uppercase tracking-wider flex items-center gap-1 font-display whitespace-nowrap">
+                  <Zap size={12} className="shrink-0" />
+                  <span>Fastest</span>
                 </span>
-                <span className="text-[9px] font-extrabold bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded-full">
-                  Shortest Time
+                <span className="text-[8px] md:text-[9px] font-extrabold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">
+                  Fast
                 </span>
               </div>
-              <div className="text-xs font-black mt-2 text-[#1A1A1A]">
-                {plannerData.routes.fastest.totalDurationStr} • ₹{plannerData.routes.fastest.totalCostMin.toLocaleString()}
+              <div className="mt-2 space-y-0.5">
+                <div className="text-xs font-extrabold text-[#1A1A1A] font-display">
+                  {plannerData.routes.fastest.totalDurationStr}
+                </div>
+                <div className="text-sm font-black text-purple-800 font-display">
+                  ₹{plannerData.routes.fastest.totalCostMin.toLocaleString()}
+                </div>
               </div>
             </button>
 
@@ -320,22 +236,28 @@ export default function AiSmartBusPlanner() {
             <button
               type="button"
               onClick={() => setActiveTabFilter(activeTabFilter === 'cheapest' ? 'all' : 'cheapest')}
-              className={`p-3.5 rounded-2xl border transition-all text-left cursor-pointer ${
+              className={`p-2.5 md:p-3.5 rounded-2xl border transition-all text-left cursor-pointer flex flex-col justify-between ${
                 activeTabFilter === 'cheapest'
                   ? 'bg-emerald-50/90 border-emerald-500 text-emerald-900 shadow-xs ring-2 ring-emerald-500/20'
                   : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:border-emerald-300'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1">
-                  <PiggyBank size={14} /> CHEAPEST ROUTE
+              <div className="flex items-center justify-between gap-1 w-full">
+                <span className="text-[10px] md:text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1 font-display whitespace-nowrap">
+                  <PiggyBank size={12} className="shrink-0" />
+                  <span>Cheapest</span>
                 </span>
-                <span className="text-[9px] font-extrabold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full">
-                  Lowest Cost
+                <span className="text-[8px] md:text-[9px] font-extrabold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full shrink-0">
+                  Low Price
                 </span>
               </div>
-              <div className="text-xs font-black mt-2 text-[#1A1A1A]">
-                {plannerData.routes.cheapest.totalDurationStr} • ₹{plannerData.routes.cheapest.totalCostMin.toLocaleString()}
+              <div className="mt-2 space-y-0.5">
+                <div className="text-xs font-extrabold text-[#1A1A1A] font-display">
+                  {plannerData.routes.cheapest.totalDurationStr}
+                </div>
+                <div className="text-sm font-black text-emerald-800 font-display">
+                  ₹{plannerData.routes.cheapest.totalCostMin.toLocaleString()}
+                </div>
               </div>
             </button>
 
@@ -369,9 +291,9 @@ export default function AiSmartBusPlanner() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider ${badgeHeaderBg}`}>
-                          {route.type === 'best' && '🥇 BEST ROUTE'}
-                          {route.type === 'fastest' && '⚡ FASTEST ROUTE'}
-                          {route.type === 'cheapest' && '💰 CHEAPEST ROUTE'}
+                          {route.type === 'best' && <span className="inline-flex items-center gap-1"><Award size={13} /><span>BEST ROUTE</span></span>}
+                          {route.type === 'fastest' && <span className="inline-flex items-center gap-1"><Zap size={13} /><span>FASTEST ROUTE</span></span>}
+                          {route.type === 'cheapest' && <span className="inline-flex items-center gap-1"><IndianRupee size={13} /><span>CHEAPEST ROUTE</span></span>}
                         </span>
 
                         {route.comparisonLabel && (
@@ -381,8 +303,11 @@ export default function AiSmartBusPlanner() {
                         )}
                       </div>
 
-                      <div className="text-xs font-extrabold text-[#EA580C] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
-                        redBus Live Rates
+                      <div className="flex items-center gap-3">
+                        <SageScoreRing item={route} allItems={routesToDisplay} size={38} />
+                        <span className="text-xs font-extrabold text-[#EA580C] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
+                          redBus Live Rates
+                        </span>
                       </div>
                     </div>
 
@@ -438,8 +363,9 @@ export default function AiSmartBusPlanner() {
                               <div className="text-xs text-[#6B6B6B] font-medium mt-0.5 flex items-center gap-2">
                                 <span>{leg.operatorName}</span>
                                 {leg.rating && (
-                                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded text-[10px] font-bold">
-                                    ⭐ {leg.rating}/5
+                                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded text-[10px] font-bold inline-flex items-center gap-1">
+                                    <Star size={11} className="fill-emerald-600 text-emerald-600" />
+                                    <span>{leg.rating}/5</span>
                                   </span>
                                 )}
                                 <span>•</span>
@@ -487,7 +413,11 @@ export default function AiSmartBusPlanner() {
                   {/* Card Bottom Bar */}
                   <div className="p-4 bg-[#FFFBF7] border-t border-[#E8E0D8] flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-bold text-[#6B6B6B]">
                     <div className="flex items-center gap-4">
-                      <span>Comfort: <strong className="text-[#1A1A1A]">{route.metrics.comfort}</strong> ⭐⭐⭐⭐⭐</span>
+                      <span className="inline-flex items-center gap-1">
+                        <span>Comfort:</span>
+                        <strong className="text-[#1A1A1A] mr-1">{route.metrics.comfort}</strong>
+                        <span className="inline-flex text-amber-500"><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /><Star size={12} className="fill-amber-400" /></span>
+                      </span>
                       <span>•</span>
                       <span>Reliability: <strong className="text-[#1A1A1A]">{route.metrics.reliability}</strong></span>
                     </div>
@@ -503,8 +433,24 @@ export default function AiSmartBusPlanner() {
 
                 </div>
               )
-            })}
-          </div>
+          })}
+
+          {/* ── SHOW MORE / COLLAPSE BUTTON ── */}
+          {activeTabFilter === 'all' && (
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => setShowAllRoutes(!showAllRoutes)}
+                className="px-6 py-3 bg-[#FFFBF7] hover:bg-orange-50 border border-[#E8E0D8] hover:border-orange-200 text-[#1A1A1A] hover:text-[#EA580C] text-xs font-black rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 mx-auto cursor-pointer"
+              >
+                <span className="flex items-center gap-1.5">
+                  {showAllRoutes ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  <span>{showAllRoutes ? 'Show Top 3 AI Decision Highlights Only' : 'View All Additional Bus Operators & Routes'}</span>
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
 
           {/* Footer Disclaimer */}
           <div className="bg-white border border-[#E8E0D8] rounded-xl p-3.5 text-[#6B6B6B] text-xs flex items-center gap-2 font-medium">
@@ -514,9 +460,131 @@ export default function AiSmartBusPlanner() {
 
         </div>
 
-      </div>
+      {/* Slide-Out Bus Search & Filter Drawer Modal */}
+      {isBusDrawerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-fade-in">
+          <div className="bg-white w-full max-w-md h-full p-6 overflow-y-auto space-y-6 shadow-2xl flex flex-col justify-between">
+            
+            {/* Header */}
+            <div className="space-y-4 border-b border-[#E8E0D8] pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Bus size={18} className="text-[#EA580C]" />
+                  <h3 className="font-black text-lg text-[#1A1A1A] font-display">Search & Filter Buses</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsBusDrawerOpen(false)}
+                  className="w-8 h-8 rounded-full bg-[#FFFBF7] border border-[#E8E0D8] text-[#6B6B6B] hover:text-[#1A1A1A] flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <p className="text-xs text-[#6B6B6B] font-medium">
+                Update origin, destination, travel date, passenger count, and bus type preferences.
+              </p>
+            </div>
 
-      {/* redBus Deep Link Details Modal */}
+            {/* Form Controls */}
+            <div className="space-y-5 flex-1 overflow-y-auto pr-1">
+              
+              {/* From City */}
+              <div className="relative">
+                <label className="block text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wider mb-1">
+                  From Boarding Location
+                </label>
+                <input
+                  type="text"
+                  value={fromCity}
+                  onChange={(e) => setFromCity(e.target.value)}
+                  placeholder="Origin City / Boarding Point"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
+                />
+                <button
+                  type="button"
+                  onClick={handleSwapLocations}
+                  className="absolute right-3 top-[28px] w-7 h-7 rounded-full bg-white border border-[#E8E0D8] shadow-xs flex items-center justify-center text-[#1A1A1A] hover:text-[#EA580C] transition-colors cursor-pointer"
+                  title="Swap origin & destination"
+                >
+                  <ArrowUpDown size={14} />
+                </button>
+              </div>
+
+              {/* To City */}
+              <div>
+                <label className="block text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wider mb-1">
+                  To Dropoff Location
+                </label>
+                <input
+                  type="text"
+                  value={toCity}
+                  onChange={(e) => setToCity(e.target.value)}
+                  placeholder="Destination City / Drop Point"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
+                />
+              </div>
+
+              {/* Journey Date */}
+              <div>
+                <label className="block text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wider mb-1">
+                  Journey Date
+                </label>
+                <input
+                  type="date"
+                  value={journeyDate}
+                  onChange={(e) => setJourneyDate(e.target.value)}
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#EA580C]"
+                />
+              </div>
+
+              {/* Bus Type */}
+              <div className="space-y-2 pt-2 border-t border-[#E8E0D8]">
+                <label className="block text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wider">
+                  Bus Type Preference
+                </label>
+                <div className="grid grid-cols-2 gap-2 text-xs font-bold">
+                  {[
+                    { key: 'ALL', label: 'All Types' },
+                    { key: 'SLEEPER', label: 'AC Sleeper' },
+                    { key: 'VOLVO', label: 'Volvo Multi-Axle' },
+                    { key: 'SEATER', label: 'AC Seater' },
+                    { key: 'EV', label: 'Electric Bus' },
+                  ].map((t) => (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => setBusType(t.key)}
+                      className={`py-2 px-3 rounded-xl border text-center transition-all cursor-pointer ${
+                        busType === t.key
+                          ? 'bg-orange-50 text-[#EA580C] border-[#EA580C] font-black shadow-2xs'
+                          : 'bg-[#FFFBF7] border-[#E8E0D8] text-[#6B6B6B] hover:border-[#EA580C]/40'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Footer */}
+            <div className="pt-4 border-t border-[#E8E0D8]">
+              <button
+                type="button"
+                onClick={() => {
+                  handleSearchRoutes()
+                  setIsBusDrawerOpen(false)
+                }}
+                className="w-full py-3 bg-[#EA580C] hover:bg-[#C2410C] text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer font-display"
+              >
+                Apply & Run Search
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
       <RedBusBookingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

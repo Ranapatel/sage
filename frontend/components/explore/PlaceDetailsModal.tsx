@@ -219,15 +219,15 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
       <div className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/60 backdrop-blur-sm">
         <div className="absolute inset-0" onClick={onClose} />
 
-        <div className="relative w-full max-w-2xl h-full bg-slate-900 border-l border-slate-800 text-slate-100 flex flex-col shadow-2xl overflow-hidden" style={{ animation: 'slideInRight 0.3s ease-out' }}>
+        <div className="relative w-full max-w-2xl h-full bg-white border-l border-[#E8E0D8] text-[#1A1A1A] flex flex-col shadow-2xl overflow-hidden" style={{ animation: 'slideInRight 0.3s ease-out' }}>
 
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-10">
+          <div className="flex items-center justify-between p-4 border-b border-[#E8E0D8] bg-white/95 backdrop-blur sticky top-0 z-10">
             <div className="flex items-center gap-3">
-              <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+              <button onClick={onClose} className="p-2 hover:bg-[#FFFBF7] rounded-full transition-colors text-[#1A1A1A]">
                 <X size={20} />
               </button>
-              <span className="text-sm font-semibold tracking-wider uppercase text-slate-400">Place Details</span>
+              <span className="text-sm font-bold tracking-wider uppercase text-[#6B6B6B]">Place Details</span>
             </div>
             {details && (
               <div className="flex items-center gap-2">

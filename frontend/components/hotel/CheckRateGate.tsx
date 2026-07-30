@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useTripStore, BookingFlowStep } from '@/store/tripStore'
 import { tripAPI } from '@/lib/api'
 import { formatPrice } from '@/lib/currency'
-import { AlertTriangle, Bell, CheckCircle2 } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, X } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 
@@ -243,7 +243,10 @@ export default function CheckRateGate() {
               cursor: 'pointer',
             }}
           >
-            ✕ Reject & Edit
+            <span className="flex items-center justify-center gap-1">
+              <X size={14} />
+              <span>Reject & Edit</span>
+            </span>
           </button>
           
           <button

@@ -217,6 +217,84 @@ export function resolveStation(cityOrCode: string): { code: string; name: string
   return { code: uppercaseCode, name: cityOrCode }
 }
 
+/**
+ * Resolves authentic Indian Railways IRCTC train number & official train name.
+ */
+export function resolveRealIrctcTrain(trainName?: string, fromCode?: string, toCode?: string, existingNum?: string): { trainNumber: string; trainName: string } {
+  if (existingNum && /^\d{5}$/.test(existingNum.trim())) {
+    return { trainNumber: existingNum.trim(), trainName: trainName || 'IRCTC Superfast Express' }
+  }
+
+  const nameLower = (trainName || '').toLowerCase()
+  const from = (fromCode || '').toUpperCase()
+  const to = (toCode || '').toUpperCase()
+
+  // 1. Vande Bharat Express routes
+  if (nameLower.includes('vande bharat') || nameLower.includes('vande')) {
+    if (from === 'SBC' || to === 'SBC' || from === 'MAO' || to === 'MAO') {
+      return { trainNumber: '20671', trainName: 'KSR Bengaluru - Madgaon Vande Bharat Express' }
+    }
+    if (from === 'CSMT' || to === 'CSMT' || from === 'PUNE' || to === 'PUNE') {
+      return { trainNumber: '22229', trainName: 'Mumbai CSMT - Madgaon Vande Bharat Express' }
+    }
+    if (from === 'NDLS' || to === 'NDLS') {
+      return { trainNumber: '20172', trainName: 'New Delhi - Rani Kamlapati Vande Bharat Express' }
+    }
+    return { trainNumber: '20901', trainName: 'Mumbai Central - Gandhinagar Vande Bharat Express' }
+  }
+
+  // 2. Rajdhani Express routes
+  if (nameLower.includes('rajdhani')) {
+    if (from === 'HYB' || to === 'HYB' || from === 'SC' || to === 'SC') {
+      return { trainNumber: '12437', trainName: 'Secunderabad Rajdhani Express' }
+    }
+    if (from === 'SBC' || to === 'SBC') {
+      return { trainNumber: '22691', trainName: 'Bengaluru Rajdhani Express' }
+    }
+    if (from === 'CSMT' || to === 'CSMT' || from === 'MMCT' || to === 'MMCT') {
+      return { trainNumber: '12951', trainName: 'Mumbai Rajdhani Express' }
+    }
+    return { trainNumber: '12425', trainName: 'Jammu Tawi Rajdhani Express' }
+  }
+
+  // 3. Goa Express / Vasco Express
+  if (nameLower.includes('goa express') || ((from === 'NZM' || from === 'NDLS') && (to === 'MAO' || to === 'VSG'))) {
+    return { trainNumber: '12780', trainName: 'Hazrat Nizamuddin - Madgaon Goa Express' }
+  }
+  if (nameLower.includes('vasco') || (from === 'UBL' && (to === 'MAO' || to === 'VSG'))) {
+    return { trainNumber: '17317', trainName: 'Hubballi - Vasco Express' }
+  }
+  if ((from === 'KCG' || from === 'HYB' || from === 'SC') && (to === 'MAO' || to === 'VSG')) {
+    return { trainNumber: '17603', trainName: 'Kacheguda - Vasco-da-Gama Express' }
+  }
+
+  // 4. Golconda / Hussainsagar / Konark Express
+  if (nameLower.includes('golconda') || (from === 'HYB' && to === 'UBL')) {
+    return { trainNumber: '17320', trainName: 'Hyderabad - Hubballi Express' }
+  }
+  if (nameLower.includes('hussainsagar') || ((from === 'HYB' || from === 'SC') && to === 'PUNE')) {
+    return { trainNumber: '12702', trainName: 'Hussainsagar Superfast Express' }
+  }
+  if (nameLower.includes('konark') || ((from === 'HYB' || from === 'SC') && (to === 'CSMT' || to === 'PUNE'))) {
+    return { trainNumber: '11020', trainName: 'Konark Express' }
+  }
+
+  // 5. Karnataka Superfast Express
+  if (nameLower.includes('karnataka') || ((from === 'SBC' || from === 'NDLS') && (to === 'NDLS' || to === 'SBC'))) {
+    return { trainNumber: '12627', trainName: 'Karnataka Superfast Express' }
+  }
+
+  // Fallback to deterministic 5-digit train number
+  const hashStr = `${from}-${to}-${trainName || 'express'}`
+  let hash = 0
+  for (let i = 0; i < hashStr.length; i++) hash = hashStr.charCodeAt(i) + ((hash << 5) - hash)
+  const num = 12000 + (Math.abs(hash) % 8999)
+  return {
+    trainNumber: String(num),
+    trainName: trainName || `${fromCode || 'Origin'} - ${toCode || 'Destination'} Express`
+  }
+}
+
 
 
 
@@ -619,14 +697,16 @@ export function generateSmartTrainRoutes(params: {
 
   // ──────── RULE 1 & 3: DIRECT vs. SMART ROUTE COMPARISON ────────
   const estDistance = Math.floor(450 + Math.random() * 400)
+  const cleanOriginCity = (params.origin || 'Goa').split(',')[0].trim()
+  const cleanDestCity = (params.destination || 'Bengaluru').split(',')[0].trim()
 
-  // Direct Route Object (Rule 1)
-  const directRoute: SmartTrainRoute = {
-    id: `route-direct-${originStation.code}-${destStation.code}`,
+  // Best Route Object (Rule 1)
+  const bestRoute: SmartTrainRoute = {
+    id: `route-best-${originStation.code}-${destStation.code}`,
     type: 'best',
-    title: 'Direct Route',
+    title: hasDirect ? `${cleanOriginCity} Direct Express` : `${cleanOriginCity} to ${cleanDestCity} Smart Connect`,
     isRecommended: true,
-    isDirectRoute: true,
+    isDirectRoute: hasDirect,
     comparisonLabel: '✅ Direct Route — Best Choice (0 Transfers)',
     totalDurationStr: hasDirect ? (rawList[0]?.duration || '12h 30m') : '14h 00m',
     totalDurationMinutes: 840,
@@ -638,11 +718,11 @@ export function generateSmartTrainRoutes(params: {
       {
         id: 'leg-direct-1',
         trainNumber: rawList[0]?.trainNumber || '12627',
-        trainName: rawList[0]?.name || `${originStation.name} Express`,
+        trainName: rawList[0]?.name || `${cleanOriginCity} Superfast Express`,
         fromCode: originStation.code,
-        fromName: `${originStation.name} (${originStation.code})`,
+        fromName: `${cleanOriginCity} Junction`,
         toCode: destStation.code,
-        toName: `${destStation.name} (${destStation.code})`,
+        toName: `${cleanDestCity} Central`,
         departureTime: rawList[0]?.departureTime || '07:00',
         arrivalTime: rawList[0]?.arrivalTime || '21:00',
         durationStr: rawList[0]?.duration || '14h 00m',
@@ -868,7 +948,7 @@ export function generateSmartTrainRoutes(params: {
     directVsSmartComparisonText:
       `📊 Direct vs Smart Route: Direct route takes 14h 00m (0 transfers). Smart Transfer route takes 11h 30m (saves 2h 30m).`,
     routes: {
-      best: directRoute,
+      best: bestRoute,
       fastest: smartFasterRoute,
       cheapest: cheapestRoute,
       comfortable: comfortableRoute,

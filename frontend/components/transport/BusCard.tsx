@@ -45,21 +45,21 @@ function BusCard({ bus }: BusCardProps) {
   const hasAiBadge = bus.aiRank && bus.aiRank.badge
 
   return (
-    <div className="card border border-slate-200/80 hover:border-[var(--primary)] transition-all duration-300 hover:shadow-lg flex flex-col justify-between bg-white rounded-2xl overflow-hidden">
+    <div className="group bg-white border border-[#E8E0D8] hover:border-[#EA580C] transition-all duration-300 hover:shadow-xl flex flex-col justify-between rounded-3xl overflow-hidden relative">
       {/* AI Recommendation Banner */}
       {hasAiBadge && (
-        <div className="bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border-b border-blue-500/10 px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <Star size={13} className="text-blue-600 fill-blue-600 animate-pulse" />
-            <span className="text-[10px] font-black text-blue-700 tracking-wide uppercase">
+        <div className="bg-orange-50/90 border-b border-orange-200/80 px-5 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Star size={13} className="text-[#EA580C] fill-[#EA580C] animate-pulse" />
+            <span className="text-[10px] font-black text-[#EA580C] tracking-wide uppercase font-display">
               {bus.aiRank?.badge || 'AI Recommended'}
             </span>
           </div>
-          <div className="flex flex-wrap gap-1 justify-end">
+          <div className="flex flex-wrap gap-1.5 justify-end">
             {(Array.isArray(bus.aiRank?.reasons) ? bus.aiRank.reasons : []).map((reason, idx) => (
               <span
                 key={idx}
-                className="text-[9px] font-bold bg-blue-500/15 text-blue-800 px-2 py-0.5 rounded-full"
+                className="text-[9px] font-extrabold bg-white text-[#EA580C] border border-orange-200 px-2 py-0.5 rounded-md"
               >
                 {reason}
               </span>
@@ -68,64 +68,64 @@ function BusCard({ bus }: BusCardProps) {
         </div>
       )}
 
-      <div className="p-5 flex flex-col gap-4 flex-1">
+      <div className="p-5 md:p-6 flex flex-col gap-4 flex-1 relative z-10">
         {/* Header Row */}
-        <div className="flex justify-between items-start gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 flex-shrink-0">
-              <Bus size={18} />
+        <div className="flex justify-between items-start gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center text-[#EA580C] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+              <Bus size={20} />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <h4 className="font-extrabold text-slate-800 text-sm leading-snug">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="font-black text-[#1A1A1A] text-base leading-snug font-display">
                   {bus.operator}
                 </h4>
                 {bus.rating != null && (
-                  <div className="flex items-center gap-0.5 bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded text-[10px] font-black">
-                    <Star size={10} className="fill-green-600" />
-                    {bus.rating.toFixed(1)}
+                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-lg text-[10px] font-black">
+                    <Star size={10} className="fill-emerald-600 text-emerald-600" />
+                    <span>{bus.rating.toFixed(1)}</span>
                   </div>
                 )}
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 mt-0.5 block leading-tight">
+              <span className="text-xs font-semibold text-[#6B6B6B] mt-0.5 block leading-tight">
                 {bus.busType}
               </span>
             </div>
           </div>
           
           {bus.seatsLeft !== null && bus.seatsLeft > 0 && (
-            <span className="text-[9px] font-extrabold bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
+            <span className="text-[10px] font-black bg-orange-50 text-[#EA580C] border border-orange-200 px-2.5 py-1 rounded-xl uppercase tracking-wider shrink-0">
               {bus.seatsLeft} seats left
             </span>
           )}
         </div>
 
         {/* Timeline Row */}
-        <div className="flex items-center justify-between bg-slate-50/50 border border-slate-100 p-4 rounded-2xl relative my-1 text-xs">
+        <div className="flex items-center justify-between bg-[#FFFBF7] border border-[#E8E0D8] p-4 rounded-2xl relative my-1 text-xs">
           <div className="text-left w-[30%]">
-            <div className="font-black text-base text-slate-800 tracking-tight leading-none">
+            <div className="font-black text-xl text-[#1A1A1A] tracking-tight font-display leading-none">
               {bus.departure}
             </div>
-            <div className="font-extrabold text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+            <div className="font-black text-[10px] text-[#EA580C] uppercase tracking-wider mt-1">
               Depart
             </div>
           </div>
 
           <div className="flex-1 flex flex-col items-center px-2">
-            <span className="text-[9px] font-bold text-slate-400 mb-1">
+            <span className="text-[10px] font-black text-[#6B6B6B] mb-1">
               {bus.duration}
             </span>
             <div className="w-full flex items-center justify-center relative">
-              <div className="h-[1.5px] bg-slate-200 w-full rounded-full"></div>
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-[10px] bg-white leading-none px-0.5">›</div>
+              <div className="h-[2px] bg-[#E8E0D8] group-hover:bg-[#EA580C]/40 w-full rounded-full transition-colors" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[#EA580C] font-mono text-[10px] bg-white rounded-full p-0.5 border border-[#E8E0D8]">›</div>
             </div>
           </div>
 
           <div className="text-right w-[30%]">
-            <div className="font-black text-base text-slate-800 tracking-tight leading-none">
+            <div className="font-black text-xl text-[#1A1A1A] tracking-tight font-display leading-none">
               {bus.arrival}
             </div>
-            <div className="font-extrabold text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+            <div className="font-black text-[10px] text-[#1A1A1A] uppercase tracking-wider mt-1">
               Arrive
             </div>
           </div>
@@ -137,13 +137,13 @@ function BusCard({ bus }: BusCardProps) {
             {bus.amenities.slice(0, 3).map((amenity, idx) => (
               <span 
                 key={idx} 
-                className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200/40"
+                className="text-[10px] font-bold bg-[#FFFBF7] text-[#6B6B6B] px-2.5 py-1 rounded-xl border border-[#E8E0D8]"
               >
                 {amenity}
               </span>
             ))}
             {bus.amenities.length > 3 && (
-              <span className="text-[9px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full border border-slate-200/40">
+              <span className="text-[10px] font-bold bg-[#FFFBF7] text-[#9CA3AF] px-2 py-1 rounded-xl border border-[#E8E0D8]">
                 +{bus.amenities.length - 3} more
               </span>
             )}
@@ -152,30 +152,31 @@ function BusCard({ bus }: BusCardProps) {
       </div>
 
       {/* Pricing and Booking CTA */}
-      <div className="flex items-center justify-between gap-3 p-5 pt-3 border-t border-slate-100 bg-[#FFFBF7]/60">
+      <div className="flex items-center justify-between gap-3 p-5 pt-3 border-t border-[#E8E0D8]/80 bg-[#FFFBF7]/60 relative z-10">
         <div className="text-left">
           {bus.seatsLeft !== null && bus.seatsLeft > 0 && bus.seatsLeft <= 5 ? (
-            <span className="text-[10px] font-bold text-red-500 animate-pulse block mb-1">
+            <span className="text-[10px] font-black text-red-500 animate-pulse block mb-0.5">
               Only {bus.seatsLeft} seats left!
             </span>
           ) : bus.seatsLeft !== null && bus.seatsLeft > 0 ? (
-            <span className="text-[9px] text-orange-600 font-bold block mb-1 uppercase tracking-wide">
+            <span className="text-[10px] text-[#EA580C] font-black block mb-0.5 uppercase tracking-wide">
               {bus.seatsLeft} seats remaining
             </span>
           ) : null}
-          <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
+          <span className="text-[10px] text-[#9CA3AF] font-black block uppercase tracking-wider">
             Fare Estimate
           </span>
-          <span className="text-lg font-black text-slate-800 tracking-tight mt-0.5 block leading-none">
+          <span className="text-xl md:text-2xl font-black text-[#1A1A1A] tracking-tight mt-0.5 block leading-none font-display">
             {bus.fare ? formatPrice(bus.fare, currency) : '—'}
           </span>
         </div>
 
         <button
           onClick={handleBook}
-          className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl font-bold text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all whitespace-nowrap shadow-md shadow-orange-500/10 ml-auto cursor-pointer active:scale-95 animate-fade-in"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-xs md:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all whitespace-nowrap shadow-md hover:shadow-xl ml-auto cursor-pointer active:scale-95"
         >
-          Book Seat on MakeMyTrip <ExternalLink size={12} />
+          <span>Book on redBus</span>
+          <ExternalLink size={14} />
         </button>
 
         <button
@@ -188,7 +189,7 @@ function BusCard({ bus }: BusCardProps) {
             bookingLink: bus.bookingUrl
           })}
           title="Share option"
-          className="h-[42px] w-[42px] border border-[#E8E0D8] hover:border-[#D0C8C0] text-[#6B6B6B] hover:bg-[#F5F5F4] rounded-xl flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer"
+          className="h-[44px] w-[44px] border border-[#E8E0D8] hover:border-[#EA580C]/50 text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FFFBF7] rounded-2xl flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer shadow-2xs"
         >
           <Share2 size={18} />
         </button>
