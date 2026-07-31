@@ -191,7 +191,14 @@ _API.interceptors.response.use(
   (res) => res.data,
   async (err) => {
     const msg = err.response?.data?.message || err.message || 'Something went wrong'
-    return Promise.reject(new Error(msg))
+    const customErr: any = new Error(msg)
+    customErr.status = err.response?.status
+    customErr.statusCode = err.response?.status
+    customErr.url = err.config?.url
+    customErr.method = err.config?.method?.toUpperCase()
+    customErr.response = err.response
+    customErr.code = err.code
+    return Promise.reject(customErr)
   }
 )
 

@@ -595,9 +595,9 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         }
 
         const popupContent = `
-          <div class="p-3 font-sans text-slate-200 bg-slate-950 border border-slate-800 rounded-lg max-w-[220px]">
-            <h4 class="font-bold text-sm text-white leading-tight mb-1">${place.name}</h4>
-            <div class="flex items-center gap-1.5 text-[10px] font-semibold text-blue-400 mb-1.5 uppercase tracking-wider">
+          <div class="p-3 font-sans text-[#1A1A1A] bg-white border border-[#E8E0D8] rounded-xl max-w-[220px] shadow-xl">
+            <h4 class="font-bold text-sm text-[#1A1A1A] leading-tight mb-1">${place.name}</h4>
+            <div class="flex items-center gap-1.5 text-[10px] font-semibold text-[#2563EB] mb-1.5 uppercase tracking-wider">
               <span class="inline-flex items-center">${iconSvg}</span>
               <span>${place.category || 'Sightseeing'}</span>
             </div>
@@ -606,8 +606,8 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
             }">
               Status: ${statusText}
             </div>
-            ${place.time ? `<p class="text-xs text-slate-400 mb-0.5"><b>Time:</b> ${place.time}</p>` : ''}
-            ${place.description ? `<p class="text-[10px] text-slate-400 border-t border-slate-800 pt-1.5 leading-relaxed mt-1.5">${place.description}</p>` : ''}
+            ${place.time ? `<p class="text-xs text-[#6B6B6B] mb-0.5"><b>Time:</b> ${place.time}</p>` : ''}
+            ${place.description ? `<p class="text-[10px] text-[#6B6B6B] border-t border-[#E8E0D8] pt-1.5 leading-relaxed mt-1.5">${place.description}</p>` : ''}
           </div>
         `
 
@@ -724,7 +724,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
   }, [places, mapLoaded, activeDay])
 
   return (
-    <div className="relative w-full h-full min-h-[500px] md:min-h-[580px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col md:flex-row font-sans text-slate-200">
+    <div className="relative w-full h-full min-h-[500px] md:min-h-[580px] rounded-2xl overflow-hidden border border-[#E8E0D8] bg-[#FAF7F2] flex flex-col md:flex-row font-sans text-[#1A1A1A] shadow-md">
       {/* Map Content Box */}
       <div className="relative flex-grow h-[350px] md:h-auto">
         <div ref={mapContainerRef} className="w-full h-full" />
@@ -733,10 +733,10 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
           <button
             onClick={() => setIsTrackingUser((prev) => !prev)}
-            className={`p-2.5 rounded-xl border backdrop-blur-md shadow-2xl transition-all ${
+            className={`p-2.5 rounded-xl border backdrop-blur-md shadow-md transition-all ${
               isTrackingUser
-                ? 'bg-blue-600 border-blue-500 text-white animate-pulse'
-                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                ? 'bg-[#2563EB] border-[#2563EB] text-white animate-pulse'
+                : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:text-[#1A1A1A]'
             }`}
             title="Toggle Live Location Tracking"
           >
@@ -750,18 +750,18 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
         {/* Loading Overlay */}
         {loadingRoute && (
-          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center gap-2 text-white z-20">
-            <Loader2 className="animate-spin text-blue-500" size={24} />
-            <span className="text-xs font-semibold">Updating route path...</span>
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center gap-2 text-[#1A1A1A] z-20">
+            <Loader2 className="animate-spin text-[#2563EB]" size={24} />
+            <span className="text-xs font-bold">Updating route path...</span>
           </div>
         )}
 
         {/* No coords warning fallback */}
         {!validPlaces.length && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-slate-400 z-10 bg-slate-950/90">
-            <Compass size={36} className="text-slate-600 mb-2" />
-            <h4 className="font-bold text-sm text-slate-300">No coords found for today</h4>
-            <p className="text-xs max-w-xs mt-1 text-slate-500">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-[#6B6B6B] z-10 bg-white/90">
+            <Compass size={36} className="text-[#6B6B6B] mb-2" />
+            <h4 className="font-bold text-sm text-[#1A1A1A]">No coords found for today</h4>
+            <p className="text-xs max-w-xs mt-1 text-[#6B6B6B]">
               Stops must contain valid coordinates in order to render maps and compute routes.
             </p>
           </div>
@@ -769,13 +769,13 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       </div>
 
       {/* Control Navigator Panel */}
-      <div className="w-full md:w-[360px] flex-shrink-0 border-t md:border-t-0 md:border-l border-slate-800 bg-slate-950 flex flex-col h-[350px] md:h-auto overflow-hidden">
+      <div className="w-full md:w-[360px] flex-shrink-0 border-t md:border-t-0 md:border-l border-[#E8E0D8] bg-white flex flex-col h-[350px] md:h-auto overflow-hidden">
         {/* Header Tab Toggles */}
-        <div className="flex border-b border-slate-800 bg-slate-900/60 select-none text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="flex border-b border-[#E8E0D8] bg-[#FFFBF7] select-none text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">
           <button
             onClick={() => setActiveTab('itinerary')}
             className={`flex-1 py-3.5 text-center flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === 'itinerary' ? 'text-blue-400 border-b-2 border-blue-500 bg-slate-950' : 'hover:text-slate-200'
+              activeTab === 'itinerary' ? 'text-[#2563EB] border-b-2 border-[#2563EB] bg-white font-black' : 'hover:text-[#1A1A1A]'
             }`}
           >
             <CheckCircle2 size={13} />
@@ -784,7 +784,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           <button
             onClick={() => setActiveTab('layers')}
             className={`flex-1 py-3.5 text-center flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === 'layers' ? 'text-blue-400 border-b-2 border-blue-500 bg-slate-950' : 'hover:text-slate-200'
+              activeTab === 'layers' ? 'text-[#2563EB] border-b-2 border-[#2563EB] bg-white font-black' : 'hover:text-[#1A1A1A]'
             }`}
           >
             <Layers size={13} />
@@ -793,7 +793,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           <button
             onClick={() => setActiveTab('assistant')}
             className={`flex-1 py-3.5 text-center flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === 'assistant' ? 'text-blue-400 border-b-2 border-blue-500 bg-slate-950' : 'hover:text-slate-200'
+              activeTab === 'assistant' ? 'text-[#2563EB] border-b-2 border-[#2563EB] bg-white font-black' : 'hover:text-[#1A1A1A]'
             }`}
           >
             <Sparkles size={13} />
@@ -806,22 +806,22 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           {/* Tab 1: Itinerary Progress Checklists */}
           {activeTab === 'itinerary' && (
             <div className="space-y-4">
-              <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-3 flex flex-col gap-1 text-[11px] text-slate-400 font-medium">
-                <span className="text-white font-bold text-xs mb-1 flex items-center gap-1">
-                  <Navigation size={13} className="text-blue-400" />
+              <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-3 flex flex-col gap-1 text-[11px] text-[#6B6B6B] font-medium">
+                <span className="text-[#1A1A1A] font-bold text-xs mb-1 flex items-center gap-1">
+                  <Navigation size={13} className="text-[#2563EB]" />
                   <span>Road Route Details</span>
                 </span>
                 {routeInfo ? (
                   <>
-                    <span>Total Distance: <b className="text-slate-200">{routeInfo.distance}</b></span>
-                    <span>Est. Walking Duration: <b className="text-slate-200">{routeInfo.duration}</b></span>
+                    <span>Total Distance: <b className="text-[#1A1A1A]">{routeInfo.distance}</b></span>
+                    <span>Est. Walking Duration: <b className="text-[#1A1A1A]">{routeInfo.duration}</b></span>
                   </>
                 ) : (
                   <span>Add coordinates and route connections will calculate here.</span>
                 )}
                 {userCoords && (
-                  <div className="border-t border-slate-800/60 pt-2 mt-1">
-                    <span className="text-emerald-400 font-bold flex items-center gap-1">
+                  <div className="border-t border-[#E8E0D8] pt-2 mt-1">
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
                       <Locate size={11} />
                       <span>Live tracking active</span>
                     </span>
@@ -852,30 +852,30 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                       key={placeId}
                       className={`p-3 rounded-xl border transition-all flex items-center justify-between ${
                         status === 'completed'
-                          ? 'bg-slate-900/30 border-slate-900/80 opacity-70'
+                          ? 'bg-[#F5F5F5] border-[#E8E0D8] opacity-70'
                           : status === 'current'
-                          ? 'bg-slate-900/90 border-blue-900/50 shadow-md ring-1 ring-blue-500/10'
-                          : 'bg-slate-900/60 border-slate-800'
+                          ? 'bg-white border-[#2563EB]/40 shadow-md ring-1 ring-[#2563EB]/10'
+                          : 'bg-[#FFFBF7] border-[#E8E0D8]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 overflow-hidden">
-                        <div className="flex-shrink-0 p-1.5 rounded-lg bg-slate-800/80 border border-slate-700/50">
+                        <div className="flex-shrink-0 p-1.5 rounded-lg bg-[#F0EDE9] border border-[#E8E0D8]">
                           {getCategoryIcon(place.category || '', 15)}
                         </div>
                         <div className="overflow-hidden">
-                          <h5 className="text-xs font-bold text-slate-100 truncate leading-tight">
+                          <h5 className="text-xs font-bold text-[#1A1A1A] truncate leading-tight">
                             {place.name.split(' — ')[0]}
                           </h5>
-                          <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1 font-medium">
+                          <div className="flex items-center gap-2 text-[10px] text-[#6B6B6B] mt-1 font-medium">
                             {place.time && (
                               <span className="flex items-center gap-1">
-                                <Clock size={10} className="text-slate-400" />
+                                <Clock size={10} className="text-[#6B6B6B]" />
                                 {place.time}
                               </span>
                             )}
                             {distText && (
-                              <span className="text-blue-400 font-semibold flex items-center gap-1">
-                                <MapPin size={10} className="text-blue-400" />
+                              <span className="text-[#2563EB] font-semibold flex items-center gap-1">
+                                <MapPin size={10} className="text-[#2563EB]" />
                                 {distText} away
                               </span>
                             )}
@@ -897,17 +897,17 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                         }
                         className={`flex-shrink-0 p-1.5 rounded-lg border transition-all ${
                           status === 'completed'
-                            ? 'bg-emerald-950/30 border-emerald-800 text-emerald-400 hover:bg-slate-800 hover:border-slate-700'
+                            ? 'bg-emerald-50 border-emerald-300 text-emerald-600 hover:bg-[#F5F5F5] hover:border-[#E8E0D8]'
                             : status === 'current'
-                            ? 'bg-amber-950/30 border-amber-800 text-amber-400 hover:bg-slate-800 hover:border-slate-700'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                            ? 'bg-amber-50 border-amber-300 text-amber-600 hover:bg-[#F5F5F5] hover:border-[#E8E0D8]'
+                            : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:text-[#1A1A1A]'
                         }`}
                         title={`Status: ${status} (Click to toggle)`}
                       >
                         {status === 'completed' ? (
-                          <CheckCircle2 size={14} className="fill-emerald-400/20" />
+                          <CheckCircle2 size={14} className="fill-emerald-100" />
                         ) : status === 'current' ? (
-                          <Circle size={14} className="fill-amber-400 text-amber-400" />
+                          <Circle size={14} className="fill-amber-300 text-amber-500" />
                         ) : (
                           <Circle size={14} />
                         )}
@@ -922,7 +922,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           {/* Tab 2: Map Layers & Smart Nearby Recommendations */}
           {activeTab === 'layers' && (
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wide">Map Filters</h4>
+              <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">Map Filters</h4>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'hotels', label: 'Hotels', IconComp: Hotel },
@@ -939,8 +939,8 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                       onClick={() => toggleLayer(layer.id)}
                       className={`py-2 px-3 text-[11px] font-bold rounded-xl border text-left flex items-center justify-between transition-all ${
                         isActive
-                          ? 'bg-blue-600/90 border-blue-500 text-white'
-                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                          ? 'bg-[#2563EB] border-[#2563EB] text-white'
+                          : 'bg-white border-[#E8E0D8] text-[#6B6B6B] hover:bg-[#FFFBF7] hover:text-[#1A1A1A]'
                       }`}
                     >
                       <span className="flex items-center gap-1.5">
@@ -955,10 +955,10 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
               {/* Recommendations list */}
               {activeLayers.length > 0 && (
-                <div className="space-y-3 pt-3 border-t border-slate-800">
-                  <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wide flex items-center gap-1.5">
+                <div className="space-y-3 pt-3 border-t border-[#E8E0D8]">
+                  <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide flex items-center gap-1.5">
                     <span>Nearby Suggestions</span>
-                    <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] bg-[#F0EDE9] text-[#6B6B6B] px-1.5 py-0.5 rounded">
                       {nearbyMarkers.length} found
                     </span>
                   </h4>
@@ -967,18 +967,18 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                     {nearbyMarkers.map((place, idx) => (
                       <div
                         key={`${place.placeId}-${idx}`}
-                        className="bg-slate-900/50 border border-slate-800 p-2.5 rounded-xl flex flex-col gap-1 text-[11px] hover:border-slate-700 transition-colors"
+                        className="bg-white border border-[#E8E0D8] p-2.5 rounded-xl flex flex-col gap-1 text-[11px] hover:border-[#2563EB]/30 transition-colors shadow-sm"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <h5 className="font-bold text-slate-100 leading-tight truncate">
+                          <h5 className="font-bold text-[#1A1A1A] leading-tight truncate">
                             {place.name}
                           </h5>
-                          <span className="text-[10px] flex-shrink-0 text-slate-400 font-semibold bg-slate-800 px-1.5 rounded-full">
+                          <span className="text-[10px] flex-shrink-0 text-[#6B6B6B] font-semibold bg-[#F0EDE9] px-1.5 rounded-full">
                             ⭐ {place.details?.rating || '4.0'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 truncate leading-snug">{place.address}</p>
-                        <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-blue-400 uppercase tracking-wider">
+                        <p className="text-[10px] text-[#6B6B6B] truncate leading-snug">{place.address}</p>
+                        <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-[#2563EB] uppercase tracking-wider">
                           <span>{place.layer}</span>
                           <span>•</span>
                           <span className="capitalize">{place.details?.budget || 'medium'} cost</span>
@@ -999,18 +999,18 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                 {chatMessages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`p-3 rounded-xl max-w-[85%] border leading-relaxed ${
+                    className={`p-3 rounded-xl max-w-[85%] border leading-relaxed text-xs ${
                       msg.role === 'user'
-                        ? 'bg-blue-600/10 border-blue-500/20 text-slate-200 self-end ml-auto'
-                        : 'bg-slate-900 border-slate-800 text-slate-300 self-start mr-auto'
+                        ? 'bg-[#EBF0FF] border-[#2563EB]/20 text-[#1A1A1A] self-end ml-auto'
+                        : 'bg-white border-[#E8E0D8] text-[#1A1A1A] self-start mr-auto shadow-sm'
                     }`}
                   >
                     {msg.text}
                   </div>
                 ))}
                 {assistantLoading && (
-                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 self-start mr-auto flex items-center gap-2">
-                    <Loader2 size={12} className="animate-spin text-blue-500" />
+                  <div className="p-3 rounded-xl bg-white border border-[#E8E0D8] text-[#6B6B6B] self-start mr-auto flex items-center gap-2 shadow-sm text-xs">
+                    <Loader2 size={12} className="animate-spin text-[#2563EB]" />
                     <span>Navigator is navigating...</span>
                   </div>
                 )}
@@ -1018,13 +1018,13 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
               {/* Suggestion action card */}
               {recommendedMarker && (
-                <div className="bg-amber-950/20 border border-amber-900/40 p-2.5 rounded-xl mb-3 flex items-center justify-between text-[11px]">
+                <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-xl mb-3 flex items-center justify-between text-[11px]">
                   <div className="overflow-hidden">
-                    <span className="font-bold text-amber-400 flex items-center gap-1 truncate">
-                      <MapPin size={12} className="text-amber-400 shrink-0" />
+                    <span className="font-bold text-amber-600 flex items-center gap-1 truncate">
+                      <MapPin size={12} className="text-amber-500 shrink-0" />
                       {recommendedMarker.name}
                     </span>
-                    <span className="text-slate-400 truncate block mt-0.5">{recommendedMarker.reason}</span>
+                    <span className="text-[#6B6B6B] truncate block mt-0.5">{recommendedMarker.reason}</span>
                   </div>
                   <button
                     onClick={() => {
@@ -1033,7 +1033,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                         map.flyTo({ center: [recommendedMarker.lon, recommendedMarker.lat], zoom: 14 })
                       }
                     }}
-                    className="flex-shrink-0 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1 px-2.5 rounded-lg ml-2"
+                    className="flex-shrink-0 bg-amber-500 hover:bg-amber-400 text-white font-bold py-1 px-2.5 rounded-lg ml-2"
                   >
                     Fly
                   </button>
@@ -1047,12 +1047,12 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
                   value={assistantInput}
                   onChange={(e) => setAssistantInput(e.target.value)}
                   placeholder="Ask Navigator: Where should I go now?"
-                  className="flex-grow bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 transition-colors"
+                  className="flex-grow bg-white border border-[#E8E0D8] rounded-xl px-3 py-2 text-xs text-[#1A1A1A] placeholder-[#6B6B6B] focus:outline-none focus:border-[#2563EB] transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={assistantLoading || !assistantInput.trim()}
-                  className="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-xl disabled:opacity-40 disabled:hover:bg-blue-600 transition-colors"
+                  className="bg-[#2563EB] hover:bg-blue-600 text-white p-2.5 rounded-xl disabled:opacity-40 disabled:hover:bg-[#2563EB] transition-colors"
                 >
                   <Send size={14} />
                 </button>

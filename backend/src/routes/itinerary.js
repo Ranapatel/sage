@@ -7,7 +7,7 @@ const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 const { v4: uuidv4 } = require('uuid')
 
 const itineraryValidation = [
-  body('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  body('destination').trim().notEmpty().isLength({ max: 100 }),
   body('days').customSanitizer(val => {
     const parsed = parseInt(val, 10);
     return isNaN(parsed) || parsed < 1 || parsed > 90 ? 3 : parsed;

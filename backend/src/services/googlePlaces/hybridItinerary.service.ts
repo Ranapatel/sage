@@ -9,6 +9,8 @@ import axios from 'axios'
 import { googleRequest, buildPhotoUrl } from './googleClient'
 import { getPlaceDetails } from './placeDetails'
 import { ImageService } from '../imageService'
+import { RankingMatrixService } from './rankingMatrix.service'
+import { SolarTimeService } from './solarTimeService'
 import {
   TripSagePlace,
   HybridItinerary,
@@ -252,16 +254,24 @@ export class HybridItineraryService {
    * Scores and ranks candidates using Groq LLaMA model based on user travel preferences
    */
   private static async rankCandidates(candidates: TripSagePlace[], params: HybridItineraryParams): Promise<any[]> {
-    const { style, preferences = [], budget, days, members } = params
+    const { style, preferences = [], budget, days, members, startDate } = params
     const apiKey = process.env.GROQ_API_KEY
 
+    // Calculate solar times for target destination
+    const sampleLat = candidates[0]?.latitude || 15.2993
+    const sampleLng = candidates[0]?.longitude || 74.1240
+    const solarTimes = SolarTimeService.calculateSolarTimes(sampleLat, sampleLng, startDate)
+
+    // Pre-rank candidates using multi-factor scoring matrix
+    const scoredCandidates = RankingMatrixService.rankCandidates(candidates, params, solarTimes)
+    const sortedCandidatePlaces = scoredCandidates.map(sc => sc.place)
+
     if (!apiKey) {
-      // Fallback: simple sorting by rating * review count if key is missing
-      return candidates.sort((a, b) => ((b.rating || 0) * (b.userRatingsTotal || 0)) - ((a.rating || 0) * (a.userRatingsTotal || 0)))
+      return sortedCandidatePlaces
     }
 
     // Limit candidate details sent to LLM to top 35 to prevent 413 Payload Too Large
-    const candidateSubset = candidates.slice(0, 35)
+    const candidateSubset = sortedCandidatePlaces.slice(0, 35)
     const candidateListStr = candidateSubset.map((c, idx) => `
 Index: ${idx}
 ID: ${c.id}

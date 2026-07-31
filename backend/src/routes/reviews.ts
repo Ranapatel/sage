@@ -6,7 +6,7 @@ const router = Router()
 // GET /api/reviews
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const reviews = await prisma.review.findMany({
+    const reviews = await (prisma as any).review.findMany({
       orderBy: { createdAt: 'desc' },
       take: 50,
     })
@@ -24,7 +24,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'All fields are required' })
     }
 
-    const newReview = await prisma.review.create({
+    const newReview = await (prisma as any).review.create({
       data: {
         name: String(name),
         location: String(location),

@@ -70,9 +70,11 @@ function PlaceCard({ place, isSaved, onToggleSave, onShare, onViewDetails, isMob
   isMobile: boolean
 }) {
   const [imgError, setImgError] = useState(false)
-  const imgSrc = imgError
-    ? 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
-    : place.heroImage
+  const isDining = (place.category || place.cuisine || place.primaryType || '').toLowerCase().match(/din|rest|food|cafe|bar|bistro|pub/)
+  const defaultFallback = isDining
+    ? 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80'
+    : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
+  const imgSrc = imgError ? defaultFallback : (place.heroImage || defaultFallback)
 
   return (
     <div className="relative group border border-[#E8E0D8] bg-white hover:border-[#EA580C]/60 rounded-2xl overflow-hidden flex flex-col shadow-xs transition-all duration-300 hover:shadow-md">

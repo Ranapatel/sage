@@ -9,7 +9,7 @@ const { ImageService } = require('../services/imageService')
 // ── GET /api/explore/activities/:destination ───────────────────────────────────
 
 router.get('/activities/:destination', [
-  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  param('destination').trim().notEmpty().isLength({ max: 100 }),
   query('category').optional().trim(),
   query('rating').optional().isFloat({ min: 0, max: 5 }),
   query('price').optional().isInt({ min: 0, max: 4 }),
@@ -106,7 +106,7 @@ router.get('/activities/:destination', [
 // ── GET /api/explore/restaurants/:destination ──────────────────────────────────
 
 router.get('/restaurants/:destination', [
-  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  param('destination').trim().notEmpty().isLength({ max: 100 }),
   query('rating').optional().isFloat({ min: 0, max: 5 }),
   query('price').optional().isInt({ min: 0, max: 4 }),
   query('openNow').optional().isString(),
@@ -201,7 +201,7 @@ router.get('/restaurants/:destination', [
 // ── GET /api/explore/details/:placeId ──────────────────────────────────────────
 
 router.get('/details/:placeId', [
-  param('placeId').trim().notEmpty().escape(),
+  param('placeId').trim().notEmpty(),
 ], async (req, res) => {
   const { placeId } = req.params
 
@@ -232,7 +232,7 @@ router.get('/details/:placeId', [
 // ── GET /api/explore/places/:destination ───────────────────────────────────────
 
 router.get('/places/:destination', [
-  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  param('destination').trim().notEmpty().isLength({ max: 100 }),
 ], async (req, res) => {
   const dest = decodeURIComponent(req.params.destination)
   try {

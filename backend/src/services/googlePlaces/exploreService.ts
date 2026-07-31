@@ -8,6 +8,7 @@
 import { googleRequest, buildPhotoUrl } from './googleClient'
 import { TripSagePlaceReview, TripSagePlacePhoto } from './types'
 import { ImageService } from '../imageService'
+import { getCategoryFallbackImage, getCategoryFallbackGallery } from '../../data/cuisineFallbacks'
 
 const { generatePlaceDescription } = require('./aiDescriptionService')
 
@@ -289,15 +290,9 @@ export async function searchRestaurants(
       heroImage = buildPhotoUrl(heroPhoto, 800)
       galleryImages = photos.slice(0, 5).map((img: any) => buildPhotoUrl(img.name, 800))
     } else {
-      const resolved = await ImageService.resolvePlaceImages({
-        placeId: p.id,
-        placeName: name,
-        city: destination,
-        category: 'restaurants'
-      })
-      heroImage = resolved.imageUrl
-      galleryImages = resolved.gallery
-      photoCount = resolved.gallery.length
+      heroImage = getCategoryFallbackImage(cuisine, name, p.id)
+      galleryImages = getCategoryFallbackGallery(cuisine, name, p.id)
+      photoCount = galleryImages.length
     }
     const thumbnail = heroPhoto ? buildPhotoUrl(heroPhoto, 400) : heroImage
 
