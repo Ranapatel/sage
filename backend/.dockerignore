@@ -1,0 +1,16 @@
+node_modules
+dist
+.env
+.env.*
+*.env
+*.log
+.DS_Store
+.git
+.gitignore
+backend_out.log
+backend_err.log
+crash.log
+scratch
+check-*.js
+test-*.js
+postgres_data
