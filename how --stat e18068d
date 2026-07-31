@@ -1,0 +1,39 @@
+[33mcommit e18068dcbbea667cbd066a0924c371589b5f0a8f[m
+Author: rana patel <ranadheerpuppala159@gmail.com>
+Date:   Mon Jul 27 15:42:24 2026 +0530
+
+    Update project
+
+ backend/src/index.js                               |   13 [32m+[m
+ .../src/routes/contextualIntelligence.routes.ts    |  153 [32m+++[m
+ backend/src/routes/search.js                       |   49 [32m+[m[31m-[m
+ backend/src/routes/smartBudget.routes.ts           |   87 [32m++[m
+ backend/src/routes/smartItinerary.routes.ts        |   93 [32m++[m
+ backend/src/services/aiService.js                  |   41 [32m+[m[31m-[m
+ .../services/contextualDataCollector.service.ts    |   70 [32m++[m
+ .../services/contextualDecisionEngine.service.ts   |   72 [32m++[m
+ backend/src/services/image/image.service.ts        |   14 [32m+[m[31m-[m
+ .../services/smartBudgetIntelligence.service.ts    |  179 [32m+++[m
+ .../services/smartItineraryIntelligence.service.ts |  200 [32m++++[m
+ backend/src/services/travelAssistant.service.ts    |   31 [32m+[m
+ backend/src/services/travelService.js              |   95 [32m+[m[31m-[m
+ backend/src/types/contextualTravel.types.ts        |   50 [32m+[m
+ backend/src/types/smartBudget.types.ts             |   78 [32m++[m
+ backend/src/types/smartItinerary.types.ts          |   70 [32m++[m
+ backend/src/utils/imageSearch.ts                   |   12 [32m+[m[31m-[m
+ frontend/app/plan/PlanClient.tsx                   |    2 [32m+[m[31m-[m
+ frontend/components/bus/AiSmartBusPlanner.tsx      |   23 [32m+[m[31m-[m
+ frontend/components/car/AiDiscoverCarsPlanner.tsx  |  971 [32m+++++++[m[31m----------[m
+ frontend/components/explore/ExploreSection.tsx     |   13 [32m+[m[31m-[m
+ frontend/components/layout/Navbar.tsx              |    2 [32m+[m[31m-[m
+ frontend/components/layout/UserMenu.tsx            |  146 [32m++[m[31m-[m
+ frontend/components/map/MapView.tsx                | 1141 [32m++++++++++++[m[31m--------[m
+ frontend/components/plan/OverviewTab.tsx           |    3 [31m-[m
+ frontend/components/plan/TransportTab.tsx          |   79 [32m+[m[31m-[m
+ frontend/components/profile/Memories.tsx           |    4 [31m-[m
+ frontend/components/train/AiSmartTrainPlanner.tsx  |   21 [32m+[m[31m-[m
+ frontend/lib/smartBusPlanner.ts                    |   34 [32m+[m
+ frontend/lib/smartCarPlanner.ts                    |  982 [32m+++++++++++[m[31m------[m
+ frontend/lib/smartTrainPlanner.ts                  |   34 [32m+[m
+ frontend/tsconfig.tsbuildinfo                      |   18 [32m+[m[31m-[m
+ 32 files changed, 3292 insertions(+), 1488 deletions(-)
