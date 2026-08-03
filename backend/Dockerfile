@@ -9,6 +9,16 @@ RUN npm ci
 
 COPY . .
 
+# Generate the Prisma Client before type-checking.
+# `npm ci` reinstalls node_modules fresh inside the image, and because
+# .dockerignore excludes node_modules, the locally-generated .prisma/client
+# is not present. The @prisma/client postinstall hook is unreliable in
+# Docker/CI, so we generate explicitly to guarantee all generated types
+# (e.g. UserPreferenceUncheckedCreateInput) exist before `tsc` runs.
+# `prisma generate` only needs the schema, not a live DATABASE_URL.
+RUN npx prisma generate
+
+
 # Compile TypeScript → dist/
 RUN npx tsc
 
