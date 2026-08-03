@@ -10,8 +10,6 @@
  * - No side effects, no I/O — safe to call from anywhere
  */
 
-import { GeoapifyFeature, Location } from '../types/location'
-
 /**
  * Normalize a Geoapify feature into the internal Location format.
  *
@@ -19,10 +17,7 @@ import { GeoapifyFeature, Location } from '../types/location'
  * @param originalQuery - The user's original search string (used as fallback name)
  * @returns A normalized Location object
  */
-export function normalizeGeoapifyFeature(
-  feature: GeoapifyFeature,
-  originalQuery: string
-): Location {
+function normalizeGeoapifyFeature(feature, originalQuery) {
   const props = feature.properties
 
   // ── Derive display name ──────────────────────────────────────────────────
@@ -51,8 +46,8 @@ export function normalizeGeoapifyFeature(
   // ── Coordinates ──────────────────────────────────────────────────────────
   // Geoapify provides coords both in properties AND geometry.coordinates
   // Properties take precedence (they're the pin location vs. bbox center)
-  const latitude = props.lat ?? feature.geometry.coordinates[1]
-  const longitude = props.lon ?? feature.geometry.coordinates[0]
+  const latitude = props.lat !== undefined ? props.lat : feature.geometry.coordinates[1]
+  const longitude = props.lon !== undefined ? props.lon : feature.geometry.coordinates[0]
 
   // ── Formatted address ────────────────────────────────────────────────────
   const formattedAddress = props.formatted || buildFallbackAddress(name, state, country)
@@ -77,7 +72,7 @@ export function normalizeGeoapifyFeature(
  * Build a fallback formatted address from component parts
  * when Geoapify doesn't provide a `formatted` field.
  */
-function buildFallbackAddress(name: string, state: string, country: string): string {
+function buildFallbackAddress(name, state, country) {
   return [name, state, country].filter(Boolean).join(', ')
 }
 
@@ -85,10 +80,13 @@ function buildFallbackAddress(name: string, state: string, country: string): str
  * Capitalize the first letter of each word in a query string.
  * Used as a last-resort display name when Geoapify fields are empty.
  */
-function capitalizeQuery(query: string): string {
+function capitalizeQuery(query) {
   return query
     .trim()
     .split(/\s+/)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
 }
+
+module.exports = { normalizeGeoapifyFeature }
+module.exports.normalizeGeoapifyFeature = normalizeGeoapifyFeature

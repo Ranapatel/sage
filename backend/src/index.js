@@ -1,7 +1,3 @@
-// Load TS register first so .js route files can `require()` .ts middleware.
-// Must come before any other require that might load a .ts file.
-require('./register')
-
 require('dotenv').config()
 
 // ── Production environment guards ─────────────────────────────────────────────
@@ -223,7 +219,7 @@ app.use((err, req, res, _next) => {
 })
 
 // ── DB + Seed ──────────────────────────────────────────────────────────────────
-const connectDB  = require('../config/database')
+const connectDB  = require('./config/database')
 const seedDemo   = require('./services/seedService')
 connectDB()
   .then(() => seedDemo())
@@ -233,7 +229,7 @@ connectDB()
   })
 
 // ── Redis ──────────────────────────────────────────────────────────────────────
-const { connectRedis } = require('../config/redis')
+const { connectRedis } = require('./config/redis')
 connectRedis().catch(err =>
   console.warn('[TripSage] Redis skipped:', err?.message || 'unavailable')
 )

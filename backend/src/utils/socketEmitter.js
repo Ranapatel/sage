@@ -5,13 +5,13 @@
  * On cold start the global may not exist yet; we no-op rather than throw.
  */
 
-let ioRef: any = null
+let ioRef = null
 
-export function setSocketIO(io: any) {
+function setSocketIO(io) {
   ioRef = io
 }
 
-function getIO(): any | null {
+function getIO() {
   if (ioRef) return ioRef
   try {
     const mod = require('../index.js')
@@ -25,14 +25,14 @@ function getIO(): any | null {
  * Emit a notification to a single user. Joins the room `user:${userId}` if
  * the user is online. Falls back to no-op when the socket layer is not ready.
  */
-export function emitNotification(userId: string, payload: any) {
+function emitNotification(userId, payload) {
   const io = getIO()
   if (!io) return false
   try {
     io.to(`user:${userId}`).emit('NOTIFICATION_NEW', payload)
     return true
   } catch (err) {
-    console.warn('[SocketEmitter] emitNotification failed:', (err as any)?.message)
+    console.warn('[SocketEmitter] emitNotification failed:', err?.message)
     return false
   }
 }
@@ -41,14 +41,19 @@ export function emitNotification(userId: string, payload: any) {
  * Emit to a destination room — used for weather + price alerts so multiple
  * users subscribed to the same destination all receive the alert.
  */
-export function emitDestinationAlert(destination: string, type: string, payload: any) {
+function emitDestinationAlert(destination, type, payload) {
   const io = getIO()
   if (!io) return false
   try {
     io.to(`dest:${destination.toLowerCase()}`).emit(type, payload)
     return true
   } catch (err) {
-    console.warn('[SocketEmitter] emitDestinationAlert failed:', (err as any)?.message)
+    console.warn('[SocketEmitter] emitDestinationAlert failed:', err?.message)
     return false
   }
 }
+
+module.exports = { setSocketIO, emitNotification, emitDestinationAlert }
+module.exports.setSocketIO = setSocketIO
+module.exports.emitNotification = emitNotification
+module.exports.emitDestinationAlert = emitDestinationAlert

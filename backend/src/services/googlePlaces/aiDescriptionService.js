@@ -4,7 +4,7 @@
  */
 
 const axios = require('axios')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const MODEL = 'openai/gpt-oss-120b'
@@ -106,3 +106,4 @@ function generateFallbackDescription(place) {
 }
 
 module.exports = { generatePlaceDescription }
+

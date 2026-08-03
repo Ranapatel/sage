@@ -6,16 +6,14 @@
  * HTTP request/response mapping.
  */
 
-import { Request, Response } from 'express'
-import { GeocodingService } from '../services/geocoding.service'
-import { GeoapifyRoutingService } from '../services/geoapifyRouting.service'
-import { GeocodingError, GeocodingResponse } from '../types/location'
-import { LocationService } from '../services/location.service'
-import { NearbyRecommendationService } from '../services/nearbyRecommendation.service'
-import { TravelAssistantService } from '../services/travelAssistant.service'
-import { AuthenticatedRequest } from '../middleware/auth.middleware'
+const { GeocodingService } = require('../services/geocoding.service')
+const { GeoapifyRoutingService } = require('../services/geoapifyRouting.service')
+const { GeocodingError } = require('../types/location')
+const { LocationService } = require('../services/location.service')
+const { NearbyRecommendationService } = require('../services/nearbyRecommendation.service')
+const { TravelAssistantService } = require('../services/travelAssistant.service')
 
-export class LocationController {
+class LocationController {
   /**
    * POST /api/location/geocode
    *
@@ -23,14 +21,14 @@ export class LocationController {
    * Response: { success: true, location: Location }
    *       or { success: false, error: string }
    */
-  static async geocode(req: Request, res: Response): Promise<void> {
+  static async geocode(req, res) {
     try {
       // validatedBody is set by the zodValidate middleware
-      const { destination } = (req as any).validatedBody || req.body
+      const { destination } = req.validatedBody || req.body
 
       const location = await GeocodingService.geocodeDestination(destination)
 
-      const response: GeocodingResponse = {
+      const response = {
         success: true,
         location,
       }
@@ -38,7 +36,7 @@ export class LocationController {
       res.json(response)
     } catch (error) {
       if (error instanceof GeocodingError) {
-        const response: GeocodingResponse = {
+        const response = {
           success: false,
           error: error.message,
         }
@@ -50,7 +48,7 @@ export class LocationController {
       const message = error instanceof Error ? error.message : 'Unknown error'
       console.error('[LocationController] 💥 Unexpected error:', message)
 
-      const response: GeocodingResponse = {
+      const response = {
         success: false,
         error: process.env.NODE_ENV === 'production'
           ? 'Internal server error'
@@ -60,17 +58,17 @@ export class LocationController {
     }
   }
 
-  static async calculateRoute(req: Request, res: Response): Promise<void> {
-    const { waypoints, mode } = (req as any).validatedBody || req.body
+  static async calculateRoute(req, res) {
+    const { waypoints, mode } = req.validatedBody || req.body
     try {
       const route = await GeoapifyRoutingService.getRoute(waypoints, mode)
       res.json({
         success: true,
         route,
       })
-    } catch (error: any) {
+    } catch (error) {
       console.warn('[LocationController] Routing service failed, falling back to straight-line path:', error.message)
-      
+
       // Calculate a rough straight-line distance (haversine) as fallback
       let totalDist = 0
       for (let i = 0; i < waypoints.length - 1; i++) {
@@ -92,7 +90,7 @@ export class LocationController {
       res.json({
         success: true,
         route: {
-          coordinates: waypoints.map((w: any) => [w.longitude, w.latitude]), // [[lon, lat], ...]
+          coordinates: waypoints.map((w) => [w.longitude, w.latitude]), // [[lon, lat], ...]
           distanceKm: totalDist,
           durationSeconds,
           isFallback: true
@@ -111,7 +109,7 @@ export class LocationController {
    * When tripId + dayNumber + trigger are provided, the guard validates whether
    * the optimization should proceed. Otherwise, falls back to legacy behavior.
    */
-  static async optimizeRoute(req: Request, res: Response): Promise<void> {
+  static async optimizeRoute(req, res) {
     try {
       const { RouteOptimizationService } = require('../services/routeOptimization.service')
       const { places, preferences, travelStyle, tripId, dayNumber, trigger } = req.body
@@ -147,7 +145,7 @@ export class LocationController {
       // Legacy fallback (no trigger provided)
       const optimized = await RouteOptimizationService.optimizeRoute(places, preferences, travelStyle, tripId, dayNumber)
       res.json({ success: true, optimizedPlaces: optimized })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Route optimization error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -159,12 +157,12 @@ export class LocationController {
    * Returns current daily Route Matrix API credit usage summary.
    * Useful for monitoring and debugging credit consumption.
    */
-  static async getMatrixUsage(_req: Request, res: Response): Promise<void> {
+  static async getMatrixUsage(_req, res) {
     try {
       const { GeoapifyKeyManager } = require('../services/geoapify/geoapifyKeyManager')
       const summary = await GeoapifyKeyManager.getUsageSummary()
       res.json({ success: true, data: summary })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Matrix usage error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -173,7 +171,7 @@ export class LocationController {
   /**
    * POST /api/location/route/save
    */
-  static async saveRoute(req: Request, res: Response): Promise<void> {
+  static async saveRoute(req, res) {
     try {
       const { prisma } = require('../prisma/prisma.client')
       const { tripId, dayNumber, startPlaceId, endPlaceId, distance, duration, transportMode, geometry } = req.body
@@ -197,7 +195,7 @@ export class LocationController {
       })
 
       res.json({ success: true, data: routeRecord })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Save route error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -206,7 +204,7 @@ export class LocationController {
   /**
    * GET /api/location/route/trip/:tripId
    */
-  static async getTripRoutes(req: Request, res: Response): Promise<void> {
+  static async getTripRoutes(req, res) {
     try {
       const { prisma } = require('../prisma/prisma.client')
       const { tripId } = req.params
@@ -216,13 +214,13 @@ export class LocationController {
         orderBy: { createdAt: 'asc' }
       })
 
-      const parsedRoutes = routes.map((r: any) => ({
+      const parsedRoutes = routes.map((r) => ({
         ...r,
         geometry: JSON.parse(r.geometry)
       }))
 
       res.json({ success: true, data: parsedRoutes })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Get trip routes error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -231,10 +229,9 @@ export class LocationController {
   /**
    * POST /api/location/user-location
    */
-  static async saveUserLocation(req: Request, res: Response): Promise<void> {
+  static async saveUserLocation(req, res) {
     try {
-      const authReq = req as AuthenticatedRequest
-      const userId = authReq.user?.id
+      const userId = req.user?.id
       if (!userId) {
         res.status(401).json({ success: false, error: 'Unauthorized' })
         return
@@ -248,7 +245,7 @@ export class LocationController {
 
       const entry = await LocationService.saveUserLocation(userId, latitude, longitude)
       res.json({ success: true, data: entry })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Save user location error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -257,10 +254,9 @@ export class LocationController {
   /**
    * GET /api/location/user-location
    */
-  static async getUserLocation(req: Request, res: Response): Promise<void> {
+  static async getUserLocation(req, res) {
     try {
-      const authReq = req as AuthenticatedRequest
-      const userId = authReq.user?.id
+      const userId = req.user?.id
       if (!userId) {
         res.status(401).json({ success: false, error: 'Unauthorized' })
         return
@@ -268,7 +264,7 @@ export class LocationController {
 
       const location = await LocationService.getUserLocation(userId)
       res.json({ success: true, data: location })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Get user location error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -277,10 +273,9 @@ export class LocationController {
   /**
    * POST /api/location/preference
    */
-  static async saveMapPreference(req: Request, res: Response): Promise<void> {
+  static async saveMapPreference(req, res) {
     try {
-      const authReq = req as AuthenticatedRequest
-      const userId = authReq.user?.id
+      const userId = req.user?.id
       if (!userId) {
         res.status(401).json({ success: false, error: 'Unauthorized' })
         return
@@ -299,7 +294,7 @@ export class LocationController {
         travelStyle || 'adventure'
       )
       res.json({ success: true, data: preference })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Save map preference error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -308,10 +303,9 @@ export class LocationController {
   /**
    * GET /api/location/preference
    */
-  static async getMapPreference(req: Request, res: Response): Promise<void> {
+  static async getMapPreference(req, res) {
     try {
-      const authReq = req as AuthenticatedRequest
-      const userId = authReq.user?.id
+      const userId = req.user?.id
       if (!userId) {
         res.status(401).json({ success: false, error: 'Unauthorized' })
         return
@@ -319,7 +313,7 @@ export class LocationController {
 
       const preference = await LocationService.getMapPreference(userId)
       res.json({ success: true, data: preference })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Get map preference error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -328,7 +322,7 @@ export class LocationController {
   /**
    * POST /api/location/visit-status
    */
-  static async savePlaceVisitStatus(req: Request, res: Response): Promise<void> {
+  static async savePlaceVisitStatus(req, res) {
     try {
       const { tripId, placeId, status } = req.body
       if (!tripId || !placeId || !status) {
@@ -338,7 +332,7 @@ export class LocationController {
 
       const entry = await LocationService.savePlaceVisitStatus(tripId, placeId, status)
       res.json({ success: true, data: entry })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Save place visit status error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -347,7 +341,7 @@ export class LocationController {
   /**
    * GET /api/location/visit-status/:tripId
    */
-  static async getPlaceVisitStatuses(req: Request, res: Response): Promise<void> {
+  static async getPlaceVisitStatuses(req, res) {
     try {
       const { tripId } = req.params
       if (!tripId) {
@@ -357,7 +351,7 @@ export class LocationController {
 
       const statuses = await LocationService.getPlaceVisitStatuses(tripId)
       res.json({ success: true, data: statuses })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Get place visit statuses error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -366,7 +360,7 @@ export class LocationController {
   /**
    * POST /api/location/nearby
    */
-  static async getNearbyRecommendations(req: Request, res: Response): Promise<void> {
+  static async getNearbyRecommendations(req, res) {
     try {
       const { latitude, longitude, category, radius, travelStyle, interests, budget, cuisine, rating } = req.body
       if (latitude === undefined || longitude === undefined) {
@@ -386,7 +380,7 @@ export class LocationController {
         rating
       })
       res.json({ success: true, data: recommendations })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Get nearby recommendations error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
@@ -395,7 +389,7 @@ export class LocationController {
   /**
    * POST /api/location/assistant
    */
-  static async getAssistantAdvice(req: Request, res: Response): Promise<void> {
+  static async getAssistantAdvice(req, res) {
     try {
       const { message, latitude, longitude, currentTime, weather, itinerary, preferences } = req.body
       if (!message || latitude === undefined || longitude === undefined) {
@@ -413,9 +407,12 @@ export class LocationController {
         preferences: preferences || {}
       })
       res.json({ success: true, data: advice })
-    } catch (error: any) {
+    } catch (error) {
       console.error('[LocationController] Get AI assistant advice error:', error.message)
       res.status(500).json({ success: false, error: error.message })
     }
   }
 }
+
+module.exports = { LocationController }
+module.exports.LocationController = LocationController

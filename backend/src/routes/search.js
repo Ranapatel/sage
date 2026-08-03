@@ -7,11 +7,7 @@ let enrichHotelsWithImages = async (hotels) => hotels;
 try {
   enrichHotelsWithImages = require('../services/imageService').enrichHotelsWithImages;
 } catch (e) {
-  try {
-    enrichHotelsWithImages = require('../services/imageService.ts').enrichHotelsWithImages;
-  } catch (e2) {
-    console.warn('[search.js] Could not load imageService:', e2.message);
-  }
+  console.warn('[search.js] Could not load imageService:', e.message);
 }
 const { v4: uuidv4 } = require('uuid')
 const { fetchWithRetry } = require('../utils/fetchWithRetry')

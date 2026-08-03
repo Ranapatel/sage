@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { cacheGet, cacheSet, generateCacheKey } from '../../config/redis'
+import { cacheGet, cacheSet, generateCacheKey } from '../config/redis'
 
 interface RecommendationQuery {
   latitude: number
@@ -171,3 +171,4 @@ export class NearbyRecommendationService {
     return scored.sort((a, b) => b.score - a.score)
   }
 }
+

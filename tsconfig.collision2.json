@@ -1,0 +1,18 @@
+﻿{
+    "include":  [
+                    "src/utils/imageScoring.ts",
+                    "repro_root2/utils/imageScoring.ts"
+                ],
+    "compilerOptions":  {
+                            "skipLibCheck":  true,
+                            "outDir":  "./dist",
+                            "allowJs":  true,
+                            "module":  "CommonJS",
+                            "rootDirs":  [
+                                             "src",
+                                             "repro_root2"
+                                         ],
+                            "target":  "ES2022",
+                            "esModuleInterop":  true
+                        }
+}

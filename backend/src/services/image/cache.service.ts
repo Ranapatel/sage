@@ -8,7 +8,7 @@ import {
 export class ImageCacheService {
   public static async get<T = any>(provider: string, query: string): Promise<T | null> {
     const key = formatImageCacheKey(provider, query)
-    return await cacheGet<T>(key)
+    return (await cacheGet(key)) as T | null
   }
 
   public static async set<T = any>(
@@ -18,6 +18,6 @@ export class ImageCacheService {
     ttlSeconds: number = DEFAULT_TTL_SECONDS
   ): Promise<void> {
     const key = formatImageCacheKey(provider, query)
-    await cacheSet<T>(key, value, ttlSeconds)
+    await cacheSet(key, value, ttlSeconds)
   }
 }

@@ -24,7 +24,7 @@ import {
 import { normalizeGeoapifyFeature } from '../utils/locationNormalizer'
 
 // Redis cache helpers — CommonJS module, imported dynamically
-const { cacheGet, cacheSet } = require('../../config/redis')
+const { cacheGet, cacheSet } = require('../config/redis')
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -278,3 +278,4 @@ export class GeocodingService {
     return `geo:${normalized}`
   }
 }
+

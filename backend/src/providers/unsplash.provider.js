@@ -1,16 +1,15 @@
-import axios from 'axios';
-import { ImageObject, UnsplashPhoto, UnsplashSearchResult } from '../types/image';
+const axios = require('axios');
 
 const UNSPLASH_BASE_URL = 'https://api.unsplash.com/search/photos';
 
-export class UnsplashProvider {
+class UnsplashProvider {
   /**
    * Searches Unsplash API for photos matching query, applies quality filtering and Fisher-Yates shuffle.
    */
-  public static async searchPhotos(
-    query: string,
-    requestedCount: number = 5
-  ): Promise<{ images: ImageObject[]; query: string; rateLimitRemaining?: number }> {
+  static async searchPhotos(
+    query,
+    requestedCount = 5
+  ) {
     const apiKey = process.env.UNSPLASH_ACCESS_KEY;
     if (!apiKey) {
       console.warn('[UnsplashProvider] ⚠️  UNSPLASH_ACCESS_KEY is missing');
@@ -21,7 +20,7 @@ export class UnsplashProvider {
 
     try {
       const startTime = Date.now();
-      const response = await axios.get<UnsplashSearchResult>(UNSPLASH_BASE_URL, {
+      const response = await axios.get(UNSPLASH_BASE_URL, {
         params: {
           query,
           orientation: 'landscape',
@@ -69,18 +68,18 @@ export class UnsplashProvider {
       }
 
       // ── 2. Randomization (Fisher-Yates Shuffle) ───────────────────────────
-      const shuffled = this.shuffleArray([...filtered]);
+      const shuffled = UnsplashProvider.shuffleArray([...filtered]);
 
       // ── 3. Map & Select Requested Count ───────────────────────────────────
       const selected = shuffled.slice(0, requestedCount);
-      const images: ImageObject[] = selected.map((photo) => this.mapToImageObject(photo));
+      const images = selected.map((photo) => UnsplashProvider.mapToImageObject(photo));
 
       return {
         images,
         query,
         rateLimitRemaining: rateLimitRemaining ? parseInt(rateLimitRemaining, 10) : undefined,
       };
-    } catch (err: any) {
+    } catch (err) {
       if (err.response?.status === 429) {
         console.error('[UnsplashProvider] ❌ Rate limit exceeded (HTTP 429)');
       } else {
@@ -93,7 +92,7 @@ export class UnsplashProvider {
   /**
    * Maps Unsplash raw API response item to standard ImageObject model.
    */
-  private static mapToImageObject(photo: UnsplashPhoto): ImageObject {
+  static mapToImageObject(photo) {
     const desc = photo.description || photo.alt_description || 'Travel destination photo';
     return {
       id: photo.id,
@@ -112,7 +111,7 @@ export class UnsplashProvider {
   /**
    * Fisher-Yates shuffle algorithm for unbiased random selection.
    */
-  private static shuffleArray<T>(array: T[]): T[] {
+  static shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
@@ -120,3 +119,6 @@ export class UnsplashProvider {
     return array;
   }
 }
+
+module.exports = { UnsplashProvider }
+module.exports.UnsplashProvider = UnsplashProvider

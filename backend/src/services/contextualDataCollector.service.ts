@@ -7,7 +7,12 @@ const weatherService = require('./weatherService')
 
 export class ContextualDataCollector {
   static async collect(userContext: UserTravelContext): Promise<CollectedData> {
-    const { destination, origin, startDate, days, budget, members = 2 } = userContext
+    const destination = userContext.destination || 'Destination'
+    const origin = userContext.origin
+    const startDate = userContext.startDate
+    const days = userContext.days || 3
+    const budget = userContext.budget || 50000
+    const members = userContext.members || 2
 
     const checkin = startDate || new Date().toISOString().split('T')[0]
     // Simple date offset calculation

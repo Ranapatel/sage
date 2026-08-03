@@ -1,19 +1,18 @@
-import { ImageSearchResponse } from '../types/image';
-const { cacheGet, cacheSet } = require('../../config/redis');
+const { cacheGet, cacheSet } = require('../config/redis');
 
 // Fallback in-memory LRU-style cache if Redis is unconfigured or unreachable
-const inMemoryCache = new Map<string, { value: ImageSearchResponse; expiresAt: number }>();
+const inMemoryCache = new Map();
 const DEFAULT_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days in seconds
 
 /**
  * ImageCache Service
  * Key format: images:{type}:{slug} (TTL: 7 days)
  */
-export class ImageCache {
+class ImageCache {
   /**
    * Retrieves cached ImageSearchResponse by key.
    */
-  public static async get(key: string): Promise<ImageSearchResponse | null> {
+  static async get(key) {
     try {
       // 1. Try Redis cache
       const cached = await cacheGet(key);
@@ -24,7 +23,7 @@ export class ImageCache {
           source: 'cache',
         };
       }
-    } catch (err: any) {
+    } catch (err) {
       console.warn(`[ImageCache] Redis GET error for "${key}":`, err.message);
     }
 
@@ -48,12 +47,12 @@ export class ImageCache {
   /**
    * Stores ImageSearchResponse in Redis and in-memory cache with 7-day TTL.
    */
-  public static async set(
-    key: string,
-    value: ImageSearchResponse,
-    ttlSeconds: number = DEFAULT_TTL_SECONDS
-  ): Promise<void> {
-    const responseToCache: ImageSearchResponse = {
+  static async set(
+    key,
+    value,
+    ttlSeconds = DEFAULT_TTL_SECONDS
+  ) {
+    const responseToCache = {
       ...value,
       cached: true,
       source: 'cache',
@@ -68,7 +67,7 @@ export class ImageCache {
     // 2. Store in Redis
     try {
       await cacheSet(key, responseToCache, ttlSeconds);
-    } catch (err: any) {
+    } catch (err) {
       console.warn(`[ImageCache] Redis SET error for "${key}":`, err.message);
     }
   }
@@ -76,7 +75,11 @@ export class ImageCache {
   /**
    * Clear in-memory cache (mainly for testing)
    */
-  public static clearLocalMemory(): void {
+  static clearLocalMemory() {
     inMemoryCache.clear();
   }
 }
+
+module.exports = { ImageCache }
+module.exports.ImageCache = ImageCache
+

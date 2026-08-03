@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 
 /**
  * Weather using Open-Meteo (completely free, no API key required)
@@ -120,3 +120,4 @@ function getMockWeather(destination) {
 }
 
 module.exports = { getWeather }
+

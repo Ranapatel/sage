@@ -231,7 +231,7 @@ export class ImageService {
 
     return {
       url: safeUrl,
-      provider: selected.provider,
+      provider: selected.provider || 'placeholder',
       score: selected.score,
       category,
       query: rawQuery,

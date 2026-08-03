@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import { verifyToken } from '@clerk/backend'
-import { prisma } from '../prisma/prisma.client'
+const { verifyToken } = require('@clerk/backend')
+const { prisma } = require('../prisma/prisma.client')
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -8,29 +8,10 @@ export interface AuthenticatedRequest extends Request {
     clerkUserId: string
     email: string
   }
-  /** Populated by multer when a single file is uploaded (upload.single()) */
-  file?: Express.Multer.File
-  /** Populated by multer when multiple files are uploaded (upload.array() / upload.fields()) */
-  files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] }
 }
 
 /**
  * Clerk Bearer Token Authentication Middleware
- *
- * Behavior contract (post-Phase-0 hardening):
- *   - All protected requests MUST present `Authorization: Bearer <token>`.
- *   - Tokens are verified against Clerk using `@clerk/backend`'s verifyToken().
- *   - On any verification failure: return 401. No fallbacks. No offline mode.
- *   - The authenticated `User` row is resolved from PostgreSQL via Prisma
- *     using the verified `clerkUserId`. If the user does not exist in the
- *     database, return 403.
- *   - We do NOT auto-provision users from the bearer token. Auto-provisioning
- *     is reserved for the verified Clerk webhook handler in
- *     `webhooks/clerk.webhook.ts`, which uses Svix signature verification.
- *     Auto-provisioning here would let an attacker who can present a
- *     *verified-by-Clerk* token (e.g. a test token, a leaked token, or a
- *     Clerk session they actually own) create a User row with attacker-
- *     controlled email/name in our database.
  */
 export async function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization
@@ -52,7 +33,6 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
 
   const secretKey = process.env.CLERK_SECRET_KEY
   if (!secretKey) {
-    // No secret in env = the server is misconfigured. Fail closed.
     console.error('[Clerk Auth] CLERK_SECRET_KEY is not configured')
     return res.status(500).json({
       success: false,
@@ -60,7 +40,7 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
     })
   }
 
-  let sessionClaims
+  let sessionClaims: any
   try {
     sessionClaims = await verifyToken(token, { secretKey })
   } catch (err: any) {
@@ -92,7 +72,7 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
     }
   }
 
-  const clerkUserId = sessionClaims && (sessionClaims as any).sub
+  const clerkUserId = sessionClaims && sessionClaims.sub
   if (!clerkUserId) {
     return res.status(401).json({
       success: false,
@@ -100,10 +80,7 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
     })
   }
 
-  // Map Clerk user → PostgreSQL User. Do not auto-provision here.
-  // The Clerk webhook (webhooks/clerk.webhook.ts) is the source of truth
-  // for user creation, verified via Svix.
-  let dbUser
+  let dbUser: any
   try {
     dbUser = await prisma.user.findUnique({ where: { clerkUserId } })
   } catch (dbErr: any) {
@@ -120,8 +97,7 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
 }
 
 /**
- * Optional Auth Middleware — Attaches req.user if a valid token is present,
- * but calls next() silently if unauthenticated or token is missing.
+ * Optional Auth Middleware
  */
 export async function optionalAuthMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization
@@ -138,7 +114,7 @@ export async function optionalAuthMiddleware(req: AuthenticatedRequest, res: Res
 
   try {
     const sessionClaims = await verifyToken(token, { secretKey })
-    const clerkUserId = sessionClaims && (sessionClaims as any).sub
+    const clerkUserId = sessionClaims && sessionClaims.sub
     if (clerkUserId) {
       const dbUser = await prisma.user.findUnique({ where: { clerkUserId } })
       if (dbUser) {
@@ -155,3 +131,7 @@ export async function optionalAuthMiddleware(req: AuthenticatedRequest, res: Res
 
   return next()
 }
+
+module.exports = { authMiddleware, optionalAuthMiddleware }
+module.exports.authMiddleware = authMiddleware
+module.exports.optionalAuthMiddleware = optionalAuthMiddleware

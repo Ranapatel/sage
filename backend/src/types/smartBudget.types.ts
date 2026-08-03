@@ -1,18 +1,12 @@
-// ✂️ PONYTAIL: Smart Budget Intelligence types defining inputs, feasibility statuses, allocations, and spending tracking.
+export type FeasibilityStatus = 'WITHIN_BUDGET' | 'TIGHT_BUT_FEASIBLE' | 'NOT_FEASIBLE'
 
 export interface SmartBudgetInput {
   destination: string
   origin?: string
-  startDate?: string
-  durationDays: number
+  durationDays?: number
   budget: number
-  currency?: string
   travelers?: number
-  travelStyle?: string
-  preferences?: string[]
 }
-
-export type FeasibilityStatus = 'WITHIN_BUDGET' | 'TIGHT_BUT_FEASIBLE' | 'NOT_FEASIBLE'
 
 export interface CostEstimates {
   flights: number
@@ -30,21 +24,21 @@ export interface BudgetAllocation {
   food: number
   activities: number
   emergencyBuffer: number
-  perDayBreakdown: {
+  perDayBreakdown: Array<{
     day: number
     allocatedAmount: number
     suggestedMaxMealCost: number
     suggestedMaxStayCost: number
-  }[]
+  }>
 }
 
 export interface BudgetAlternativeSuggestions {
   minimumRequiredBudget: number
-  shortenedTripOption?: {
+  shortenedTripOption: {
     suggestedDays: number
     estimatedCost: number
   }
-  nearbyDestinationOption?: {
+  nearbyDestinationOption: {
     destinationName: string
     estimatedCost: number
   }
@@ -61,9 +55,9 @@ export interface BudgetFeasibilityResult {
 
 export interface SpendingItem {
   id?: string
-  category: 'accommodation' | 'transportation' | 'food' | 'activities' | 'misc'
+  category: string
   amount: number
-  description: string
+  description?: string
   date?: string
 }
 

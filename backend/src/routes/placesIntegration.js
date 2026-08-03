@@ -5,33 +5,31 @@
  * and fetching photos. Decouples the frontend from specific APIs (like Google).
  */
 
-import { Router, Request, Response } from 'express'
-import { z } from 'zod'
-import {
+const { Router } = require('express')
+const {
   searchPlaces,
   getPlaceDetails,
   nearbySearch,
   getPlacePhotos,
-  PlaceCategory,
-} from '../services/googlePlaces'
+} = require('../services/googlePlaces')
 
 const router = Router()
 
 // ── Validation Lists ────────────────────────────────────────────────────────
 
-const VALID_SEARCH_CATEGORIES: PlaceCategory[] = [
+const VALID_SEARCH_CATEGORIES = [
   'attractions', 'restaurants', 'cafes', 'museums', 'parks',
   'shopping', 'beaches', 'temples', 'landmarks'
 ]
 
-const VALID_NEARBY_CATEGORIES: PlaceCategory[] = [
+const VALID_NEARBY_CATEGORIES = [
   'restaurants', 'cafes', 'hospitals', 'pharmacies', 'bus_stops',
   'metro_stations', 'parking', 'fuel_stations', 'shopping'
 ]
 
 // ── 1. Search Places ─────────────────────────────────────────────────────────
 
-router.get('/search', async (req: Request, res: Response) => {
+router.get('/search', async (req, res) => {
   try {
     const { destination, category, maxResults } = req.query
 
@@ -39,23 +37,23 @@ router.get('/search', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'destination query parameter is required' })
     }
 
-    if (!category || typeof category !== 'string' || !VALID_SEARCH_CATEGORIES.includes(category as PlaceCategory)) {
+    if (!category || typeof category !== 'string' || !VALID_SEARCH_CATEGORIES.includes(category)) {
       return res.status(400).json({
         success: false,
         error: `category must be one of: ${VALID_SEARCH_CATEGORIES.join(', ')}`
       })
     }
 
-    const parsedMaxResults = maxResults ? parseInt(maxResults as string, 10) : undefined
+    const parsedMaxResults = maxResults ? parseInt(maxResults, 10) : undefined
 
     const data = await searchPlaces({
       destination: destination.trim(),
-      category: category as PlaceCategory,
+      category: category,
       maxResults: parsedMaxResults
     })
 
     return res.json({ success: true, data })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[PlacesIntegration/Search] Error:', err.message)
     return res.status(500).json({ success: false, error: err.message || 'Internal server error' })
   }
@@ -63,7 +61,7 @@ router.get('/search', async (req: Request, res: Response) => {
 
 // ── 2. Place Details ─────────────────────────────────────────────────────────
 
-router.get('/details/:placeId', async (req: Request, res: Response) => {
+router.get('/details/:placeId', async (req, res) => {
   try {
     const { placeId } = req.params
 
@@ -74,7 +72,7 @@ router.get('/details/:placeId', async (req: Request, res: Response) => {
     const data = await getPlaceDetails(placeId.trim())
 
     return res.json({ success: true, data })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[PlacesIntegration/Details] Error:', err.message)
     return res.status(500).json({ success: false, error: err.message || 'Internal server error' })
   }
@@ -82,7 +80,7 @@ router.get('/details/:placeId', async (req: Request, res: Response) => {
 
 // ── 3. Nearby Search ────────────────────────────────────────────────────────
 
-router.get('/nearby', async (req: Request, res: Response) => {
+router.get('/nearby', async (req, res) => {
   try {
     const { latitude, longitude, category, radiusMeters, maxResults } = req.query
 
@@ -90,33 +88,33 @@ router.get('/nearby', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'latitude and longitude query parameters are required' })
     }
 
-    const lat = parseFloat(latitude as string)
-    const lng = parseFloat(longitude as string)
+    const lat = parseFloat(latitude)
+    const lng = parseFloat(longitude)
 
     if (isNaN(lat) || isNaN(lng)) {
       return res.status(400).json({ success: false, error: 'latitude and longitude must be numbers' })
     }
 
-    if (!category || typeof category !== 'string' || !VALID_NEARBY_CATEGORIES.includes(category as PlaceCategory)) {
+    if (!category || typeof category !== 'string' || !VALID_NEARBY_CATEGORIES.includes(category)) {
       return res.status(400).json({
         success: false,
         error: `category must be one of: ${VALID_NEARBY_CATEGORIES.join(', ')}`
       })
     }
 
-    const parsedRadius = radiusMeters ? parseInt(radiusMeters as string, 10) : undefined
-    const parsedMaxResults = maxResults ? parseInt(maxResults as string, 10) : undefined
+    const parsedRadius = radiusMeters ? parseInt(radiusMeters, 10) : undefined
+    const parsedMaxResults = maxResults ? parseInt(maxResults, 10) : undefined
 
     const data = await nearbySearch({
       latitude: lat,
       longitude: lng,
-      category: category as PlaceCategory,
+      category: category,
       radiusMeters: parsedRadius,
       maxResults: parsedMaxResults
     })
 
     return res.json({ success: true, data })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[PlacesIntegration/Nearby] Error:', err.message)
     return res.status(500).json({ success: false, error: err.message || 'Internal server error' })
   }
@@ -124,7 +122,7 @@ router.get('/nearby', async (req: Request, res: Response) => {
 
 // ── 4. Place Photos ─────────────────────────────────────────────────────────
 
-router.get('/photos/:placeId', async (req: Request, res: Response) => {
+router.get('/photos/:placeId', async (req, res) => {
   try {
     const { placeId } = req.params
     const { maxPhotos, maxWidthPx } = req.query
@@ -133,8 +131,8 @@ router.get('/photos/:placeId', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'placeId parameter is required' })
     }
 
-    const parsedMaxPhotos = maxPhotos ? parseInt(maxPhotos as string, 10) : undefined
-    const parsedMaxWidth = maxWidthPx ? parseInt(maxWidthPx as string, 10) : undefined
+    const parsedMaxPhotos = maxPhotos ? parseInt(maxPhotos, 10) : undefined
+    const parsedMaxWidth = maxWidthPx ? parseInt(maxWidthPx, 10) : undefined
 
     const data = await getPlacePhotos({
       placeId: placeId.trim(),
@@ -143,10 +141,11 @@ router.get('/photos/:placeId', async (req: Request, res: Response) => {
     })
 
     return res.json({ success: true, data })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[PlacesIntegration/Photos] Error:', err.message)
     return res.status(500).json({ success: false, error: err.message || 'Internal server error' })
   }
 })
 
-export default router
+module.exports = router
+module.exports.default = router

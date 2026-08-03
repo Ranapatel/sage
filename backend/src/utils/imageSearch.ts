@@ -1,16 +1,6 @@
-export type ImageCategory =
-  | 'destinations'
-  | 'hotels'
-  | 'restaurants'
-  | 'attractions'
-  | 'cars'
-  | 'hero'
-  | 'activities'
+export type ImageCategory = 'hotels' | 'restaurants' | 'attractions' | 'destinations' | 'hero' | 'activities' | 'cars'
 
-/**
- * Known destination query mappings for optimal travel photography search results
- */
-const DESTINATION_MAPPINGS: Record<string, string> = {
+export const DESTINATION_MAPPINGS: Record<string, string> = {
   paris: 'Paris skyline',
   tokyo: 'Tokyo city skyline',
   'new york': 'New York skyline',
@@ -40,10 +30,7 @@ const DESTINATION_MAPPINGS: Record<string, string> = {
   phuket: 'Phuket beach Thailand',
 }
 
-/**
- * Filter out forbidden luxury car search terms and map to realistic rental fleet terms
- */
-const FORBIDDEN_CAR_TERMS = [
+export const FORBIDDEN_CAR_TERMS = [
   'bmw',
   'mercedes',
   'rolls royce',
@@ -56,7 +43,7 @@ const FORBIDDEN_CAR_TERMS = [
   'maserati',
 ]
 
-const CAR_MODEL_MAPPINGS: Record<string, string> = {
+export const CAR_MODEL_MAPPINGS: Record<string, string> = {
   hatchback: 'Compact hatchback rental car',
   economy: 'Economy rental car',
   suv: 'Family SUV rental car',
@@ -71,7 +58,6 @@ const CAR_MODEL_MAPPINGS: Record<string, string> = {
   airport: 'Airport terminal rental car pickup',
 }
 
-/** Categories where Google Places Photos are appropriate (real venues) */
 export const GOOGLE_PLACES_CATEGORIES: ImageCategory[] = [
   'hotels',
   'restaurants',
@@ -79,14 +65,9 @@ export const GOOGLE_PLACES_CATEGORIES: ImageCategory[] = [
   'activities',
 ]
 
-/** Categories where Unsplash is preferred primary (destination inspiration) */
 export const UNSPLASH_PRIMARY_CATEGORIES: ImageCategory[] = ['destinations', 'hero']
 
-/**
- * Category → provider priority chain (excluding hotelbeds special-case and final placeholder).
- * First successful provider with candidates wins; ranking still picks best among candidates.
- */
-export const PROVIDER_PRIORITY: Record<ImageCategory, Array<'google' | 'pexels' | 'unsplash'>> = {
+export const PROVIDER_PRIORITY: Record<string, string[]> = {
   hotels: ['google', 'unsplash', 'pexels'],
   restaurants: ['google', 'unsplash', 'pexels'],
   attractions: ['google', 'unsplash', 'pexels'],
@@ -96,10 +77,7 @@ export const PROVIDER_PRIORITY: Record<ImageCategory, Array<'google' | 'pexels' 
   cars: ['pexels', 'unsplash'],
 }
 
-/**
- * Intelligently normalizes raw search terms into high-relevance contextual photography search queries.
- */
-export function buildContextualSearchQuery(category: ImageCategory, rawQuery: string): string {
+export function buildContextualSearchQuery(category: string, rawQuery?: string): string {
   if (!rawQuery || rawQuery.trim().length === 0) {
     return defaultQueryForCategory(category)
   }
@@ -119,7 +97,6 @@ export function buildContextualSearchQuery(category: ImageCategory, rawQuery: st
     }
 
     case 'restaurants': {
-      // Prefer place-name queries for Google Places; keep contextual for stock APIs
       if (/\b(restaurant|dining|cafe|café|bistro|food|sushi|interior|kitchen)\b/i.test(queryLower)) {
         return rawQuery.trim()
       }
@@ -179,17 +156,11 @@ export function buildContextualSearchQuery(category: ImageCategory, rawQuery: st
   }
 }
 
-/**
- * Build a stock-photo friendly query (Unsplash/Pexels) that is contextual,
- * not a bare place name — especially for destinations and activities.
- */
-export function buildStockPhotoQuery(category: ImageCategory, rawQuery: string): string {
+export function buildStockPhotoQuery(category: string, rawQuery?: string): string {
   const base = buildContextualSearchQuery(category, rawQuery)
 
   switch (category) {
     case 'restaurants':
-      // Unsplash should not be used for hotel/restaurant-specific shots primarily,
-      // but as fallback use generic interior/cuisine context.
       if (/\b(interior|dining|cuisine|food)\b/i.test(base)) return base
       return `${base} interior dining`
     case 'hotels':
@@ -206,7 +177,7 @@ export function buildStockPhotoQuery(category: ImageCategory, rawQuery: string):
   }
 }
 
-function defaultQueryForCategory(category: ImageCategory): string {
+export function defaultQueryForCategory(category: string): string {
   switch (category) {
     case 'hotels':
       return 'luxury hotel resort'
@@ -226,10 +197,7 @@ function defaultQueryForCategory(category: ImageCategory): string {
   }
 }
 
-/**
- * Map Google Places includedType for Text Search (New) based on category.
- */
-export function googleIncludedTypeForCategory(category: ImageCategory): string | undefined {
+export function googleIncludedTypeForCategory(category: string): string | undefined {
   switch (category) {
     case 'hotels':
       return 'lodging'
@@ -243,3 +211,18 @@ export function googleIncludedTypeForCategory(category: ImageCategory): string |
       return undefined
   }
 }
+
+module.exports = {
+  GOOGLE_PLACES_CATEGORIES,
+  UNSPLASH_PRIMARY_CATEGORIES,
+  PROVIDER_PRIORITY,
+  buildContextualSearchQuery,
+  buildStockPhotoQuery,
+  googleIncludedTypeForCategory,
+}
+module.exports.GOOGLE_PLACES_CATEGORIES = GOOGLE_PLACES_CATEGORIES
+module.exports.UNSPLASH_PRIMARY_CATEGORIES = UNSPLASH_PRIMARY_CATEGORIES
+module.exports.PROVIDER_PRIORITY = PROVIDER_PRIORITY
+module.exports.buildContextualSearchQuery = buildContextualSearchQuery
+module.exports.buildStockPhotoQuery = buildStockPhotoQuery
+module.exports.googleIncludedTypeForCategory = googleIncludedTypeForCategory

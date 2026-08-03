@@ -1,74 +1,58 @@
-/**
- * Image Service Architecture — Types
- */
-
 export type EntityType =
   | 'hotel'
+  | 'activity'
+  | 'destination'
+  | 'city'
   | 'restaurant'
   | 'attraction'
+  | 'general'
   | 'beach'
   | 'museum'
   | 'park'
-  | 'destination'
-  | 'general';
-
-export interface ImageObject {
-  id: string;
-  regular: string;
-  small: string;
-  thumb: string;
-  photographer: string;
-  photographerUrl: string;
-  description: string;
-  color: string;
-  width: number;
-  height: number;
-}
+  | string
 
 export interface ImageSearchRequest {
-  entityName: string;
-  entityType: EntityType;
-  city: string;
-  country?: string;
-  count?: number; // 3-5 images for entities, up to 10 for destinations
+  query: string
+  entityType?: EntityType
+  entityName?: string
+  city?: string
+  country?: string
+  category?: string
+  limit?: number
+  count?: number
+}
+
+export interface ImageObject {
+  id: string
+  url?: string
+  regular?: string
+  small?: string
+  thumb?: string
+  thumbnailUrl?: string
+  source?: string
+  width?: number
+  height?: number
+  author?: {
+    name?: string
+    url?: string
+  }
+  score?: number
+  altText?: string
+  photographer?: string
+  photographerUrl?: string
+  description?: string
+  color?: string
 }
 
 export interface ImageSearchResponse {
-  success: boolean;
-  source: 'unsplash' | 'cache' | 'destination_fallback' | 'placeholder';
-  cached: boolean;
-  queryUsed?: string;
-  fallbackUsed?: string;
-  responseTimeMs?: number;
-  images: ImageObject[];
-}
-
-export interface UnsplashSearchResult {
-  total: number;
-  total_pages: number;
-  results: UnsplashPhoto[];
-}
-
-export interface UnsplashPhoto {
-  id: string;
-  width: number;
-  height: number;
-  color: string | null;
-  description: string | null;
-  alt_description: string | null;
-  urls: {
-    raw: string;
-    full: string;
-    regular: string;
-    small: string;
-    thumb: string;
-  };
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    links: {
-      html: string;
-    };
-  };
+  query?: string
+  images: ImageObject[]
+  heroImage?: ImageObject
+  gallery?: ImageObject[]
+  source?: string
+  success?: boolean
+  cached?: boolean
+  queryUsed?: string
+  fallbackUsed?: string
+  responseTimeMs?: number
 }

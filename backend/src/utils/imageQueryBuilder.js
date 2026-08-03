@@ -1,19 +1,17 @@
-import { EntityType, ImageSearchRequest } from '../types/image';
-
 /**
  * Intelligent Image Query Builder & Slug Utility
  */
-export class ImageQueryBuilder {
+class ImageQueryBuilder {
   /**
    * Generates a prioritized list of search queries based on entity type and location metadata.
    */
-  public static buildQueries(request: ImageSearchRequest): string[] {
+  static buildQueries(request) {
     const { entityName, entityType, city, country } = request;
-    const cleanName = this.cleanString(entityName);
-    const cleanCity = this.cleanString(city);
-    const cleanCountry = country ? this.cleanString(country) : '';
+    const cleanName = ImageQueryBuilder.cleanString(entityName);
+    const cleanCity = ImageQueryBuilder.cleanString(city);
+    const cleanCountry = country ? ImageQueryBuilder.cleanString(country) : '';
 
-    const queries: string[] = [];
+    const queries = [];
 
     switch (entityType) {
       case 'hotel':
@@ -128,7 +126,7 @@ export class ImageQueryBuilder {
    * Generates a Redis cache key slug: images:{type}:{slug}
    * Example: images:hotel:taj-palace-new-delhi
    */
-  public static buildCacheKey(entityType: EntityType, entityName: string, city: string): string {
+  static buildCacheKey(entityType, entityName, city) {
     const raw = `${entityName}-${city}`;
     const slug = raw
       .toLowerCase()
@@ -143,7 +141,7 @@ export class ImageQueryBuilder {
   /**
    * Clean string by removing special characters and excess whitespace
    */
-  private static cleanString(str: string | undefined): string {
+  static cleanString(str) {
     if (!str) return '';
     return str
       .replace(/[_\-''`,.&!@#$%^*()]/g, ' ')
@@ -151,3 +149,6 @@ export class ImageQueryBuilder {
       .trim();
   }
 }
+
+module.exports = { ImageQueryBuilder }
+module.exports.ImageQueryBuilder = ImageQueryBuilder

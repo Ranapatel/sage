@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 const { resolvePlaceImage } = require('./placeImageService')
 
 // ── In-memory cache (fast path, resets on restart) ──────────────────────────
@@ -303,3 +303,4 @@ async function searchPlace(query, city = '') {
 }
 
 module.exports = { geocodePlace, enrichItineraryWithRealCoords, searchPlace }
+

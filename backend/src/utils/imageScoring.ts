@@ -1,39 +1,27 @@
 export interface RawImageCandidate {
+  id?: string
   url: string
   width?: number
   height?: number
   title?: string
   description?: string
-  provider: 'hotelbeds' | 'google' | 'pexels' | 'unsplash' | 'placeholder'
-  category?: string
-  placeId?: string
-  photographer?: string
-  photographerUrl?: string
-  attribution?: string
-  /** Higher is better when known (e.g. Google widthPx ranking) */
+  provider?: string
   qualityHint?: number
-  variants?: {
-    hero?: string
-    card?: string
-    mobile?: string
-    thumb?: string
-  }
+  [key: string]: any
 }
 
 export interface ScoredImageCandidate extends RawImageCandidate {
-  score: number // 0 to 100
+  score: number
 }
 
 /**
  * Scores an image candidate for travel UI use.
- * Factors: resolution, landscape orientation, quality signals,
- * provider fitness, travel relevance, watermark/text penalties.
  */
 export function scoreImageCandidate(
   candidate: RawImageCandidate,
   targetCategory?: string
 ): ScoredImageCandidate {
-  let score = 40 // Base score
+  let score = 40
 
   const width = candidate.width || 0
   const height = candidate.height || 0
@@ -41,7 +29,6 @@ export function scoreImageCandidate(
   const description = (candidate.description || '').toLowerCase()
   const textBlob = `${title} ${description}`
 
-  // 1. Resolution (max +25)
   if (width >= 2400 || height >= 1600) {
     score += 25
   } else if (width >= 1920 || height >= 1080) {
@@ -55,59 +42,50 @@ export function scoreImageCandidate(
   } else if (width > 0) {
     score += 1
   } else {
-    // Unknown dimensions — assume decent CDN size
     score += 10
   }
 
-  // 2. Landscape orientation preferred for travel cards/heroes (max +20)
   if (width > 0 && height > 0) {
     const aspectRatio = width / height
     if (aspectRatio >= 1.3 && aspectRatio <= 1.9) {
-      score += 20 // Ideal landscape
+      score += 20
     } else if (aspectRatio > 1.0 && aspectRatio < 1.3) {
       score += 12
     } else if (aspectRatio >= 0.9 && aspectRatio <= 1.1) {
-      score += 6 // Square
+      score += 6
     } else if (aspectRatio < 0.9) {
-      score -= 8 // Portrait penalty for most travel surfaces
+      score -= 8
     } else {
-      score += 8 // Ultra-wide still usable
+      score += 8
     }
   } else {
-    score += 10 // Assume landscape from API orientation filters
+    score += 10
   }
 
-  // 3. Provider fitness by category (max +18)
   score += providerCategoryBonus(candidate.provider, targetCategory)
 
-  // 4. Quality hint from source metadata (max +8)
   if (typeof candidate.qualityHint === 'number') {
     score += Math.min(8, Math.max(0, candidate.qualityHint))
   }
 
-  // 5. Travel relevance keywords (max +10)
   const travelTerms =
     /\b(travel|city|skyline|beach|mountain|hotel|resort|restaurant|dining|landmark|museum|park|temple|palace|airport|car|road|adventure|nature|island|ocean|sunset|architecture|interior|suite|pool)\b/i
   if (travelTerms.test(textBlob)) {
     score += 10
   }
 
-  // 6. Watermark / text overlay / stock spam penalties
   if (/\b(watermark|stock photo|logo|banner|advertisement|promo|text overlay)\b/i.test(textBlob)) {
     score -= 20
   }
 
-  // 7. Modern appearance: prefer higher-res CDN URLs and non-placeholder sources
   if (candidate.provider !== 'placeholder' && candidate.url?.startsWith('https://')) {
     score += 5
   }
 
-  // 8. Invalid URL hard-fail
   if (!candidate.url || !/^https?:\/\//i.test(candidate.url)) {
     score = 0
   }
 
-  // Reject tiny / broken dimension combos when known
   if (width > 0 && height > 0 && (width < 200 || height < 150)) {
     score = Math.min(score, 15)
   }
@@ -121,7 +99,7 @@ export function scoreImageCandidate(
 }
 
 function providerCategoryBonus(
-  provider: RawImageCandidate['provider'],
+  provider?: string,
   category?: string
 ): number {
   const cat = (category || '').toLowerCase()
@@ -155,9 +133,6 @@ function providerCategoryBonus(
   return 0
 }
 
-/**
- * Ranks candidates descending by score and returns the best one.
- */
 export function rankAndSelectBestImage(
   candidates: RawImageCandidate[],
   targetCategory?: string
@@ -171,3 +146,7 @@ export function rankAndSelectBestImage(
 
   return scored[0] || null
 }
+
+module.exports = { scoreImageCandidate, rankAndSelectBestImage }
+module.exports.scoreImageCandidate = scoreImageCandidate
+module.exports.rankAndSelectBestImage = rankAndSelectBestImage

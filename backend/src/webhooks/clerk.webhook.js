@@ -1,8 +1,7 @@
-import { Request, Response } from 'express'
-import { Webhook } from 'svix'
-import { prisma } from '../prisma/prisma.client'
+const { Webhook } = require('svix')
+const { prisma } = require('../prisma/prisma.client')
 
-export async function handleClerkWebhook(req: Request, res: Response) {
+async function handleClerkWebhook(req, res) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
   if (!WEBHOOK_SECRET) {
@@ -14,9 +13,9 @@ export async function handleClerkWebhook(req: Request, res: Response) {
   }
 
   // Retrieve Svix verification headers
-  const svix_id = req.headers['svix-id'] as string
-  const svix_timestamp = req.headers['svix-timestamp'] as string
-  const svix_signature = req.headers['svix-signature'] as string
+  const svix_id = req.headers['svix-id']
+  const svix_timestamp = req.headers['svix-timestamp']
+  const svix_signature = req.headers['svix-signature']
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return res.status(400).json({
@@ -26,7 +25,7 @@ export async function handleClerkWebhook(req: Request, res: Response) {
   }
 
   // Get raw body for verification (assigned via express.json verify middleware)
-  const payload = (req as any).rawBody || JSON.stringify(req.body)
+  const payload = req.rawBody || JSON.stringify(req.body)
   const headers = {
     'svix-id': svix_id,
     'svix-timestamp': svix_timestamp,
@@ -35,10 +34,10 @@ export async function handleClerkWebhook(req: Request, res: Response) {
 
   const wh = new Webhook(WEBHOOK_SECRET)
 
-  let evt: any
+  let evt
   try {
     evt = wh.verify(payload, headers)
-  } catch (err: any) {
+  } catch (err) {
     console.error('Webhook signature verification failed:', err.message)
     return res.status(400).json({
       success: false,
@@ -96,7 +95,7 @@ export async function handleClerkWebhook(req: Request, res: Response) {
       success: true,
       message: 'Clerk webhook sync completed successfully'
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Clerk Webhook Syncer DB Error]:', err.message)
     return res.status(500).json({
       success: false,
@@ -104,3 +103,6 @@ export async function handleClerkWebhook(req: Request, res: Response) {
     })
   }
 }
+
+module.exports = { handleClerkWebhook }
+module.exports.handleClerkWebhook = handleClerkWebhook

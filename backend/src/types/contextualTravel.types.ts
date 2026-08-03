@@ -1,27 +1,22 @@
-// ✂️ PONYTAIL: User travel context interface kept concise without deeply nested sub-schemas to minimize overhead.
-
 export interface UserTravelContext {
-  destination: string
+  destination?: string
   origin?: string
   startDate?: string
-  days: number
-  budget: number
-  currency?: string
+  days?: number
+  budget?: number
   members?: number
-  travelStyle?: string
   interests?: string[]
-  preferredLanguage?: string
+  [key: string]: any
 }
 
 export interface CollectedData {
-  flights?: any[]
   hotels?: any[]
+  activities?: any[]
+  weather?: any
+  flights?: any[]
   trains?: any[]
   buses?: any[]
-  activities?: any[]
-  restaurants?: any[]
-  weather?: any
-  localEvents?: any[]
+  [key: string]: any
 }
 
 export interface ContextAnalysisResult {
@@ -39,12 +34,4 @@ export interface ContextAnalysisResult {
     suggestedTransport: string
   }
   score: number
-}
-
-export interface RecommendationExplanation {
-  whyHotel?: string
-  whyActivity?: string
-  whyRestaurant?: string
-  whyRoute?: string
-  whyTiming?: string
 }

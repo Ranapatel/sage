@@ -1,8 +1,7 @@
 require('dotenv').config();
-import { ImageQueryBuilder } from '../utils/imageQueryBuilder';
-import { ImageCache } from '../cache/image.cache';
-import { ImageService } from '../services/image.service';
-import { ImageSearchRequest } from '../types/image';
+const { ImageQueryBuilder } = require('../utils/imageQueryBuilder');
+const { ImageCache } = require('../cache/image.cache');
+const { ImageService } = require('../services/image.service');
 
 async function runTests() {
   console.log('==================================================');
@@ -12,7 +11,7 @@ async function runTests() {
   let passed = 0;
   let failed = 0;
 
-  function assert(condition: boolean, testName: string) {
+  function assert(condition, testName) {
     if (condition) {
       console.log(`✅ PASS: ${testName}`);
       passed++;
@@ -25,7 +24,7 @@ async function runTests() {
   // ── 1. ImageQueryBuilder Tests ──────────────────────────────────────────────
   console.log('--- 1. Testing ImageQueryBuilder ---');
 
-  const hotelReq: ImageSearchRequest = {
+  const hotelReq = {
     entityName: 'Taj Palace',
     entityType: 'hotel',
     city: 'New Delhi',
@@ -36,7 +35,7 @@ async function runTests() {
   assert(hotelQueries.includes('Taj Palace New Delhi hotel'), 'Hotel query includes fallback name + city');
   assert(hotelQueries.includes('Taj Palace hotel'), 'Hotel query includes fallback name');
 
-  const restReq: ImageSearchRequest = {
+  const restReq = {
     entityName: 'Olive Bar & Kitchen',
     entityType: 'restaurant',
     city: 'New Delhi',
@@ -52,7 +51,7 @@ async function runTests() {
 
   ImageCache.clearLocalMemory();
   const testKey = 'images:hotel:test-hotel-delhi';
-  const dummyResponse: any = {
+  const dummyResponse = {
     success: true,
     source: 'unsplash',
     cached: false,

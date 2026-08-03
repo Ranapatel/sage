@@ -1,24 +1,23 @@
 // ✂️ PONYTAIL: Clean Express router encapsulating all 8 phases of Smart Itinerary Intelligence.
 
-import { Router, Request, Response } from 'express'
-import { SmartItineraryIntelligenceService } from '../services/smartItineraryIntelligence.service'
-import { SmartItineraryInput, LearningFeedback } from '../types/smartItinerary.types'
+const { Router } = require('express')
+const { SmartItineraryIntelligenceService } = require('../services/smartItineraryIntelligence.service')
 
 const router = Router()
 
 /**
  * Phases 1 - 6: Generate End-to-End Smart Itinerary with Explanations & Interactive Metadata
  */
-router.post('/generate', async (req: Request, res: Response) => {
+router.post('/generate', async (req, res) => {
   try {
-    const input: SmartItineraryInput = req.body
+    const input = req.body
     if (!input.destination) {
       return res.status(400).json({ error: 'Destination is required' })
     }
 
     const result = await SmartItineraryIntelligenceService.generate(input)
     return res.json(result)
-  } catch (err: any) {
+  } catch (err) {
     console.error('[SmartItineraryRoutes] Error in /generate:', err.message)
     return res.status(500).json({ error: err.message || 'Smart itinerary generation failed' })
   }
@@ -27,7 +26,7 @@ router.post('/generate', async (req: Request, res: Response) => {
 /**
  * Phase 6: Tap place for interactive inspection details, real-time images, maps, and voice scripts
  */
-router.post('/place-details', (req: Request, res: Response) => {
+router.post('/place-details', (req, res) => {
   try {
     const { placeName, city } = req.body
     if (!placeName || !city) {
@@ -48,7 +47,7 @@ router.post('/place-details', (req: Request, res: Response) => {
       bookingUrl: `https://www.google.com/search?q=${encodedQuery}+booking+tickets`,
       nearbyAttractions: [`Artisan Craft Market near ${placeName}`, `Heritage Bistro near ${placeName}`]
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[SmartItineraryRoutes] Error in /place-details:', err.message)
     return res.status(500).json({ error: err.message || 'Failed to fetch place details' })
   }
@@ -57,7 +56,7 @@ router.post('/place-details', (req: Request, res: Response) => {
 /**
  * Phase 7: Real-Time Dynamic Optimizer (Weather alerts, delays, location shifts)
  */
-router.post('/optimize-live', (req: Request, res: Response) => {
+router.post('/optimize-live', (req, res) => {
   try {
     const { itinerary, weatherAlert, delayMinutes, currentLocation } = req.body
     if (!Array.isArray(itinerary)) {
@@ -66,7 +65,7 @@ router.post('/optimize-live', (req: Request, res: Response) => {
 
     const updated = SmartItineraryIntelligenceService.optimizeLive(itinerary, { weatherAlert, delayMinutes, currentLocation })
     return res.json(updated)
-  } catch (err: any) {
+  } catch (err) {
     console.error('[SmartItineraryRoutes] Error in /optimize-live:', err.message)
     return res.status(500).json({ error: err.message || 'Live optimization failed' })
   }
@@ -75,19 +74,20 @@ router.post('/optimize-live', (req: Request, res: Response) => {
 /**
  * Phase 8: Continuous Learning & Feedback Endpoint
  */
-router.post('/feedback', (req: Request, res: Response) => {
+router.post('/feedback', (req, res) => {
   try {
-    const feedback: LearningFeedback = req.body
+    const feedback = req.body
     if (!feedback.placeName || !feedback.action) {
       return res.status(400).json({ error: 'placeName and action are required' })
     }
 
     const result = SmartItineraryIntelligenceService.processLearningFeedback(feedback)
     return res.json(result)
-  } catch (err: any) {
+  } catch (err) {
     console.error('[SmartItineraryRoutes] Error in /feedback:', err.message)
     return res.status(500).json({ error: err.message || 'Feedback recording failed' })
   }
 })
 
-export default router
+module.exports = router
+module.exports.default = router

@@ -21,7 +21,7 @@ import {
   TripSagePlaceDetailsExtended,
 } from './types'
 
-const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const LLM_MODEL = 'openai/gpt-oss-120b'
@@ -797,3 +797,4 @@ ${JSON.stringify(placesForSummary, null, 2)}`
     return map[level] ?? null
   }
 }
+

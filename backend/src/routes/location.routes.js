@@ -9,10 +9,10 @@
  * Uses the existing zodValidate middleware for request validation.
  */
 
-import { Router } from 'express'
-import { z } from 'zod'
-import { LocationController } from '../controllers/location.controller'
-import { authMiddleware } from '../middleware/auth.middleware'
+const { Router } = require('express')
+const { z } = require('zod')
+const { LocationController } = require('../controllers/location.controller')
+const { authMiddleware } = require('../middleware/auth.middleware')
 
 // Import the existing Zod validation middleware (CommonJS module)
 const { zodValidate } = require('../middleware/validateRequest')
@@ -52,7 +52,7 @@ const routeSchema = z.object({
 router.post(
   '/geocode',
   zodValidate(geocodeSchema),
-  LocationController.geocode as any
+  LocationController.geocode
 )
 
 /**
@@ -64,7 +64,7 @@ router.post(
 router.post(
   '/route',
   zodValidate(routeSchema),
-  LocationController.calculateRoute as any
+  LocationController.calculateRoute
 )
 
 /**
@@ -72,7 +72,7 @@ router.post(
  */
 router.post(
   '/route/optimize',
-  LocationController.optimizeRoute as any
+  LocationController.optimizeRoute
 )
 
 /**
@@ -80,7 +80,7 @@ router.post(
  */
 router.post(
   '/route/save',
-  LocationController.saveRoute as any
+  LocationController.saveRoute
 )
 
 /**
@@ -88,7 +88,7 @@ router.post(
  */
 router.get(
   '/route/trip/:tripId',
-  LocationController.getTripRoutes as any
+  LocationController.getTripRoutes
 )
 
 /**
@@ -98,25 +98,26 @@ router.get(
  */
 router.get(
   '/route/matrix-usage',
-  LocationController.getMatrixUsage as any
+  LocationController.getMatrixUsage
 )
 
 // ── New Intel Navigator Routes ────────────────────────────────────────────────
 
 // User Location Tracking
-router.post('/user-location', authMiddleware as any, LocationController.saveUserLocation as any)
-router.get('/user-location', authMiddleware as any, LocationController.getUserLocation as any)
+router.post('/user-location', authMiddleware, LocationController.saveUserLocation)
+router.get('/user-location', authMiddleware, LocationController.getUserLocation)
 
 // Map Preferences
-router.post('/preference', authMiddleware as any, LocationController.saveMapPreference as any)
-router.get('/preference', authMiddleware as any, LocationController.getMapPreference as any)
+router.post('/preference', authMiddleware, LocationController.saveMapPreference)
+router.get('/preference', authMiddleware, LocationController.getMapPreference)
 
 // Place Visit Status
-router.post('/visit-status', LocationController.savePlaceVisitStatus as any)
-router.get('/visit-status/:tripId', LocationController.getPlaceVisitStatuses as any)
+router.post('/visit-status', LocationController.savePlaceVisitStatus)
+router.get('/visit-status/:tripId', LocationController.getPlaceVisitStatuses)
 
 // Recommendations and Assistant Advice
-router.post('/nearby', LocationController.getNearbyRecommendations as any)
-router.post('/assistant', LocationController.getAssistantAdvice as any)
+router.post('/nearby', LocationController.getNearbyRecommendations)
+router.post('/assistant', LocationController.getAssistantAdvice)
 
-export default router
+module.exports = router
+module.exports.default = router

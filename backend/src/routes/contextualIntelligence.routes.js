@@ -1,10 +1,9 @@
 // ✂️ PONYTAIL: Clean Express router encapsulating all 8 phases of Contextual Travel Intelligence with robust error boundaries.
 
-import { Router, Request, Response } from 'express'
-import { ContextualDataCollector } from '../services/contextualDataCollector.service'
-import { ContextualDecisionEngine } from '../services/contextualDecisionEngine.service'
-import { TravelAssistantService } from '../services/travelAssistant.service'
-import { UserTravelContext } from '../types/contextualTravel.types'
+const { Router } = require('express')
+const { ContextualDataCollector } = require('../services/contextualDataCollector.service')
+const { ContextualDecisionEngine } = require('../services/contextualDecisionEngine.service')
+const { TravelAssistantService } = require('../services/travelAssistant.service')
 
 const { generateItinerary } = require('../services/aiService')
 
@@ -13,9 +12,9 @@ const router = Router()
 /**
  * Phase 1 & 2: User Context Collection & Integrated Data Collection
  */
-router.post('/context', async (req: Request, res: Response) => {
+router.post('/context', async (req, res) => {
   try {
-    const userContext: UserTravelContext = req.body
+    const userContext = req.body
     if (!userContext.destination) {
       return res.status(400).json({ error: 'Destination is required' })
     }
@@ -26,7 +25,7 @@ router.post('/context', async (req: Request, res: Response) => {
       context: userContext,
       data: collectedData,
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[ContextualIntelligence] Error in /context:', err.message)
     return res.status(500).json({ error: err.message || 'Data collection failed' })
   }
@@ -35,7 +34,7 @@ router.post('/context', async (req: Request, res: Response) => {
 /**
  * Phase 3 & 4: Context Analysis & AI Decision Engine
  */
-router.post('/analyze', async (req: Request, res: Response) => {
+router.post('/analyze', async (req, res) => {
   try {
     const { userContext, collectedData } = req.body
     if (!userContext || !userContext.destination) {
@@ -51,7 +50,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
       analysis,
       decision,
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[ContextualIntelligence] Error in /analyze:', err.message)
     return res.status(500).json({ error: err.message || 'Context analysis failed' })
   }
@@ -60,9 +59,9 @@ router.post('/analyze', async (req: Request, res: Response) => {
 /**
  * Phase 1 through 6: End-to-end Contextual Smart Itinerary Generation with Explanations
  */
-router.post('/generate', async (req: Request, res: Response) => {
+router.post('/generate', async (req, res) => {
   try {
-    const userContext: UserTravelContext = req.body
+    const userContext = req.body
     if (!userContext.destination) {
       return res.status(400).json({ error: 'Destination is required' })
     }
@@ -108,7 +107,7 @@ router.post('/generate', async (req: Request, res: Response) => {
       totalEstimatedCost: result.data?.totalEstimatedCost,
       tips: result.data?.tips || [],
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[ContextualIntelligence] Error in /generate:', err.message)
     return res.status(500).json({ error: err.message || 'Smart itinerary generation failed' })
   }
@@ -117,7 +116,7 @@ router.post('/generate', async (req: Request, res: Response) => {
 /**
  * Phase 7 & 8: Real-Time Assistance & Continuous Optimization
  */
-router.post('/assistant', async (req: Request, res: Response) => {
+router.post('/assistant', async (req, res) => {
   try {
     const { message, latitude, longitude, currentTime, weather, itinerary, preferences, completedPlaces, action } = req.body
 
@@ -144,10 +143,11 @@ router.post('/assistant', async (req: Request, res: Response) => {
       success: true,
       advice,
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[ContextualIntelligence] Error in /assistant:', err.message)
     return res.status(500).json({ error: err.message || 'Real-time assistant call failed' })
   }
 })
 
-export default router
+module.exports = router
+module.exports.default = router

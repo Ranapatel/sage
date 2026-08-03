@@ -1,8 +1,5 @@
-import { Request, Response } from 'express'
-import { ImageService } from '../services/image/image.service'
-import { ImageCategory } from '../utils/imageSearch'
-
-const VALID_CATEGORIES: ImageCategory[] = [
+const { ImageService } = require('../services/image/image.service')
+const VALID_CATEGORIES = [
   'destinations',
   'hotels',
   'restaurants',
@@ -12,15 +9,15 @@ const VALID_CATEGORIES: ImageCategory[] = [
   'activities',
 ]
 
-function parseCategory(raw: unknown): ImageCategory {
+function parseCategory(raw) {
   const value = String(raw || 'destinations').toLowerCase().trim()
   // Aliases
-  const aliases: Record<string, ImageCategory> = {
+  const aliases = {
     destination: 'destinations',
     hotel: 'hotels',
     restaurant: 'restaurants',
     cafe: 'restaurants',
-    café: 'restaurants',
+    'café': 'restaurants',
     attraction: 'attractions',
     landmark: 'attractions',
     museum: 'attractions',
@@ -33,28 +30,28 @@ function parseCategory(raw: unknown): ImageCategory {
     banner: 'hero',
   }
   if (aliases[value]) return aliases[value]
-  if ((VALID_CATEGORIES as string[]).includes(value)) return value as ImageCategory
+  if (VALID_CATEGORIES.includes(value)) return value
   return 'destinations'
 }
 
-export class ImageController {
+class ImageController {
   /**
    * Resolves the single highest-scoring image for a query & category.
    * GET /api/v1/images/resolve?query=Paris&category=destinations
    * Optional: placeId, hotelbedsPhotoUrl, city, country
    */
-  public static async resolveImage(req: Request, res: Response): Promise<void> {
+  static async resolveImage(req, res) {
     try {
       const query =
-        (req.query.query as string) ||
-        (req.query.q as string) ||
-        (req.query.name as string) ||
+        (req.query.query) ||
+        (req.query.q) ||
+        (req.query.name) ||
         'travel destination'
       const category = parseCategory(req.query.category || req.query.type)
-      const hotelbedsPhotoUrl = (req.query.hotelbedsPhotoUrl as string) || undefined
-      const placeId = (req.query.placeId as string) || undefined
-      const city = (req.query.city as string) || undefined
-      const country = (req.query.country as string) || undefined
+      const hotelbedsPhotoUrl = (req.query.hotelbedsPhotoUrl) || undefined
+      const placeId = (req.query.placeId) || undefined
+      const city = (req.query.city) || undefined
+      const country = (req.query.country) || undefined
 
       const imageResult = await ImageService.resolveImage(query, category, {
         hotelbedsPhotoUrl,
@@ -80,7 +77,7 @@ export class ImageController {
         success: true,
         data: imageResult,
       })
-    } catch (err: any) {
+    } catch (err) {
       console.error('[ImageController] Error resolving image:', err.message)
       // Soft-fail with placeholder — never break the client with empty images
       res.status(200).json({
@@ -108,19 +105,19 @@ export class ImageController {
    * Searches and ranks multiple image candidates.
    * GET /api/v1/images/search?query=Paris&category=destinations&count=5
    */
-  public static async searchImages(req: Request, res: Response): Promise<void> {
+  static async searchImages(req, res) {
     try {
       const query =
-        (req.query.query as string) ||
-        (req.query.q as string) ||
-        (req.query.name as string) ||
+        (req.query.query) ||
+        (req.query.q) ||
+        (req.query.name) ||
         'travel destination'
       const category = parseCategory(req.query.category || req.query.type)
       const count = Math.min(parseInt(String(req.query.count || '5'), 10) || 5, 12)
-      const placeId = (req.query.placeId as string) || undefined
-      const city = (req.query.city as string) || undefined
-      const country = (req.query.country as string) || undefined
-      const hotelbedsPhotoUrl = (req.query.hotelbedsPhotoUrl as string) || undefined
+      const placeId = (req.query.placeId) || undefined
+      const city = (req.query.city) || undefined
+      const country = (req.query.country) || undefined
+      const hotelbedsPhotoUrl = (req.query.hotelbedsPhotoUrl) || undefined
 
       const results = await ImageService.searchImages(query, category, {
         count,
@@ -137,7 +134,7 @@ export class ImageController {
         count: results.length,
         results,
       })
-    } catch (err: any) {
+    } catch (err) {
       console.error('[ImageController] Error searching images:', err.message)
       res.status(200).json({
         success: true,
@@ -162,3 +159,7 @@ export class ImageController {
     }
   }
 }
+
+module.exports = { ImageController }
+module.exports.ImageController = ImageController
+module.exports.parseCategory = parseCategory

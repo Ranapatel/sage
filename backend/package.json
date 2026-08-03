@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.js",
-    "start": "ts-node src/index.js",
+    "build": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "start": "node dist/index.js",
     "kill": "npx kill-port 4000",
     "restart": "npx kill-port 4000 && nodemon --exec ts-node src/index.js",
     "test:activities": "node src/activities/testRunner.js",

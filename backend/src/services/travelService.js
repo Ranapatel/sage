@@ -1,6 +1,6 @@
 const axios = require('axios')
 const NodeCache = require('node-cache')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 const { isSameCountry } = require('../utils/countryUtils')
 
 // Initialize node-cache with 5 minutes (300 seconds) standard TTL
@@ -658,6 +658,7 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
 module.exports = { searchHotels, searchBuses, searchCars, searchFlights, generateMockHotels, hotelBookingLink }
+
 
 
 

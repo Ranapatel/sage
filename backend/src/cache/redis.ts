@@ -1,26 +1,10 @@
 import axios from 'axios'
 
-// 7 days in seconds
 export const DEFAULT_TTL_SECONDS = 7 * 24 * 60 * 60
 
-interface CacheEntry<T> {
-  value: T
-  expiresAt: number
-}
-
-// In-Memory Fallback Map
-const inMemoryStore = new Map<string, CacheEntry<any>>()
-
-// In-flight promise dedupe — prevents duplicate concurrent API calls for the same key
+const inMemoryStore = new Map<string, { value: any; expiresAt: number }>()
 const inFlight = new Map<string, Promise<any>>()
 
-/**
- * Normalizes Redis cache keys to format: images:{provider}:{query}
- * Examples:
- *   images:google:{placeId}
- *   images:unsplash:{query}
- *   images:pexels:{query}
- */
 export function formatImageCacheKey(provider: string, query: string): string {
   const cleanProvider = provider.toLowerCase().trim()
   const cleanQuery = query
@@ -32,9 +16,6 @@ export function formatImageCacheKey(provider: string, query: string): string {
   return `images:${cleanProvider}:${cleanQuery || 'default'}`
 }
 
-/**
- * Gets a cached item from Upstash Redis or In-Memory fallback.
- */
 export async function cacheGet<T = any>(key: string): Promise<T | null> {
   const restUrl = process.env.UPSTASH_REDIS_REST_URL
   const restToken = process.env.UPSTASH_REDIS_REST_TOKEN
@@ -57,7 +38,6 @@ export async function cacheGet<T = any>(key: string): Promise<T | null> {
     }
   }
 
-  // In-Memory Fallback
   const entry = inMemoryStore.get(key)
   if (entry) {
     if (Date.now() < entry.expiresAt) {
@@ -69,9 +49,6 @@ export async function cacheGet<T = any>(key: string): Promise<T | null> {
   return null
 }
 
-/**
- * Sets a cached item in Upstash Redis and In-Memory fallback with 7-day TTL.
- */
 export async function cacheSet<T = any>(
   key: string,
   value: T,
@@ -86,19 +63,15 @@ export async function cacheSet<T = any>(
   if (restUrl && restToken) {
     try {
       const valStr = typeof value === 'string' ? value : JSON.stringify(value)
-      // Upstash REST SET with EX: POST /set/{key}/{value}?EX={ttl}
       await axios.post(
         `${restUrl}/set/${encodeURIComponent(key)}/${encodeURIComponent(valStr)}?EX=${ttlSeconds}`,
         null,
         {
-          headers: {
-            Authorization: `Bearer ${restToken}`,
-          },
+          headers: { Authorization: `Bearer ${restToken}` },
           timeout: 2500,
         }
       )
     } catch (err: any) {
-      // Fallback: body-style set used by some Upstash clients
       try {
         const valStr = typeof value === 'string' ? value : JSON.stringify(value)
         await axios.post(
@@ -119,11 +92,7 @@ export async function cacheSet<T = any>(
   }
 }
 
-/**
- * Deduplicates concurrent async work for the same key.
- * First caller runs `fn`; subsequent callers await the same promise.
- */
-export async function withInFlightDedupe<T>(key: string, fn: () => Promise<T>): Promise<T> {
+export async function withInFlightDedupe<T = any>(key: string, fn: () => Promise<T>): Promise<T> {
   const existing = inFlight.get(key)
   if (existing) {
     return existing as Promise<T>
@@ -141,10 +110,7 @@ export async function withInFlightDedupe<T>(key: string, fn: () => Promise<T>): 
   return promise
 }
 
-/**
- * Cache-aside helper: return cached value or compute, store, and return.
- */
-export async function cacheGetOrSet<T>(
+export async function cacheGetOrSet<T = any>(
   key: string,
   fn: () => Promise<T>,
   ttlSeconds: number = DEFAULT_TTL_SECONDS,
@@ -155,14 +121,13 @@ export async function cacheGetOrSet<T>(
     return cached
   }
 
-  return withInFlightDedupe(key, async () => {
-    // Double-check after winning the lock
+  return withInFlightDedupe<T>(key, async () => {
     const again = await cacheGet<T>(key)
     if (again != null) return again
 
     const value = await fn()
     const shouldCache =
-      options?.cacheEmpty === true ||
+      (options && options.cacheEmpty === true) ||
       (value != null &&
         !(Array.isArray(value) && value.length === 0) &&
         !(typeof value === 'object' && Object.keys(value as object).length === 0))
@@ -173,3 +138,11 @@ export async function cacheGetOrSet<T>(
     return value
   })
 }
+
+module.exports = { DEFAULT_TTL_SECONDS, formatImageCacheKey, cacheGet, cacheSet, withInFlightDedupe, cacheGetOrSet }
+module.exports.DEFAULT_TTL_SECONDS = DEFAULT_TTL_SECONDS
+module.exports.formatImageCacheKey = formatImageCacheKey
+module.exports.cacheGet = cacheGet
+module.exports.cacheSet = cacheSet
+module.exports.withInFlightDedupe = withInFlightDedupe
+module.exports.cacheGetOrSet = cacheGetOrSet

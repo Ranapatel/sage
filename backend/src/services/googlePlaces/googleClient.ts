@@ -9,7 +9,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 
 // ponytail: reuse the project's existing retry + circuit breaker instead of inventing new ones
 const { withRetry, CircuitBreaker } = require('../retryService')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 
 const BASE_URL = 'https://places.googleapis.com/v1'
 
@@ -106,3 +106,4 @@ export async function googleRequest<T>(opts: GoogleRequestOptions): Promise<T> {
 export function buildPhotoUrl(photoName: string, maxWidthPx = 800): string {
   return `${BASE_URL}/${photoName}/media?maxWidthPx=${maxWidthPx}&key=${API_KEY()}`
 }
+

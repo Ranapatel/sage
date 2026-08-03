@@ -10,5 +10,5 @@
     "*.log",
     "crash.log"
   ],
-  "ext": "js,json"
+  "ext": "js,ts,json"
 }

@@ -6,7 +6,7 @@
 
 // ── Curated High-Resolution Photo Pools per Cuisine Category ─────────────────
 
-export const CUISINE_PHOTO_POOLS: Record<string, string[]> = {
+const CUISINE_PHOTO_POOLS = {
   indian: [
     'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=80', // Chicken tikka curry
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80', // Indian dining ambiance
@@ -149,7 +149,7 @@ export const CUISINE_PHOTO_POOLS: Record<string, string[]> = {
 
 // ── Category Normalization Helper ─────────────────────────────────────────────
 
-export function normalizeCuisineCategory(cuisine: string = '', category: string = ''): string {
+function normalizeCuisineCategory(cuisine = '', category = '') {
   const text = `${cuisine} ${category}`.toLowerCase()
 
   if (text.includes('french') || text.includes('bistro') || text.includes('brasserie') || text.includes('paris')) return 'french'
@@ -175,7 +175,7 @@ export function normalizeCuisineCategory(cuisine: string = '', category: string 
 
 // ── Deterministic Hash for Distinct Image Selection ───────────────────────────
 
-function hashString(str: string): number {
+function hashString(str) {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
@@ -189,7 +189,7 @@ function hashString(str: string): number {
  * Returns a distinct, category-matched fallback image URL for a given restaurant.
  * Guarantees different restaurants receive different images.
  */
-export function getCategoryFallbackImage(cuisine: string, restaurantName: string, placeId?: string): string {
+function getCategoryFallbackImage(cuisine, restaurantName, placeId) {
   const catKey = normalizeCuisineCategory(cuisine)
   const pool = CUISINE_PHOTO_POOLS[catKey] || CUISINE_PHOTO_POOLS.general_dining
   const seed = `${placeId || ''}_${restaurantName}_${cuisine}`
@@ -200,13 +200,13 @@ export function getCategoryFallbackImage(cuisine: string, restaurantName: string
 /**
  * Returns a full list of fallback images for gallery preview if API photos are absent.
  */
-export function getCategoryFallbackGallery(cuisine: string, restaurantName: string, placeId?: string): string[] {
+function getCategoryFallbackGallery(cuisine, restaurantName, placeId) {
   const catKey = normalizeCuisineCategory(cuisine)
   const pool = CUISINE_PHOTO_POOLS[catKey] || CUISINE_PHOTO_POOLS.general_dining
   const seed = `${placeId || ''}_${restaurantName}_${cuisine}`
   const startIndex = hashString(seed) % pool.length
 
-  const gallery: string[] = []
+  const gallery = []
   for (let i = 0; i < Math.min(pool.length, 4); i++) {
     gallery.push(pool[(startIndex + i) % pool.length])
   }
@@ -215,10 +215,10 @@ export function getCategoryFallbackGallery(cuisine: string, restaurantName: stri
 
 // ── Category SVG Data URI Generator (for 100% Offline / Error Fallbacks) ──────
 
-export function getCategorySvgDataUri(cuisine: string, restaurantName: string): string {
+function getCategorySvgDataUri(cuisine, restaurantName) {
   const catKey = normalizeCuisineCategory(cuisine)
 
-  const THEMES: Record<string, { bg1: string; bg2: string; icon: string; label: string }> = {
+  const THEMES = {
     indian: {
       bg1: '#7C2D12',
       bg2: '#EA580C',
@@ -344,3 +344,16 @@ export function getCategorySvgDataUri(cuisine: string, restaurantName: string): 
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
+
+module.exports = {
+  CUISINE_PHOTO_POOLS,
+  normalizeCuisineCategory,
+  getCategoryFallbackImage,
+  getCategoryFallbackGallery,
+  getCategorySvgDataUri,
+}
+module.exports.CUISINE_PHOTO_POOLS = CUISINE_PHOTO_POOLS
+module.exports.normalizeCuisineCategory = normalizeCuisineCategory
+module.exports.getCategoryFallbackImage = getCategoryFallbackImage
+module.exports.getCategoryFallbackGallery = getCategoryFallbackGallery
+module.exports.getCategorySvgDataUri = getCategorySvgDataUri

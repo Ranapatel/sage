@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { googleRequest, buildPhotoUrl } from './googlePlaces/googleClient'
-const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 
 const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY
 const GOOGLE_API_KEY_CONFIGURED = () => {
@@ -644,3 +644,4 @@ export async function enrichHotelsWithImages(hotels: any[], destination: string)
 
   return Promise.all(promises)
 }
+

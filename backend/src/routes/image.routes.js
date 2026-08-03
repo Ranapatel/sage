@@ -1,5 +1,5 @@
-import { Router } from 'express'
-import { ImageController } from '../controllers/image.controller'
+const { Router } = require('express')
+const { ImageController } = require('../controllers/image.controller')
 
 const router = Router()
 
@@ -14,4 +14,5 @@ router.get('/resolve', ImageController.resolveImage)
 router.get('/search', ImageController.searchImages)
 router.get('/', ImageController.resolveImage)
 
-export default router
+module.exports = router
+module.exports.default = router

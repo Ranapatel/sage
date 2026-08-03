@@ -41,7 +41,7 @@ export class GeoapifyGeocodingService {
       latitude: result.latitude,
       longitude: result.longitude,
       formatted_address: result.formattedAddress,
-      placeId: result.placeId,
+      placeId: result.placeId || '',
     }
   }
 }

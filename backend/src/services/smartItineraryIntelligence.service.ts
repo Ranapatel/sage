@@ -94,21 +94,22 @@ export class SmartItineraryIntelligenceService {
 
       // If user provided a booked hotel, append it to Day 1
       if (idx === 0 && bookedHotel) {
+        const hotelObj = typeof bookedHotel === 'string' ? { name: bookedHotel, coordinates: null } : bookedHotel
         places.unshift({
-          name: `${bookedHotel.name} — Accommodation Check-In`,
+          name: `${hotelObj.name} — Accommodation Check-In`,
           category: 'accommodation',
           time: '12:00',
-          coordinates: bookedHotel.coordinates || null,
-          description: `Check-in and refresh at your booked stay: ${bookedHotel.name}`,
+          coordinates: hotelObj.coordinates || null,
+          description: `Check-in and refresh at your booked stay: ${hotelObj.name}`,
           estimatedCost: 0,
           whySelected: 'Your explicitly booked accommodation.',
           bestTimeToVisit: 'Standard check-in from 12:00 PM',
-          nearbyPlaces: [`Neighborhood Bistro — near ${bookedHotel.name}`],
+          nearbyPlaces: [`Neighborhood Bistro — near ${hotelObj.name}`],
           travelTimeMinutes: 10,
           tips: 'Keep physical ID cards ready for check-in.',
           realTimeImages: ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80'],
-          googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(bookedHotel.name + ' ' + destinationCity)}`,
-          voiceScript: `Welcome to ${bookedHotel.name}. Enjoy your stay in ${destinationCity}!`,
+          googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotelObj.name + ' ' + destinationCity)}`,
+          voiceScript: `Welcome to ${hotelObj.name}. Enjoy your stay in ${destinationCity}!`,
         })
       }
 
@@ -126,7 +127,7 @@ export class SmartItineraryIntelligenceService {
       totalEstimatedCost: rawResult.data?.totalEstimatedCost || Math.round(budget * 0.85),
       itinerary: enrichedItinerary,
       explanationsSummary: rawResult.data?.explanations || {
-        whyHotel: bookedHotel ? `Using your confirmed booking at ${bookedHotel.name}.` : `Central stay selected to minimize transit times.`,
+        whyHotel: bookedHotel ? `Using your confirmed booking at ${typeof bookedHotel === 'string' ? bookedHotel : bookedHotel.name}.` : `Central stay selected to minimize transit times.`,
         whyActivities: `Matched to interest tags: ${interests.join(', ')}.`,
         whyRestaurants: `Curated authentic regional culinary options.`,
         whyRoute: `Geographically sequenced to eliminate unnecessary backtracking.`,
@@ -140,7 +141,7 @@ export class SmartItineraryIntelligenceService {
   }
 
   /**
-   * Phase 7: Real-Time Dynamic Optimizer (Weather, Traffic, Delays)
+   * Phase 7: Dynamic Re-routing & Real-Time Schedule Shifting Engine
    */
   static optimizeLive(itinerary: SmartItineraryDay[], liveCondition: { weatherAlert?: string; delayMinutes?: number; currentLocation?: [number, number] }) {
     const { weatherAlert, delayMinutes = 0 } = liveCondition
@@ -150,7 +151,7 @@ export class SmartItineraryIntelligenceService {
         let updatedTime = place.time
         let statusNotice = 'Scheduled'
 
-        if (delayMinutes > 0) {
+        if (delayMinutes > 0 && place.time) {
           const [h, m] = place.time.split(':').map(Number)
           const newMins = (h * 60 + m + delayMinutes) % 1440
           const newH = Math.floor(newMins / 60)
