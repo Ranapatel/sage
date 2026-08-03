@@ -24,6 +24,7 @@ import { useTripStore } from '@/store/tripStore'
 import { tripAPI } from '@/lib/api'
 import TravelMemories from '@/components/photos/TravelMemories'
 import { addBookmark } from '@/lib/bookmarkUtils'
+import { getDayCount, getDateForDay } from '@/lib/utils'
 import StoryCardModal from './StoryCardModal'
 import CollaborativeInviteModal from './CollaborativeInviteModal'
 
@@ -62,6 +63,15 @@ interface Props {
   itinerary: Day[]
   loading: boolean
   destination?: string
+  /**
+   * Trip start date (YYYY-MM-DD). When provided, this is the SINGLE SOURCE
+   * OF TRUTH for the number of itinerary days. The view will pad or trim
+   * the `itinerary` array so that the number of day tabs, the "Your X Days"
+   * header, and the daily plans all match this range exactly.
+   */
+  startDate?: string
+  /** Trip end date (YYYY-MM-DD). Together with startDate, drives the day count. */
+  endDate?: string
   onRegenerate?: () => void
 }
 
@@ -910,22 +920,112 @@ function ItineraryLoadingSkeleton() {
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Main component Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
-function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegenerate }: Props) {
+function ItineraryView({
+  itinerary: rawItinerary,
+  loading,
+  destination,
+  startDate,
+  endDate,
+  onRegenerate,
+}: Props) {
+  // ─── Source of truth ────────────────────────────────────────────────────
+  // The selected travel date range is the ONLY source of truth for the
+  // number of itinerary days. We deliberately IGNORE `itinerary.length`
+  // when the user has a valid date range — backend results are padded or
+  // trimmed so the header, day tabs and daily plans always match the
+  // selected range. (4 Aug → 10 Aug always produces Day 1…Day 7.)
+  const dateRangeDayCount = getDayCount(startDate, endDate)
+
+  // Normalize the raw itinerary: ensure `places` is always an array, then
+  // pad/trim to the date-range day count and stamp each day with the
+  // correct calendar date. Day numbers are forced to 1..N with no gaps
+  // and no duplicates.
   const itinerary = useMemo(() => {
     if (!Array.isArray(rawItinerary)) return []
-    return rawItinerary.map((day: any) => {
-      if (!day) return day
-      let places = day.places
-      if (!places || !Array.isArray(places)) {
-        const slots = day.slots || {}
-        places = [slots.morning, slots.afternoon, slots.evening, slots.night].filter(Boolean)
-      }
-      return {
-        ...day,
-        places: places || []
-      }
-    })
-  }, [rawItinerary])
+    const cleaned = rawItinerary
+      .filter((d: any) => d != null)
+      .map((day: any) => {
+        let places = day.places
+        if (!places || !Array.isArray(places)) {
+          const slots = day.slots || {}
+          places = [slots.morning, slots.afternoon, slots.evening, slots.night].filter(Boolean)
+        }
+        return {
+          ...day,
+          places: Array.isArray(places) ? places : [],
+        }
+      })
+
+    if (dateRangeDayCount <= 0) {
+      // No valid date range — best-effort: sort by `day`, dedupe, return.
+      return cleaned
+        .slice()
+        .sort((a: any, b: any) => (a.day || 0) - (b.day || 0))
+        .filter((d: any, i: number, arr: any[]) =>
+          arr.findIndex((x: any) => x.day === d.day) === i
+        )
+    }
+
+    // Dedupe by `day` (keep first occurrence) and sort ascending.
+    const seen = new Set<number>()
+    const deduped = cleaned
+      .slice()
+      .sort((a: any, b: any) => (a.day || 0) - (b.day || 0))
+      .filter((d: any) => {
+        const k = d.day
+        if (seen.has(k)) return false
+        seen.add(k)
+        return true
+      })
+
+    // Pad / trim to exactly `dateRangeDayCount` days, force day number to
+    // be 1..N, and stamp the correct calendar date derived from startDate.
+    const normalized: Day[] = []
+    for (let i = 1; i <= dateRangeDayCount; i++) {
+      const existing = deduped.find((d: any) => d.day === i) || deduped[i - 1]
+      const correctDate = getDateForDay(startDate, i) || existing?.date
+      normalized.push({
+        ...(existing || { day: i }),
+        day: i,
+        date: correctDate,
+        places: existing?.places || [],
+      })
+    }
+    return normalized
+  }, [rawItinerary, dateRangeDayCount, startDate])
+
+  // The number of days we render. When a date range is present, this is
+  // ALWAYS equal to dateRangeDayCount. When no range is present, fall back
+  // to the (already-deduped) backend result.
+  const totalDayCount = dateRangeDayCount > 0 ? dateRangeDayCount : itinerary.length
+
+  // ─── Consistency validation guard ───────────────────────────────────────
+  // Bail out (and surface an empty-state) if the itinerary, date range, or
+  // header are inconsistent. This protects against bugs where the backend
+  // returns malformed data.
+  const validationError = useMemo(() => {
+    if (loading) return null
+    if (totalDayCount === 0) return null
+    if (dateRangeDayCount > 0 && itinerary.length !== dateRangeDayCount) {
+      return `Itinerary day count (${itinerary.length}) does not match date range (${dateRangeDayCount}).`
+    }
+    const dayNumbers = itinerary.map(d => d.day)
+    const unique = new Set(dayNumbers)
+    if (unique.size !== dayNumbers.length) {
+      return `Itinerary contains duplicate day numbers: [${dayNumbers.join(', ')}].`
+    }
+    const expected = Array.from({ length: totalDayCount }, (_, i) => i + 1)
+    const missing = expected.filter(n => !unique.has(n))
+    if (missing.length > 0) {
+      return `Itinerary is missing day(s): [${missing.join(', ')}].`
+    }
+    return null
+  }, [loading, totalDayCount, dateRangeDayCount, itinerary])
+
+  if (validationError && process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line no-console
+    console.error('[ItineraryView] validation error:', validationError)
+  }
 
   const [activeDay, setActiveDay] = useState(0)
   const [showStoryModal, setShowStoryModal] = useState(false)
@@ -1012,10 +1112,10 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
   // Clamp activeDay within bounds whenever itinerary changes
   useEffect(() => {
-    if (activeDay >= itinerary.length && itinerary.length > 0) {
+    if (activeDay >= totalDayCount && totalDayCount > 0) {
       setActiveDay(0)
     }
-  }, [itinerary.length, activeDay])
+  }, [totalDayCount, activeDay])
 
   // Scroll active day chip into view
   useEffect(() => {
@@ -1190,7 +1290,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
 
   if (loading) return <ItineraryLoadingSkeleton />
 
-  if (itinerary.length === 0) {
+  if (totalDayCount === 0) {
     return (
       <div
         className="flex flex-col items-center justify-center py-20 rounded-2xl text-center"
@@ -1210,6 +1310,25 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
     )
   }
 
+  // ─── Hard guard: refuse to render the broken UI if validation failed ───
+  // In production we log the error and continue with the normalized data
+  // (we already padded/trimmed above so the user sees *something*), but
+  // in dev we surface the inconsistency to make debugging immediate.
+  if (validationError) {
+    if (process.env.NODE_ENV !== 'production') {
+      return (
+        <div
+          className="flex flex-col items-center justify-center py-12 rounded-2xl text-center"
+          style={{ background: '#FFFFFF', border: '1px solid #FECACA' }}
+        >
+          <AlertTriangle size={28} className="text-red-500 mb-2" />
+          <h3 className="font-bold text-[#1A1A1A] text-lg mb-1">Itinerary out of sync</h3>
+          <p className="text-[#6B6B6B] text-sm max-w-md">{validationError}</p>
+        </div>
+      )
+    }
+  }
+
   const currentDay = itinerary[activeDay] || itinerary[0]
   const routeUrl = buildRouteUrl(currentDay.places, destination)
 
@@ -1221,7 +1340,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
           <h2 className="font-bold text-[#1A1A1A] text-2xl leading-tight">
             Your{' '}
             <span style={{ color: '#EA580C' }}>
-              {itinerary.length} {itinerary.length === 1 ? 'Day' : 'Days'}
+              {totalDayCount} {totalDayCount === 1 ? 'Day' : 'Days'}
             </span>
             ,{' '}
             <span style={{ color: '#EA580C' }}>
@@ -1450,7 +1569,7 @@ function ItineraryView({ itinerary: rawItinerary, loading, destination, onRegene
         isOpen={showStoryModal}
         onClose={() => setShowStoryModal(false)}
         destination={destination || 'Trip'}
-        durationDays={itinerary.length}
+        durationDays={totalDayCount}
         places={itinerary.flatMap((d: any) => d.places || []).map((p: any) => p.name).filter(Boolean)}
       />
 

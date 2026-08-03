@@ -9,7 +9,7 @@ import { isIndianTrip } from '@/lib/indianCities'
 import { useSocket } from '@/hooks/useSocket'
 import { tripAPI } from '@/lib/api'
 import { fetchWithRetry } from '@/lib/fetchWithRetry'
-import { formatDate, getDaysBetween } from '@/lib/utils'
+import { formatDate, getDaysBetween, getDayCount, getDateForDay } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { useUser } from '@clerk/nextjs'
 import { SYMBOLS, formatPrice, ALL_CURRENCIES, convertToINR } from '@/lib/currency'
@@ -104,19 +104,37 @@ const getMinRequiredBudgetInINR = (from: string, to: string, days: number, trave
   return totalFlightCost + totalHotelCost + totalDailyExpense;
 }
 
-function createFallbackItinerary(destination: string, daysCount: number, style: string) {
+function createFallbackItinerary(
+  destination: string,
+  daysCount: number,
+  style: string,
+  startDate?: string
+) {
   const destName = (destination || 'Destination').split(',')[0].trim()
   const days = []
-  
+  // Each day N must carry the actual calendar date (startDate + (N-1) days).
+  // If no startDate is provided, fall back to today.
+  const baseDate = startDate && !isNaN(new Date(startDate).getTime())
+    ? new Date(startDate)
+    : new Date()
+
   for (let i = 1; i <= daysCount; i++) {
     const theme = i === 1 ? `Arrival & Highlights of ${destName}`
       : i === 2 ? `Cultural Exploration & Landmark Tour`
       : i === 3 ? `Scenic Sights & Hidden Gems`
       : `Day ${i}: Local Experiences & Leisure`
-      
+
+    // Compute the calendar date for this day in local time (no UTC off-by-one)
+    const d = new Date(baseDate.getTime())
+    d.setDate(d.getDate() + (i - 1))
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    const dateStr = `${yyyy}-${mm}-${dd}`
+
     days.push({
       day: i,
-      date: new Date().toISOString().split('T')[0],
+      date: dateStr,
       theme,
       weather: { condition: 'Sunny', temp: '26°C', note: 'Pleasant sightseeing weather' },
       foodNote: `Try popular local specialties and cozy cafes around central ${destName}`,
@@ -523,14 +541,10 @@ export default function PlanClient() {
         // Itinerary fetched in parallel
         fetchWithRetry(
           (s) => {
-            let daysCount = 3
-            if (p.startDate && p.endDate) {
-              const start = new Date(p.startDate).getTime()
-              const end = new Date(p.endDate).getTime()
-              if (!isNaN(start) && !isNaN(end)) {
-                daysCount = Math.max(1, Math.ceil((end - start) / (1000 * 3600 * 24)))
-              }
-            }
+            // Use the inclusive day count so a 4 Aug→10 Aug trip
+            // requests 7 days, not 6. getDayCount is the single source of truth.
+            let daysCount = getDayCount(p.startDate, p.endDate)
+            if (daysCount === 0) daysCount = 3
             daysCount = Math.min(Math.max(daysCount, 1), 90)
 
             return tripAPI.generateItinerary({
@@ -584,9 +598,10 @@ export default function PlanClient() {
       if (itineraryResult?.data?.itinerary && itineraryResult.data.itinerary.length > 0) {
         setItinerary(itineraryResult.data.itinerary)
       } else {
-        // Fallback itinerary generator ensures users always get a complete day-by-day plan
-        const calcDays = (p.startDate && p.endDate) ? Math.max(1, getDaysBetween(p.startDate, p.endDate)) : 3
-        setItinerary(createFallbackItinerary(p.to, calcDays, p.style))
+        // Fallback itinerary generator ensures users always get a complete day-by-day plan.
+        // Use the inclusive getDayCount so a 4 Aug→10 Aug trip becomes 7 days, not 6.
+        const calcDays = getDayCount(p.startDate, p.endDate) || 3
+        setItinerary(createFallbackItinerary(p.to, calcDays, p.style, p.startDate))
       }
 
       // Subscribe to real-time updates via WebSocket (price drops, alerts)
@@ -1260,6 +1275,8 @@ export default function PlanClient() {
                 itinerary={itinerary}
                 loading={loading}
                 destination={tripContext.destination}
+                startDate={tripContext.startDate}
+                endDate={tripContext.endDate}
                 onRegenerate={handleRegenerate}
               />
             </div>

@@ -85,6 +85,49 @@ export function getDaysBetween(start: string, end: string): number {
   return Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24))
 }
 
+/**
+ * Single source of truth for the number of itinerary days in a trip.
+ *
+ * Returns the *inclusive* day count for a date range — i.e. a trip from
+ * 4 Aug → 10 Aug is 7 days (Day 1, Day 2, …, Day 7), not 6.
+ *
+ * This is the ONLY function the rest of the app should use when it
+ * needs to know "how many days is this trip?". It guarantees:
+ *   - startDate is a valid date and ≤ endDate
+ *   - same-day trips still return at least 1
+ *   - dates are parsed in *local* time (avoids UTC off-by-one)
+ *   - the result is always ≥ 1 and is an integer
+ */
+export function getDayCount(startDate?: string | null, endDate?: string | null): number {
+  if (!startDate || !endDate) return 0
+  const s = new Date(startDate)
+  const e = new Date(endDate)
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return 0
+  if (e.getTime() < s.getTime()) return 0
+  // Inclusive day diff: 4 Aug → 4 Aug = 1 day, 4 Aug → 10 Aug = 7 days
+  const MS_PER_DAY = 1000 * 60 * 60 * 24
+  const diff = Math.round((e.getTime() - s.getTime()) / MS_PER_DAY) + 1
+  return Math.max(1, diff)
+}
+
+/**
+ * Returns the calendar date (YYYY-MM-DD) for the Nth day of the trip,
+ * given the trip's start date. Day 1 = startDate, Day 2 = startDate + 1, etc.
+ * Returns null when the inputs are invalid.
+ */
+export function getDateForDay(startDate: string | null | undefined, dayNumber: number): string | null {
+  if (!startDate || !dayNumber || dayNumber < 1) return null
+  const s = new Date(startDate)
+  if (isNaN(s.getTime())) return null
+  const d = new Date(s.getTime())
+  d.setDate(d.getDate() + (dayNumber - 1))
+  // Use local-time formatting to avoid UTC off-by-one
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

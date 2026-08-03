@@ -195,7 +195,7 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
     if (!details) return
     const url = details.googleMapsUrl || window.location.href
     if (navigator.share) {
-      navigator.share({ title: details.name, text: details.description || `Check out ${details.name}!`, url }).catch(() => {})
+      navigator.share({ title: details.name, text: details.description || `Check out ${details.name}!`, url }).catch(() => { })
     } else {
       navigator.clipboard.writeText(url)
     }
