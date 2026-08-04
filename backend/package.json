@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.js",
-    "build": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "clean:prisma": "node -e \"fs.rmSync('node_modules/.prisma', { recursive: true, force: true })\"",
+    "build": "npm run clean:prisma && npx prisma generate && node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && tsc",
     "start": "node dist/index.js",
     "kill": "npx kill-port 4000",
     "restart": "npx kill-port 4000 && nodemon --exec ts-node src/index.js",
@@ -17,7 +18,7 @@
   },
   "dependencies": {
     "@clerk/backend": "^1.0.0",
-    "@prisma/client": "^5.11.0",
+    "@prisma/client": "^5.22.0",
     "@types/multer": "^2.2.0",
     "axios": "^1.6.8",
     "bullmq": "^5.76.1",
@@ -49,7 +50,7 @@
     "@types/node": "^20.11.25",
     "@types/sharp": "^0.31.1",
     "nodemon": "^3.1.0",
-    "prisma": "^5.11.0",
+    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   },

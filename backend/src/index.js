@@ -218,15 +218,21 @@ app.use((err, req, res, _next) => {
   })
 })
 
-// ── DB + Seed ──────────────────────────────────────────────────────────────────
+// ── DB + Seed + Prisma Validation ─────────────────────────────────────────────
 const connectDB  = require('./config/database')
 const seedDemo   = require('./services/seedService')
+const { validatePrismaClient } = require('./prisma/prisma.client')
+
 connectDB()
   .then(() => seedDemo())
   .catch(err => {
     console.warn('[TripSage] DB connection skipped:', err.message)
     seedDemo() // in-memory fallback
   })
+
+validatePrismaClient().catch(err => {
+  console.warn('[TripSage] Prisma validation warning:', err.message)
+})
 
 // ── Redis ──────────────────────────────────────────────────────────────────────
 const { connectRedis } = require('./config/redis')
