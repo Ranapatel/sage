@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 WORKDIR /app
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init openssl libssl3
 
 # Install ALL deps (including devDeps needed for tsc build)
 COPY package.json package-lock.json* ./
