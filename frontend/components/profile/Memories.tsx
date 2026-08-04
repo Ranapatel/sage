@@ -94,7 +94,7 @@ export default function Memories() {
       const token = await getToken()
       let fetched: MemoryData[] = []
       if (token) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         const response = await axios.get(`${apiUrl}/api/profile/memories`, {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -154,7 +154,7 @@ export default function Memories() {
 
       const token = await getToken()
       if (token) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         await axios.delete(`${apiUrl}/api/profile/memories/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -173,7 +173,7 @@ export default function Memories() {
 
     try {
       const token = await getToken()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
       const response = await axios.post(
         `${apiUrl}/api/profile/memories`,

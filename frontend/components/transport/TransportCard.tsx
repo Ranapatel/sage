@@ -54,7 +54,7 @@ function TransportCard({ item, showDetail }: Props) {
   }, [initialBanner])
 
   return (
-    <div className="group bg-white rounded-3xl border border-[#E8E0D8] hover:border-[#EA580C] shadow-xs hover:shadow-xl transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 relative overflow-hidden">
+    <div className="group bg-white rounded-[20px] border border-[#E8E0D8] hover:border-[#EA580C] shadow-xs hover:shadow-xl transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 relative overflow-hidden w-full min-w-0 box-border">
       {/* Background hover accent glow */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
@@ -86,9 +86,9 @@ function TransportCard({ item, showDetail }: Props) {
       </div>
 
       {/* SECTION 2: Flight Timeline & Duration Bar (Contained Card on Mobile) */}
-      <div className="flex-1 w-full bg-[#FFFBF7]/80 md:bg-transparent border md:border-0 border-[#E8E0D8]/80 rounded-2xl p-3 md:p-0 flex items-center justify-between md:justify-center gap-2 sm:gap-4 px-2 relative z-10">
-        <div className="text-left md:text-center shrink-0 min-w-[60px]">
-          <span className="text-lg sm:text-xl md:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
+      <div className="flex-1 w-full bg-[#FFFBF7]/80 md:bg-transparent border md:border-0 border-[#E8E0D8]/80 rounded-2xl p-3 md:p-0 flex items-center justify-between md:justify-center gap-1 sm:gap-4 px-1 sm:px-2 relative z-10 min-w-0">
+        <div className="text-left md:text-center shrink-0 min-w-[50px]">
+          <span className="text-base sm:text-xl md:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
             {item.departure || item.departureTime || '--:--'}
           </span>
           <span className="text-[10px] font-black text-[#EA580C] uppercase tracking-widest mt-1 block">
@@ -97,7 +97,7 @@ function TransportCard({ item, showDetail }: Props) {
         </div>
 
         {/* Duration Timeline Bar */}
-        <div className="flex-1 max-w-[200px] flex flex-col items-center">
+        <div className="flex-1 max-w-[200px] flex flex-col items-center min-w-0">
           <span className="text-[11px] sm:text-xs font-black text-[#6B6B6B] mb-1 flex items-center gap-1 bg-white md:bg-[#FFFBF7] border border-[#E8E0D8] px-2.5 py-0.5 rounded-full shadow-2xs">
             {item.duration ? (
               <span>{item.duration}</span>
@@ -114,8 +114,8 @@ function TransportCard({ item, showDetail }: Props) {
           </div>
         </div>
 
-        <div className="text-right md:text-center shrink-0 min-w-[60px]">
-          <span className="text-lg sm:text-xl md:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
+        <div className="text-right md:text-center shrink-0 min-w-[50px]">
+          <span className="text-base sm:text-xl md:text-2xl font-black text-[#1A1A1A] block leading-none font-display">
             {item.arrival || item.arrivalTime || '--:--'}
           </span>
           <span className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest mt-1 block">
@@ -152,7 +152,7 @@ function TransportCard({ item, showDetail }: Props) {
               window.open(item.bookingLink, '_blank', 'noopener,noreferrer')
             })()
           }}
-          className="px-4 sm:px-6 py-3.5 rounded-2xl font-black text-xs sm:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-md hover:shadow-xl transition-all duration-200 shrink-0 cursor-pointer active:scale-95"
+          className="px-4 sm:px-6 py-3 min-h-[48px] rounded-2xl font-black text-xs sm:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-md hover:shadow-xl transition-all duration-200 shrink-0 cursor-pointer active:scale-95 flex items-center justify-center"
         >
           {item.source === 'affiliate_redirect' ? 'Search Live →' : 'Book Option →'}
         </a>

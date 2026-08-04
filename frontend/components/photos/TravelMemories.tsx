@@ -217,7 +217,7 @@ export default function TravelMemories({
             // Reuse working Memory upload backend API so photo appears in User Profile -> Memories
             try {
               const token = await getToken()
-              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
               console.log('[TravelMemories] 🔄 Syncing photo to Profile Memories API...')
               await axios.post(
                 `${apiUrl}/api/profile/memories`,

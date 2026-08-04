@@ -29,16 +29,16 @@ export default function Navbar() {
   return (
     <>
       <nav className="sticky top-0 z-30 w-full border-b border-[#E8E0D8]/70 bg-[#FFFBF7]/90 backdrop-blur-md px-4 md:px-6 py-2.5 md:py-4 flex items-center justify-between transition-all duration-200">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link href="/" className="flex items-center gap-2 min-h-[44px] py-1 shrink-0 active:scale-95 transition-transform">
             <img
               src="/logo.png"
               alt="TripSage"
-              width={32}
-              height={32}
-              className="rounded-lg shadow-2xs w-[28px] md:w-[34px] h-[28px] md:h-[34px] object-contain"
+              width={34}
+              height={34}
+              className="rounded-lg shadow-2xs w-[28px] sm:w-[34px] h-[28px] sm:h-[34px] object-contain"
             />
-            <span className="font-display text-base md:text-lg font-extrabold text-[#1A1A1A] tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <span className="font-display text-sm sm:text-base md:text-lg font-extrabold text-[#1A1A1A] tracking-tight truncate max-w-[120px] sm:max-w-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               TripSage
             </span>
           </Link>
@@ -46,10 +46,10 @@ export default function Navbar() {
         
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-8 text-[13px] font-semibold text-[#6B6B6B]">
-          <Link href="/#features" className="hover:text-[#EA580C] transition-colors duration-200">Features</Link>
-          <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors duration-200">Destinations</Link>
-          <Link href="/blog" className="hover:text-[#EA580C] transition-colors duration-200">Blog</Link>
-          <Link href="/visa-guide" className="hover:text-[#EA580C] transition-colors duration-200">Visa Guide</Link>
+          <Link href="/#features" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Features</Link>
+          <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Destinations</Link>
+          <Link href="/blog" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Blog</Link>
+          <Link href="/visa-guide" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Visa Guide</Link>
           
           {/* Support Dropdown */}
           <div className="relative group py-2">
@@ -57,9 +57,9 @@ export default function Navbar() {
               Support <ChevronDown size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
             </Link>
             <div className="absolute left-0 mt-1 w-44 bg-white border border-[#E8E0D8] rounded-xl shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 py-1.5 text-xs font-semibold">
-              <Link href="/support" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Help & Support</Link>
-              <Link href="/support#contact" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Contact Support</Link>
-              <Link href="/terms-and-conditions" className="block px-4 py-2 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Terms & Privacy</Link>
+              <Link href="/support" className="block px-4 py-2.5 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Help & Support</Link>
+              <Link href="/support#contact" className="block px-4 py-2.5 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Contact Support</Link>
+              <Link href="/terms-and-conditions" className="block px-4 py-2.5 hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors">Terms & Privacy</Link>
             </div>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function Navbar() {
                 <Link
                   href="/plan"
                   onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })}
-                  className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200"
+                  className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2.5 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200 min-h-[44px] flex"
                 >
                   <span>+ Plan a trip</span>
                 </Link>
@@ -81,9 +81,9 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <Link href="/sign-in" className="text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200">Sign In</Link>
+              <Link href="/sign-in" className="text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200 min-h-[44px] flex">Sign In</Link>
               {!isHomePage && (
-                <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200">
+                <Link href="/plan" onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })} className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2.5 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200 min-h-[44px] flex">
                   <span>Plan a trip</span> <ArrowRight size={14} strokeWidth={2} className="text-white" />
                 </Link>
               )}
@@ -91,14 +91,14 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Right Action Area (Ultra-Premium Single Pill Button) */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* Mobile Right Action Area */}
+        <div className="flex md:hidden items-center gap-2 shrink-0">
           {isSignedIn && <UserMenu />}
           <button
             type="button"
             suppressHydrationWarning
             onClick={() => setMobileMenuOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white rounded-full shadow-md shadow-orange-500/20 text-xs font-bold active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] min-w-[44px] bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white rounded-full shadow-md shadow-orange-500/20 text-xs font-bold active:scale-95 transition-all cursor-pointer justify-center"
           >
             <span className="text-[11px] font-extrabold uppercase tracking-wider">Menu</span>
             <Menu size={15} strokeWidth={2.5} className="text-white" />

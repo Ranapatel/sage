@@ -196,17 +196,17 @@ export default function AiFlightSearch({
     <div className="space-y-6 w-full text-[#1A1A1A]">
       
       {/* ── Quick Flight Context Bar ── */}
-      <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-[#1A1A1A] shadow-2xs">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="flex items-center gap-1.5 bg-white border border-[#E8E0D8] px-3 py-1.5 rounded-lg shadow-2xs">
+      <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-xs font-bold text-[#1A1A1A] shadow-2xs">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+          <span className="flex items-center gap-1 sm:gap-1.5 bg-white border border-[#E8E0D8] px-2 sm:px-3 py-1.5 rounded-lg shadow-2xs min-w-0">
             <Plane size={14} className="text-[#EA580C]" />
-            <span>{tripContext?.from || 'Origin'} → {tripContext?.to || 'Destination'}</span>
+            <span className="truncate">{tripContext?.from || 'Origin'} → {tripContext?.to || 'Destination'}</span>
           </span>
-          <span className="flex items-center gap-1.5 bg-white border border-[#E8E0D8] px-3 py-1.5 rounded-lg shadow-2xs">
+          <span className="flex items-center gap-1 sm:gap-1.5 bg-white border border-[#E8E0D8] px-2 sm:px-3 py-1.5 rounded-lg shadow-2xs">
             <Calendar size={14} className="text-[#EA580C]" />
             <span>{tripContext?.startDate || 'Date'}</span>
           </span>
-          <span className="flex items-center gap-1.5 bg-white border border-[#E8E0D8] px-3 py-1.5 rounded-lg shadow-2xs">
+          <span className="flex items-center gap-1 sm:gap-1.5 bg-white border border-[#E8E0D8] px-2 sm:px-3 py-1.5 rounded-lg shadow-2xs">
             <Users size={14} className="text-[#EA580C]" />
             <span>{tripContext?.travelers || 1} Travelers</span>
           </span>
@@ -237,7 +237,7 @@ export default function AiFlightSearch({
       />
 
       {/* ── Top Quick-Filter Toolbar & Filter Flights Button ── */}
-      <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3 shadow-xs flex items-center justify-between gap-3 text-xs font-bold text-[#6B6B6B]">
+      <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-xs font-bold text-[#6B6B6B]">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -338,7 +338,7 @@ export default function AiFlightSearch({
           )}
 
           {/* ── Kiwi.com Guarantee Banner ── */}
-          <div className="bg-emerald-900 text-white border border-emerald-800 rounded-2xl p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+          <div className="bg-emerald-900 text-white border border-emerald-800 rounded-[20px] p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-emerald-800 flex items-center justify-center text-emerald-300 shrink-0">
                 <ShieldCheck size={22} />
@@ -366,7 +366,7 @@ export default function AiFlightSearch({
       {/* Filter Modal Drawer (Slide-Out) */}
       {mobileFilterOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-fade-in">
-          <div className="bg-white w-full max-w-sm h-[100dvh] max-h-[100dvh] p-5 overflow-y-auto space-y-4 flex flex-col justify-between relative">
+          <div className="bg-white w-full max-w-sm h-[100dvh] max-h-[100dvh] p-4 sm:p-5 overflow-y-auto space-y-4 flex flex-col justify-between relative">
             <div className="space-y-4 flex-1 overflow-y-auto">
               <div className="flex items-center justify-between border-b border-[#E8E0D8] pb-3 sticky top-0 bg-white z-10">
                 <h3 className="font-black text-base text-[#1A1A1A] font-display">Filters</h3>
@@ -393,7 +393,7 @@ export default function AiFlightSearch({
               <button
                 type="button"
                 onClick={() => setMobileFilterOpen(false)}
-                className="w-full bg-[#EA580C] text-white font-extrabold py-3.5 rounded-xl text-sm shadow-md cursor-pointer min-h-[44px] active:scale-95 transition-transform"
+                className="w-full bg-[#EA580C] text-white font-extrabold py-3 rounded-2xl text-sm shadow-md cursor-pointer min-h-[48px] active:scale-95 transition-transform"
               >
                 Apply Filters ({filteredFlights.length} Flights)
               </button>

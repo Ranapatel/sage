@@ -18,7 +18,7 @@ const getSocketUrl = () => {
     }
   }
   
-  return envUrl || 'http://localhost:5000'
+  return envUrl || 'http://localhost:4000'
 }
 
 export function useSocket() {

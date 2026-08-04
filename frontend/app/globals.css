@@ -39,14 +39,26 @@
   --glass-border: #E8E0D8;
   --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --radius: 16px;
-  --radius-sm: 8px;
+  --radius: 20px;
+  --radius-sm: 12px;
   --radius-lg: 24px;
   --font-display: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-clash: 'Plus Jakarta Sans', sans-serif;
   --font-satoshi: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'Plus Jakarta Sans', sans-serif;
+
+  /* Responsive Design Tokens */
+  --screen-px-mobile: 1rem;       /* 16px */
+  --screen-px-tablet: 1.5rem;    /* 24px */
+  --screen-px-desktop: 2rem;     /* 32px */
+  --section-gap: 1.5rem;         /* 24px */
+  --component-gap: 0.75rem;      /* 12px */
+  --card-padding: 1rem;          /* 16px */
+  --card-radius: 1.25rem;        /* 20px */
+  --btn-height-mobile: 48px;
+  --btn-height-desktop: 52px;
+  --touch-target-min: 44px;
 }
 
 * {
@@ -87,11 +99,65 @@ body {
   border: 1px solid var(--border);
 }
 
+/* Responsive Layout System Utilities */
+.app-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--screen-px-mobile);
+  padding-right: var(--screen-px-mobile);
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .app-container {
+    padding-left: var(--screen-px-tablet);
+    padding-right: var(--screen-px-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    padding-left: var(--screen-px-desktop);
+    padding-right: var(--screen-px-desktop);
+  }
+}
+
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.safe-area-top {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+/* Standardized Responsive Card */
+.card-standard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 /* Card styles */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--card-radius);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -461,9 +527,12 @@ select.input-field[class*="h-"] {
 
 .hotel-card {
   background: var(--bg-card);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   border: 1px solid transparent;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
@@ -481,7 +550,7 @@ select.input-field[class*="h-"] {
   width: 100%;
   aspect-ratio: 16 / 11;
   overflow: hidden;
-  border-radius: 16px 16px 0 0;
+  border-radius: 20px 20px 0 0;
 }
 
 .hotel-carousel-track {
@@ -502,8 +571,8 @@ select.input-field[class*="h-"] {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.92);
   border: none;
@@ -566,8 +635,8 @@ select.input-field[class*="h-"] {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(8px);
@@ -697,8 +766,8 @@ select.input-field[class*="h-"] {
 
 .hotel-cta {
   width: 100%;
-  padding: 11px 16px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
   font-weight: 700;
   font-size: 0.85rem;
   border: none;
@@ -707,6 +776,10 @@ select.input-field[class*="h-"] {
   background: var(--primary);
   color: #fff;
   letter-spacing: 0.01em;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hotel-cta:hover {

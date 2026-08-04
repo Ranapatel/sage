@@ -6,7 +6,7 @@ import {
   X, Star, MapPin, Phone, Globe, Clock, ExternalLink,
   Heart, Share2, Compass, ChevronLeft, ChevronRight,
   ZoomIn, Users, Car, Sparkles, Timer, DollarSign,
-  Navigation, Utensils, Hotel
+  Navigation, Utensils, Hotel, CheckCircle2, Lightbulb
 } from 'lucide-react'
 import { tripAPI } from '@/lib/api'
 
@@ -145,6 +145,148 @@ function NearbyCard({ place, onClick }: { place: any; onClick?: () => void }) {
             <span className="text-[10px] text-yellow-400 font-semibold flex items-center gap-0.5">
               <Star size={9} fill="currentColor" /> {place.rating}
             </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Travel Intelligence Widget ──────────────────────────────────────────────────
+
+interface StructuredSummary {
+  summary: string | null
+  highlights: string[]
+  bestTime: string | null
+  practicalTip: string | null
+}
+
+function getStructuredSummary(details: any): StructuredSummary {
+  if (details.aiSummary && typeof details.aiSummary === 'object') {
+    return {
+      summary: details.aiSummary.summary || null,
+      highlights: Array.isArray(details.aiSummary.highlights) ? details.aiSummary.highlights : [],
+      bestTime: details.aiSummary.bestTime || null,
+      practicalTip: details.aiSummary.practicalTip || null,
+    }
+  }
+
+  if (typeof details.description === 'string' && details.description.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(details.description)
+      return {
+        summary: parsed.summary || null,
+        highlights: Array.isArray(parsed.highlights) ? parsed.highlights : [],
+        bestTime: parsed.bestTime || null,
+        practicalTip: parsed.practicalTip || null,
+      }
+    } catch { /* fallback */ }
+  }
+
+  if (typeof details.description === 'string' && details.description.trim()) {
+    const raw = details.description.trim()
+    let tip: string | null = null
+    let mainText = raw
+
+    const tipMatch = raw.match(/(?:Practical tip|Tip|Visitor tip):\s*(.+)$/i)
+    if (tipMatch) {
+      tip = tipMatch[1].trim()
+      mainText = raw.replace(tipMatch[0], '').trim()
+    }
+
+    const sentences = mainText.split(/(?<=[.!?])\s+/).filter(Boolean)
+    const summary = sentences[0] || mainText
+    const highlights = sentences.slice(1).map((s: string) => s.trim()).filter(Boolean)
+
+    return {
+      summary,
+      highlights: highlights.slice(0, 3),
+      bestTime: null,
+      practicalTip: tip,
+    }
+  }
+
+  return { summary: null, highlights: [], bestTime: null, practicalTip: null }
+}
+
+function TravelIntelligenceWidget({ details }: { details: any }) {
+  const summary = getStructuredSummary(details)
+  if (!summary.summary && summary.highlights.length === 0 && !summary.bestTime && !summary.practicalTip) {
+    return null
+  }
+
+  const isAi = details.descriptionSource === 'ai' || details.aiSummary
+
+  return (
+    <div className="px-6">
+      <div className="rounded-2xl border border-[#E8E0D8] bg-gradient-to-b from-[#FAF8F5] to-white shadow-sm overflow-hidden text-[#1A1A1A]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 bg-[#F4EFEA]/80 border-b border-[#E8E0D8]">
+          <div className="flex items-center gap-2">
+            <Sparkles size={15} className="text-amber-600 animate-pulse" />
+            <span className="text-xs font-black tracking-wide uppercase text-slate-800">
+              {isAi ? 'AI Travel Intelligence' : 'Place Overview'}
+            </span>
+          </div>
+          <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase bg-white/90 px-2.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+            Structured Insights
+          </span>
+        </div>
+
+        <div className="p-4 space-y-3.5">
+          {/* Core Summary (1-2 sentences) */}
+          {summary.summary && (
+            <p className="text-xs font-medium text-slate-800 leading-relaxed">
+              {summary.summary}
+            </p>
+          )}
+
+          {/* Key Highlights */}
+          {summary.highlights.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
+                Key Highlights
+              </span>
+              <div className="grid grid-cols-1 gap-1.5">
+                {summary.highlights.map((h: string, idx: number) => (
+                  <div key={idx} className="flex items-start gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                    <CheckCircle2 size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span className="font-normal leading-normal">{h}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Best Visit Window & Practical Tip Grid */}
+          {(summary.bestTime || summary.practicalTip) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              {/* Best Time / Duration */}
+              {summary.bestTime && (
+                <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-1">
+                  <div className="flex items-center gap-1.5 text-amber-800 text-[10px] font-black uppercase tracking-wide">
+                    <Clock size={12} className="text-amber-600" />
+                    <span>Best Time & Duration</span>
+                  </div>
+                  <p className="text-xs text-slate-800 font-medium leading-snug">
+                    {summary.bestTime}
+                  </p>
+                </div>
+              )}
+
+              {/* Practical Tip */}
+              {summary.practicalTip && (
+                <div className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20 space-y-1">
+                  <div className="flex items-center gap-1.5 text-indigo-800 text-[10px] font-black uppercase tracking-wide">
+                    <Lightbulb size={12} className="text-indigo-600" />
+                    <span>Insider Tip</span>
+                  </div>
+                  <p className="text-xs text-slate-800 font-medium leading-snug">
+                    {summary.practicalTip}
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -357,20 +499,8 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
                   </div>
                 </div>
 
-                {/* ── AI Description ── */}
-                {details.description && (
-                  <div className="px-6">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-slate-950/60 to-slate-900/40 border border-slate-800/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles size={14} className="text-[var(--primary)]" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                          {details.descriptionSource === 'ai' ? 'AI-Generated Summary' : 'About'}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-300 leading-relaxed">{details.description}</p>
-                    </div>
-                  </div>
-                )}
+                {/* ── AI Description / Travel Intelligence Widget ── */}
+                <TravelIntelligenceWidget details={details} />
 
                 {/* ── Info Grid ── */}
                 <div className="px-6 grid grid-cols-1 sm:grid-cols-2 gap-4">

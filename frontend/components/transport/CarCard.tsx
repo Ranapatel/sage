@@ -62,7 +62,7 @@ function CarCard({ item }: Props) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#E8E0D8] hover:border-[#EA580C] transition-all duration-300 hover:shadow-2xl group cursor-pointer min-h-[220px] flex flex-col justify-end">
+    <div className="relative overflow-hidden rounded-[20px] border border-[#E8E0D8] hover:border-[#EA580C] transition-all duration-300 hover:shadow-2xl group cursor-pointer min-h-[220px] flex flex-col justify-end w-full min-w-0 box-border">
 
       {/* ── Background image */}
       <div
@@ -99,11 +99,11 @@ function CarCard({ item }: Props) {
       </div>
 
       {/* ── Card content: bottom */}
-      <div className="relative z-10 p-5 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div className="relative z-10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
 
         {/* Left: name + offers */}
         <div className="flex-1 min-w-0">
-          <p className="font-black text-white text-lg leading-tight truncate drop-shadow-md font-display">
+          <p className="font-black text-white text-base sm:text-lg leading-tight truncate drop-shadow-md font-display">
             {item.name}
           </p>
 
@@ -125,7 +125,7 @@ function CarCard({ item }: Props) {
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-3 shrink-0">
           <div className="text-right">
             <p className="text-[10px] text-gray-300 font-bold uppercase tracking-wider">per day</p>
-            <p className="text-2xl font-black text-white leading-none drop-shadow-md font-display mt-0.5">
+            <p className="text-xl sm:text-2xl font-black text-white leading-none drop-shadow-md font-display mt-0.5">
               {displayPrice}
             </p>
           </div>
@@ -135,7 +135,7 @@ function CarCard({ item }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleBook}
-            className="shrink-0 py-2.5 px-5 rounded-2xl font-black text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-md hover:shadow-xl whitespace-nowrap active:scale-95 cursor-pointer"
+            className="shrink-0 py-3 px-5 min-h-[48px] rounded-2xl font-black text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-md hover:shadow-xl whitespace-nowrap active:scale-95 cursor-pointer flex items-center justify-center"
           >
             Book Rental
           </a>
