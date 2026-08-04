@@ -227,26 +227,61 @@ function ProfilePageContent() {
     }
   }
 
+  // On mobile: when a non-overview tab is active, show ONLY the content (not the menu below it)
+  const isContentView = activeTab !== 'overview'
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FFFBF7] text-[#1A1A1A]">
       <Navbar />
 
-      <main className="flex-grow pt-24 pb-20 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+      <main className="flex-grow pt-6 pb-20 px-4 sm:px-6 max-w-7xl mx-auto w-full">
 
-        {/* ── Profile Header Card ────────────────────────────────────────── */}
+        {/* ── Profile Header — always visible ──────────────────────────── */}
         {displayUser && (
-          <div className="mb-8">
-            <ProfileHeader
-              user={displayUser}
-              stats={stats}
-            />
+          <div className="mb-6">
+            <ProfileHeader user={displayUser} stats={stats} />
           </div>
         )}
 
-        {/* ── Two-column layout: sidebar + content ──────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8 items-start">
+        {/* ── MOBILE: show menu OR content, never both stacked ─────────── */}
+        <div className="lg:hidden">
+          {!isContentView ? (
+            // Mobile menu view — just the sidebar
+            <ProfileMenu
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              onSupportClick={handleSupportClick}
+              onSignOutClick={handleSignOutClick}
+            />
+          ) : (
+            // Mobile content view — back button + selected tab content
+            <div>
+              <button
+                onClick={() => handleTabChange('overview')}
+                className="flex items-center gap-2 mb-4 text-sm font-bold text-[#EA580C] hover:text-[#C2410C] transition-colors"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+                Back to Profile
+              </button>
+              {dataLoading && (activeTab === 'personal' || activeTab === 'preferences') ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="shimmer h-20 w-full rounded-3xl" />
+                  ))}
+                </div>
+              ) : (
+                renderTabContent()
+              )}
+            </div>
+          )}
+        </div>
 
-          {/* Sidebar — sticky on desktop */}
+        {/* ── DESKTOP: side-by-side layout ─────────────────────────────── */}
+        <div className="hidden lg:grid lg:grid-cols-[260px_1fr] gap-8 items-start">
+
+          {/* Sidebar — sticky */}
           <div className="lg:sticky lg:top-28">
             <ProfileMenu
               activeTab={activeTab}
@@ -256,7 +291,7 @@ function ProfilePageContent() {
             />
           </div>
 
-          {/* Main tab content */}
+          {/* Content */}
           <div className="min-w-0">
             {dataLoading && (activeTab === 'personal' || activeTab === 'preferences') ? (
               <div className="space-y-4">

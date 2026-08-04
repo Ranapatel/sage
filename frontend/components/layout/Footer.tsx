@@ -137,7 +137,7 @@ export default function Footer() {
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Company</h4>
               <div className="flex flex-col gap-4">
                 <Link href="/support" className="hover:text-[#EA580C] transition-colors">Support Center</Link>
-                <a href="mailto:rana@tripsage.in" className="hover:text-[#EA580C] transition-colors">Contact Us</a>
+                <Link href="/support#contact" className="hover:text-[#EA580C] transition-colors">Contact Us</Link>
               </div>
             </div>
             <div>

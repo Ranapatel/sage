@@ -894,6 +894,68 @@ export default function PlanClient() {
         </nav>
       </aside>
 
+      {/* ── MOBILE SIDEBAR DRAWER (lg:hidden) ────────────────────────── */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/50 z-[9998] lg:hidden"
+            />
+            {/* Drawer */}
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              className="fixed top-0 left-0 h-full w-64 bg-white z-[9999] shadow-2xl flex flex-col p-5 lg:hidden"
+            >
+              {/* Drawer header with logo + X */}
+              <div className="flex items-center justify-between mb-6">
+                <Link href="/" className="flex items-center gap-2">
+                  <img src="/logo.png" alt="TripSage" width={28} height={28} className="rounded-lg object-contain" />
+                  <span className="font-extrabold text-[#1A1A1A] text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>TripSage</span>
+                </Link>
+                {/* X lives INSIDE the drawer — never in the header */}
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X size={16} strokeWidth={2} className="text-[#1C1917]" />
+                </button>
+              </div>
+
+              {/* Tab Navigation */}
+              <nav className="flex-1 space-y-1 overflow-y-auto hide-scrollbar">
+                {TABS.map(t => {
+                  const isActive = activeTab === t.id
+                  const IconComp = t.icon
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => { setActiveTab(t.id); setMobileMenuOpen(false) }}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 cursor-pointer text-left ${
+                        isActive
+                          ? 'bg-orange-50 text-[#EA580C] border border-orange-200/80'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
+                      }`}
+                    >
+                      <IconComp size={28} active={isActive} />
+                      <span className="text-sm font-extrabold tracking-tight">{t.label}</span>
+                    </button>
+                  )
+                })}
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* ── MAIN WORKSPACE ──────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
         
@@ -1034,15 +1096,8 @@ export default function PlanClient() {
               )}
             </button>
 
-            {/* Mobile Hamburguer */}
-            <button className="lg:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X size={22} className="text-[#1A1A1A]" /> : <Menu size={22} className="text-[#1A1A1A]" />}
-            </button>
-
-            {/* User avatar */}
-            <div className="hidden sm:block">
-              <UserMenu />
-            </div>
+            {/* User avatar — visible on ALL screen sizes */}
+            <UserMenu />
           </div>
         </header>
       {/* NOTIFICATIONS PANEL */}

@@ -1046,14 +1046,14 @@ export default function HomeClient() {
       )}
 
       {/* ─── MOBILE FLOATING QUICK PLAN CTA FAB (Centred Bottom Capsule) ─── */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-max mx-auto">
         <button
           type="button"
           onClick={() => setShowSearchDrawer(true)}
-          className="px-5 py-3 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-xs rounded-full flex items-center justify-center gap-2 shadow-[0_12px_35px_rgba(234,88,12,0.42)] active:scale-95 transition-all border border-white/30 backdrop-blur-xl cursor-pointer whitespace-nowrap"
+          className="px-6 py-3 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-xs rounded-full flex items-center justify-center gap-2 shadow-[0_12px_35px_rgba(234,88,12,0.42)] active:scale-95 transition-all border border-white/30 backdrop-blur-xl cursor-pointer whitespace-nowrap"
         >
           <Sparkles size={15} className="text-white animate-pulse" />
-          <span>Design AI Trip</span>
+          <span>Plan Trip with AI</span>
           <ArrowRight size={14} />
         </button>
       </div>

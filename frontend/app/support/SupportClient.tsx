@@ -3,8 +3,24 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import toast from 'react-hot-toast'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
+import { 
+  MessageSquare, 
+  Mail, 
+  PhoneCall, 
+  Send, 
+  X, 
+  HelpCircle, 
+  Bot, 
+  AlertTriangle, 
+  ChevronDown, 
+  Sparkles,
+  Phone,
+  ArrowRight,
+  CheckCircle2
+} from 'lucide-react'
 
 const FAQS = [
   { q: 'How does TripSage generate itineraries?', a: 'TripSage uses an advanced AI planner to analyze your budget, travel style, group type, and preferences to generate personalized day-by-day itineraries in real-time.' },
@@ -28,7 +44,6 @@ const BOT_RESPONSES: Record<string, string> = {
 
 function getBotReply(msg: string): string {
   const lower = msg.toLowerCase()
-  if (lower.includes('flight')) return BOT_RESPONSES.flight
   if (lower.includes('hotel') || lower.includes('room')) return BOT_RESPONSES.hotel
   if (lower.includes('refund') || lower.includes('money')) return BOT_RESPONSES.refund
   if (lower.includes('itinerary') || lower.includes('plan')) return BOT_RESPONSES.itinerary
@@ -49,10 +64,26 @@ export default function SupportClient() {
   const [showEmergency, setShowEmergency] = useState(false)
   const [chatInput, setChatInput] = useState('')
   const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([
- { role: 'bot', text: "Hi! I'm the TripSage support bot. Ask me anything about flights, hotels, or your itinerary!", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+    { role: 'bot', text: "Hi! I'm the TripSage support bot. Ask me anything about flights, hotels, or your itinerary!", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
   ])
   const [botTyping, setBotTyping] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  // Handle hash scrolling for #contact or ?contact=true
+  useEffect(() => {
+    const handleScrollToContact = () => {
+      if (window.location.hash === '#contact' || window.location.search.includes('contact=true')) {
+        const element = document.getElementById('contact')
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+    }
+
+    handleScrollToContact()
+    window.addEventListener('hashchange', handleScrollToContact)
+    return () => window.removeEventListener('hashchange', handleScrollToContact)
+  }, [])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -68,108 +99,118 @@ export default function SupportClient() {
     setTimeout(() => {
       setBotTyping(false)
       setChatMsgs(prev => [...prev, { role: 'bot', text: getBotReply(text), time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
-    }, 900 + Math.random() * 600)
+    }, 800)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSending(true)
-    // Open mailto with form data prefilled
     const subject = encodeURIComponent(form.subject || 'TripSage Support Request')
     const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)
     window.open(`mailto:rana@tripsage.in?subject=${subject}&body=${body}`)
-    await new Promise(r => setTimeout(r, 800))
+    await new Promise(r => setTimeout(r, 600))
     toast.success('Opening your email client...')
     setForm({ name: '', email: '', subject: '', message: '' })
     setSending(false)
   }
 
   return (
-    <div className="min-h-screen bg-grid">
-      {/* NAV */}
-      <nav className="glass-dark sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <img src="/logo.png"
-              alt="TripSage" width={56} height={56} className="rounded-2xl shadow-lg border border-[var(--border)] w-[56px] h-[56px] object-contain" />
-          <span className="font-bold text-[var(--primary)]">TripSage</span>
-        </Link>
-        <div className="flex items-center gap-3">
- <button onClick={() => setShowChat(true)} className="btn-outline py-2 px-4 text-sm">Live Chat</button>
-          <Link href="/plan" className="btn-primary py-2 px-5 text-sm inline-block">Plan Trip →</Link>
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col bg-[#FFFBF7] text-[#1A1A1A]">
+      <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 py-16">
-        <div className="text-center mb-16">
- <h1 className="section-title mb-3">Support Center</h1>
-          <p className="section-subtitle">We're here to help you travel smarter</p>
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 w-full">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#EA580C] text-xs font-bold mb-3">
+            <HelpCircle size={14} />
+            <span>24/7 Support Center</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A1A] tracking-tight mb-2">
+            How can we help you?
+          </h1>
+          <p className="text-slate-600 text-sm sm:text-base max-w-lg mx-auto">
+            Get instant answers, chat with our AI assistant, or reach out to our dedicated support team.
+          </p>
         </div>
 
-        {/* Quick help cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        {/* Quick Help Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
           {/* Live Chat */}
-          <div className="card p-6 text-center hover:scale-105 transition-transform">
- <div className="text-4xl mb-3"></div>
-            <h3 className="font-bold text-[var(--text-primary)] mb-1">Live Chat</h3>
-            <p className="text-[var(--text-muted)] text-sm mb-2">Chat with our support bot in real-time</p>
-            <div className="flex items-center justify-center gap-1 mb-4">
-              <span className="live-dot"></span>
-              <span className="text-xs text-[var(--primary)] font-mono">Online now</span>
+          <div className="bg-white border border-[#E8E0D8] rounded-3xl p-6 flex flex-col items-center text-center shadow-xs hover:shadow-md transition-all">
+            <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#EA580C] mb-4">
+              <MessageSquare size={26} />
+            </div>
+            <h3 className="font-extrabold text-[#1A1A1A] text-lg mb-1">Live Chat</h3>
+            <p className="text-slate-500 text-xs mb-3">Chat with our support bot in real-time</p>
+            <div className="flex items-center justify-center gap-1.5 mb-5">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-xs text-green-700 font-bold">Online Now</span>
             </div>
             <button
-              className="btn-primary py-2 px-5 text-sm w-full"
               onClick={() => setShowChat(true)}
+              className="mt-auto w-full py-3 px-4 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
             >
-              Start Chat
+              <Sparkles size={14} />
+              <span>Start Live Chat</span>
             </button>
           </div>
 
           {/* Email Support */}
-          <div className="card p-6 text-center hover:scale-105 transition-transform">
- <div className="text-4xl mb-3"></div>
-            <h3 className="font-bold text-[var(--text-primary)] mb-1">Email Support</h3>
-            <p className="text-[var(--text-muted)] text-sm mb-1">rana@tripsage.in</p>
-            <p className="text-[var(--text-muted)] text-xs mb-4">Reply within 24 hours</p>
+          <div className="bg-white border border-[#E8E0D8] rounded-3xl p-6 flex flex-col items-center text-center shadow-xs hover:shadow-md transition-all">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mb-4">
+              <Mail size={26} />
+            </div>
+            <h3 className="font-extrabold text-[#1A1A1A] text-lg mb-1">Email Support</h3>
+            <p className="text-slate-500 text-xs mb-1">rana@tripsage.in</p>
+            <p className="text-slate-400 text-[11px] mb-5">Responses within 24 hours</p>
             <a
-              href="mailto:rana@tripsage.in?subject=TripSage Support"
-              className="btn-primary py-2 px-5 text-sm w-full block text-center"
-              style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))' }}
+              href="mailto:rana@tripsage.in?subject=TripSage Support Request"
+              className="mt-auto w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
             >
-              Send Email
+              <Mail size={14} />
+              <span>Send Email</span>
             </a>
           </div>
 
-          {/* Emergency */}
-          <div className="card p-6 text-center hover:scale-105 transition-transform">
- <div className="text-4xl mb-3"></div>
-            <h3 className="font-bold text-[var(--text-primary)] mb-1">Emergency</h3>
-            <p className="text-[var(--text-muted)] text-sm mb-1">24/7 travel emergency hotline</p>
-            <p className="text-[var(--text-muted)] text-xs mb-4">For lost documents, medical, or safety issues</p>
+          {/* Emergency Hotline */}
+          <div className="bg-white border border-red-200/80 rounded-3xl p-6 flex flex-col items-center text-center shadow-xs hover:shadow-md transition-all bg-gradient-to-b from-white to-red-50/20">
+            <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 mb-4">
+              <AlertTriangle size={26} />
+            </div>
+            <h3 className="font-extrabold text-[#1A1A1A] text-lg mb-1">Emergency 24/7</h3>
+            <p className="text-slate-500 text-xs mb-1">Urgent travel assistance</p>
+            <p className="text-slate-400 text-[11px] mb-5">For lost items, delays, or safety</p>
             <button
-              className="btn-primary py-2 px-5 text-sm w-full"
-              style={{ background: 'linear-gradient(135deg, #ef4444, #b91c1c)' }}
               onClick={() => setShowEmergency(true)}
+              className="mt-auto w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
             >
-              Get Help Now
+              <PhoneCall size={14} />
+              <span>Get Immediate Help</span>
             </button>
           </div>
         </div>
 
-        {/* FAQ */}
-        <div className="mb-16">
-          <h2 className="section-title text-2xl mb-6">Frequently Asked Questions</h2>
+        {/* FAQs */}
+        <div className="mb-14">
+          <div className="flex items-center gap-2 mb-6">
+            <HelpCircle className="text-[#EA580C]" size={20} />
+            <h2 className="text-2xl font-extrabold text-[#1A1A1A]">Frequently Asked Questions</h2>
+          </div>
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
-              <div key={i} className="card overflow-hidden">
+              <div key={i} className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden transition-all">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full p-5 flex items-center justify-between text-left"
+                  className="w-full p-4 sm:p-5 flex items-center justify-between text-left font-bold text-sm text-[#1A1A1A] hover:text-[#EA580C] transition-colors"
                 >
-                  <span className="font-semibold text-[var(--text-primary)] pr-4">{faq.q}</span>
-                  <span className={`text-[var(--primary)] transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`}>▼</span>
+                  <span className="pr-4">{faq.q}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-slate-400 shrink-0 transition-transform duration-200 ${openFaq === i ? 'rotate-180 text-[#EA580C]' : ''}`}
+                  />
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-5 text-[var(--text-muted)] text-sm leading-relaxed border-t border-[var(--border)] pt-4">
+                  <div className="px-5 pb-5 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 pt-3">
                     {faq.a}
                   </div>
                 )}
@@ -178,81 +219,127 @@ export default function SupportClient() {
           </div>
         </div>
 
-        {/* Contact form */}
-        <div className="card p-8">
-          <h2 className="section-title text-2xl mb-2">Send a Message</h2>
-          <p className="text-[var(--text-muted)] text-sm mb-6">Fills and opens your email client automatically</p>
+        {/* Contact Form — with #contact anchor ID */}
+        <div id="contact" className="bg-white border border-[#E8E0D8] rounded-3xl p-6 sm:p-8 shadow-sm scroll-mt-28">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="text-[#EA580C]" size={20} />
+            <h2 className="text-2xl font-extrabold text-[#1A1A1A]">Contact Us</h2>
+          </div>
+          <p className="text-slate-500 text-xs sm:text-sm mb-6">
+            Fill in your details below. Submitting will pre-fill your email client directly.
+          </p>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2 block">Name</label>
-                <input className="input-field" placeholder="Your name" required
-                  value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 block">Your Name</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter your name"
+                  required
+                  value={form.name}
+                  onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                />
               </div>
               <div>
-                <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2 block">Email</label>
-                <input className="input-field" type="email" placeholder="your@email.com" required
-                  value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
+                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 block">Your Email</label>
+                <input
+                  type="email"
+                  className="input-field"
+                  placeholder="yourname@gmail.com"
+                  required
+                  value={form.email}
+                  onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                />
               </div>
             </div>
+
             <div>
-              <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2 block">Subject</label>
-              <input className="input-field" placeholder="How can we help?" required
-                value={form.subject} onChange={e => setForm(p => ({ ...p, subject: e.target.value }))} />
+              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 block">Subject</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="How can we help?"
+                required
+                value={form.subject}
+                onChange={e => setForm(p => ({ ...p, subject: e.target.value }))}
+              />
             </div>
+
             <div>
-              <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2 block">Message</label>
-              <textarea className="input-field min-h-[120px] resize-none" placeholder="Describe your issue or question..."
-                required value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
+              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 block">Message</label>
+              <textarea
+                className="input-field min-h-[120px] resize-none"
+                placeholder="Describe your question or issue in detail..."
+                required
+                value={form.message}
+                onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+              />
             </div>
-            <button type="submit" className="btn-primary py-3 px-8" disabled={sending}>
- {sending ? 'Opening email...' : 'Send Message →'}
+
+            <button
+              type="submit"
+              disabled={sending}
+              className="btn-primary py-3.5 px-8 text-xs font-extrabold rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>{sending ? 'Opening email client...' : 'Send Message'}</span>
+              <ArrowRight size={14} />
             </button>
           </form>
         </div>
-      </div>
+      </main>
 
       {/* ── LIVE CHAT MODAL ── */}
       {showChat && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-end p-6" onClick={() => setShowChat(false)}>
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:justify-end p-0 sm:p-6 bg-black/50 backdrop-blur-xs" onClick={() => setShowChat(false)}>
           <div
-            className="glass-dark rounded-2xl border border-[var(--border)] shadow-2xl w-full max-w-sm flex flex-col overflow-hidden animate-slide-up"
-            style={{ height: '520px' }}
+            className="bg-white rounded-t-3xl sm:rounded-3xl border border-[#E8E0D8] shadow-2xl w-full max-w-sm flex flex-col overflow-hidden h-[85vh] sm:h-[520px]"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]" style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))' }}>
+            <div className="flex items-center justify-between px-4 py-3 bg-[#EA580C] text-white">
               <div className="flex items-center gap-3">
- <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-lg"></div>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                  <Bot size={18} />
+                </div>
                 <div>
-                  <p className="font-bold text-white text-sm">TripSage Support</p>
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                    <span className="text-white/80 text-[0.65rem] font-mono">Online</span>
+                  <p className="font-extrabold text-white text-sm">TripSage Support Bot</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
+                    <span className="text-white/90 text-[10px] font-bold">Online</span>
                   </div>
                 </div>
               </div>
- <button onClick={() => setShowChat(false)} className="text-white/70 hover:text-white text-xl transition-colors"></button>
+              <button
+                onClick={() => setShowChat(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                aria-label="Close chat"
+              >
+                <X size={16} />
+              </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#FFFBF7]">
               {chatMsgs.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${msg.role === 'user'
-                    ? 'bg-[var(--primary)] text-white rounded-tr-sm'
-                    : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] rounded-tl-sm'
-                    }`}>
+                  <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed ${
+                    msg.role === 'user'
+                      ? 'bg-[#EA580C] text-white rounded-tr-xs'
+                      : 'bg-white border border-[#E8E0D8] text-slate-800 shadow-2xs rounded-tl-xs'
+                  }`}>
                     <p>{msg.text}</p>
-                    <p className={`text-[0.6rem] mt-1 ${msg.role === 'user' ? 'text-white/60 text-right' : 'text-[var(--text-muted)]'}`}>{msg.time}</p>
+                    <p className={`text-[9px] mt-1 ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-slate-400'}`}>{msg.time}</p>
                   </div>
                 </div>
               ))}
+
               {botTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
+                  <div className="bg-white border border-[#E8E0D8] rounded-2xl rounded-tl-xs px-4 py-3 flex items-center gap-1.5 shadow-2xs">
                     {[0, 1, 2].map(i => (
-                      <div key={i} className="w-2 h-2 rounded-full bg-[var(--primary)] animate-bounce" style={{ animationDelay: `${i * 0.2}s` }}></div>
+                      <div key={i} className="w-2 h-2 rounded-full bg-[#EA580C] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                     ))}
                   </div>
                 </div>
@@ -261,19 +348,22 @@ export default function SupportClient() {
             </div>
 
             {/* Quick replies */}
-            <div className="px-3 pb-2 flex gap-2 overflow-x-auto">
+            <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto hide-scrollbar">
               {['Refund help', 'Flight issue', 'Hotel query', 'Itinerary'].map(q => (
-                <button key={q} onClick={() => { setChatInput(q); setTimeout(sendChat, 0) }}
-                  className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full glass border border-[var(--border)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all">
+                <button
+                  key={q}
+                  onClick={() => { setChatInput(q); setTimeout(sendChat, 0) }}
+                  className="shrink-0 text-[11px] font-bold px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#EA580C] hover:bg-[#EA580C] hover:text-white transition-all cursor-pointer"
+                >
                   {q}
                 </button>
               ))}
             </div>
 
             {/* Input */}
-            <div className="p-3 border-t border-[var(--border)] flex gap-2">
+            <div className="p-3 bg-white border-t border-[#E8E0D8] flex gap-2">
               <input
-                className="input-field text-sm py-2.5 flex-1"
+                className="input-field text-xs py-2 flex-1"
                 placeholder="Type a message..."
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
@@ -282,9 +372,9 @@ export default function SupportClient() {
               <button
                 onClick={sendChat}
                 disabled={!chatInput.trim()}
-                className="btn-primary py-2 px-4 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#EA580C] hover:bg-[#C2410C] text-white p-2.5 rounded-xl disabled:opacity-40 cursor-pointer shrink-0"
               >
- 
+                <Send size={14} />
               </button>
             </div>
           </div>
@@ -293,42 +383,56 @@ export default function SupportClient() {
 
       {/* ── EMERGENCY MODAL ── */}
       {showEmergency && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowEmergency(false)}>
-          <div className="glass-dark rounded-2xl border border-red-500/30 shadow-2xl w-full max-w-md p-8 animate-slide-up" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs" onClick={() => setShowEmergency(false)}>
+          <div className="bg-white rounded-3xl border border-red-200 shadow-2xl w-full max-w-md p-6 sm:p-8 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="text-center mb-6">
- <div className="text-5xl mb-3 animate-bounce"></div>
-              <h2 className="font-bold text-xl text-red-400 mb-1">Emergency Support</h2>
-              <p className="text-[var(--text-muted)] text-sm">Available 24/7 for urgent travel issues</p>
+              <div className="w-16 h-16 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 mx-auto mb-3">
+                <AlertTriangle size={32} />
+              </div>
+              <h2 className="font-extrabold text-xl text-slate-900 mb-1">Emergency Support 24/7</h2>
+              <p className="text-slate-500 text-xs">Immediate help for critical travel emergencies</p>
             </div>
 
             <div className="space-y-3 mb-6">
               {[
- { label: 'Emergency Hotline', value: '+91-800-TRIPSAGE', icon: '', href: 'tel:+916301158175' },
- { label: 'WhatsApp', value: '+91 6301158175', icon: '', href: 'https://wa.me/916301158175?text=Emergency%20Travel%20Support' },
- { label: 'Email (Urgent)', value: 'rana@tripsage.in', icon: '', href: 'mailto:rana@tripsage.in?subject=URGENT: Travel Emergency' },
+                { label: 'Emergency Phone Hotline', value: '+91 6301158175', icon: <Phone size={18} className="text-red-600" />, href: 'tel:+916301158175' },
+                { label: 'WhatsApp Emergency Support', value: '+91 6301158175', icon: <MessageSquare size={18} className="text-green-600" />, href: 'https://wa.me/916301158175?text=Emergency%20Travel%20Support' },
+                { label: 'Urgent Email', value: 'rana@tripsage.in', icon: <Mail size={18} className="text-blue-600" />, href: 'mailto:rana@tripsage.in?subject=URGENT: Travel Emergency' },
               ].map(c => (
-                <a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 glass rounded-xl p-4 hover:border-red-500/40 border border-[var(--border)] transition-all group">
-                  <span className="text-2xl">{c.icon}</span>
-                  <div className="flex-1">
-                    <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">{c.label}</p>
-                    <p className="font-bold text-[var(--text-primary)] group-hover:text-red-400 transition-colors">{c.value}</p>
+                <a
+                  key={c.label}
+                  href={c.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3.5 bg-slate-50 rounded-2xl p-4 hover:border-red-300 border border-slate-200 transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-2xs shrink-0">
+                    {c.icon}
                   </div>
-                  <span className="text-[var(--text-muted)] group-hover:text-red-400 transition-colors">→</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{c.label}</p>
+                    <p className="font-extrabold text-slate-800 text-xs sm:text-sm truncate group-hover:text-red-600 transition-colors">{c.value}</p>
+                  </div>
+                  <ArrowRight size={14} className="text-slate-400 group-hover:text-red-600 transition-colors shrink-0" />
                 </a>
               ))}
             </div>
 
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-xs text-red-400 mb-4 leading-relaxed">
- ️ For medical emergencies, always call your local emergency services (112 in India) first.
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-700 mb-5 leading-relaxed">
+              <span className="font-extrabold">Note:</span> For medical emergencies or immediate physical danger, please contact local emergency services (112 in India) first.
             </div>
 
-            <button onClick={() => setShowEmergency(false)} className="btn-outline w-full py-2.5 border-red-500/50 text-red-400 hover:bg-red-500/10">
-              Close
+            <button
+              onClick={() => setShowEmergency(false)}
+              className="w-full py-3 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              Close Window
             </button>
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   )
 }

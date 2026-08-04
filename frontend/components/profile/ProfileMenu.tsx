@@ -77,7 +77,7 @@ export default function ProfileMenu({
   onSignOutClick,
 }: ProfileMenuProps) {
   return (
-    <div className="flex flex-col w-full bg-white border border-[#E8E0D8] rounded-3xl overflow-hidden shadow-sm">
+    <div className="flex flex-col w-full bg-white border border-[#E8E0D8] rounded-3xl shadow-sm">
 
       {/* Header label */}
       <div className="px-5 pt-4 pb-3 border-b border-[#E8E0D8]">
@@ -140,8 +140,8 @@ export default function ProfileMenu({
         ))}
       </div>
 
-      {/* Footer actions */}
-      <div className="mt-auto border-t border-[#E8E0D8] px-2 py-2 space-y-0.5">
+      {/* Footer actions — sits naturally after nav items, no fixed height needed */}
+      <div className="border-t border-[#E8E0D8] px-2 py-2 space-y-0.5">
         <button
           onClick={onSupportClick}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:text-[#1A1A1A] hover:bg-[#FFFBF7] transition-all duration-200 cursor-pointer group"
