@@ -285,7 +285,7 @@ function generateMockCars(destination, date, budget) {
     const price = Math.max(basePrice + Math.round((r * 800) / 10) * 10, 600)
     
     // Affiliate link
-    const dest = encodeURIComponent(destination || 'Goa')
+    const dest = encodeURIComponent(destination || '')
     const affiliateUrl = process.env.NEXT_PUBLIC_DISCOVERCARS_AFFILIATE_URL ||
       `https://naiawork.com/g/wqjhitsyjqbd777ee50d5ea594bb46/?dest=${dest}&source=tripsage&medium=web`
 

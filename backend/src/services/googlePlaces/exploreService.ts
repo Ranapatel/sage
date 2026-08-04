@@ -426,9 +426,11 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
 
   // Generate AI description if Google editorial summary is missing
   let description = data.editorialSummary?.text || null
+  let aiSummary: any = null
+
   if (!description) {
     try {
-      description = await generatePlaceDescription({
+      const rawAi = await generatePlaceDescription({
         name,
         address,
         primaryType: data.primaryType || '',
@@ -436,9 +438,28 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
         userRatingsTotal: reviewCount,
         reviewSnippets,
       })
+
+      if (typeof rawAi === 'object' && rawAi !== null) {
+        aiSummary = rawAi
+        description = rawAi.summary || (rawAi.highlights && rawAi.highlights[0]) || null
+      } else if (typeof rawAi === 'string') {
+        try {
+          aiSummary = JSON.parse(rawAi)
+          description = aiSummary.summary || rawAi
+        } catch {
+          description = rawAi
+        }
+      }
     } catch (err: any) {
       console.warn('[ExploreService] AI description generation failed:', err.message)
       description = null
+    }
+  } else {
+    aiSummary = {
+      summary: description,
+      highlights: [],
+      bestTime: null,
+      practicalTip: null
     }
   }
 
@@ -456,6 +477,7 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
     phone: data.nationalPhoneNumber || null,
     website: data.websiteUri || null,
     description,
+    aiSummary,
     descriptionSource: data.editorialSummary?.text ? 'google' : 'ai',
     openingHours: data.regularOpeningHours?.weekdayDescriptions
       || data.currentOpeningHours?.weekdayDescriptions

@@ -33,9 +33,16 @@ export class HybridItineraryService {
   static async generate(params: HybridItineraryParams): Promise<HybridItinerary> {
     const { destination, from, days, budget, currency = 'INR', style, members, preferences = [], startDate } = params
 
+    // ── 0. Canonical Destination Context (Single Source of Truth) ────────────
+    const { DestinationResolverService } = require('../destinationResolver.service')
+    const destContext = await DestinationResolverService.resolve(destination)
+    const destinationCity = destContext.city
+
     // ── 0. Redis Cache Check ────────────────────────────────────────────────
     const cacheKey = generateCacheKey('hybrid_itinerary', {
-      destination,
+      destination: destContext.city,
+      lat: destContext.latitude,
+      lng: destContext.longitude,
       from,
       days,
       budget,
@@ -48,28 +55,27 @@ export class HybridItineraryService {
     try {
       const cached = await cacheGet(cacheKey)
       if (cached) {
-        console.log(`[HybridItinerary] ✅ Cache HIT for "${destination}"`)
+        console.log(`[HybridItinerary] ✅ Cache HIT for "${destContext.city}"`)
         return cached as HybridItinerary
       }
     } catch { /* proceed without cache */ }
 
-    console.log(`[HybridItinerary] 🚀 Generating hybrid itinerary for "${destination}" (${days} days)...`)
+    console.log(`[HybridItinerary] 🚀 Generating hybrid itinerary for "${destContext.city}" (${days} days)...`)
 
     // ── 1. Phase 1: Destination Intelligence (Candidates Discovery) ─────────
-    let candidates = await this.discoverCandidates(destination, preferences)
-    console.log(`[HybridItinerary] Discovered ${candidates.length} candidate places in "${destination}"`)
+    let candidates = await this.discoverCandidates(destContext.normalizedName, preferences, destContext)
+    console.log(`[HybridItinerary] Discovered ${candidates.length} candidate places in "${destContext.city}"`)
 
     if (candidates.length === 0) {
-      const destinationCity = destination.split(',')[0].trim()
-      console.warn(`[HybridItinerary] 0 candidates discovered from Google Places for "${destination}" — generating fallback candidates from destination intelligence`)
+      console.warn(`[HybridItinerary] 0 candidates discovered from Google Places for "${destContext.city}" — generating fallback candidates from destination intelligence`)
       const { generateMockPlaces } = require('../aiService')
-      const mockPlaces = generateMockPlaces(destination)
+      const mockPlaces = generateMockPlaces(destContext.city)
       candidates = mockPlaces.map((p: any, i: number) => ({
         id: `mock_cand_${i}_${Date.now()}`,
         name: p.name,
-        address: `${p.name}, ${destinationCity}`,
-        latitude: 15.2993 + (i * 0.01),
-        longitude: 74.1240 + (i * 0.01),
+        address: `${p.name}, ${destContext.city}`,
+        latitude: destContext.latitude + (i * 0.005),
+        longitude: destContext.longitude + (i * 0.005),
         rating: 4.7,
         userRatingsTotal: 100,
         priceLevel: p.cost ? (p.cost > 500 ? 2 : 1) : 0,
@@ -112,7 +118,11 @@ export class HybridItineraryService {
   /**
    * Discovers 30-50 candidate places in the destination based on user preferences/interests
    */
-  private static async discoverCandidates(destination: string, preferences: string[]): Promise<TripSagePlace[]> {
+  private static async discoverCandidates(
+    destination: string,
+    preferences: string[],
+    destContext?: any
+  ): Promise<TripSagePlace[]> {
     const destinationCity = destination.split(',')[0].trim()
 
     // Always query these core categories for rich candidate coverage
@@ -132,6 +142,13 @@ export class HybridItineraryService {
     // Deduplicate categories, query in parallel
     const uniqueCategories = Array.from(new Set(categoriesToQuery))
 
+    const locationBias = destContext && destContext.latitude && destContext.longitude ? {
+      circle: {
+        center: { latitude: destContext.latitude, longitude: destContext.longitude },
+        radius: 25000.0 // 25km radius centered at canonical destination
+      }
+    } : undefined
+
     // Execute queries in parallel
     const promises = uniqueCategories.map(async (category) => {
       const includedTypes = CATEGORY_TO_GOOGLE_TYPES[category] || CATEGORY_TO_GOOGLE_TYPES.general
@@ -145,6 +162,7 @@ export class HybridItineraryService {
           body: {
             textQuery,
             includedType: category !== 'beaches' && includedTypes.length > 0 ? includedTypes[0] : undefined,
+            locationBias,
             maxResultCount: 15,
             languageCode: 'en',
           },
@@ -161,7 +179,7 @@ export class HybridItineraryService {
             'places.googleMapsUri',
             'places.currentOpeningHours',
           ].join(','),
-          cachePrefix: 'gp_search',
+          cachePrefix: `gp_search_${destinationCity.toLowerCase()}`,
           cacheTtl: 86400, // 24 hours
         })
 
@@ -399,10 +417,10 @@ You must return ONLY valid JSON matching this schema:
       "slots": {
         "morning": {
           "placeId": "ChIJ...",
-          "name": "India Gate — New Delhi",
+          "name": "${destinationCity} Central Monument — ${destinationCity}",
           "time": "09:00",
           "category": "attractions",
-          "activity": "Explore the war memorial",
+          "activity": "Explore the landmark attraction",
           "visitDurationMinutes": 60,
           "estimatedCost": 0,
           "tip": "Visit early to avoid heat"
@@ -414,7 +432,7 @@ You must return ONLY valid JSON matching this schema:
       "travelTimeMinutes": 35,
       "walkingDistanceMeters": 1500,
       "transportation": "Auto-rickshaw or walking recommended",
-      "rainyDayAlternatives": ["National Museum", "Select Citywalk Mall"]
+      "rainyDayAlternatives": ["Indoor Art Gallery in ${destinationCity}", "Cultural Center in ${destinationCity}"]
     }
   ],
   "totalEstimatedCost": 1500,
