@@ -51,60 +51,20 @@ const HOTEL_IMAGES = [
   'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80',
 ]
 
-// Built-in coordinates mapping to avoid external API dependencies where possible
-const CITIES = [
-  { name: 'mumbai', lat: 19.076, lon: 72.877 },
-  { name: 'delhi', lat: 28.614, lon: 77.209 },
-  { name: 'bengaluru', lat: 12.972, lon: 77.594 },
-  { name: 'bangalore', lat: 12.972, lon: 77.594 },
-  { name: 'hyderabad', lat: 17.385, lon: 78.487 },
-  { name: 'chennai', lat: 13.083, lon: 80.270 },
-  { name: 'kolkata', lat: 22.573, lon: 88.364 },
-  { name: 'ahmedabad', lat: 23.033, lon: 72.620 },
-  { name: 'pune', lat: 18.520, lon: 73.856 },
-  { name: 'goa', lat: 15.300, lon: 74.124 },
-  { name: 'jaipur', lat: 26.912, lon: 75.789 },
-  { name: 'manali', lat: 32.241, lon: 77.186 },
-  { name: 'shimla', lat: 31.105, lon: 77.173 },
-  { name: 'london', lat: 51.507, lon: -0.128 },
-  { name: 'paris', lat: 48.857, lon: 2.352 },
-  { name: 'barcelona', lat: 41.385, lon: 2.173 },
-  { name: 'rome', lat: 41.902, lon: 12.496 },
-  { name: 'new york', lat: 40.713, lon: -74.006 },
-  { name: 'tokyo', lat: 35.689, lon: 139.692 },
-  { name: 'singapore', lat: 1.352, lon: 103.820 },
-  { name: 'dubai', lat: 25.205, lon: 55.271 },
-]
-
 /**
- * Resolves latitude and longitude for a city name.
+ * Resolves latitude and longitude for a city name using canonical DestinationResolverService.
+ * NO hardcoded fallback coordinates — if resolution fails, throws instead of returning wrong-city data.
  */
 async function getCoordinates(destination) {
-  const q = (destination || '').toLowerCase().trim()
-  
-  // 1. Check built-in list first (fastest)
-  const matched = CITIES.find(c => q.includes(c.name))
-  if (matched) return { latitude: matched.lat, longitude: matched.lon }
-
-  // 2. Call OSM Nominatim geocoder
   try {
-    const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-      params: { q: destination.split(',')[0].trim(), format: 'json', limit: 1 },
-      headers: { 'User-Agent': 'TripSage/2.0 (booking engine integration; contact: engineering@tripsage.ai)' },
-      timeout: 4000
-    })
-    if (response.data && response.data.length > 0) {
-      return {
-        latitude: parseFloat(response.data[0].lat),
-        longitude: parseFloat(response.data[0].lon)
-      }
-    }
+    const { DestinationResolverService } = require('./destinationResolver.service')
+    const destContext = await DestinationResolverService.resolve(destination)
+    console.log(`[Hotelbeds] Resolved coordinates for "${destination}" → ${destContext.city} (${destContext.latitude}, ${destContext.longitude})`)
+    return { latitude: destContext.latitude, longitude: destContext.longitude }
   } catch (err) {
-    console.warn('[Hotelbeds] Geocoding service failed, using fallback coordinates:', err.message)
+    console.error(`[Hotelbeds] ❌ Destination resolution failed for "${destination}": ${err.message}`)
+    throw new Error(`DESTINATION_NOT_FOUND: Cannot resolve coordinates for "${destination}". Hotel search aborted.`)
   }
-
-  // 3. Fallback to default (Delhi center)
-  return { latitude: 28.6139, longitude: 77.2090 }
 }
 
 /**

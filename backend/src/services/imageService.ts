@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { googleRequest, buildPhotoUrl } from './googlePlaces/googleClient'
-const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 
 const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY
 const GOOGLE_API_KEY_CONFIGURED = () => {
@@ -308,25 +308,35 @@ export class ImageService {
       }
     }
 
-    // ── Priority 4: AI Fallback (Pollinations.ai) ──
+    // ── Priority 4: Category/Cuisine Fallback ──
     if (!result) {
-      console.log(`[ImageService] [Fallback Reason] All authority and search providers failed for "${placeName}". Using AI illustration fallback.`)
-      try {
-        const aiUrl = this.generateAiIllustrationUrl(placeName, city, category)
+      const catLower = (category || '').toLowerCase()
+      if (['dining', 'restaurants', 'food', 'cafes', 'bar'].includes(catLower)) {
+        const { getCategoryFallbackImage, getCategoryFallbackGallery } = require('../data/cuisineFallbacks')
+        const img = getCategoryFallbackImage(category, placeName, placeId || '')
+        const gal = getCategoryFallbackGallery(category, placeName, placeId || '')
         result = {
-          imageUrl: aiUrl,
-          gallery: [aiUrl],
-          source: 'ai_fallback',
-          isAiIllustration: true
+          imageUrl: img,
+          gallery: gal,
+          source: 'placeholder'
         }
-      } catch (err: any) {
-        console.warn(`[ImageService] AI Fallback failed for "${placeName}":`, err.message)
+      } else {
+        try {
+          const aiUrl = this.generateAiIllustrationUrl(placeName, city, category)
+          result = {
+            imageUrl: aiUrl,
+            gallery: [aiUrl],
+            source: 'ai_fallback',
+            isAiIllustration: true
+          }
+        } catch (err: any) {
+          console.warn(`[ImageService] AI Fallback failed for "${placeName}":`, err.message)
+        }
       }
     }
 
     // Final fallback (curated static images)
     if (!result) {
-      console.log(`[ImageService] [Fallback Reason] AI generator failed for "${placeName}". Using default curated placeholder.`)
       const fallbackList = FALLBACK_HOTEL_IMAGES
       result = {
         imageUrl: fallbackList[0],
@@ -634,3 +644,4 @@ export async function enrichHotelsWithImages(hotels: any[], destination: string)
 
   return Promise.all(promises)
 }
+

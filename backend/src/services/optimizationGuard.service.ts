@@ -10,7 +10,7 @@
 import crypto from 'crypto'
 import { prisma } from '../prisma/prisma.client'
 import { GeoapifyKeyManager } from './geoapify/geoapifyKeyManager'
-import { cacheGet, cacheSet } from '../../config/redis'
+import { cacheGet, cacheSet } from '../config/redis'
 
 // ── Trigger Types ─────────────────────────────────────────────────────────────
 
@@ -184,3 +184,4 @@ export class OptimizationGuardService {
     return crypto.createHash('sha256').update(coords).digest('hex').substring(0, 16)
   }
 }
+

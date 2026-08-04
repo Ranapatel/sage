@@ -11,11 +11,22 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+
     "outDir": "./dist",
-    "baseUrl": ".",
-    "paths": {
-      "*": ["node_modules/*"]
-    }
+    "rootDir": "./src",
+    "declaration": false,
+    "sourceMap": false
   },
-  "include": ["src/**/*", "prisma/**/*"]
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "transport",
+    "src/**/__tests__/**",
+    "src/**/*.test.ts",
+    "src/**/*.test.js",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.js",
+    "src/tests/**"
+  ]
 }

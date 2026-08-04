@@ -7,11 +7,7 @@ let enrichHotelsWithImages = async (hotels) => hotels;
 try {
   enrichHotelsWithImages = require('../services/imageService').enrichHotelsWithImages;
 } catch (e) {
-  try {
-    enrichHotelsWithImages = require('../services/imageService.ts').enrichHotelsWithImages;
-  } catch (e2) {
-    console.warn('[search.js] Could not load imageService:', e2.message);
-  }
+  console.warn('[search.js] Could not load imageService:', e.message);
 }
 const { v4: uuidv4 } = require('uuid')
 const { fetchWithRetry } = require('../utils/fetchWithRetry')
@@ -20,8 +16,8 @@ const axios = require('axios')
 
 // Input validation
 const searchValidation = [
-  body('from').trim().notEmpty().isLength({ max: 100 }).escape(),
-  body('to').optional({ checkFalsy: true }).isLength({ max: 200 }).escape(),
+  body('from').trim().notEmpty().isLength({ max: 100 }),
+  body('to').optional({ checkFalsy: true }).isLength({ max: 200 }),
   body('startDate').optional({ checkFalsy: true }).isISO8601(),
   body('endDate').optional({ checkFalsy: true }).isISO8601(),
   body('budget').optional({ checkFalsy: true }).isFloat({ min: 0, max: 10000000 }).toFloat(),

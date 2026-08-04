@@ -46,10 +46,11 @@ export class ContextualDecisionEngine {
   static rankAndFilter(userContext: UserTravelContext, data: CollectedData) {
     const preferences = (userContext.interests || []).map(i => i.toLowerCase())
 
+    const userBudget = userContext.budget || 50000
     // Score hotels based on price fit + rating
     const rankedHotels = (data.hotels || []).map(hotel => {
       let score = (hotel.rating || 4.0) * 10
-      if (hotel.price <= userContext.budget * 0.35) score += 20
+      if (hotel.price <= userBudget * 0.35) score += 20
       return { ...hotel, decisionScore: parseFloat(score.toFixed(1)) }
     }).sort((a, b) => b.decisionScore - a.decisionScore)
 

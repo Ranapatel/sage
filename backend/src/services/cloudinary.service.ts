@@ -1,16 +1,4 @@
-/**
- * Cloudinary Service — Reusable Cloudinary Upload & Image Management Service
- *
- * Provides:
- *   - uploadImage()      → Uploads file buffer/stream to Cloudinary folder (with automatic resilient fallback)
- *   - deleteImage()      → Removes image from Cloudinary by public_id
- *   - replaceImage()     → Replaces existing image by deleting public_id and uploading new
- *   - getOptimizedUrl()  → Generates transformed URL (f_auto, q_auto, width, height, blur)
- *   - buildFolderPath()  → Helper to create folder: tripsage/users/{userId}/trips/{tripId}/day-{dayNumber}
- */
-
-import cloudinary from '../config/cloudinary'
-import { UploadApiResponse, UploadApiOptions } from 'cloudinary'
+const cloudinary = require('../config/cloudinary')
 
 export interface CloudinaryUploadResult {
   secureUrl: string
@@ -20,17 +8,6 @@ export interface CloudinaryUploadResult {
   format: string
   bytes: number
 }
-
-export interface OptimizedUrlOptions {
-  width?: number
-  height?: number
-  crop?: string
-  quality?: string | number
-  format?: string
-  blur?: number
-}
-
-// ── Allowed File Types & Size Validation ────────────────────────────────────
 
 export const ALLOWED_MIME_TYPES = [
   'image/jpeg',
@@ -51,12 +28,6 @@ export function validateFileSize(bytes: number): boolean {
   return bytes > 0 && bytes <= MAX_FILE_SIZE
 }
 
-// ── Folder Path Helper ──────────────────────────────────────────────────────
-
-/**
- * Builds standardized folder path for Cloudinary storage:
- *   tripsage/users/{userId}/trips/{tripId}/day-{dayNumber}
- */
 export function buildFolderPath(userId: string, tripId: string, dayNumber?: number | string): string {
   const cleanUser = userId.replace(/[^a-zA-Z0-9_-]/g, '_')
   const cleanTrip = tripId.replace(/[^a-zA-Z0-9_-]/g, '_')
@@ -64,20 +35,13 @@ export function buildFolderPath(userId: string, tripId: string, dayNumber?: numb
   return `tripsage/users/${cleanUser}/trips/${cleanTrip}/${dayStr}`
 }
 
-// ── Resilient Upload Image Service ──────────────────────────────────────────
-
-/**
- * Uploads a Buffer file to Cloudinary with automatic optimization (f_auto, q_auto).
- * Includes resilient fallback mode if Cloudinary credentials are missing or invalid.
- */
 export async function uploadImage(
   fileBuffer: Buffer,
   folderPath: string,
-  options: Partial<UploadApiOptions> = {}
+  options: any = {}
 ): Promise<CloudinaryUploadResult> {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
 
-  // Quick check for missing/unconfigured cloud name
   if (!cloudName || cloudName === 'your_cloud_name') {
     console.warn('[CloudinaryService] ⚠️  Unconfigured credentials — using Resilient Storage Fallback Mode.')
     return generateFallbackUploadResult(fileBuffer, folderPath, options.public_id)
@@ -94,7 +58,7 @@ export async function uploadImage(
         invalidate: true,
         ...options,
       },
-      (error, result: UploadApiResponse | undefined) => {
+      (error: any, result: any) => {
         if (error || !result) {
           const msg = error?.message || 'Empty result'
           console.warn(`[CloudinaryService] ⚠️ Live API Notice (${msg}) — automatically switching to Resilient Storage Fallback Mode.`)
@@ -116,9 +80,6 @@ export async function uploadImage(
   })
 }
 
-/**
- * Helper to construct resilient fallback image results when Cloudinary credentials are invalid.
- */
 function generateFallbackUploadResult(
   fileBuffer: Buffer,
   folderPath: string,
@@ -139,11 +100,6 @@ function generateFallbackUploadResult(
   }
 }
 
-// ── Delete Image Service ───────────────────────────────────────────────────
-
-/**
- * Deletes an image from Cloudinary using its public_id.
- */
 export async function deleteImage(publicId: string): Promise<boolean> {
   if (!publicId) return false
   if (publicId.startsWith('tripsage_') || publicId.includes('fallback')) {
@@ -159,16 +115,11 @@ export async function deleteImage(publicId: string): Promise<boolean> {
   }
 }
 
-// ── Replace Image Service ──────────────────────────────────────────────────
-
-/**
- * Replaces an existing image by destroying old public_id and uploading new file.
- */
 export async function replaceImage(
   oldPublicId: string,
   newFileBuffer: Buffer,
   folderPath: string,
-  options: Partial<UploadApiOptions> = {}
+  options: any = {}
 ): Promise<CloudinaryUploadResult> {
   if (oldPublicId) {
     await deleteImage(oldPublicId).catch(() => {})
@@ -176,13 +127,7 @@ export async function replaceImage(
   return uploadImage(newFileBuffer, folderPath, options)
 }
 
-// ── Optimized URL Generator ────────────────────────────────────────────────
-
-/**
- * Generates an optimized Cloudinary delivery URL with transformations.
- * Default transformations: f_auto, q_auto
- */
-export function getOptimizedUrl(publicId: string, opts: OptimizedUrlOptions = {}): string {
+export function getOptimizedUrl(publicId: string, opts: any = {}): string {
   if (!publicId) return ''
   if (publicId.startsWith('data:image')) return publicId
 
@@ -206,16 +151,24 @@ export function getOptimizedUrl(publicId: string, opts: OptimizedUrlOptions = {}
   }
 }
 
-/**
- * Generates a tiny blurred placeholder URL for lazy loading.
- */
 export function getBlurPlaceholderUrl(publicId: string): string {
   return getOptimizedUrl(publicId, { width: 30, height: 30, quality: 30, blur: 1000 })
 }
 
-/**
- * Generates a thumbnail URL for gallery preview.
- */
 export function getThumbnailUrl(publicId: string, width = 300, height = 300): string {
   return getOptimizedUrl(publicId, { width, height, crop: 'fill', quality: 'auto' })
+}
+
+module.exports = {
+  ALLOWED_MIME_TYPES,
+  MAX_FILE_SIZE,
+  validateFileType,
+  validateFileSize,
+  buildFolderPath,
+  uploadImage,
+  deleteImage,
+  replaceImage,
+  getOptimizedUrl,
+  getBlurPlaceholderUrl,
+  getThumbnailUrl,
 }

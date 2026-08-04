@@ -40,7 +40,7 @@ export default function Wallet() {
           setLoading(false)
           return
         }
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         const response = await axios.get(`${apiUrl}/api/profile/wallet`, {
           headers: { Authorization: `Bearer ${token}` }
         })

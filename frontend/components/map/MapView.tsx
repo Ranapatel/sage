@@ -911,7 +911,7 @@ export default function MapView({
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 dark:bg-slate-900"
+      className="relative w-full overflow-hidden rounded-2xl border border-[#E8E0D8] shadow-md bg-[#FAF7F2]"
       style={{ height: 'calc(100vh - 200px)', minHeight: '520px', maxHeight: '620px' }}
       onClick={() => setSelectedStop(null)}
     >
@@ -919,11 +919,11 @@ export default function MapView({
       <div ref={mapRef} className="w-full h-full" />
 
       {/* ── 1. Day-wise Itinerary Filter Bar (Top-Left Overlay) ──────────────── */}
-      <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-700/60 shadow-xl pointer-events-auto max-w-[85vw] sm:max-w-md">
+      <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-1.5 p-1.5 rounded-2xl bg-white/95 backdrop-blur-md border border-[#E8E0D8] shadow-lg pointer-events-auto max-w-[85vw] sm:max-w-md">
         <button
           onClick={() => setSelectedDay(0)}
-          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
-            selectedDay === 0 ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+          className={`px-3 py-1 rounded-xl text-xs font-black transition-all ${
+            selectedDay === 0 ? 'bg-[#2563EB] text-white shadow-xs' : 'text-[#4A4A4A] hover:text-[#1A1A1A] hover:bg-[#FFFBF7]'
           }`}
         >
           Entire Trip
@@ -932,8 +932,8 @@ export default function MapView({
           <button
             key={idx}
             onClick={() => setSelectedDay(idx + 1)}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
-              selectedDay === idx + 1 ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            className={`px-3 py-1 rounded-xl text-xs font-black transition-all ${
+              selectedDay === idx + 1 ? 'bg-[#2563EB] text-white shadow-xs' : 'text-[#4A4A4A] hover:text-[#1A1A1A] hover:bg-[#FFFBF7]'
             }`}
           >
             Day {day.day}
@@ -941,14 +941,12 @@ export default function MapView({
         ))}
       </div>
 
-
-
       {/* ── 2. Nearby Explorer Toggle & Action Buttons (Top-Right) ──────────── */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-1.5 pointer-events-auto">
         <button
           onClick={handleGetUserLocation}
           title="Live GPS Location"
-          className="w-9 h-9 bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 text-blue-600 hover:bg-blue-50 active:scale-95 transition-all flex items-center justify-center font-bold"
+          className="w-9 h-9 bg-white rounded-xl shadow-md border border-[#E8E0D8] text-[#2563EB] hover:bg-[#FFFBF7] active:scale-95 transition-all flex items-center justify-center font-bold"
         >
           <Navigation size={16} />
         </button>
@@ -960,7 +958,7 @@ export default function MapView({
           }}
           title="Explore Nearby Places"
           className={`w-9 h-9 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center font-bold text-xs ${
-            showNearbyExplorer ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50'
+            showNearbyExplorer ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-[#E8E0D8] text-[#1A1A1A] hover:bg-[#FFFBF7]'
           }`}
         >
           📍
@@ -970,7 +968,7 @@ export default function MapView({
           onClick={handleDownloadOfflineTrip}
           title="Download Trip for Offline Use"
           className={`w-9 h-9 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center ${
-            isOfflineSaved ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
+            isOfflineSaved ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-[#E8E0D8] text-[#1A1A1A] hover:bg-[#FFFBF7]'
           }`}
         >
           <Download size={15} />
@@ -979,7 +977,7 @@ export default function MapView({
         <button
           onClick={() => setShowStatsDrawer(!showStatsDrawer)}
           title="Trip Statistics"
-          className="w-9 h-9 bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center"
+          className="w-9 h-9 bg-white rounded-xl shadow-md border border-[#E8E0D8] text-[#1A1A1A] hover:bg-[#FFFBF7] active:scale-95 transition-all flex items-center justify-center"
         >
           📊
         </button>
@@ -988,14 +986,14 @@ export default function MapView({
       {/* ── 2. Nearby Explorer Drawer (Floating Left) ────────────────────────── */}
       {showNearbyExplorer && (
         <div
-          className="absolute top-16 left-4 z-20 w-72 p-4 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700/60 shadow-2xl text-white animate-fade-in pointer-events-auto space-y-3"
+          className="absolute top-16 left-4 z-20 w-72 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-[#E8E0D8] shadow-2xl text-[#1A1A1A] animate-fade-in pointer-events-auto space-y-3"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-black flex items-center gap-1.5 text-emerald-400">
+            <h4 className="text-xs font-black flex items-center gap-1.5 text-[#2563EB]">
               <Compass size={15} /> Nearby Explorer
             </h4>
-            <button onClick={() => setShowNearbyExplorer(false)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setShowNearbyExplorer(false)} className="text-[#6B6B6B] hover:text-[#1A1A1A]">
               <X size={14} />
             </button>
           </div>
@@ -1009,7 +1007,7 @@ export default function MapView({
                   fetchNearbyPlaces(cat.id)
                 }}
                 className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 ${
-                  activeNearbyCategory === cat.id ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-white'
+                  activeNearbyCategory === cat.id ? 'bg-[#2563EB] text-white' : 'bg-[#FFFBF7] border border-[#E8E0D8] text-[#4A4A4A] hover:text-[#1A1A1A]'
                 }`}
               >
                 {cat.label}
@@ -1018,18 +1016,18 @@ export default function MapView({
           </div>
 
           {loadingNearby ? (
-            <p className="text-[11px] text-slate-400 animate-pulse">Finding nearby places...</p>
+            <p className="text-[11px] text-[#6B6B6B] animate-pulse">Finding nearby places...</p>
           ) : nearbyPlaces.length > 0 ? (
             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
               {nearbyPlaces.map((p) => (
-                <div key={p.id} className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/50 flex justify-between items-center text-[11px]">
-                  <span className="font-semibold truncate">{p.name}</span>
-                  <span className="text-[9px] text-emerald-400 shrink-0">{p.distanceMeters}m away</span>
+                <div key={p.id} className="p-2 rounded-xl bg-[#FFFBF7] border border-[#E8E0D8] flex justify-between items-center text-[11px]">
+                  <span className="font-bold text-[#1A1A1A] truncate">{p.name}</span>
+                  <span className="text-[9px] text-emerald-600 font-extrabold shrink-0">{p.distanceMeters}m away</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[11px] text-slate-400">No places found in current radius.</p>
+            <p className="text-[11px] text-[#6B6B6B]">No places found in current radius.</p>
           )}
         </div>
       )}
@@ -1037,32 +1035,32 @@ export default function MapView({
       {/* ── 8. Rich Marker Card Modal (Middle Left) ─────────────────────────── */}
       {selectedStop && (
         <div
-          className="absolute top-16 left-4 z-30 w-72 p-4 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700/60 shadow-2xl text-white animate-fade-in pointer-events-auto space-y-3"
+          className="absolute top-16 left-4 z-30 w-72 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-[#E8E0D8] shadow-2xl text-[#1A1A1A] animate-fade-in pointer-events-auto space-y-3"
           onClick={e => e.stopPropagation()}
         >
-          <div className="relative h-28 rounded-xl overflow-hidden bg-slate-800">
+          <div className="relative h-28 rounded-xl overflow-hidden bg-[#FFFBF7] border border-[#E8E0D8]">
             <img src={selectedStop.image} alt={selectedStop.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent" />
             <button
               onClick={() => setSelectedStop(null)}
-              className="absolute top-2 right-2 p-1 rounded-full bg-slate-950/60 text-white hover:bg-slate-950"
+              className="absolute top-2 right-2 p-1 rounded-full bg-white/90 border border-[#E8E0D8] text-[#1A1A1A] hover:bg-white shadow-xs cursor-pointer"
             >
               <X size={14} />
             </button>
-            <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-blue-600/90 text-white text-[9px] font-bold uppercase tracking-wider">
+            <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-[#2563EB] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
               {selectedStop.category}
             </span>
           </div>
 
           <div>
-            <h4 className="text-sm font-black truncate">{selectedStop.name}</h4>
-            <div className="flex items-center gap-3 text-[11px] text-slate-300 mt-1 font-semibold">
-              <span className="inline-flex items-center gap-1 text-amber-400"><Star size={11} className="fill-amber-400" /><span>{selectedStop.rating}</span></span>
-              <span className="inline-flex items-center gap-1"><Clock size={11} className="text-slate-400" /><span>{selectedStop.duration}</span></span>
-              <span className="inline-flex items-center gap-1 text-emerald-400"><IndianRupee size={11} /><span>{selectedStop.price}</span></span>
+            <h4 className="text-sm font-black text-[#1A1A1A] truncate">{selectedStop.name}</h4>
+            <div className="flex items-center gap-3 text-[11px] text-[#4A4A4A] mt-1 font-bold">
+              <span className="inline-flex items-center gap-1 text-amber-600"><Star size={11} className="fill-amber-500" /><span>{selectedStop.rating}</span></span>
+              <span className="inline-flex items-center gap-1 text-[#6B6B6B]"><Clock size={11} className="text-[#6B6B6B]" /><span>{selectedStop.duration}</span></span>
+              <span className="inline-flex items-center gap-1 text-emerald-700 font-extrabold"><IndianRupee size={11} /><span>{selectedStop.price}</span></span>
             </div>
             {selectedStop.description && (
-              <p className="text-[11px] text-slate-300 mt-2 line-clamp-2 leading-relaxed">{selectedStop.description}</p>
+              <p className="text-[11px] text-[#6B6B6B] mt-2 line-clamp-2 leading-relaxed font-medium">{selectedStop.description}</p>
             )}
           </div>
 
@@ -1072,7 +1070,7 @@ export default function MapView({
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedStop.name)}`
                 window.open(mapsUrl, '_blank')
               }}
-              className="py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-all"
+              className="py-2 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-all shadow-xs cursor-pointer"
             >
               <Navigation size={12} /> Navigate
             </button>
@@ -1086,7 +1084,7 @@ export default function MapView({
                 setSearchQuery(selectedStop.name)
                 setShowReplaceModal(true)
               }}
-              className="py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all"
+              className="py-2 rounded-xl border border-[#E8E0D8] bg-white hover:bg-[#FFFBF7] text-[#1A1A1A] text-[11px] font-bold flex items-center justify-center gap-1 transition-all shadow-xs cursor-pointer"
             >
               <RefreshCw size={12} /> Replace
             </button>
@@ -1097,35 +1095,35 @@ export default function MapView({
       {/* ── 10. Trip Statistics Drawer (Bottom Left) ────────────────────────── */}
       {showStatsDrawer && (
         <div
-          className="absolute bottom-16 left-4 z-20 w-80 p-4 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700/60 shadow-2xl text-white animate-fade-in pointer-events-auto space-y-3"
+          className="absolute bottom-16 left-4 z-20 w-80 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-[#E8E0D8] shadow-2xl text-[#1A1A1A] animate-fade-in pointer-events-auto space-y-3"
           onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h4 className="text-xs font-black flex items-center gap-1.5 text-blue-400">
+          <div className="flex items-center justify-between border-b border-[#E8E0D8] pb-2">
+            <h4 className="text-xs font-black flex items-center gap-1.5 text-[#2563EB]">
               <BarChart2 size={14} />
               <span>Trip Statistics Dashboard</span>
             </h4>
-            <button onClick={() => setShowStatsDrawer(false)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setShowStatsDrawer(false)} className="text-[#6B6B6B] hover:text-[#1A1A1A]">
               <X size={14} />
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-[11px]">
-            <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
-              <p className="text-slate-400 text-[9px] uppercase font-bold">Total Distance</p>
-              <p className="text-sm font-black text-white">{tripStats.totalDistKm} km</p>
+            <div className="p-2.5 rounded-xl bg-[#FFFBF7] border border-[#E8E0D8]">
+              <p className="text-[#6B6B6B] text-[9px] uppercase font-bold">Total Distance</p>
+              <p className="text-sm font-black text-[#1A1A1A]">{tripStats.totalDistKm} km</p>
             </div>
-            <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
-              <p className="text-slate-400 text-[9px] uppercase font-bold">Est. Travel Time</p>
-              <p className="text-sm font-black text-white">{Math.floor(tripStats.estTimeMins / 60)}h {tripStats.estTimeMins % 60}m</p>
+            <div className="p-2.5 rounded-xl bg-[#FFFBF7] border border-[#E8E0D8]">
+              <p className="text-[#6B6B6B] text-[9px] uppercase font-bold">Est. Travel Time</p>
+              <p className="text-sm font-black text-[#1A1A1A]">{Math.floor(tripStats.estTimeMins / 60)}h {tripStats.estTimeMins % 60}m</p>
             </div>
-            <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
-              <p className="text-slate-400 text-[9px] uppercase font-bold">Attractions</p>
-              <p className="text-sm font-black text-indigo-400">{tripStats.attractionsCount}</p>
+            <div className="p-2.5 rounded-xl bg-[#FFFBF7] border border-[#E8E0D8]">
+              <p className="text-[#6B6B6B] text-[9px] uppercase font-bold">Attractions</p>
+              <p className="text-sm font-black text-[#2563EB]">{tripStats.attractionsCount}</p>
             </div>
-            <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
-              <p className="text-slate-400 text-[9px] uppercase font-bold">Restaurants</p>
-              <p className="text-sm font-black text-emerald-400">{tripStats.restaurantsCount}</p>
+            <div className="p-2.5 rounded-xl bg-[#FFFBF7] border border-[#E8E0D8]">
+              <p className="text-[#6B6B6B] text-[9px] uppercase font-bold">Restaurants</p>
+              <p className="text-sm font-black text-emerald-600">{tripStats.restaurantsCount}</p>
             </div>
           </div>
         </div>

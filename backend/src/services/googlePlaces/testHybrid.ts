@@ -10,7 +10,7 @@ import { resolve } from 'path'
 config({ path: resolve(__dirname, '../../../.env') })
 
 import { HybridItineraryService } from './hybridItinerary.service'
-import { connectRedis } from '../../../config/redis'
+import { connectRedis } from '../../config/redis'
 
 async function run() {
   console.log('--- Hybrid Itinerary Engine End-to-End Verification Test ---')
@@ -64,3 +64,4 @@ async function run() {
 }
 
 run()
+

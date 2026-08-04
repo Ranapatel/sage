@@ -94,7 +94,7 @@ export function TrainCard({ train }: TrainCardProps) {
     : (train.runsOn || 'Daily')
 
   return (
-    <div className="group bg-white border border-[#E8E0D8] hover:border-[#EA580C] transition-all duration-300 hover:shadow-xl rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col gap-3 md:gap-4 relative overflow-hidden text-left">
+    <div className="group bg-white border border-[#E8E0D8] hover:border-[#EA580C] transition-all duration-300 hover:shadow-xl rounded-[20px] p-4 sm:p-5 md:p-6 flex flex-col gap-3 md:gap-4 relative overflow-hidden text-left w-full min-w-0 box-border">
       {/* Background hover accent */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
@@ -126,9 +126,9 @@ export function TrainCard({ train }: TrainCardProps) {
       </div>
 
       {/* Timeline Row */}
-      <div className="flex items-center justify-between bg-[#FFFBF7] border border-[#E8E0D8] p-3 md:p-4 rounded-xl md:rounded-2xl relative my-0.5 text-xs z-10">
-        <div className="text-left shrink-0">
-          <div className="font-black text-lg md:text-xl text-[#1A1A1A] tracking-tight font-display leading-none">
+      <div className="flex items-center justify-between bg-[#FFFBF7] border border-[#E8E0D8] p-3 md:p-4 rounded-2xl relative my-0.5 text-xs z-10 min-w-0">
+        <div className="text-left shrink-0 min-w-[50px]">
+          <div className="font-black text-base md:text-xl text-[#1A1A1A] tracking-tight font-display leading-none">
             {train.departure || '08:00'}
           </div>
           <div className="font-extrabold text-[10px] md:text-xs text-[#EA580C] uppercase tracking-wider mt-1">
@@ -136,8 +136,8 @@ export function TrainCard({ train }: TrainCardProps) {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center px-2 min-w-0">
-          <span className="text-[10px] md:text-[11px] font-extrabold text-[#6B6B6B] mb-1 flex items-center gap-1">
+        <div className="flex-1 flex flex-col items-center px-1 sm:px-2 min-w-0">
+          <span className="text-[9px] md:text-[11px] font-extrabold text-[#6B6B6B] mb-1 flex items-center gap-1">
             <Clock size={11} className="text-[#EA580C] shrink-0" />
             <span>{train.duration || '6h 30m'}</span>
           </span>
@@ -147,8 +147,8 @@ export function TrainCard({ train }: TrainCardProps) {
           </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <div className="font-black text-lg md:text-xl text-[#1A1A1A] tracking-tight font-display leading-none">
+        <div className="text-right shrink-0 min-w-[50px]">
+          <div className="font-black text-base md:text-xl text-[#1A1A1A] tracking-tight font-display leading-none">
             {train.arrival || '14:30'}
           </div>
           <div className="font-extrabold text-[10px] md:text-xs text-[#1A1A1A] uppercase tracking-wider mt-1">
@@ -188,7 +188,7 @@ export function TrainCard({ train }: TrainCardProps) {
             e.preventDefault()
             handleBook(e)
           }}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 md:py-3 rounded-xl font-extrabold text-xs md:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-md active:scale-98 cursor-pointer sm:ml-auto"
+          className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs md:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white transition-all shadow-md active:scale-98 cursor-pointer sm:ml-auto"
         >
           <span>Book on IRCTC</span>
           <ExternalLink size={14} />

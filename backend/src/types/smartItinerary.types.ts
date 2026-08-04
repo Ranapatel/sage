@@ -1,70 +1,60 @@
-// ✂️ PONYTAIL: Smart Itinerary Intelligence types covering Phases 1 through 8 including interactive place metadata and continuous learning feedback.
-
 export interface SmartItineraryInput {
   destination: string
   origin?: string
   startDate?: string
-  days: number
-  budget: number
+  days?: number
+  budget?: number
   currency?: string
   travelers?: number
-  bookedHotel?: {
-    name: string
-    address?: string
-    coordinates?: [number, number]
-  }
+  bookedHotel?: string | { name: string; coordinates?: any }
   travelStyle?: string
   interests?: string[]
   preferredLanguage?: string
 }
 
 export interface InteractivePlace {
+  id?: string
   name: string
-  category: 'culture' | 'nature' | 'dining' | 'activity' | 'transport' | 'shopping' | 'accommodation'
-  time: string
-  coordinates?: [number, number] | null
-  description: string
-  estimatedCost: number
-  // Phase 5: Rationale & Explanations
-  whySelected: string
-  bestTimeToVisit: string
-  nearbyPlaces: string[]
-  travelTimeMinutes: number
-  tips: string
-  // Phase 6: Interactive Metadata
-  realTimeImages: string[]
-  googleMapsUrl: string
-  voiceScript: string
-  bookingUrl?: string
+  time?: string
+  durationMinutes?: number
+  category?: string
+  description?: string
+  location?: { lat: number; lng: number }
+  address?: string
+  rating?: number
+  price?: number
+  whySuggested?: string
+  audioGuideScript?: string
+  photoUrl?: string
+  [key: string]: any
 }
 
 export interface SmartItineraryDay {
   day: number
-  date: string
+  date?: string
+  theme?: string
   places: InteractivePlace[]
+  summary?: string
+  [key: string]: any
 }
 
 export interface SmartItineraryResponse {
   success: boolean
   destination: string
   totalDays: number
-  totalEstimatedCost: number
+  weatherSummary?: string
   itinerary: SmartItineraryDay[]
-  explanationsSummary: {
-    whyHotel: string
-    whyActivities: string
-    whyRestaurants: string
-    whyRoute: string
-    whyTiming: string
-  }
-  tips: string[]
+  [key: string]: any
 }
 
 export interface LearningFeedback {
-  userId?: string
   tripId?: string
-  placeName: string
-  action: 'saved' | 'skipped' | 'rated'
-  rating?: number
+  destination: string
+  rating: number
+  likedCategories?: string[]
+  dislikedCategories?: string[]
+  comments?: string
+  placeName?: string
+  action?: string
   timestamp?: string
 }

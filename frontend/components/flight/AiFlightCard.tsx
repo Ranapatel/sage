@@ -119,7 +119,7 @@ export default function AiFlightCard({
   const logoUrl = resolveAirlineLogo(flight.name, flight.airlineCode, flight.logo)
 
   return (
-    <div className="group bg-white border border-[#E8E0D8] hover:border-[#EA580C] rounded-3xl p-4 sm:p-5 md:p-6 shadow-xs hover:shadow-xl transition-all duration-300 space-y-3.5 sm:space-y-4 relative overflow-hidden">
+    <div className="group bg-white border border-[#E8E0D8] hover:border-[#EA580C] rounded-[20px] p-4 sm:p-5 md:p-6 shadow-xs hover:shadow-xl transition-all duration-300 space-y-3.5 sm:space-y-4 relative overflow-hidden w-full min-w-0 box-border">
       
       {/* Subtle background glow on hover */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100/40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -141,7 +141,7 @@ export default function AiFlightCard({
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="font-black text-[#1A1A1A] text-base leading-tight font-display flex items-center gap-2 flex-wrap">
+            <div className="font-black text-[#1A1A1A] text-sm sm:text-base leading-tight font-display flex items-center gap-2 flex-wrap">
               <span className="truncate">{flight.name}</span>
               {flight.airlineCode && (
                 <span className="text-[10px] font-black text-[#6B6B6B] uppercase bg-[#FFFBF7] border border-[#E8E0D8] px-1.5 py-0.5 rounded-md tracking-wider shrink-0">
@@ -186,7 +186,7 @@ export default function AiFlightCard({
                   navigator.clipboard.writeText(kiwiUrl)
                 }
               }}
-              className="p-1.5 text-[#9CA3AF] hover:text-[#1A1A1A] rounded-xl hover:bg-[#FFFBF7] border border-transparent hover:border-[#E8E0D8] transition-all cursor-pointer"
+              className="p-2 min-h-[44px] min-w-[44px] text-[#9CA3AF] hover:text-[#1A1A1A] rounded-xl hover:bg-[#FFFBF7] border border-transparent hover:border-[#E8E0D8] transition-all cursor-pointer flex items-center justify-center"
               title="Share flight"
             >
               <Share2 size={15} />
@@ -194,7 +194,7 @@ export default function AiFlightCard({
             <button
               type="button"
               onClick={() => setIsFavorited(!isFavorited)}
-              className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
+              className={`p-2 min-h-[44px] min-w-[44px] rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
                 isFavorited
                   ? 'text-red-500 bg-red-50 border-red-200'
                   : 'text-[#9CA3AF] hover:text-[#1A1A1A] hover:bg-[#FFFBF7] border-transparent hover:border-[#E8E0D8]'
@@ -208,29 +208,29 @@ export default function AiFlightCard({
 
       </div>
 
-      {/* ── SECTION 2: ROUTE & FLIGHT SCHEDULE TIMELINE (Contained Section Card) ── */}
-      <div className="bg-[#FFFBF7]/80 border border-[#E8E0D8]/90 rounded-2xl p-3.5 sm:p-4 space-y-2 relative z-10">
+      {/* ── SECTION 2: ROUTE & FLIGHT SCHEDULE TIMELINE ── */}
+      <div className="bg-[#FFFBF7]/80 border border-[#E8E0D8]/90 rounded-2xl p-3 sm:p-4 space-y-2 relative z-10 min-w-0">
         <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#9CA3AF] mb-1">
           <span>Flight Schedule & Track</span>
           <span className="text-[#EA580C]">{flight.stops === 0 ? 'Direct Non-stop' : `${flight.stops} Stop`}</span>
         </div>
 
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-4">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-1.5 sm:gap-4 min-w-0">
           
           {/* Departure Block */}
-          <div className="text-left shrink-0 min-w-[65px] sm:min-w-[85px]">
-            <div className="text-xl sm:text-2xl md:text-3xl font-black text-[#1A1A1A] leading-none font-display">
+          <div className="text-left shrink-0 min-w-[50px] sm:min-w-[75px]">
+            <div className="text-base sm:text-2xl md:text-3xl font-black text-[#1A1A1A] leading-none font-display">
               {flight.departureTime}
             </div>
-            <div className="text-xs font-black text-[#EA580C] uppercase tracking-wider mt-1.5">
+            <div className="text-[10px] sm:text-xs font-black text-[#EA580C] uppercase tracking-wider mt-1.5">
               {flight.origin}
             </div>
           </div>
 
           {/* Center Visual Timeline */}
-          <div className="flex flex-col items-center justify-center px-1 sm:px-3">
+          <div className="flex flex-col items-center justify-center px-0.5 sm:px-3 min-w-0">
             {/* Duration Badge */}
-            <div className="text-[10px] sm:text-xs font-black text-[#6B6B6B] mb-1 flex items-center gap-1 bg-white border border-[#E8E0D8] px-2.5 py-0.5 rounded-full shadow-2xs">
+            <div className="text-[9px] sm:text-xs font-black text-[#6B6B6B] mb-1 flex items-center gap-1 bg-white border border-[#E8E0D8] px-2 py-0.5 rounded-full shadow-2xs">
               <Clock size={11} className="text-[#EA580C]" />
               <span>{flight.duration}</span>
             </div>
@@ -241,41 +241,41 @@ export default function AiFlightCard({
               
               {/* Endpoint Dots */}
               <div className="absolute inset-0 flex items-center justify-between">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#EA580C] ring-2 ring-orange-100" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A] ring-2 ring-gray-100" />
+                <div className="w-2 h-2 rounded-full bg-[#EA580C] ring-2 ring-orange-100" />
+                <div className="w-2 h-2 rounded-full bg-[#1A1A1A] ring-2 ring-gray-100" />
               </div>
 
               {/* Center Plane Circle */}
-              <div className="absolute bg-white border border-[#E8E0D8] rounded-full p-0.5 shadow-2xs flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 z-10">
-                <Plane size={12} className="text-[#EA580C]" />
+              <div className="absolute bg-white border border-[#E8E0D8] rounded-full p-0.5 shadow-2xs flex items-center justify-center w-5 h-5 sm:w-7 sm:h-7 z-10">
+                <Plane size={11} className="text-[#EA580C]" />
               </div>
             </div>
 
             {/* Stops / Layover Badge */}
-            <div className="text-[10px] sm:text-[11px] font-bold text-center w-full">
+            <div className="text-[9px] sm:text-[11px] font-bold text-center w-full min-w-0">
               {flight.stops === 0 ? (
-                <span className="text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/80 inline-flex items-center gap-1 shadow-2xs">
-                  <CheckCircle2 size={11} className="text-emerald-600 shrink-0" />
+                <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80 inline-flex items-center gap-1 shadow-2xs">
+                  <CheckCircle2 size={10} className="text-emerald-600 shrink-0" />
                   <span>Direct</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-900 px-2.5 py-0.5 rounded-md border border-amber-200/80 inline-flex items-center gap-1 shadow-2xs max-w-full truncate">
-                  <Clock size={11} className="text-amber-700 shrink-0" />
-                  <span className="truncate">{flight.stopDetails || `${flight.stops} Stop • ${flight.layoverCities?.join(', ') || '1h 45m Layover'}`}</span>
+                <span className="bg-amber-50 text-amber-900 px-2 py-0.5 rounded-md border border-amber-200/80 inline-flex items-center gap-1 shadow-2xs max-w-full truncate">
+                  <Clock size={10} className="text-amber-700 shrink-0" />
+                  <span className="truncate">{flight.stopDetails || `${flight.stops} Stop`}</span>
                 </span>
               )}
             </div>
           </div>
 
           {/* Arrival Block */}
-          <div className="text-right shrink-0 min-w-[65px] sm:min-w-[85px]">
-            <div className="text-xl sm:text-2xl md:text-3xl font-black text-[#1A1A1A] leading-none font-display flex items-start justify-end gap-0.5">
+          <div className="text-right shrink-0 min-w-[50px] sm:min-w-[75px]">
+            <div className="text-base sm:text-2xl md:text-3xl font-black text-[#1A1A1A] leading-none font-display flex items-start justify-end gap-0.5">
               <span>{flight.arrivalTime}</span>
               {flight.isOvernight && (
-                <span className="text-[10px] sm:text-xs font-black text-[#EA580C] -top-1 relative">+1d</span>
+                <span className="text-[9px] sm:text-xs font-black text-[#EA580C] -top-1 relative">+1d</span>
               )}
             </div>
-            <div className="text-xs font-black text-[#1A1A1A] uppercase tracking-wider mt-1.5">
+            <div className="text-[10px] sm:text-xs font-black text-[#1A1A1A] uppercase tracking-wider mt-1.5">
               {flight.destination}
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function AiFlightCard({
           <button
             type="button"
             onClick={() => setShowBaggageDetails(!showBaggageDetails)}
-            className="flex items-center gap-1.5 cursor-pointer hover:border-[#EA580C]/50 transition-all bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1.5 rounded-xl text-xs font-bold text-[#6B6B6B] shadow-2xs"
+            className="flex items-center gap-1.5 cursor-pointer hover:border-[#EA580C]/50 transition-all bg-[#FFFBF7] border border-[#E8E0D8] px-3 py-1.5 rounded-xl text-xs font-bold text-[#6B6B6B] shadow-2xs min-h-[44px]"
           >
             <Briefcase size={13} className="text-[#EA580C]" />
             <span>{flight.cabinBaggage || '1 x 7kg'}</span>
@@ -299,7 +299,7 @@ export default function AiFlightCard({
             <ChevronDown size={12} className={`transition-transform duration-200 ${showBaggageDetails ? 'rotate-180' : ''}`} />
           </button>
 
-          <div className="flex items-center gap-1 text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200 shadow-2xs">
+          <div className="flex items-center gap-1 text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200 shadow-2xs min-h-[44px]">
             <Zap size={12} className="text-emerald-600" />
             <span>Instant E-Ticket</span>
           </div>
@@ -324,7 +324,7 @@ export default function AiFlightCard({
       {/* ── SECTION 4: PRICING & BOOKING CTA FOOTER ── */}
       <div className="pt-3 border-t border-[#E8E0D8]/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-10">
         <div className="text-left">
-          <div className="text-2xl sm:text-3xl font-black text-[#1A1A1A] leading-none font-display">
+          <div className="text-xl sm:text-3xl font-black text-[#1A1A1A] leading-none font-display">
             {formatPrice(flight.perPassengerPrice || flight.price, currency)}
           </div>
           <p className="text-[11px] text-[#6B6B6B] font-semibold mt-1">
@@ -340,7 +340,7 @@ export default function AiFlightCard({
         <button
           type="button"
           onClick={handleBookWithKiwi}
-          className="w-full sm:w-auto px-6 py-3 bg-[#EA580C] hover:bg-[#C2410C] text-white font-black text-xs sm:text-sm rounded-2xl shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 active:scale-95"
+          className="w-full sm:w-auto px-6 py-3 min-h-[48px] bg-[#EA580C] hover:bg-[#C2410C] text-white font-black text-xs sm:text-sm rounded-2xl shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 active:scale-95"
         >
           <span>Book with Kiwi</span>
           <ExternalLink size={14} />

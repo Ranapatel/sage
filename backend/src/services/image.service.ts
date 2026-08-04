@@ -215,7 +215,7 @@ export class ImageService {
 
     if (successfulImages.length === 0) {
       console.warn(`[ImageService] ⚠️ All queries failed for "${entityName}". Using curated placeholder fallback.`);
-      const pool = CURATED_PLACEHOLDERS[entityType] || CURATED_PLACEHOLDERS.general;
+      const pool = (entityType && CURATED_PLACEHOLDERS[entityType]) ? CURATED_PLACEHOLDERS[entityType] : CURATED_PLACEHOLDERS.general;
       successfulImages = [...pool];
       successfulQuery = 'placeholder_fallback';
       fallbackUsed = 'Curated Placeholder Fallback';

@@ -330,7 +330,7 @@ export async function resolvePlaceImage(
   const { placeName, city = '', lat, lng, category = '' } = input
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
     const params = new URLSearchParams()
     params.set('placeName', placeName)
     params.set('city', city)

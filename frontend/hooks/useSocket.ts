@@ -18,7 +18,7 @@ const getSocketUrl = () => {
     }
   }
   
-  return envUrl || 'http://localhost:5000'
+  return envUrl || 'http://localhost:4000'
 }
 
 export function useSocket() {
@@ -50,9 +50,11 @@ export function useSocket() {
 
     socketInstance.on('connect_error', (err) => {
       setConnected(false)
-      // Only log once on initial failure to prevent browser console log spamming
+      // Only log once quietly on initial failure to prevent browser console log spamming
       if (!errorLogged) {
-        console.warn('[TripSage] Socket backend connection pending/retrying:', err.message)
+        if (process.env.NODE_ENV !== 'production') {
+          console.debug('[TripSage] Socket connection initializing/retrying:', err.message)
+        }
         errorLogged = true
       }
     })

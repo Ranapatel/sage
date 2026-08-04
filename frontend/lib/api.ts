@@ -155,7 +155,7 @@ export interface VoucherData {
 // NEXT_PUBLIC_API_URL must be set in .env.local (http://localhost:4000 in dev).
 // We also hard-code the local fallback so hot-reload works without a restart.
 const _API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -191,7 +191,14 @@ _API.interceptors.response.use(
   (res) => res.data,
   async (err) => {
     const msg = err.response?.data?.message || err.message || 'Something went wrong'
-    return Promise.reject(new Error(msg))
+    const customErr: any = new Error(msg)
+    customErr.status = err.response?.status
+    customErr.statusCode = err.response?.status
+    customErr.url = err.config?.url
+    customErr.method = err.config?.method?.toUpperCase()
+    customErr.response = err.response
+    customErr.code = err.code
+    return Promise.reject(customErr)
   }
 )
 

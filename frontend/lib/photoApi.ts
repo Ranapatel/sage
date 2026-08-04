@@ -8,7 +8,7 @@
 import { useAuth } from '@clerk/nextjs'
 import { useMemo } from 'react'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 

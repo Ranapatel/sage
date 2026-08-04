@@ -3,11 +3,13 @@ const router = express.Router()
 const { body, query, validationResult } = require('express-validator')
 const { generateItinerary, optimizeBudget } = require('../services/aiService') // AI services
 const { enrichItineraryWithRealCoords, searchPlace } = require('../services/placesService')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 const { v4: uuidv4 } = require('uuid')
+const { DestinationResolverService } = require('../services/destinationResolver.service')
+const { validateAndSanitizeItinerary } = require('../middleware/destinationValidationGuard')
 
 const itineraryValidation = [
-  body('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  body('destination').trim().notEmpty().isLength({ max: 100 }),
   body('days').customSanitizer(val => {
     const parsed = parseInt(val, 10);
     return isNaN(parsed) || parsed < 1 || parsed > 90 ? 3 : parsed;
@@ -90,7 +92,22 @@ router.post('/generate', itineraryValidation, async (req, res) => {
       enrichedData = { ...result.data, itinerary: enrichedItinerary }
     }
 
-    await cacheSet(cacheKey, { success: true, data: enrichedData })
+    // Resolve canonical destination for validation
+    let destContext = null
+    try {
+      destContext = await DestinationResolverService.resolve(destination)
+      console.log(`[Itinerary Route] Canonical destination resolved: ${destContext.city}, ${destContext.state}, ${destContext.country}`)
+    } catch (resolveErr) {
+      console.warn(`[Itinerary Route] Destination resolution warning: ${resolveErr.message}`)
+    }
+
+    // Validate itinerary stops against canonical destination
+    let validatedData = enrichedData
+    if (destContext) {
+      validatedData = validateAndSanitizeItinerary(enrichedData, destContext)
+    }
+
+    await cacheSet(cacheKey, { success: true, data: validatedData })
     res.json({
       success: true,
       meta: {
@@ -99,8 +116,9 @@ router.post('/generate', itineraryValidation, async (req, res) => {
         cache: false,
         googleEnriched: hasGoogleKey,
         isHybrid,
+        canonicalDestination: destContext ? destContext.city : destination,
       },
-      data: enrichedData,
+      data: validatedData,
       message: 'LIVE_UPDATE',
       error: null,
     })
@@ -149,3 +167,4 @@ router.post('/optimize-budget', itineraryValidation, async (req, res) => {
 })
 
 module.exports = router
+

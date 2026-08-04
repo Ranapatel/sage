@@ -16,21 +16,20 @@ export default function MobileBottomNav() {
     { name: 'Profile', href: '/profile', icon: User },
   ]
 
-  // Hide on desktop (md:hidden)
   return (
     <>
-      {/* Spacer to prevent content from hiding behind the fixed navbar */}
-      <div className="md:hidden h-[calc(64px+env(safe-area-inset-bottom))]" />
+      {/* Spacer to prevent content from hiding behind fixed bottom nav */}
+      <div className="md:hidden h-[calc(68px+max(0.5rem,env(safe-area-inset-bottom)))] pointer-events-none" />
       
-      <div 
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E7E5E4] z-[9999] flex items-center justify-around px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]"
+      <nav 
+        aria-label="Mobile Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#E8E0D8] z-[9999] flex items-center justify-between px-3 shadow-[0_-4px_20px_rgba(0,0,0,0.04)]"
         style={{ 
-          height: 'calc(64px + env(safe-area-inset-bottom))',
-          paddingBottom: 'env(safe-area-inset-bottom)'
+          height: 'calc(68px + max(0.5rem, env(safe-area-inset-bottom)))',
+          paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))'
         }}
       >
         {tabs.map((tab) => {
-          // Exact match for Home, prefix match for others (e.g. /plan/something matches Search)
           const isActive = tab.href === '/' 
             ? pathname === '/' 
             : pathname?.startsWith(tab.href)
@@ -41,33 +40,28 @@ export default function MobileBottomNav() {
             <Link
               key={tab.name}
               href={tab.href}
-              className="relative flex flex-col items-center justify-center w-16 h-full"
+              className="relative flex-1 min-w-[44px] min-h-[44px] h-full flex flex-col items-center justify-center group active:scale-95 transition-transform"
             >
-              <div className="relative flex flex-col items-center justify-center h-full pt-1">
+              <div className="relative flex flex-col items-center justify-center h-full pt-1.5 pb-1">
                 <Icon 
                   size={20} 
-                  strokeWidth={1.5}
-                  className={`transition-colors duration-300 ${isActive ? 'text-[#1C1917]' : 'text-[#57534E]'}`} 
+                  strokeWidth={isActive ? 2 : 1.75}
+                  className={`transition-colors duration-200 ${isActive ? 'text-[#EA580C]' : 'text-[#6B6B6B] group-hover:text-[#1A1A1A]'}`} 
                 />
 
-                {/* Active Label with Spring Animation */}
-                {isActive && (
-                  <motion.span
-                    layoutId="mobileNavLabel"
-                    initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="text-[10px] font-bold text-[#1C1917] mt-1 whitespace-nowrap absolute -bottom-1"
-                  >
-                    {tab.name}
-                  </motion.span>
-                )}
-                
-                {/* Visual indicator dot for active state (optional, adds polish) */}
+                <span
+                  className={`text-[10px] font-bold mt-1 tracking-tight transition-colors duration-200 ${
+                    isActive ? 'text-[#EA580C] font-extrabold' : 'text-[#6B6B6B]'
+                  }`}
+                >
+                  {tab.name}
+                </span>
+
+                {/* Active pill indicator */}
                 {isActive && (
                   <motion.div
                     layoutId="mobileNavDot"
-                    className="absolute -top-3 w-1 h-1 bg-[#1C1917] rounded-full"
+                    className="absolute top-1 w-1.5 h-1.5 bg-[#EA580C] rounded-full"
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   />
                 )}
@@ -75,7 +69,7 @@ export default function MobileBottomNav() {
             </Link>
           )
         })}
-      </div>
+      </nav>
     </>
   )
 }

@@ -50,7 +50,7 @@ async function fetchPlaceImages(placeName: string, category: string = 'dining', 
   if (imageCache[cacheKey]) return imageCache[cacheKey];
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const params = new URLSearchParams();
     params.set('placeName', placeName);
     params.set('city', destination || '');
@@ -145,14 +145,14 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
           <div
             key={idx}
             className="rounded-xl overflow-hidden snap-start flex-shrink-0 relative group shadow-sm border border-[var(--border)] bg-zinc-100"
-            style={{ width: '136px', height: '90px' }}
+            style={{ width: isMobile ? '120px' : '136px', height: isMobile ? '80px' : '90px' }}
           >
             <Image
               src={getOptimizedImageUrl(img, isMobile)}
               alt={`${place.name} view ${idx + 1}`}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="136px"
+              sizes="(max-width: 640px) 120px, 136px"
               unoptimized={img.includes('unsplash.com')}
             />
           </div>
@@ -184,7 +184,7 @@ function PlaceCard({ place, destinationName, onClick }: PlaceCardProps) {
   return (
     <div
       onClick={onClick}
-      className="card p-4 flex-1 hover:border-[var(--primary)] hover:shadow-md transition-all duration-300 min-w-0 overflow-hidden cursor-pointer active:scale-[0.99] group border border-[var(--border)] bg-white dark:bg-zinc-900 rounded-2xl relative"
+      className="card p-4 flex-1 hover:border-[var(--primary)] hover:shadow-md transition-all duration-300 min-w-0 overflow-hidden cursor-pointer active:scale-[0.99] group border border-[var(--border)] bg-white dark:bg-zinc-900 rounded-[20px] relative w-full box-border"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">

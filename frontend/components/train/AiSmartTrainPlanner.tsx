@@ -318,7 +318,7 @@ export default function AiSmartTrainPlanner() {
 
       {/* ── 4. FULL-WIDTH TRAIN JOURNEY TIMELINES (100% Widescreen Grid) ── */}
       <div className="w-full space-y-6">
-          {routesToDisplay.map((route) => {
+          {routesToDisplay.map((route, routeIdx) => {
             const badgeHeaderBg =
               route.type === 'best'
                 ? 'bg-orange-50 text-[#EA580C] border-orange-200'
@@ -341,7 +341,7 @@ export default function AiSmartTrainPlanner() {
 
             return (
               <div
-                key={route.id}
+                key={`${route.id}-${route.type || routeIdx}`}
                 className={`bg-white border ${cardOuterBorder} hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 relative group`}
               >
                 {/* ── 1. COMPACT TRAIN CARD HEADER (Slim Mobile-First View) ── */}

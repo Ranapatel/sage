@@ -28,7 +28,7 @@ export default function HeroSearchForm({ form, onChange, onSubmit, loading }: Pr
   return (
     <form
       onSubmit={onSubmit}
-      className="plan-card p-5 md:p-6 w-full text-left shadow-sm"
+      className="plan-card p-4 sm:p-5 md:p-6 w-full text-left shadow-sm"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <Field label="From">
@@ -83,7 +83,7 @@ export default function HeroSearchForm({ form, onChange, onSubmit, loading }: Pr
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
         <Field label="Budget">
-          <div className="flex items-center plan-input min-h-[48px] px-3 gap-2">
+          <div className="flex items-center plan-input min-h-[48px] px-2 sm:px-3 gap-1.5 sm:gap-2">
             <Coins size={16} className="text-[#9CA3AF] shrink-0" />
             <select
               className="bg-transparent border-none outline-none text-xs font-semibold text-[#64748B] cursor-pointer"
@@ -137,7 +137,7 @@ export default function HeroSearchForm({ form, onChange, onSubmit, loading }: Pr
 
       <button
         type="submit"
-        className="btn-primary w-full py-3.5 text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
+        className="btn-primary w-full min-h-[48px] py-3 text-sm sm:text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
         disabled={loading || !form.from || !form.to || !form.startDate}
       >
         {loading ? (

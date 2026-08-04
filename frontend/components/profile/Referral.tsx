@@ -34,7 +34,7 @@ export default function Referral() {
     try {
       const token = await getToken()
       if (!token) return
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.get(`${apiUrl}/api/profile/referrals`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -120,7 +120,7 @@ export default function Referral() {
     try {
       const token = await getToken()
       if (!token) return
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await axios.post(
         `${apiUrl}/api/profile/referrals`,
         { email, reward: 200 },

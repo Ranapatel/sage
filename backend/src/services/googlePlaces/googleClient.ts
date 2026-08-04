@@ -9,9 +9,33 @@ import axios, { AxiosRequestConfig } from 'axios'
 
 // ponytail: reuse the project's existing retry + circuit breaker instead of inventing new ones
 const { withRetry, CircuitBreaker } = require('../retryService')
-const { cacheGet, cacheSet, generateCacheKey } = require('../../../config/redis')
+const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 
 const BASE_URL = 'https://places.googleapis.com/v1'
+
+// ── In-memory cache (fast path, survives Redis outages) ─────────────────────
+// When Redis is unavailable (no credentials / network), the persistent cache
+// is a no-op, so every request would hit Google directly and quickly exhaust
+// the daily quota. This Map provides a per-process TTL cache that prevents
+// duplicate Google API calls for identical requests within the same process
+// lifetime, even when Redis is down.
+const memCache = new Map<string, { value: any; expiresAt: number }>()
+
+function memCacheGet(key: string): any | null {
+  const hit = memCache.get(key)
+  if (!hit) return null
+  if (Date.now() > hit.expiresAt) {
+    memCache.delete(key)
+    return null
+  }
+  return hit.value
+}
+
+function memCacheSet(key: string, value: any, ttlSeconds: number): void {
+  if (ttlSeconds <= 0) return
+  memCache.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 })
+}
+
 
 const API_KEY = () => {
   const key = process.env.GOOGLE_PLACES_API_KEY
@@ -57,9 +81,14 @@ export async function googleRequest<T>(opts: GoogleRequestOptions): Promise<T> {
   // ── Cache check ───────────────────────────────────────────────────────────
   const cacheKey = generateCacheKey(cachePrefix, { path, body, fieldMask })
   if (cacheTtl > 0) {
+    const memHit = memCacheGet(cacheKey)
+    if (memHit) return memHit as T
     try {
       const cached = await cacheGet(cacheKey)
-      if (cached) return cached as T
+      if (cached) {
+        memCacheSet(cacheKey, cached, cacheTtl)
+        return cached as T
+      }
     } catch { /* Redis down = proceed without cache */ }
   }
 
@@ -91,6 +120,7 @@ export async function googleRequest<T>(opts: GoogleRequestOptions): Promise<T> {
 
   // ── Cache result ──────────────────────────────────────────────────────────
   if (cacheTtl > 0) {
+    memCacheSet(cacheKey, result, cacheTtl)
     try {
       await cacheSet(cacheKey, result, cacheTtl)
     } catch { /* silent */ }
@@ -106,3 +136,4 @@ export async function googleRequest<T>(opts: GoogleRequestOptions): Promise<T> {
 export function buildPhotoUrl(photoName: string, maxWidthPx = 800): string {
   return `${BASE_URL}/${photoName}/media?maxWidthPx=${maxWidthPx}&key=${API_KEY()}`
 }
+

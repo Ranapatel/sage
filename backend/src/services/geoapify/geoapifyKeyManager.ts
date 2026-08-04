@@ -1,4 +1,4 @@
-import { cacheGet, cacheSet } from '../../../config/redis'
+import { cacheGet, cacheSet } from '../../config/redis'
 
 interface KeyUsage {
   key: string
@@ -159,3 +159,4 @@ export class GeoapifyKeyManager {
     }
   }
 }
+

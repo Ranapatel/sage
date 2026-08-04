@@ -5,11 +5,14 @@ const { getExplorePlaces, generateMockPlaces } = require('../services/aiService'
 const { searchActivities, searchRestaurants, getPlaceDetailsWithNearby } = require('../services/googlePlaces')
 const { GeocodingService } = require('../services/geocoding.service')
 const { ImageService } = require('../services/imageService')
+const { activitiesDetailsLimiter } = require('../middleware/rateLimitMiddleware')
+const { DestinationResolverService } = require('../services/destinationResolver.service')
+const { validateAndSanitizeActivities, validateAndSanitizeRestaurants } = require('../middleware/destinationValidationGuard')
 
 // ── GET /api/explore/activities/:destination ───────────────────────────────────
 
 router.get('/activities/:destination', [
-  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  param('destination').trim().notEmpty().isLength({ max: 100 }),
   query('category').optional().trim(),
   query('rating').optional().isFloat({ min: 0, max: 5 }),
   query('price').optional().isInt({ min: 0, max: 4 }),
@@ -22,15 +25,24 @@ router.get('/activities/:destination', [
   const { category, rating, price, openNow, sortBy, page, limit } = req.query
 
   try {
-    // 1. Resolve destination coordinates using central GeocodingService (soft failover)
+    // 1. Resolve canonical destination (Single Source of Truth)
+    let destContext = null
     let coords = null
     try {
-      const geo = await GeocodingService.geocodeDestination(dest)
-      if (geo && geo.latitude && geo.longitude) {
-        coords = { latitude: geo.latitude, longitude: geo.longitude }
-      }
+      destContext = await DestinationResolverService.resolve(dest)
+      coords = { latitude: destContext.latitude, longitude: destContext.longitude }
+      console.log(`[Explore Activities] Canonical destination: ${destContext.city}, ${destContext.state}, ${destContext.country}`)
     } catch (err) {
-      console.warn(`[Explore Route] Geocoding skipped for "${dest}":`, err.message)
+      console.warn(`[Explore Route] Destination resolution failed for "${dest}":`, err.message)
+      // Soft fallback: try basic geocoding
+      try {
+        const geo = await GeocodingService.geocodeDestination(dest)
+        if (geo && geo.latitude && geo.longitude) {
+          coords = { latitude: geo.latitude, longitude: geo.longitude }
+        }
+      } catch (geoErr) {
+        console.warn(`[Explore Route] Geocoding also failed for "${dest}":`, geoErr.message)
+      }
     }
 
     // 2. Query Google Places activities via exploreService
@@ -45,18 +57,33 @@ router.get('/activities/:destination', [
     })
 
     if (result && Array.isArray(result.activities) && result.activities.length > 0) {
+      // 3. Validate geographic consistency if destContext is available
+      let finalActivities = result.activities
+      if (destContext) {
+        const { validActivities, rejectedCount } = validateAndSanitizeActivities(result.activities, destContext)
+        finalActivities = validActivities
+        if (rejectedCount > 0) {
+          console.log(`[Explore Activities] Filtered out ${rejectedCount} cross-city activities for "${destContext.city}"`)
+        }
+      }
+
       return res.json({
         success: true,
         data: {
-          activities: result.activities,
-          total: result.total
+          activities: finalActivities,
+          total: finalActivities.length
         },
-        meta: { timestamp: new Date().toISOString(), source: 'google_places' }
+        meta: {
+          timestamp: new Date().toISOString(),
+          source: 'google_places',
+          canonicalDestination: destContext ? destContext.city : dest
+        }
       })
     }
 
-    // 3. Fallback to mock activities if Google Places returned 0 results
-    const mockList = generateMockPlaces(dest)
+    // 4. Fallback to mock activities if Google Places returned 0 results
+    const cityName = destContext ? destContext.city : dest
+    const mockList = generateMockPlaces(cityName)
     const fallbackActs = mockList.map((p, i) => ({
       id: `act_fb_${i}_${Date.now()}`,
       name: p.name,
@@ -65,7 +92,7 @@ router.get('/activities/:destination', [
       rating: 4.8 - (i * 0.1),
       userRatingCount: 150 + (i * 25),
       priceLevel: p.cost ? (p.cost > 500 ? '$$$' : '$$') : '$',
-      formattedAddress: `${p.name}, ${dest}`,
+      formattedAddress: `${p.name}, ${cityName}`,
       openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop'],
@@ -75,11 +102,12 @@ router.get('/activities/:destination', [
     return res.json({
       success: true,
       data: { activities: fallbackActs, total: fallbackActs.length },
-      meta: { timestamp: new Date().toISOString(), source: 'fallback' }
+      meta: { timestamp: new Date().toISOString(), source: 'fallback', canonicalDestination: cityName }
     })
   } catch (err) {
     console.warn('[Explore Activities Router] Soft fallback triggered:', err.message)
-    const mockList = generateMockPlaces(dest)
+    const cityName = dest.split(',')[0].trim()
+    const mockList = generateMockPlaces(cityName)
     const fallbackActs = mockList.map((p, i) => ({
       id: `act_fb_${i}_${Date.now()}`,
       name: p.name,
@@ -88,7 +116,7 @@ router.get('/activities/:destination', [
       rating: 4.7,
       userRatingCount: 120,
       priceLevel: '$$',
-      formattedAddress: `${p.name}, ${dest}`,
+      formattedAddress: `${p.name}, ${cityName}`,
       openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop'],
@@ -106,7 +134,7 @@ router.get('/activities/:destination', [
 // ── GET /api/explore/restaurants/:destination ──────────────────────────────────
 
 router.get('/restaurants/:destination', [
-  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  param('destination').trim().notEmpty().isLength({ max: 100 }),
   query('rating').optional().isFloat({ min: 0, max: 5 }),
   query('price').optional().isInt({ min: 0, max: 4 }),
   query('openNow').optional().isString(),
@@ -118,15 +146,23 @@ router.get('/restaurants/:destination', [
   const { rating, price, openNow, sortBy, page, limit } = req.query
 
   try {
-    // 1. Resolve coordinates (soft failover)
+    // 1. Resolve canonical destination (Single Source of Truth)
+    let destContext = null
     let coords = null
     try {
-      const geo = await GeocodingService.geocodeDestination(dest)
-      if (geo && geo.latitude && geo.longitude) {
-        coords = { latitude: geo.latitude, longitude: geo.longitude }
-      }
+      destContext = await DestinationResolverService.resolve(dest)
+      coords = { latitude: destContext.latitude, longitude: destContext.longitude }
+      console.log(`[Explore Restaurants] Canonical destination: ${destContext.city}, ${destContext.state}, ${destContext.country}`)
     } catch (err) {
-      console.warn(`[Explore Route] Geocoding skipped for "${dest}":`, err.message)
+      console.warn(`[Explore Route] Destination resolution failed for "${dest}":`, err.message)
+      try {
+        const geo = await GeocodingService.geocodeDestination(dest)
+        if (geo && geo.latitude && geo.longitude) {
+          coords = { latitude: geo.latitude, longitude: geo.longitude }
+        }
+      } catch (geoErr) {
+        console.warn(`[Explore Route] Geocoding also failed for "${dest}":`, geoErr.message)
+      }
     }
 
     // 2. Query Google Places restaurants
@@ -140,18 +176,33 @@ router.get('/restaurants/:destination', [
     })
 
     if (result && Array.isArray(result.restaurants) && result.restaurants.length > 0) {
+      // 3. Validate geographic consistency
+      let finalRestaurants = result.restaurants
+      if (destContext) {
+        const { validRestaurants, rejectedCount } = validateAndSanitizeRestaurants(result.restaurants, destContext)
+        finalRestaurants = validRestaurants
+        if (rejectedCount > 0) {
+          console.log(`[Explore Restaurants] Filtered out ${rejectedCount} cross-city restaurants for "${destContext.city}"`)
+        }
+      }
+
       return res.json({
         success: true,
         data: {
-          restaurants: result.restaurants,
-          total: result.total
+          restaurants: finalRestaurants,
+          total: finalRestaurants.length
         },
-        meta: { timestamp: new Date().toISOString(), source: 'google_places' }
+        meta: {
+          timestamp: new Date().toISOString(),
+          source: 'google_places',
+          canonicalDestination: destContext ? destContext.city : dest
+        }
       })
     }
 
-    // 3. Fallback mock restaurants
-    const mockList = generateMockPlaces(dest)
+    // 4. Fallback mock restaurants
+    const cityName = destContext ? destContext.city : dest
+    const mockList = generateMockPlaces(cityName)
     const fallbackRests = mockList.map((p, i) => ({
       id: `rest_fb_${i}_${Date.now()}`,
       name: `${p.name} Dining`,
@@ -160,7 +211,7 @@ router.get('/restaurants/:destination', [
       rating: 4.6,
       userRatingCount: 200,
       priceLevel: '$$',
-      formattedAddress: `${p.name}, ${dest}`,
+      formattedAddress: `${p.name}, ${cityName}`,
       openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop'],
@@ -170,11 +221,12 @@ router.get('/restaurants/:destination', [
     return res.json({
       success: true,
       data: { restaurants: fallbackRests, total: fallbackRests.length },
-      meta: { timestamp: new Date().toISOString(), source: 'fallback' }
+      meta: { timestamp: new Date().toISOString(), source: 'fallback', canonicalDestination: cityName }
     })
   } catch (err) {
     console.warn('[Explore Restaurants Router] Soft fallback triggered:', err.message)
-    const mockList = generateMockPlaces(dest)
+    const cityName = dest.split(',')[0].trim()
+    const mockList = generateMockPlaces(cityName)
     const fallbackRests = mockList.map((p, i) => ({
       id: `rest_fb_${i}_${Date.now()}`,
       name: `${p.name} Dining`,
@@ -183,7 +235,7 @@ router.get('/restaurants/:destination', [
       rating: 4.6,
       userRatingCount: 200,
       priceLevel: '$$',
-      formattedAddress: `${p.name}, ${dest}`,
+      formattedAddress: `${p.name}, ${cityName}`,
       openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop'],
@@ -201,7 +253,8 @@ router.get('/restaurants/:destination', [
 // ── GET /api/explore/details/:placeId ──────────────────────────────────────────
 
 router.get('/details/:placeId', [
-  param('placeId').trim().notEmpty().escape(),
+  activitiesDetailsLimiter,
+  param('placeId').trim().notEmpty(),
 ], async (req, res) => {
   const { placeId } = req.params
 
@@ -221,8 +274,26 @@ router.get('/details/:placeId', [
     })
   } catch (err) {
     console.error('[Explore Details Router] Error:', err.message)
-    const status = err.status || err.statusCode || 500
-    res.status(status).json({
+
+    // Upstream Google Places 429 (quota exceeded) or circuit-breaker-open errors
+    // must NOT be blindly forwarded as a raw 429 to the client. We translate them
+    // to a server-side 429 with a Retry-After header so the client backs off
+    // gracefully instead of retrying immediately and deepening the quota hole.
+    const upstreamStatus = err.status || err.statusCode || err.response?.status || 500
+    const isRateLimited =
+      upstreamStatus === 429 ||
+      /quota|rate limit|circuit|too many/i.test(err.message || '')
+
+    if (isRateLimited) {
+      res.setHeader('Retry-After', '60')
+      return res.status(429).json({
+        success: false,
+        error: 'Place details are temporarily unavailable due to high demand. Please try again in a minute.',
+        retryAfter: 60,
+      })
+    }
+
+    res.status(upstreamStatus).json({
       success: false,
       error: 'Details fetch failed: ' + (err.message || 'unknown')
     })
@@ -232,7 +303,7 @@ router.get('/details/:placeId', [
 // ── GET /api/explore/places/:destination ───────────────────────────────────────
 
 router.get('/places/:destination', [
-  param('destination').trim().notEmpty().isLength({ max: 100 }).escape(),
+  param('destination').trim().notEmpty().isLength({ max: 100 }),
 ], async (req, res) => {
   const dest = decodeURIComponent(req.params.destination)
   try {

@@ -180,6 +180,15 @@ export interface HybridItinerary {
   tips: string[]
 }
 
+export interface UserPersonaVector {
+  pace?: 'Relaxed' | 'Balanced' | 'Packed'
+  walkingToleranceKm?: number
+  ageGroup?: 'Youth' | 'Adults' | 'Seniors' | 'FamilyWithKids'
+  accessibilityNeeds?: string[]
+  dietaryPreferences?: string[]
+  solarPreference?: 'sunrise' | 'sunset' | 'golden_hour' | 'none'
+}
+
 export interface HybridItineraryParams {
   destination: string
   from?: string
@@ -190,6 +199,13 @@ export interface HybridItineraryParams {
   members: number
   preferences?: string[]
   startDate?: string
+  persona?: UserPersonaVector
+  pace?: 'Relaxed' | 'Balanced' | 'Packed'
+  walkingToleranceKm?: number
+  ageGroup?: 'Youth' | 'Adults' | 'Seniors' | 'FamilyWithKids'
+  accessibilityNeeds?: string[]
+  dietaryPreferences?: string[]
+  solarPreference?: 'sunrise' | 'sunset' | 'golden_hour' | 'none'
 }
 
 // Update TripSagePlaceDetails to optionally hold the reviewSummary

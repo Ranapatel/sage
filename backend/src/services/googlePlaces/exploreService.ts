@@ -8,6 +8,7 @@
 import { googleRequest, buildPhotoUrl } from './googleClient'
 import { TripSagePlaceReview, TripSagePlacePhoto } from './types'
 import { ImageService } from '../imageService'
+import { getCategoryFallbackImage, getCategoryFallbackGallery } from '../../data/cuisineFallbacks'
 
 const { generatePlaceDescription } = require('./aiDescriptionService')
 
@@ -289,15 +290,9 @@ export async function searchRestaurants(
       heroImage = buildPhotoUrl(heroPhoto, 800)
       galleryImages = photos.slice(0, 5).map((img: any) => buildPhotoUrl(img.name, 800))
     } else {
-      const resolved = await ImageService.resolvePlaceImages({
-        placeId: p.id,
-        placeName: name,
-        city: destination,
-        category: 'restaurants'
-      })
-      heroImage = resolved.imageUrl
-      galleryImages = resolved.gallery
-      photoCount = resolved.gallery.length
+      heroImage = getCategoryFallbackImage(cuisine, name, p.id)
+      galleryImages = getCategoryFallbackGallery(cuisine, name, p.id)
+      photoCount = galleryImages.length
     }
     const thumbnail = heroPhoto ? buildPhotoUrl(heroPhoto, 400) : heroImage
 
@@ -431,9 +426,11 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
 
   // Generate AI description if Google editorial summary is missing
   let description = data.editorialSummary?.text || null
+  let aiSummary: any = null
+
   if (!description) {
     try {
-      description = await generatePlaceDescription({
+      const rawAi = await generatePlaceDescription({
         name,
         address,
         primaryType: data.primaryType || '',
@@ -441,9 +438,28 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
         userRatingsTotal: reviewCount,
         reviewSnippets,
       })
+
+      if (typeof rawAi === 'object' && rawAi !== null) {
+        aiSummary = rawAi
+        description = rawAi.summary || (rawAi.highlights && rawAi.highlights[0]) || null
+      } else if (typeof rawAi === 'string') {
+        try {
+          aiSummary = JSON.parse(rawAi)
+          description = aiSummary.summary || rawAi
+        } catch {
+          description = rawAi
+        }
+      }
     } catch (err: any) {
       console.warn('[ExploreService] AI description generation failed:', err.message)
       description = null
+    }
+  } else {
+    aiSummary = {
+      summary: description,
+      highlights: [],
+      bestTime: null,
+      practicalTip: null
     }
   }
 
@@ -461,6 +477,7 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
     phone: data.nationalPhoneNumber || null,
     website: data.websiteUri || null,
     description,
+    aiSummary,
     descriptionSource: data.editorialSummary?.text ? 'google' : 'ai',
     openingHours: data.regularOpeningHours?.weekdayDescriptions
       || data.currentOpeningHours?.weekdayDescriptions
