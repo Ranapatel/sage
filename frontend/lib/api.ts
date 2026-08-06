@@ -205,6 +205,8 @@ _API.interceptors.response.use(
 // Cast to any so we can re-declare with correct return types below
 const API = _API as any
 
+const detailsClientCache = new Map<string, { data: any; timestamp: number }>()
+
 // ─── Trip API ────────────────────────────────────────────────────────────────
 
 export const tripAPI = {
@@ -251,16 +253,13 @@ export const tripAPI = {
     API.get(`/api/explore/restaurants/${encodeURIComponent(destination)}`, { params }),
 
   getPlaceDetails: (placeId: string): Promise<ApiResponse<any>> => {
-    if (!globalThis.__detailsCache) {
-      globalThis.__detailsCache = new Map<string, { data: any; timestamp: number }>()
-    }
-    const cached = globalThis.__detailsCache.get(placeId)
+    const cached = detailsClientCache.get(placeId)
     if (cached && Date.now() - cached.timestamp < 600_000) {
       return Promise.resolve(cached.data)
     }
     return API.get(`/api/explore/details/${encodeURIComponent(placeId)}`)
       .then((res: any) => {
-        globalThis.__detailsCache.set(placeId, { data: res, timestamp: Date.now() })
+        detailsClientCache.set(placeId, { data: res, timestamp: Date.now() })
         return res
       })
       .catch(() => {
