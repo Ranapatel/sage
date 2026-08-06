@@ -31,13 +31,13 @@ export function resolveScoringWeights(
   prefs: PreferencesContext | null,
   accessibilityNotes: string | null | undefined
 ): ScoringWeights {
-  const style = (prefs?.travelStyle || '').toLowerCase()
-  if (style === 'family') return FAMILY_SCORING_WEIGHTS
-  if (style === 'business') return BUSINESS_SCORING_WEIGHTS
-  // Treat any non-empty accessibility notes as accessibility-focused.
+  // Essential accessibility requirements take precedence over general travel styles
   if (accessibilityNotes && accessibilityNotes.trim().length > 0) {
     return ACCESSIBILITY_SCORING_WEIGHTS
   }
+  const style = (prefs?.travelStyle || '').toLowerCase()
+  if (style === 'family') return FAMILY_SCORING_WEIGHTS
+  if (style === 'business') return BUSINESS_SCORING_WEIGHTS
   return DEFAULT_SCORING_WEIGHTS
 }
 

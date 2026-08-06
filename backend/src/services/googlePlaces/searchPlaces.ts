@@ -43,7 +43,7 @@ export async function searchPlaces(params: SearchPlacesParams): Promise<TripSage
       languageCode: 'en',
     },
     fieldMask: FIELD_MASK,
-    cachePrefix: 'gp_search',
+    cachePrefix: `gp_search_${destination.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
     cacheTtl: 3600, // 1 hour
   })
 

@@ -138,6 +138,15 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
   // Collapse consecutive duplicate coordinates to avoid Routing API errors
   const validPlaces = (places || [])
+    .map((p) => {
+      if (!Array.isArray(p.coordinates) || p.coordinates.length < 2) return p
+      let c0 = p.coordinates[0]
+      let c1 = p.coordinates[1]
+      if (Math.abs(c0) > 90 && Math.abs(c1) <= 90) {
+        return { ...p, coordinates: [c1, c0] as [number, number] }
+      }
+      return p
+    })
     .filter(
       (p): p is Place & { coordinates: [number, number] } =>
         Array.isArray(p.coordinates) &&

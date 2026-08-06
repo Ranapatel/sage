@@ -188,6 +188,17 @@ async function photonGeocode(placeName, cityContext = '') {
   }
 }
 
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return 0
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
 function parseCityStops(dest) {
   if (!dest) return []
   return dest.split(/->|--| to /i).map(s => s.trim()).filter(Boolean)
@@ -195,8 +206,8 @@ function parseCityStops(dest) {
 
 function cleanCityContext(cityStr) {
   if (!cityStr) return ''
-  const parts = cityStr.split(/->|--| to /i)
-  return parts[0].trim()
+  const parts = cityStr.split(/->|--| to /i).map(s => s.trim()).filter(Boolean)
+  return parts[0] || ''
 }
 
 function isDummyOceanCoords(lat, lng) {
@@ -250,15 +261,54 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
   const enriched = []
   for (let dayIdx = 0; dayIdx < itinerary.length; dayIdx++) {
     const day = itinerary[dayIdx]
-    const dayCity = day.city || day.destination || (cityStops.length > 0 ? cityStops[Math.min(dayIdx, cityStops.length - 1)] : destination)
-    const cleanedCity = cleanCityContext(dayCity)
+    let targetCity = day.city || day.destination
+    if (!targetCity || targetCity === destination) {
+      if (cityStops.length > 1) {
+        const stopIdx = Math.min(
+          Math.floor((dayIdx / Math.max(itinerary.length, 1)) * cityStops.length),
+          cityStops.length - 1
+        )
+        targetCity = cityStops[stopIdx]
+      } else {
+        targetCity = cityStops[0] || destination
+      }
+    }
+    const cleanedCity = cleanCityContext(targetCity)
+
+    // Resolve canonical city center for bounds verification
+    let cityCenter = null
+    try {
+      const { DestinationResolverService } = require('./destinationResolver.service')
+      cityCenter = await DestinationResolverService.resolve(cleanedCity)
+    } catch { /* proceed without center check if unresolvable */ }
 
     const enrichedPlaces = []
+    let placeCounter = 0
     for (const place of (day.places || [])) {
-      const geo = await geocodePlace(place.name, cleanedCity)
+      placeCounter++
+      let geo = await geocodePlace(place.name, cleanedCity)
 
-      const lat = geo?.lat ?? null
-      const lng = geo?.lng ?? null
+      let lat = geo?.lat ?? null
+      let lng = geo?.lng ?? null
+
+      // Bounds verification: if geocoded coordinates are > 85km from target city center, reject cross-city hallucinated coordinates
+      if (geo && cityCenter && lat != null && lng != null) {
+        const dist = haversineDistance(lat, lng, cityCenter.latitude, cityCenter.longitude)
+        if (dist > 85) {
+          console.warn(`[DestinationGuard] ❌ Rejected out-of-bounds geocoding for "${place.name}" (${dist.toFixed(1)}km from ${cleanedCity}). Re-centering to ${cleanedCity}.`)
+          // Offset slightly so map pins do not stack exactly on top of each other
+          const offsetLat = (placeCounter * 0.003) * (placeCounter % 2 === 0 ? 1 : -1)
+          const offsetLng = (placeCounter * 0.003) * (placeCounter % 3 === 0 ? -1 : 1)
+          lat = cityCenter.latitude + offsetLat
+          lng = cityCenter.longitude + offsetLng
+          geo = {
+            ...geo,
+            lat,
+            lng,
+            source: 'city_center_bound'
+          }
+        }
+      }
 
       // Resolve a real image for this place (Wikipedia → Flickr → Wikimedia geo)
       let imageUrl = place.image || null
@@ -282,14 +332,14 @@ async function enrichItineraryWithRealCoords(itinerary, destination) {
         image: imageUrl,
       } : {
         ...place,
-        coordinates: existingCoordsValid ? place.coordinates : null,
-        lat: existingCoordsValid ? place.coordinates[0] : null,
-        lng: existingCoordsValid ? place.coordinates[1] : null,
+        coordinates: existingCoordsValid ? place.coordinates : (cityCenter ? [cityCenter.latitude, cityCenter.longitude] : null),
+        lat: existingCoordsValid ? place.coordinates[0] : (cityCenter ? cityCenter.latitude : null),
+        lng: existingCoordsValid ? place.coordinates[1] : (cityCenter ? cityCenter.longitude : null),
         coordSource: 'ai_estimated',
         image: imageUrl,
       })
     }
-    enriched.push({ ...day, places: enrichedPlaces })
+    enriched.push({ ...day, city: cleanedCity, places: enrichedPlaces })
   }
 
   const real = enriched.flatMap(d => d.places).filter(p => p.coordSource !== 'ai_estimated').length

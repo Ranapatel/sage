@@ -16,10 +16,10 @@ const activitiesSearchLimiter = rateLimit({
   legacyHeaders:   false,
 })
 
-/** Activity details — 60 req / 15 min per IP */
+/** Activity details — 60 req / 15 min in prod, 3000 in dev */
 const activitiesDetailsLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max:      60,
+  max:      process.env.NODE_ENV === 'production' ? 60 : 3000,
   message:  { success: false, error: 'Too many detail requests. Please try again shortly.' },
   standardHeaders: true,
   legacyHeaders:   false,

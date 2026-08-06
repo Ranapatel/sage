@@ -285,11 +285,20 @@ export default function MapView({
         const key = `${dayIdx}-${placeIdx}-${p.name}`
         const dynamicGeo = geocodedStops[key]
 
-        let lat = dynamicGeo ? dynamicGeo.lat : (p.lat ?? (Array.isArray(p.coordinates) ? p.coordinates[0] : p.latitude ?? NaN))
-        let lng = dynamicGeo ? dynamicGeo.lng : (p.lng ?? (Array.isArray(p.coordinates) ? p.coordinates[1] : p.longitude ?? NaN))
+        let rawLat = dynamicGeo ? dynamicGeo.lat : (p.lat ?? (Array.isArray(p.coordinates) ? p.coordinates[0] : p.latitude ?? NaN))
+        let rawLng = dynamicGeo ? dynamicGeo.lng : (p.lng ?? (Array.isArray(p.coordinates) ? p.coordinates[1] : p.longitude ?? NaN))
         
-        lat = lat != null ? +lat : NaN
-        lng = lng != null ? +lng : NaN
+        let lat = rawLat != null ? +rawLat : NaN
+        let lng = rawLng != null ? +rawLng : NaN
+
+        // Auto-correct GeoJSON [longitude, latitude] vs [latitude, longitude] swaps
+        if (!isNaN(lat) && !isNaN(lng)) {
+          if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
+            const temp = lat
+            lat = lng
+            lng = temp
+          }
+        }
 
         // Fallback: If coordinates are missing or ocean dummy, derive from day center
         if (isNaN(lat) || isNaN(lng) || isDummyOceanCoords(lat, lng) || !isValidLngLat([lng, lat])) {
