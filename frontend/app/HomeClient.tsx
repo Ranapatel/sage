@@ -937,53 +937,54 @@ export default function HomeClient() {
         </div>
       )}
 
-      {/* ─── AIRBNB-STYLE MOBILE SEARCH SHEET MODAL (Ultra-Clean & Professional) ─── */}
+      {/* ─── AIRBNB-STYLE MOBILE SEARCH SHEET MODAL (Ultra-Clean & Responsive) ─── */}
       {showSearchDrawer && (
-        <div className="fixed inset-0 z-[9999] bg-[#FFFBF7] flex flex-col md:hidden animate-fade-in overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-[#FFFBF7] flex flex-col md:hidden animate-fade-in overflow-y-auto w-full max-w-full">
           {/* Header */}
-          <div className="sticky top-0 bg-[#FFFBF7]/95 backdrop-blur-md px-4 py-3.5 border-b border-[#E8E0D8] flex items-center justify-between z-10">
+          <div className="sticky top-0 bg-[#FFFBF7]/95 backdrop-blur-md px-4 py-3.5 border-b border-[#E8E0D8] flex items-center justify-between z-10 w-full shrink-0 min-h-[56px]">
             <button
               type="button"
               onClick={() => setShowSearchDrawer(false)}
-              className="w-8 h-8 rounded-full bg-white border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] shadow-2xs cursor-pointer active:scale-95"
+              className="w-10 h-10 rounded-full bg-white border border-[#E8E0D8] flex items-center justify-center text-[#1A1A1A] shadow-2xs cursor-pointer active:scale-95 shrink-0"
+              aria-label="Close search"
             >
-              <X size={18} strokeWidth={2} />
+              <X size={20} strokeWidth={2} />
             </button>
-            <span className="font-display font-extrabold text-base text-[#1A1A1A]">Search & Plan Trip</span>
+            <span className="font-display font-extrabold text-base text-[#1A1A1A] truncate max-w-[200px] text-center">Search & Plan Trip</span>
             <button
               type="button"
               onClick={() => setForm(p => ({ ...p, from: '', to: '', startDate: '', endDate: '' }))}
-              className="text-xs font-extrabold text-[#EA580C] hover:underline cursor-pointer"
+              className="text-xs font-extrabold text-[#EA580C] hover:underline cursor-pointer min-h-[44px] px-2 flex items-center shrink-0"
             >
               Reset
             </button>
           </div>
 
-          {/* Body Content - Tightly Organized Clean Cards */}
-          <div className="p-4 flex-1 space-y-4 text-left">
+          {/* Body Content - Mobile-first responsive cards */}
+          <div className="p-4 flex-1 space-y-4 text-left w-full max-w-full overflow-x-hidden">
 
             {/* CARD 1: DESTINATION & DEPARTURE COMBINED BOX */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-3.5">
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-4 w-full">
               {/* Where to */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                  <MapPin size={14} className="text-[#EA580C]" />
+              <div className="space-y-2 w-full">
+                <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                  <MapPin size={14} className="text-[#EA580C] shrink-0" />
                   <span>Where to?</span>
                 </label>
                 <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-3 outline-none text-sm font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF] min-h-[48px]"
                   placeholder="Search destination (e.g. Bali, Goa, Dubai)"
                   value={form.to}
                   onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
                 />
-                {/* Popular Pill Chips */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5 hide-scrollbar">
+                {/* Popular Pill Chips - Wrap cleanly onto multiple lines */}
+                <div className="flex flex-wrap items-center gap-2 pt-1.5 w-full">
                   {['Bali', 'Goa', 'Dubai', 'Ladakh', 'Thailand', 'Singapore'].map((place) => (
                     <button
                       key={place}
                       type="button"
                       onClick={() => setForm(p => ({ ...p, to: place }))}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold transition-all shrink-0 cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-extrabold transition-all shrink-0 cursor-pointer min-h-[36px] flex items-center justify-center ${
                         form.to === place ? 'bg-[#EA580C] text-white shadow-2xs' : 'bg-[#FFF4EE] text-[#EA580C] border border-[#FED7AA]'
                       }`}
                     >
@@ -996,13 +997,13 @@ export default function HomeClient() {
               <div className="h-[1px] bg-[#E8E0D8]/60 w-full" />
 
               {/* Flying From */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                  <Plane size={14} className="text-[#EA580C]" />
+              <div className="space-y-2 w-full">
+                <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                  <Plane size={14} className="text-[#EA580C] shrink-0" />
                   <span>Flying From</span>
                 </label>
                 <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-3 outline-none text-sm font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF] min-h-[48px]"
                   placeholder="Departure city (e.g. Bangalore, Delhi)"
                   value={form.from}
                   onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
@@ -1011,9 +1012,9 @@ export default function HomeClient() {
             </div>
 
             {/* CARD 2: TRIP DATES (Modern Interactive Calendar) */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-2.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                <Calendar size={14} className="text-[#EA580C]" />
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-3 w-full">
+              <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                <Calendar size={14} className="text-[#EA580C] shrink-0" />
                 <span>Trip Dates</span>
               </label>
               
@@ -1029,14 +1030,14 @@ export default function HomeClient() {
           </div>
 
           {/* Sticky Bottom Search CTA */}
-          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-4 shadow-lg">
+          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-4 shadow-lg w-full shrink-0">
             <button
               type="button"
               onClick={(e) => {
                 setShowSearchDrawer(false)
                 handleSubmit(e)
               }}
-              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm h-[50px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
+              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm min-h-[48px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
             >
               <Search size={18} strokeWidth={2.5} />
               <span>Search & Plan Trip</span>
