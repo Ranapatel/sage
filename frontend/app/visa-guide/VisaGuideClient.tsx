@@ -89,31 +89,28 @@ const VISA_DATA: VisaCard[] = [
 
 export default function VisaGuideClient() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F4F5] text-[#71717A] font-body">
+    <div className="min-h-screen flex flex-col bg-[#FFFBF7] text-[#6B6B6B] font-body">
       <Navbar />
 
       {/* Hero section */}
-      <section className="bg-white border-b border-[#E4E4E7] pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto text-left">
-          <h1 
-            className="text-[40px] font-bold text-[#09090B] leading-tight"
-            style={{ fontFamily: "'Instrument Serif', serif" }}
-          >
+      <section className="bg-white border-b border-[#E8E0D8] pt-32 pb-16 px-6">
+        <div className="max-w-7xl mx-auto text-left space-y-2">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-[#1A1A1A] leading-tight font-display tracking-tight">
             Visa Guide for Indian Travelers
           </h1>
-          <p className="text-[#6B7280] text-base mt-2 font-normal">
-            Everything you need to know about visas for your international trip
+          <p className="text-[#6B6B6B] text-base font-medium max-w-2xl">
+            Everything you need to know about processing times, cost, and official visa application links for top international destinations.
           </p>
         </div>
       </section>
 
       {/* Main Grid Area */}
-      <main className="flex-grow max-w-7xl mx-auto w-full px-6 py-16">
+      <main className="flex-grow max-w-7xl mx-auto w-full px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {VISA_DATA.map((visa, idx) => {
             let badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200'
             if (visa.badgeType === 'orange') {
-              badgeBg = 'bg-amber-50 text-amber-700 border-amber-200'
+              badgeBg = 'bg-orange-50 text-[#EA580C] border-orange-200'
             } else if (visa.badgeType === 'red') {
               badgeBg = 'bg-rose-50 text-rose-700 border-rose-200'
             }
@@ -124,7 +121,7 @@ export default function VisaGuideClient() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className="bg-white border border-[#E4E4E7] rounded-xl p-6 shadow-sm hover:shadow-md hover:border-[#D4D4D8] transition-all duration-200 flex flex-col justify-between"
+                className="bg-white border border-[#E8E0D8] rounded-2xl p-6 shadow-xs hover:shadow-lg hover:border-[#FED7AA] transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   {/* Top Header Row */}
@@ -132,35 +129,32 @@ export default function VisaGuideClient() {
                     <span className="text-3xl select-none" role="img" aria-label={visa.name}>
                       {visa.flag}
                     </span>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border rounded-full ${badgeBg}`}>
+                    <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 border rounded-full ${badgeBg}`}>
                       {visa.badgeText}
                     </span>
                   </div>
 
                   {/* Destination Name */}
-                  <h2 
-                    className="text-xl font-bold text-[#09090B] mb-4"
-                    style={{ fontFamily: "'Instrument Serif', serif" }}
-                  >
+                  <h2 className="text-xl font-bold text-[#1A1A1A] mb-4 font-display">
                     {visa.name}
                   </h2>
 
                   {/* Visa details list */}
-                  <div className="space-y-2.5 text-xs text-[#71717A] border-t border-[#F4F4F5] pt-4 mb-6">
+                  <div className="space-y-2.5 text-xs text-[#6B6B6B] border-t border-[#E8E0D8] pt-4 mb-6 font-medium">
                     <div className="flex justify-between">
-                      <span className="font-medium text-[#A1A1AA]">Visa Cost</span>
-                      <span className="font-mono text-[#09090B] font-semibold">{visa.cost}</span>
+                      <span className="text-[#9CA3AF]">Visa Cost</span>
+                      <span className="font-mono text-[#1A1A1A] font-bold">{visa.cost}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium text-[#A1A1AA]">Processing Time</span>
-                      <span className="text-[#09090B] font-semibold">{visa.processing}</span>
+                      <span className="text-[#9CA3AF]">Processing Time</span>
+                      <span className="text-[#1A1A1A] font-bold">{visa.processing}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium text-[#A1A1AA]">Stay Duration</span>
-                      <span className="text-[#09090B] font-semibold">{visa.duration}</span>
+                      <span className="text-[#9CA3AF]">Stay Duration</span>
+                      <span className="text-[#1A1A1A] font-bold">{visa.duration}</span>
                     </div>
-                    <div className="pt-2 text-[11px] leading-relaxed italic border-t border-dashed border-[#F4F4F5]">
-                      <strong className="text-[#09090B] not-italic font-semibold">Requirements:</strong> {visa.requirement}
+                    <div className="pt-2.5 text-[11px] leading-relaxed border-t border-dashed border-[#E8E0D8]">
+                      <strong className="text-[#1A1A1A] font-bold">Requirements:</strong> {visa.requirement}
                     </div>
                   </div>
                 </div>
@@ -170,9 +164,9 @@ export default function VisaGuideClient() {
                   href={visa.applyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-white hover:bg-[#F4F4F5] border border-[#E4E4E7] hover:border-[#D4D4D8] text-[#09090B] font-semibold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-150"
+                  className="w-full bg-[#FFFBF7] hover:bg-[#FFF4EE] border border-[#E8E0D8] hover:border-[#FED7AA] text-[#EA580C] font-extrabold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
                 >
-                  Apply Now <ArrowUpRight size={14} strokeWidth={1.5} className="text-[#57534E]" />
+                  Apply Now <ArrowUpRight size={14} strokeWidth={2} />
                 </a>
               </motion.div>
             )

@@ -874,20 +874,20 @@ export default function MapView({
       el.style.cssText = 'cursor:pointer;'
       el.innerHTML = `
         <div style="
-          background:#10B981;
+          background:#EA580C;
           color:white;
           font-size:10px;
           font-weight:800;
-          padding:3px 7px;
+          padding:4px 8px;
           border-radius:10px;
           border:1.5px solid white;
-          box-shadow:0 2px 8px rgba(16,185,129,0.4);
+          box-shadow:0 2px 8px rgba(234,88,12,0.3);
           white-space:nowrap;
-        ">📍 ${place.name.slice(0, 18)}</div>
+        ">${place.name.slice(0, 18)}</div>
       `
       el.addEventListener('click', (e) => {
         e.stopPropagation()
-        toast(`📍 ${place.name}\n${place.address}`, { icon: '📍' })
+        toast(`${place.name}\n${place.address}`)
       })
 
       const m = new mgl.Marker({ element: el, anchor: 'bottom' })
@@ -941,45 +941,65 @@ export default function MapView({
         ))}
       </div>
 
-      {/* ── 2. Nearby Explorer Toggle & Action Buttons (Top-Right) ──────────── */}
-      <div className="absolute top-4 right-4 z-10 flex flex-col gap-1.5 pointer-events-auto">
+      {/* ── 2. Professional Floating Map Actions Toolbar (Top-Right) ──────────── */}
+      <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 pointer-events-auto">
+        {/* Live GPS Location */}
         <button
+          type="button"
+          suppressHydrationWarning
           onClick={handleGetUserLocation}
           title="Live GPS Location"
-          className="w-9 h-9 bg-white rounded-xl shadow-md border border-[#E8E0D8] text-[#2563EB] hover:bg-[#FFFBF7] active:scale-95 transition-all flex items-center justify-center font-bold"
+          className="w-10 h-10 bg-white/95 backdrop-blur-md rounded-xl shadow-md border border-[#E8E0D8] text-[#EA580C] hover:bg-[#FFF4EE] hover:border-[#FED7AA] active:scale-95 transition-all flex items-center justify-center cursor-pointer"
         >
-          <Navigation size={16} />
+          <Navigation size={16} strokeWidth={2.2} />
         </button>
 
+        {/* Explore Nearby Places */}
         <button
+          type="button"
+          suppressHydrationWarning
           onClick={() => {
             setShowNearbyExplorer(!showNearbyExplorer)
             if (!showNearbyExplorer) fetchNearbyPlaces(activeNearbyCategory)
           }}
           title="Explore Nearby Places"
-          className={`w-9 h-9 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center font-bold text-xs ${
-            showNearbyExplorer ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-[#E8E0D8] text-[#1A1A1A] hover:bg-[#FFFBF7]'
+          className={`w-10 h-10 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center cursor-pointer ${
+            showNearbyExplorer 
+              ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-orange-500/20' 
+              : 'bg-white/95 backdrop-blur-md border-[#E8E0D8] text-[#EA580C] hover:bg-[#FFF4EE] hover:border-[#FED7AA]'
           }`}
         >
-          📍
+          <MapPin size={16} strokeWidth={2.2} />
         </button>
 
+        {/* Download Trip for Offline Use */}
         <button
+          type="button"
+          suppressHydrationWarning
           onClick={handleDownloadOfflineTrip}
           title="Download Trip for Offline Use"
-          className={`w-9 h-9 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center ${
-            isOfflineSaved ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-[#E8E0D8] text-[#1A1A1A] hover:bg-[#FFFBF7]'
+          className={`w-10 h-10 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center cursor-pointer ${
+            isOfflineSaved 
+              ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/20' 
+              : 'bg-white/95 backdrop-blur-md border-[#E8E0D8] text-[#EA580C] hover:bg-[#FFF4EE] hover:border-[#FED7AA]'
           }`}
         >
-          <Download size={15} />
+          <Download size={16} strokeWidth={2.2} />
         </button>
 
+        {/* Trip Statistics */}
         <button
+          type="button"
+          suppressHydrationWarning
           onClick={() => setShowStatsDrawer(!showStatsDrawer)}
           title="Trip Statistics"
-          className="w-9 h-9 bg-white rounded-xl shadow-md border border-[#E8E0D8] text-[#1A1A1A] hover:bg-[#FFFBF7] active:scale-95 transition-all flex items-center justify-center"
+          className={`w-10 h-10 rounded-xl shadow-md border active:scale-95 transition-all flex items-center justify-center cursor-pointer ${
+            showStatsDrawer
+              ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-orange-500/20'
+              : 'bg-white/95 backdrop-blur-md border-[#E8E0D8] text-[#EA580C] hover:bg-[#FFF4EE] hover:border-[#FED7AA]'
+          }`}
         >
-          📊
+          <BarChart2 size={16} strokeWidth={2.2} />
         </button>
       </div>
 
@@ -1143,21 +1163,21 @@ export default function MapView({
           onClick={() => setShowReplaceModal(false)}
         >
           <div
-            className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden text-left border border-slate-200 dark:border-slate-800"
+            className="bg-[#FFFBF7] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden text-left border border-[#E8E0D8]"
             onClick={e => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
-              <h3 className="font-bold text-slate-800 dark:text-white text-base">Replace Stop</h3>
+            <div className="px-6 py-4 border-b border-[#E8E0D8] flex items-center justify-between bg-white">
+              <h3 className="font-extrabold text-[#1A1A1A] text-base font-display">Replace Stop</h3>
               <button
                 onClick={() => setShowReplaceModal(false)}
-                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-500"
+                className="p-1 hover:bg-[#FFF4EE] rounded-xl transition-colors text-[#6B6B6B] hover:text-[#1A1A1A]"
               >
                 <X size={18} />
               </button>
             </div>
-            <div className="p-5 space-y-4">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Replace <span className="font-bold text-slate-800 dark:text-white">"{replaceTarget.placeName}"</span> with a new location.
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-[#6B6B6B] font-medium">
+                Replace <span className="font-bold text-[#1A1A1A]">"{replaceTarget.placeName}"</span> with a new destination.
               </p>
 
               <div className="flex gap-2">
@@ -1166,31 +1186,31 @@ export default function MapView({
                   placeholder="Enter new place name..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="flex-1 text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 rounded-lg focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white"
+                  className="flex-1 text-xs border border-[#E8E0D8] bg-white p-3 rounded-xl focus:outline-none focus:border-[#EA580C] text-[#1A1A1A] font-semibold"
                   onKeyDown={e => e.key === 'Enter' && handleSearchPlaces()}
                 />
                 <button
                   onClick={handleSearchPlaces}
                   disabled={searching}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 font-bold text-white rounded-lg text-xs shrink-0 flex items-center gap-1.5"
+                  className="bg-[#EA580C] hover:bg-[#C2410C] px-4 py-3 font-extrabold text-white rounded-xl text-xs shrink-0 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                 >
                   {searching ? 'Searching...' : <><RefreshCw size={12} /> Search</>}
                 </button>
               </div>
 
               {searchResults.length > 0 && (
-                <div className="space-y-1.5 max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-950">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase px-1">Select matching address:</p>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto border border-[#E8E0D8] rounded-2xl p-2 bg-white">
+                  <p className="text-[10px] font-bold text-[#9CA3AF] uppercase px-1">Select matching address:</p>
                   {searchResults.map((res, idx) => {
                     const isSelected = selectedResult?.place_id === res.place_id
                     return (
                       <div
                         key={idx}
                         onClick={() => { setSelectedResult(res); setSearchQuery(res.properties.name || res.properties.formatted.split(',')[0]); }}
-                        className={`p-2.5 rounded-lg border text-xs cursor-pointer transition-all ${
+                        className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
                           isSelected
-                            ? 'border-blue-500 bg-blue-50/20 text-blue-600 font-semibold'
-                            : 'border-transparent hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                            ? 'border-[#EA580C] bg-[#FFF4EE] text-[#EA580C] font-extrabold'
+                            : 'border-transparent hover:bg-[#FFFBF7] text-[#1A1A1A]'
                         }`}
                       >
                         {res.properties.formatted}
@@ -1200,18 +1220,18 @@ export default function MapView({
                 </div>
               )}
             </div>
-            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-[#E8E0D8] bg-white flex justify-end gap-3">
               <button
                 onClick={() => setShowReplaceModal(false)}
-                className="border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-xs hover:bg-white text-slate-500 transition-colors"
+                className="border border-[#E8E0D8] px-4 py-2.5 rounded-xl text-xs hover:bg-[#FFFBF7] text-[#6B6B6B] font-bold transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 disabled={!selectedResult}
                 onClick={handleConfirmReplace}
-                className={`px-5 py-2 font-bold text-white rounded-lg text-xs transition-colors ${
-                  selectedResult ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer' : 'bg-slate-300 cursor-not-allowed text-slate-500'
+                className={`px-5 py-2.5 font-extrabold text-white rounded-xl text-xs transition-colors shadow-xs ${
+                  selectedResult ? 'bg-[#EA580C] hover:bg-[#C2410C] cursor-pointer' : 'bg-slate-200 cursor-not-allowed text-slate-400'
                 }`}
               >
                 Confirm Replacement

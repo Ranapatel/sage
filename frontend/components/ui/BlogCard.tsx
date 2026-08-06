@@ -22,7 +22,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
           className="object-cover group-hover:scale-110 transition-transform duration-700"
         />
         <div className="absolute top-4 left-4">
-          <span className="bg-white/90 backdrop-blur-md text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5">
+          <span className="bg-white/95 backdrop-blur-md text-[#EA580C] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5 border border-[#FED7AA]">
             <Tag size={10} />
             {post.category}
           </span>
@@ -30,31 +30,31 @@ export default function BlogCard({ post }: { post: BlogPost }) {
       </Link>
       
       <div className="p-6 flex flex-col flex-grow">
-        <div className="flex items-center gap-4 text-slate-400 text-[11px] font-medium mb-4">
+        <div className="flex items-center gap-4 text-[#6B6B6B] text-[11px] font-semibold mb-3">
           <span className="flex items-center gap-1.5">
-            <Calendar size={12} className="text-blue-500" />
+            <Calendar size={12} className="text-[#EA580C]" />
             {post.date}
           </span>
           <span className="flex items-center gap-1.5">
-            <User size={12} className="text-blue-500" />
+            <User size={12} className="text-[#EA580C]" />
             {post.author}
           </span>
         </div>
         
         <Link href={`/blog/${post.slug}`}>
-          <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+          <h3 className="text-xl font-bold text-[#1A1A1A] mb-3 group-hover:text-[#EA580C] transition-colors line-clamp-2 leading-tight">
             {post.title}
           </h3>
         </Link>
         
-        <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3">
+        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-6 line-clamp-3 font-medium">
           {post.excerpt}
         </p>
         
         <div className="mt-auto">
           <Link 
             href={`/blog/${post.slug}`}
-            className="inline-flex items-center gap-2 text-blue-600 font-bold text-sm group/btn"
+            className="inline-flex items-center gap-2 text-[#EA580C] font-extrabold text-sm group/btn hover:text-[#C2410C] transition-colors"
           >
             Read Full Article 
             <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />

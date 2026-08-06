@@ -484,6 +484,49 @@ export function Icon3DSmartRoute({ size = 26, active = false, className = '', ..
   )
 }
 
+// 12. MORE / MENU GRID (30° Isometric 4-Tile Apps Grid)
+export function Icon3DMore({ size = 38, active = false, className = '', ...props }: IconProps) {
+  const primaryFill = active ? '#EA580C' : '#64748B'
+  const accentFill = active ? '#FFEDD5' : '#F1F5F9'
+  const strokeColor = active ? '#1E293B' : '#475569'
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`transition-all duration-300 transform ${active ? 'scale-110 drop-shadow-md' : 'group-hover:scale-105'} ${className}`}
+      {...props}
+    >
+      {/* 4 Isometric 3D Floating Tiles */}
+      {/* Tile 1: Top Left */}
+      <path d="M16 16L28 10L36 14L24 20L16 16Z" fill={accentFill} stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M16 16V22L24 26V20L16 16Z" fill="#FFF7ED" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M36 14V20L24 26V20L36 14Z" fill={primaryFill} stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+
+      {/* Tile 2: Top Right */}
+      <path d="M36 24L48 18L56 22L44 28L36 24Z" fill="#38BDF8" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M36 24V30L44 34V28L36 24Z" fill="#BAE6FD" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M56 22V28L44 34V28L56 22Z" fill="#0284C7" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+
+      {/* Tile 3: Bottom Left */}
+      <path d="M8 32L20 26L28 30L16 36L8 32Z" fill="#F59E0B" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M8 32V38L16 42V36L8 32Z" fill="#FEF3C7" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M28 30V36L16 42V36L28 30Z" fill="#D97706" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+
+      {/* Tile 4: Bottom Right */}
+      <path d="M28 40L40 34L48 38L36 44L28 40Z" fill="#10B981" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M28 40V46L36 50V44L28 40Z" fill="#D1FAE5" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M48 38V44L36 50V44L48 38Z" fill="#059669" stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
+
+      {/* 3D Floating Dot Indicators */}
+      <circle cx="48" cy="12" r="2.5" fill="#EA580C" />
+    </svg>
+  )
+}
+
 // Export Map for easy lookup by Tab ID
 export const IconMapById: Record<string, React.FC<IconProps>> = {
   overview: Icon3DOverview,
@@ -494,4 +537,5 @@ export const IconMapById: Record<string, React.FC<IconProps>> = {
   explore: Icon3DExplore,
   map: Icon3DMap,
   bookings: Icon3DBookings,
+  more: Icon3DMore,
 }

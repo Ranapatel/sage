@@ -6,7 +6,7 @@ const provider = new MakeMyTripProvider()
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { origin, destination, travelDate, passengers } = body
+    const { origin, destination, travelDate, passengers, members, adults, children } = body
 
     if (!origin || !destination || !travelDate) {
       return NextResponse.json(
@@ -15,11 +15,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const totalPassengers = Number(passengers || members || (Number(adults || 1) + Number(children || 0))) || 1
+
     const result = await provider.searchBuses({
       origin,
       destination,
       travelDate,
-      passengers: passengers ?? 1,
+      passengers: totalPassengers,
     })
 
     return NextResponse.json(result)

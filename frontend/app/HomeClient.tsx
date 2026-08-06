@@ -437,7 +437,7 @@ export default function HomeClient() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] font-body selection:bg-orange-500/20 selection:text-[#EA580C] antialiased">
+    <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] font-body selection:bg-orange-500/20 selection:text-[#EA580C] antialiased w-full max-w-full overflow-x-hidden relative">
       <Navbar />
 
       {/* ─── HERO SECTION (Warm Light Cream Quiet Luxury Theme) ─────────────────── */}
@@ -839,32 +839,34 @@ export default function HomeClient() {
 
       {/* ─── PREFERENCES MODAL ───────────────────────────────────────────── */}
       {showPrefModal && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#1A1A1A]/35 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white border border-[#E8E0D8] rounded-[24px] p-6 md:p-8 max-w-md w-full shadow-[0_4px_32px_rgba(0,0,0,0.12)] text-left relative space-y-6 animate-scale-up">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-4 bg-[#1A1A1A]/35 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border border-[#E8E0D8] rounded-[24px] p-4 sm:p-6 md:p-8 max-w-md w-full max-h-[92vh] overflow-y-auto shadow-[0_4px_32px_rgba(0,0,0,0.12)] text-left relative space-y-4 sm:space-y-6 animate-scale-up">
             {/* Close button */}
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => setShowPrefModal(false)}
-              className="absolute top-4 right-4 text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors p-1"
             >
               <X size={20} strokeWidth={1.5} />
             </button>
 
             <div>
-              <h3 className="font-display font-bold text-[20px] text-[#1A1A1A] leading-tight mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <h3 className="font-display font-bold text-lg sm:text-[20px] text-[#1A1A1A] leading-tight mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 One more step
               </h3>
-              <p className="text-[13px] text-[#6B6B6B] leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-[#6B6B6B] leading-relaxed">
                 Customise travelers and budget to optimize your AI itinerary.
               </p>
             </div>
 
             {/* Travelers counter */}
-            <div className="space-y-2">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Travelers</label>
-              <div className="flex items-center gap-4 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-2 w-fit">
+            <div className="space-y-1.5">
+              <label className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Travelers</label>
+              <div className="flex items-center gap-3 sm:gap-4 bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-1.5 sm:p-2 w-fit">
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => {
                     const val = Math.max(1, parseInt(form.travelers) - 1)
                     setForm(p => ({ ...p, travelers: String(val) }))
@@ -876,6 +878,7 @@ export default function HomeClient() {
                 <span className="font-semibold text-[#1A1A1A] text-sm w-8 text-center">{form.travelers}</span>
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => {
                     const val = Math.min(10, parseInt(form.travelers) + 1)
                     setForm(p => ({ ...p, travelers: String(val) }))
@@ -888,28 +891,27 @@ export default function HomeClient() {
             </div>
 
             {/* Budget Input */}
-            <div className="space-y-2">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Total Trip Budget</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Total Trip Budget</label>
               <div className="relative flex items-center">
-                <span className="absolute left-4 text-sm font-semibold text-[#6B6B6B]">
+                <span className="absolute left-4 text-xs sm:text-sm font-semibold text-[#6B6B6B]">
                   {form.currency === 'INR' ? '₹' : form.currency}
                 </span>
                 <input
                   type="number"
                   value={form.budget}
                   onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl pl-8 pr-4 py-3 outline-none text-[#1A1A1A] font-semibold text-sm focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl pl-8 pr-4 py-2.5 sm:py-3 outline-none text-[#1A1A1A] font-semibold text-xs sm:text-sm focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
                   placeholder="Enter total budget"
                 />
               </div>
             </div>
 
-
-
             {/* Submit Button */}
             <button
               type="button"
               disabled={loading}
+              suppressHydrationWarning
               onClick={async () => {
                 setLoading(true)
                 trackEvent('plan_trip_click', { source: 'preference_modal' })
@@ -922,7 +924,7 @@ export default function HomeClient() {
                   router.push('/plan')
                 }, 800)
               }}
-              className="w-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[15px] h-[52px] rounded-xl flex items-center justify-center gap-2 transition-colors"
+              className="w-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs sm:text-[15px] h-[46px] sm:h-[52px] rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -941,7 +943,7 @@ export default function HomeClient() {
       {showSearchDrawer && (
         <div className="fixed inset-0 z-[9999] bg-[#FFFBF7] flex flex-col md:hidden animate-fade-in overflow-y-auto">
           {/* Header */}
-          <div className="sticky top-0 bg-[#FFFBF7]/95 backdrop-blur-md px-4 py-3.5 border-b border-[#E8E0D8] flex items-center justify-between z-10">
+          <div className="sticky top-0 bg-[#FFFBF7]/95 backdrop-blur-md px-4 py-3 border-b border-[#E8E0D8] flex items-center justify-between z-10 shrink-0">
             <button
               type="button"
               onClick={() => setShowSearchDrawer(false)}
@@ -960,18 +962,34 @@ export default function HomeClient() {
           </div>
 
           {/* Body Content - Tightly Organized Clean Cards */}
-          <div className="p-4 flex-1 space-y-4 text-left">
+          <div className="p-3.5 flex-1 space-y-3 text-left overflow-y-auto">
 
-            {/* CARD 1: DESTINATION & DEPARTURE COMBINED BOX */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-3.5">
+            {/* CARD 1: DEPARTURE & DESTINATION COMBINED BOX */}
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3.5 shadow-2xs space-y-3">
+              {/* Flying From */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                  <Plane size={14} className="text-[#EA580C]" />
+                  <span>Flying From</span>
+                </label>
+                <LocationAutocomplete
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
+                  placeholder="Departure city (e.g. Hyderabad, Delhi)"
+                  value={form.from}
+                  onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
+                />
+              </div>
+
+              <div className="h-[1px] bg-[#E8E0D8]/60 w-full" />
+
               {/* Where to */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
                   <MapPin size={14} className="text-[#EA580C]" />
                   <span>Where to?</span>
                 </label>
                 <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
                   placeholder="Search destination (e.g. Bali, Goa, Dubai)"
                   value={form.to}
                   onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
@@ -992,26 +1010,10 @@ export default function HomeClient() {
                   ))}
                 </div>
               </div>
-
-              <div className="h-[1px] bg-[#E8E0D8]/60 w-full" />
-
-              {/* Flying From */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                  <Plane size={14} className="text-[#EA580C]" />
-                  <span>Flying From</span>
-                </label>
-                <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2.5 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
-                  placeholder="Departure city (e.g. Bangalore, Delhi)"
-                  value={form.from}
-                  onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
-                />
-              </div>
             </div>
 
             {/* CARD 2: TRIP DATES (Modern Interactive Calendar) */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-2.5">
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3.5 shadow-2xs space-y-2">
               <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
                 <Calendar size={14} className="text-[#EA580C]" />
                 <span>Trip Dates</span>
@@ -1029,16 +1031,17 @@ export default function HomeClient() {
           </div>
 
           {/* Sticky Bottom Search CTA */}
-          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-4 shadow-lg">
+          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-3.5 shadow-lg shrink-0">
             <button
               type="button"
+              suppressHydrationWarning
               onClick={(e) => {
                 setShowSearchDrawer(false)
                 handleSubmit(e)
               }}
-              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm h-[50px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
+              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-xs sm:text-sm h-[46px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
             >
-              <Search size={18} strokeWidth={2.5} />
+              <Search size={16} strokeWidth={2.5} />
               <span>Search & Plan Trip</span>
             </button>
           </div>
@@ -1049,6 +1052,7 @@ export default function HomeClient() {
       <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-max mx-auto">
         <button
           type="button"
+          suppressHydrationWarning
           onClick={() => setShowSearchDrawer(true)}
           className="px-6 py-3 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-xs rounded-full flex items-center justify-center gap-2 shadow-[0_12px_35px_rgba(234,88,12,0.42)] active:scale-95 transition-all border border-white/30 backdrop-blur-xl cursor-pointer whitespace-nowrap"
         >

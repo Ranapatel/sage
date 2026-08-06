@@ -32,7 +32,8 @@ import {
   Icon3DItinerary, 
   Icon3DExplore, 
   Icon3DMap, 
-  Icon3DBookings 
+  Icon3DBookings,
+  Icon3DMore
 } from '@/components/ui/TripSageIcons'
 
 // Lazy load components
@@ -50,12 +51,12 @@ const LocationAutocomplete = lazy(() => import('@/components/ui/LocationAutocomp
 const BudgetOptimizerTab = lazy(() => import('@/components/optimizer/BudgetOptimizerTab'))
 const BusesPanel = lazy(() => import('@/components/transport/BusesPanel'))
 
+const CurrencySelector = lazy(() => import('@/components/ui/CurrencySelector'))
 const CarsTab = lazy(() => import('@/components/transport/CarsTab'))
 const TrainsPanel = lazy(() => import('@/components/transport/TrainsPanel'))
-const CurrencySelector = lazy(() => import('@/components/ui/CurrencySelector'))
-const OverviewTab = lazy(() => import('@/components/plan/OverviewTab'))
-const TransportTab = lazy(() => import('@/components/plan/TransportTab'))
-const HotelsTab = lazy(() => import('@/components/plan/HotelsTab'))
+import OverviewTab from '@/components/plan/OverviewTab'
+import TransportTab from '@/components/plan/TransportTab'
+import HotelsTab from '@/components/plan/HotelsTab'
 const TripHistoryTab = lazy(() => import('@/components/history/TripHistoryTab'))
 
 // Helper for loading state
@@ -217,8 +218,22 @@ export default function PlanClient() {
     return isIndianTrip(from, to)
   }, [searchForm.from, searchForm.to, tripContext.startLocation, tripContext.destination])
 
-  // Tab cache to prevent re-renders and make switching instant
-  const [tabCache, setTabCache] = useState<Record<string, boolean>>({ overview: true })
+  // Pre-warmed tab cache for instant 0ms tab switching
+  const [tabCache, setTabCache] = useState<Record<string, boolean>>({
+    overview: true,
+    transport: true,
+    hotels: true,
+    itinerary: true,
+    explore: true,
+    map: true,
+    bookings: true,
+    history: true,
+    cars: true,
+  })
+
+  const prefetchTab = useCallback((tabId: string) => {
+    setTabCache(prev => prev[tabId] ? prev : { ...prev, [tabId]: true })
+  }, [])
 
   useEffect(() => {
     Promise.resolve().then(() => {
@@ -860,6 +875,8 @@ export default function PlanClient() {
             return (
               <button
                 key={t.id}
+                onMouseEnter={() => prefetchTab(t.id)}
+                onTouchStart={() => prefetchTab(t.id)}
                 onClick={() => setActiveTab(t.id)}
                 className={`w-full flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all duration-200 cursor-pointer group relative ${
                   isActive
@@ -938,6 +955,8 @@ export default function PlanClient() {
                   return (
                     <button
                       key={t.id}
+                      onMouseEnter={() => prefetchTab(t.id)}
+                      onTouchStart={() => prefetchTab(t.id)}
                       onClick={() => { setActiveTab(t.id); setMobileMenuOpen(false) }}
                       className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 cursor-pointer text-left ${
                         isActive
@@ -1532,6 +1551,8 @@ export default function PlanClient() {
             return (
               <button
                 key={t.id}
+                onMouseEnter={() => prefetchTab(t.id)}
+                onTouchStart={() => prefetchTab(t.id)}
                 onClick={() => { setActiveTab(t.id); setMoreSheetOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative transition-colors ${
                   isActive ? 'text-[#EA580C]' : 'text-[#9CA3AF]'
@@ -1556,7 +1577,7 @@ export default function PlanClient() {
             {moreSheetOpen && (
               <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#EA580C] rounded-b-full" />
             )}
-            <Menu size={22} strokeWidth={moreSheetOpen ? 2.5 : 1.75} />
+            <Icon3DMore size={24} active={moreSheetOpen} />
             <span className="text-[9px] font-bold uppercase tracking-wide">More</span>
           </button>
         </div>

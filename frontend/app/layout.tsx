@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
@@ -9,6 +9,14 @@ import AuthGuardModal from '@/components/auth/AuthGuardModal'
 import { ContextProvider } from '@/context/ContextProvider'
 import { PageViewTracker } from '@/components/analytics/PageViewTracker'
 import { GA_MEASUREMENT_ID } from '@/lib/analytics/service'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tripsage.in'),

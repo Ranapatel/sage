@@ -127,6 +127,7 @@ export default function Navbar() {
           {/* Hamburger button — opens mobile navigation drawer */}
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open navigation menu"
             className="flex items-center justify-center w-[44px] h-[44px] rounded-full border border-[#E8E0D8] bg-white hover:bg-slate-50 active:scale-95 transition-all cursor-pointer shadow-sm"
