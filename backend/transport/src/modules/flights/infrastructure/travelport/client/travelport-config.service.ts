@@ -46,9 +46,12 @@ export class TravelportConfigService {
     if (!this.pcc) missing.push('TRAVELPORT_PCC');
 
     if (missing.length > 0) {
-      const errorMsg = `[Travelport Startup Error] Missing mandatory Travelport production credentials: ${missing.join(', ')}. System cannot connect to live APIs.`;
-      this.logger.error(errorMsg);
-      throw new Error(errorMsg);
+      const errorMsg = `[Travelport Startup Error] Missing Travelport credentials: ${missing.join(', ')}. Live Travelport API requests will use mock fallback.`;
+      this.logger.warn(errorMsg);
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(errorMsg);
+      }
+      return;
     }
 
     this.logger.log(

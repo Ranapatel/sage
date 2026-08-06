@@ -230,7 +230,7 @@ export class HybridItineraryService {
             'places.googleMapsUri',
             'places.currentOpeningHours',
           ].join(','),
-          cachePrefix: 'gp_search',
+          cachePrefix: `gp_search_${destinationCity.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
           cacheTtl: 86400,
         })
         const places = data?.places || []

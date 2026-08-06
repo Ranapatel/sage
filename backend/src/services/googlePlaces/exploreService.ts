@@ -124,7 +124,7 @@ export async function searchActivities(
     path: '/places:searchText',
     body: requestBody,
     fieldMask: FIELD_MASK,
-    cachePrefix: `gp_explore_acts_${category}`,
+    cachePrefix: `gp_explore_acts_${destination.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${category.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
     cacheTtl: 3600,
   })
 
@@ -255,7 +255,7 @@ export async function searchRestaurants(
     path: '/places:searchText',
     body: requestBody,
     fieldMask: FIELD_MASK,
-    cachePrefix: 'gp_explore_rests',
+    cachePrefix: `gp_explore_rests_${destination.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
     cacheTtl: 3600,
   })
 
@@ -373,13 +373,19 @@ const DETAIL_FIELD_MASK = [
 const NEARBY_FIELD_MASK = 'places.id,places.displayName,places.rating,places.photos,places.formattedAddress,places.location,places.primaryType'
 
 export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
-  const data = await googleRequest<any>({
-    method: 'GET',
-    path: `/places/${placeId}`,
-    fieldMask: DETAIL_FIELD_MASK,
-    cachePrefix: 'gp_explore_detail',
-    cacheTtl: 86400,
-  })
+  let data: any = null
+  try {
+    data = await googleRequest<any>({
+      method: 'GET',
+      path: `/places/${placeId}`,
+      fieldMask: DETAIL_FIELD_MASK,
+      cachePrefix: 'gp_explore_detail',
+      cacheTtl: 86400,
+    })
+  } catch (err: any) {
+    console.warn(`[getPlaceDetailsWithNearby] Google Places fetch failed for "${placeId}": ${err.message}`)
+    return null
+  }
 
   if (!data || !data.id) {
     return null
