@@ -943,11 +943,7 @@ export default function HomeClient() {
       {showSearchDrawer && (
         <div className="fixed inset-0 z-[9999] bg-[#FFFBF7] flex flex-col md:hidden animate-fade-in overflow-y-auto w-full max-w-full">
           {/* Header */}
-<<<<<<< HEAD
-          <div className="sticky top-0 bg-[#FFFBF7]/95 backdrop-blur-md px-4 py-3 border-b border-[#E8E0D8] flex items-center justify-between z-10 shrink-0">
-=======
           <div className="sticky top-0 bg-[#FFFBF7]/95 backdrop-blur-md px-4 py-3.5 border-b border-[#E8E0D8] flex items-center justify-between z-10 w-full shrink-0 min-h-[56px]">
->>>>>>> aa60022a504970fc431125356ef4a7fb8a5c5295
             <button
               type="button"
               onClick={() => setShowSearchDrawer(false)}
@@ -966,21 +962,20 @@ export default function HomeClient() {
             </button>
           </div>
 
-<<<<<<< HEAD
-          {/* Body Content - Tightly Organized Clean Cards */}
-          <div className="p-3.5 flex-1 space-y-3 text-left overflow-y-auto">
+          {/* Body Content - Mobile-first responsive cards */}
+          <div className="p-4 flex-1 space-y-4 text-left w-full max-w-full overflow-x-hidden">
 
             {/* CARD 1: DEPARTURE & DESTINATION COMBINED BOX */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3.5 shadow-2xs space-y-3">
+            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-4 w-full">
               {/* Flying From */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                  <Plane size={14} className="text-[#EA580C]" />
+              <div className="space-y-2 w-full">
+                <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
+                  <Plane size={14} className="text-[#EA580C] shrink-0" />
                   <span>Flying From</span>
                 </label>
                 <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
-                  placeholder="Departure city (e.g. Hyderabad, Delhi)"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-3 outline-none text-sm font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF] min-h-[48px]"
+                  placeholder="Departure city (e.g. Bangalore, Delhi)"
                   value={form.from}
                   onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
                 />
@@ -989,20 +984,6 @@ export default function HomeClient() {
               <div className="h-[1px] bg-[#E8E0D8]/60 w-full" />
 
               {/* Where to */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                  <MapPin size={14} className="text-[#EA580C]" />
-                  <span>Where to?</span>
-                </label>
-                <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3 py-2 outline-none text-xs font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF]"
-=======
-          {/* Body Content - Mobile-first responsive cards */}
-          <div className="p-4 flex-1 space-y-4 text-left w-full max-w-full overflow-x-hidden">
-
-            {/* CARD 1: DESTINATION & DEPARTURE COMBINED BOX */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-4 w-full">
-              {/* Where to */}
               <div className="space-y-2 w-full">
                 <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
                   <MapPin size={14} className="text-[#EA580C] shrink-0" />
@@ -1010,7 +991,6 @@ export default function HomeClient() {
                 </label>
                 <LocationAutocomplete
                   className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-3 outline-none text-sm font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF] min-h-[48px]"
->>>>>>> aa60022a504970fc431125356ef4a7fb8a5c5295
                   placeholder="Search destination (e.g. Bali, Goa, Dubai)"
                   value={form.to}
                   onChange={(val: string) => setForm(p => ({ ...p, to: val }))}
@@ -1031,37 +1011,12 @@ export default function HomeClient() {
                   ))}
                 </div>
               </div>
-<<<<<<< HEAD
-            </div>
-
-            {/* CARD 2: TRIP DATES (Modern Interactive Calendar) */}
-            <div className="bg-white border border-[#E8E0D8] rounded-2xl p-3.5 shadow-2xs space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                <Calendar size={14} className="text-[#EA580C]" />
-=======
-
-              <div className="h-[1px] bg-[#E8E0D8]/60 w-full" />
-
-              {/* Flying From */}
-              <div className="space-y-2 w-full">
-                <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
-                  <Plane size={14} className="text-[#EA580C] shrink-0" />
-                  <span>Flying From</span>
-                </label>
-                <LocationAutocomplete
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-3.5 py-3 outline-none text-sm font-bold text-[#1A1A1A] placeholder:text-[#9CA3AF] min-h-[48px]"
-                  placeholder="Departure city (e.g. Bangalore, Delhi)"
-                  value={form.from}
-                  onChange={(val: string) => setForm(p => ({ ...p, from: val }))}
-                />
-              </div>
             </div>
 
             {/* CARD 2: TRIP DATES (Modern Interactive Calendar) */}
             <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 shadow-2xs space-y-3 w-full">
               <label className="text-[11px] font-black uppercase tracking-wider text-[#EA580C] flex items-center gap-1.5 font-display">
                 <Calendar size={14} className="text-[#EA580C] shrink-0" />
->>>>>>> aa60022a504970fc431125356ef4a7fb8a5c5295
                 <span>Trip Dates</span>
               </label>
               
@@ -1077,11 +1032,7 @@ export default function HomeClient() {
           </div>
 
           {/* Sticky Bottom Search CTA */}
-<<<<<<< HEAD
-          <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-3.5 shadow-lg shrink-0">
-=======
           <div className="sticky bottom-0 bg-white border-t border-[#E8E0D8] p-4 shadow-lg w-full shrink-0">
->>>>>>> aa60022a504970fc431125356ef4a7fb8a5c5295
             <button
               type="button"
               suppressHydrationWarning
@@ -1089,11 +1040,7 @@ export default function HomeClient() {
                 setShowSearchDrawer(false)
                 handleSubmit(e)
               }}
-<<<<<<< HEAD
-              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-xs sm:text-sm h-[46px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
-=======
               className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EA580C] text-white font-extrabold text-sm min-h-[48px] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-98 transition-transform cursor-pointer"
->>>>>>> aa60022a504970fc431125356ef4a7fb8a5c5295
             >
               <Search size={16} strokeWidth={2.5} />
               <span>Search & Plan Trip</span>

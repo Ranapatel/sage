@@ -20,8 +20,38 @@ const { v4: uuidv4 } = require('uuid')
 const hotelbedsService = require('../services/hotelbedsService')
 const { generateVoucherData } = require('../services/voucherService')
 
-// In-memory booking store (replace with MongoDB in production)
-const bookings = new Map()
+const fs = require('fs')
+const path = require('path')
+
+// Persistent booking store backed by disk storage
+const BOOKINGS_FILE = path.join(__dirname, '../../../data/bookings.json')
+
+function loadBookings() {
+  const map = new Map()
+  try {
+    if (fs.existsSync(BOOKINGS_FILE)) {
+      const raw = fs.readFileSync(BOOKINGS_FILE, 'utf8')
+      const data = JSON.parse(raw)
+      Object.entries(data).forEach(([id, b]) => map.set(id, b))
+    }
+  } catch (err) {
+    console.warn('[Booking Store] Could not load persisted bookings:', err.message)
+  }
+  return map
+}
+
+function saveBookings(map) {
+  try {
+    const dir = path.dirname(BOOKINGS_FILE)
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    const obj = Object.fromEntries(map.entries())
+    fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(obj, null, 2), 'utf8')
+  } catch (err) {
+    console.warn('[Booking Store] Could not persist bookings:', err.message)
+  }
+}
+
+const bookings = loadBookings()
 
 // ─── POST /api/booking/init ───────────────────────────────────────────────────
 /**
@@ -215,6 +245,7 @@ router.post('/init', [
         },
       }
       bookings.set(bookingId, booking)
+      saveBookings(bookings)
 
       return res.json({
         success: true,
@@ -273,6 +304,7 @@ router.post('/:id/confirm', [
   booking.status     = 'CONFIRMED'
   booking.confirmedAt = new Date().toISOString()
   bookings.set(req.params.id, booking)
+  saveBookings(bookings)
   res.json({ success: true, data: booking, message: 'Booking confirmed!' })
 })
 
@@ -310,6 +342,7 @@ router.post('/:id/cancel', [
       booking.status = 'CANCELLED'
       booking.cancelledAt = new Date().toISOString()
       bookings.set(req.params.id, booking)
+      saveBookings(bookings)
       return res.json({ success: true, message: 'Booking cancelled successfully', data: booking })
     } else {
       throw new Error('Hotelbeds cancellation rejected')

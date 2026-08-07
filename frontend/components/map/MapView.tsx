@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import {
-  Plus, Minus, Compass, Navigation, AlertTriangle, RefreshCw, X, Check, Plane, MapPin, Map as MapIcon,
-  Hotel, Utensils, Coffee, Camera, ShoppingBag, Hospital, Pill, Landmark, Car, Train, Bus,
-  Bike, Sparkles, Filter, Zap, Share2, Heart, Download, CloudSun, ShieldAlert, Users, Wind, Layers,
-  CheckCircle2, ArrowRight, Clock, DollarSign, ExternalLink, Star, IndianRupee, BarChart2
+  Compass, Navigation, RefreshCw, X, MapPin,
+  Utensils, Coffee, ShoppingBag, Hospital,
+  Landmark, Car, Bus,
+  Sparkles, Download, 
+  CheckCircle2, Clock, DollarSign, Star, IndianRupee, BarChart2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -35,8 +36,9 @@ const isValidLngLat = (coords: any): coords is [number, number] => {
 
 const isDummyOceanCoords = (lat: number, lng: number): boolean => {
   if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return true
-  // Ocean dummy zone off Diu/Gujarat coast: lat 18.0 to 22.0, lng 68.0 to 72.0
-  return (lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0)
+  // Narrow ocean zone: only the Arabian Sea area west of the Indian coast
+  // Excludes valid cities like Mumbai (19.07, 72.87), Surat (21.17, 72.83)
+  return (lat >= 19.5 && lat <= 21.0 && lng >= 68.0 && lng <= 70.5)
 }
 
 const getHaversineDistance = (c1: [number, number], c2: [number, number]) => {
@@ -219,7 +221,8 @@ export default function MapView({
   // Asynchronously geocode places with missing or dummy coordinates
   useEffect(() => {
     if (!itinerary || itinerary.length === 0) return
-    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY
+    if (!apiKey) { console.warn('[MapView] NEXT_PUBLIC_GEOAPIFY_API_KEY not set'); return }
     const cleanDest = (destination || '').toLowerCase()
     const cityStops = cleanDest.split(/->|--| to /i).map((s: string) => s.trim()).filter(Boolean)
 
@@ -384,6 +387,20 @@ export default function MapView({
       optimized.push(unvisited.splice(closestIdx, 1)[0])
     }
 
+    // Apply the optimized route to the itinerary
+    const targetDay = selectedDay === 0 ? 0 : selectedDay - 1
+    const updated = itinerary.map((day, dIdx) => {
+      if (selectedDay !== 0 && dIdx !== targetDay) return day
+      const newPlaces = optimized
+        .filter(s => s.dayIdx === dIdx)
+        .map(s => {
+          const origPlace = (day?.places || [])[s.placeIdx]
+          return origPlace || { name: s.name, lat: s.lat, lng: s.lng }
+        })
+      return { ...day, places: newPlaces.length > 0 ? newPlaces : day.places }
+    })
+    setItinerary(updated)
+
     toast.success('✨ Daily route optimized for minimum travel time & distance!')
   }
 
@@ -441,7 +458,7 @@ export default function MapView({
   const fetchNearbyPlaces = async (catId: string) => {
     const center = userLocation || (refCoords ? refCoords : [15.2993, 74.124])
     setLoadingNearby(true)
-    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
     try {
       const url = `https://api.geoapify.com/v2/places?categories=${catId}&filter=circle:${center[1]},${center[0]},${nearbyDistanceRadius}&bias=proximity:${center[1]},${center[0]}&limit=12&apiKey=${apiKey}`
       const res = await fetch(url)
@@ -490,7 +507,7 @@ export default function MapView({
     setSearching(true)
     setSelectedResult(null)
     const city = destination.split(',')[0].trim()
-    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
     try {
       const q = searchQuery.toLowerCase().includes(city.toLowerCase()) ? searchQuery : `${searchQuery}, ${city}`
       const res = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(q)}&apiKey=${apiKey}`)
@@ -559,7 +576,7 @@ export default function MapView({
       setDestCoord({ name: city, coordinates: fallback })
       return
     }
-    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
     fetch(
       `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&apiKey=${apiKey}`
     )
@@ -588,7 +605,7 @@ export default function MapView({
       setOriginCoord({ name: city, coordinates: fallback })
       return
     }
-    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
     fetch(
       `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&apiKey=${apiKey}`
     )
@@ -627,7 +644,7 @@ export default function MapView({
       if (!mapRef.current) return
       maplibreglRef.current = maplibregl
 
-      const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY ?? '3ffd189110c8416c8e2c733950e9d50d'
+      const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
       const styleUrl = `https://maps.geoapify.com/v1/styles/osm-carto/style.json?apiKey=${apiKey}`
 
       map = new maplibregl.Map({
@@ -1211,7 +1228,7 @@ export default function MapView({
                 <div className="space-y-1.5 max-h-48 overflow-y-auto border border-[#E8E0D8] rounded-2xl p-2 bg-white">
                   <p className="text-[10px] font-bold text-[#9CA3AF] uppercase px-1">Select matching address:</p>
                   {searchResults.map((res, idx) => {
-                    const isSelected = selectedResult?.place_id === res.place_id
+                    const isSelected = selectedResult?.properties?.place_id === res.properties?.place_id
                     return (
                       <div
                         key={idx}

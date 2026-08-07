@@ -57,8 +57,8 @@ export default function LiveBookingToast() {
 
   return (
     <div
-      className={`fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-6 sm:right-auto z-40 max-w-none sm:max-w-sm bg-white border border-[#E8E0D8] rounded-2xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center gap-3 transition-all duration-500 ease-out transform ${
-        visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
+      className={`fixed top-16 sm:top-20 left-4 right-4 sm:left-6 sm:right-auto z-50 max-w-none sm:max-w-sm bg-white border border-[#E8E0D8] rounded-2xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center gap-3 transition-all duration-500 ease-out transform ${
+        visible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'
       }`}
     >
       <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-[#EA580C] shrink-0">

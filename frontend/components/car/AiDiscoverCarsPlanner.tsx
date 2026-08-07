@@ -2,9 +2,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import {
-  Car, ShieldCheck, CheckCircle2, Sparkles, Filter, ChevronLeft, ChevronRight,
-  ExternalLink, Share2, Heart, Star, Users, Briefcase, Zap, Info, Clock, ArrowUpDown,
-  MapPin, Calendar, Award, PiggyBank, RefreshCw, X, Fuel, Sliders, Compass, ChevronUp, ChevronDown
+  Car, ShieldCheck, CheckCircle2, Sparkles, ChevronLeft, ChevronRight,
+  ExternalLink, Heart, Star, Users, Briefcase, Zap,
+  MapPin, Fuel, Sliders, Compass, ChevronUp, ChevronDown, X
 } from 'lucide-react'
 import { useTripStore } from '@/store/tripStore'
 import { formatPrice } from '@/lib/currency'
@@ -12,7 +12,6 @@ import { isSameCountry } from '@/lib/countryUtils'
 import {
   generateSmartCarPlanner, SmartCarPlannerResult, CarVehicle, getSupplierLogo
 } from '@/lib/smartCarPlanner'
-import TrainsSkeleton from '../train/TrainsSkeleton'
 import { SageScoreRing } from '@/components/ui/SageScoreBadge'
 
 export default function AiDiscoverCarsPlanner() {
@@ -121,6 +120,7 @@ export default function AiDiscoverCarsPlanner() {
 
   const handleNextImage = (carId: string, maxIdx: number, e: React.MouseEvent) => {
     e.stopPropagation()
+    if (maxIdx <= 0) return
     setImageIndices(prev => {
       const curr = prev[carId] || 0
       return { ...prev, [carId]: (curr + 1) % maxIdx }
@@ -162,8 +162,10 @@ export default function AiDiscoverCarsPlanner() {
         return list.sort((a, b) => b.rating - a.rating)
       case 'popular':
         return list.sort((a, b) => b.score - a.score)
-      case 'fuel_efficient':
-        return list.sort((a, b) => (a.fuelType === 'Hybrid' || a.fuelType === 'Electric' ? -1 : 1))
+      case 'fuel_efficient': {
+        const fuelRank = (f: string) => f === 'Electric' ? 0 : f === 'Hybrid' ? 1 : f === 'CNG' ? 2 : f === 'Diesel' ? 3 : 4
+        return list.sort((a, b) => fuelRank(a.fuelType) - fuelRank(b.fuelType))
+      }
       case 'family':
         return list.sort((a, b) => b.seats - a.seats)
       case 'recommended':
@@ -175,7 +177,21 @@ export default function AiDiscoverCarsPlanner() {
   const heroCar = plannerData.heroVehicle || sortedCars[0]
 
   if (!plannerData.cars || plannerData.cars.length === 0) {
-    return <TrainsSkeleton />
+    return (
+      <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
+        <div className="glass rounded-2xl border border-[#E8E0D8] p-8 text-center bg-white shadow-xs flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-orange-50 text-[#EA580C] flex items-center justify-center border border-orange-200 animate-pulse">
+            <Car size={32} />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xl font-black text-[#1A1A1A] font-display">Loading Vehicles...</h4>
+            <p className="text-sm text-[#6B6B6B] leading-relaxed max-w-md mx-auto font-medium">
+              Searching for the best rental options in {destination}.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -200,7 +216,7 @@ export default function AiDiscoverCarsPlanner() {
             </div>
 
             <h1 className="text-3xl md:text-5xl font-black text-[#1A1A1A] leading-tight tracking-tight font-display">
-              Drive <span className="text-[#EA580C]">{heroCar.name.split('or')[0]}</span> in {plannerData.destination}
+              Drive <span className="text-[#EA580C]">{heroCar.name.split(' or ')[0]}</span> in {plannerData.destination}
             </h1>
 
             <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed font-semibold">

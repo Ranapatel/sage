@@ -911,11 +911,11 @@ function TransportTab({
             Travel to {destCity || 'your destination'}
           </h1>
           <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-xl">
-            Compare the best ways to reach your destination — time, comfort, and budget all in one view.
+            Compare the best ways to reach your destination &mdash; time, comfort, and budget all in one view.
           </p>
         </div>
 
-        {/* ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ÃƒÂ¢Ã¢â€šÂ¬ */}
+        {/* SEGMENT PILLS (3D Isometric Bar with Swipe Indicator) */}
         <div className="space-y-2">
           {/* Top Swipe Hint */}
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">

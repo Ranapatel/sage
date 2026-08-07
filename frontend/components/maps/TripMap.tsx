@@ -133,7 +133,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
   const [activeTab, setActiveTab] = useState<'itinerary' | 'layers' | 'assistant'>('itinerary')
 
   const isDummyOcean = (lat: number, lng: number) => {
-    return (lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0)
+    return (lat >= 19.5 && lat <= 21.0 && lng >= 68.0 && lng <= 70.5)
   }
 
   // Collapse consecutive duplicate coordinates to avoid Routing API errors
@@ -179,7 +179,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
     if (!mapContainerRef.current) return
 
     let mapInstance: any = null
-    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || '3ffd189110c8416c8e2c733950e9d50d'
+    const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
     const styleUrl = `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${apiKey}`
 
     import('maplibre-gl').then((maplibregl) => {

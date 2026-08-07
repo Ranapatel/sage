@@ -64,8 +64,8 @@ const allowedOrigin = (origin, callback) => {
 
   if (allowed.some(a => origin.startsWith(a))) return callback(null, true)
 
-  // Fallback: allow origin gracefully without throwing CORS Error object
-  return callback(null, true)
+  // Reject disallowed origins in production
+  return callback(new Error('Not allowed by CORS'), false)
 }
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
@@ -80,12 +80,12 @@ app.use(compression())
 app.use(cors({ origin: allowedOrigin, credentials: true }))
 app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '10kb' }))
 app.use(express.json({
-  limit: '50mb',
+  limit: '5mb',
   verify: (req, res, buf) => {
     req.rawBody = buf.toString();
   }
 }))
-app.use(express.urlencoded({ limit: '50mb', extended: true }))
+app.use(express.urlencoded({ limit: '5mb', extended: true }))
 app.use(morgan('dev'))
 
 // Rate limiting

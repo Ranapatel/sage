@@ -59,7 +59,7 @@ export default function PlaceDetailsModal({
 
   // Sync bookmark state with localStorage
   useEffect(() => {
-    if (place) {
+    if (place && typeof window !== 'undefined') {
       const bookmarked = localStorage.getItem(`bookmark_${place.name}`);
       Promise.resolve().then(() => setIsBookmarked(!!bookmarked));
     }
@@ -77,7 +77,7 @@ export default function PlaceDetailsModal({
     if (!place) return;
 
     const isDummyOcean = (lat: number, lng: number) => {
-      return lat >= 18.0 && lat <= 22.0 && lng >= 68.0 && lng <= 72.0
+      return lat >= 19.5 && lat <= 21.0 && lng >= 68.0 && lng <= 70.5
     }
 
     // 1. Try flat lat/lng properties

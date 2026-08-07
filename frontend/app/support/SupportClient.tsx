@@ -89,8 +89,8 @@ export default function SupportClient() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [chatMsgs, botTyping])
 
-  const sendChat = () => {
-    const text = chatInput.trim()
+  const sendChat = (directText?: string) => {
+    const text = (directText || chatInput).trim()
     if (!text) return
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     setChatMsgs(prev => [...prev, { role: 'user', text, time }])
@@ -107,7 +107,7 @@ export default function SupportClient() {
     setSending(true)
     const subject = encodeURIComponent(form.subject || 'TripSage Support Request')
     const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)
-    window.open(`mailto:rana@tripsage.in?subject=${subject}&body=${body}`)
+    window.location.href = `mailto:rana@tripsage.in?subject=${subject}&body=${body}`
     await new Promise(r => setTimeout(r, 600))
     toast.success('Opening your email client...')
     setForm({ name: '', email: '', subject: '', message: '' })
@@ -352,7 +352,7 @@ export default function SupportClient() {
               {['Refund help', 'Flight issue', 'Hotel query', 'Itinerary'].map(q => (
                 <button
                   key={q}
-                  onClick={() => { setChatInput(q); setTimeout(sendChat, 0) }}
+                  onClick={() => sendChat(q)}
                   className="shrink-0 text-[11px] font-bold px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#EA580C] hover:bg-[#EA580C] hover:text-white transition-all cursor-pointer"
                 >
                   {q}
@@ -370,9 +370,9 @@ export default function SupportClient() {
                 onKeyDown={e => e.key === 'Enter' && sendChat()}
               />
               <button
-                onClick={sendChat}
+                onClick={() => sendChat()}
                 disabled={!chatInput.trim()}
-                className="bg-[#EA580C] hover:bg-[#C2410C] text-white p-2.5 rounded-xl disabled:opacity-40 cursor-pointer shrink-0"
+                className="p-2.5 rounded-xl bg-[#EA580C] text-white hover:bg-[#C2410C] disabled:opacity-40 transition-all cursor-pointer"
               >
                 <Send size={14} />
               </button>
