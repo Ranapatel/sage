@@ -3,8 +3,33 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions | TripSage AI Travel Planner',
-  description: 'Read the terms and conditions for using TripSage, your AI-powered travel planning platform.',
+  title: 'Terms & Conditions | TripSage AI Travel Operating System',
+  description: 'Read the official terms and conditions for using TripSage, your AI-powered travel planning, flight search, and hotel booking platform.',
+  alternates: {
+    canonical: 'https://tripsage.in/terms-and-conditions',
+  },
+  openGraph: {
+    title: 'Terms & Conditions | TripSage AI Travel Operating System',
+    description: 'Terms and conditions governing the use of TripSage travel services and platform.',
+    url: 'https://tripsage.in/terms-and-conditions',
+    siteName: 'TripSage',
+    images: [
+      {
+        url: 'https://tripsage.in/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'TripSage Terms & Conditions',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms & Conditions | TripSage AI Travel',
+    description: 'Official Terms & Conditions for TripSage AI travel platform.',
+    images: ['https://tripsage.in/logo.png'],
+  },
 }
 
 export default function TermsAndConditions() {

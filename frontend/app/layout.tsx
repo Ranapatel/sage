@@ -72,6 +72,22 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: 'https://tripsage.in',
+  },
+}
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'TripSage',
+  url: 'https://tripsage.in',
+  logo: 'https://tripsage.in/logo.png',
+  sameAs: [
+    'https://twitter.com/tripsage',
+    'https://instagram.com/tripsage.in',
+  ],
+  description: 'AI-powered travel planning platform in India for instant itineraries, flights, and hotel bookings.',
 }
 
 const softwareSchema = {
@@ -92,6 +108,7 @@ const websiteSchema = {
   "@type": "WebSite",
   "url": "https://tripsage.in",
   "name": "TripSage",
+  "alternateName": ["TripSage AI", "TripSage Travel"],
   "potentialAction": {
     "@type": "SearchAction",
     "target": "https://tripsage.in/plan?q={search_term_string}",
@@ -132,6 +149,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ClerkProvider clerkJSUrl={process.env.NEXT_PUBLIC_CLERK_JS}>
 
           {/* JSON-LD structured data for SEO */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}

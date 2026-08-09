@@ -1,14 +1,26 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tripsage.in'
+  const baseUrl = 'https://tripsage.in'
 
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/admin/', '/seo-dashboard/'],
+      disallow: [
+        '/api/',
+        '/admin/',
+        '/plan',
+        '/sign-in',
+        '/sign-up',
+        '/dashboard',
+        '/profile',
+        '/my-trips',
+        '/trips',
+        '/*?*',
+      ],
     },
-    sitemap: 'https://tripsage.in/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   }
 }
