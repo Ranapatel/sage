@@ -34,7 +34,12 @@ export default function Referral() {
   const [showShareModal, setShowShareModal] = useState(false)
 
   const referralLink = `https://tripsage.in/sign-up?ref=${userId || 'explorer'}`
-  const shareMessage = `Hey! 🌍 Join me on TripSage to plan travel with AI. Use my link to claim 100 Free Sage Credits for unlimited AI itineraries & hotel discount vouchers: ${referralLink}`
+  const shareMessage = `🌍 Discover smart travel with TripSage AI — your personal assistant for custom itineraries and trip planning.
+
+🎁 Join via my exclusive invite link to claim 100 Sage Travel Credits:
+${referralLink}
+
+Earn an additional +200 Credits for every traveler you invite!`
 
   // ── Fetch wallet balance ─────────────────────────────────────────────────────
   const fetchWallet = useCallback(async () => {
@@ -91,7 +96,7 @@ export default function Referral() {
   const handleShare = async () => {
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
-        await navigator.share({ title: 'TripSage AI Travel', text: shareMessage, url: referralLink })
+        await navigator.share({ title: 'TripSage AI Travel Planner', text: shareMessage, url: referralLink })
         toast.success('Thanks for sharing TripSage!')
         return
       } catch (err: any) {
@@ -107,10 +112,10 @@ export default function Referral() {
     const encodedUrl = encodeURIComponent(referralLink)
     const urls: Record<string, string> = {
       whatsapp: `https://api.whatsapp.com/send?text=${encodedMsg}`,
-      telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent('Join TripSage AI Travel & Get 100 Free Credits!')}`,
+      telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedMsg}`,
       linkedin:  `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
       facebook:  `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      email:     `mailto:?subject=${encodeURIComponent('Join TripSage & Get 100 Free Travel Credits!')}&body=${encodedMsg}`,
+      email:     `mailto:?subject=${encodeURIComponent('🎁 100 Free Travel Credits on TripSage AI!')}&body=${encodedMsg}`,
     }
     if (urls[platform]) {
       window.open(urls[platform], '_blank')

@@ -69,6 +69,22 @@ async function handleClerkWebhook(req, res) {
       })
       console.log(`[Clerk Webhook] Synchronized new user: ${newUser.id}`)
 
+      // ── Give 100 Welcome Credits to EVERY new user (with or without referral) ─
+      await prisma.$transaction([
+        prisma.wallet.create({
+          data: { userId: newUser.id, balance: 100.0 }
+        }),
+        prisma.walletTransaction.create({
+          data: {
+            userId: newUser.id,
+            amount: 100.0,
+            type: 'credit',
+            reason: 'Welcome to TripSage! 🎉 Enjoy 100 Free Sage Credits to get started.'
+          }
+        })
+      ])
+      console.log(`[Clerk Webhook] ✅ 100 welcome credits given to new user: ${newUser.id}`)
+
       // ── Auto-apply referral reward if ?ref= was present on sign-up ────────
       if (referredByClerkId && referredByClerkId !== clerkUserId) {
         try {
@@ -109,18 +125,17 @@ async function handleClerkWebhook(req, res) {
                     reason: `Referral Reward — ${email} signed up with your link`
                   }
                 }),
-                // Credit new user +100
-                prisma.wallet.upsert({
+                // Credit new user +100 referral bonus (wallet already exists with 100 welcome credits)
+                prisma.wallet.update({
                   where: { userId: newUser.id },
-                  update: { balance: { increment: 100.0 } },
-                  create: { userId: newUser.id, balance: 100.0 }
+                  data: { balance: { increment: 100.0 } }
                 }),
                 prisma.walletTransaction.create({
                   data: {
                     userId: newUser.id,
                     amount: 100.0,
                     type: 'credit',
-                    reason: 'Referral Signup Bonus — Welcome to TripSage!'
+                    reason: 'Referral Signup Bonus — you joined via a friend\'s invite!'
                   }
                 }),
               ])
