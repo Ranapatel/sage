@@ -84,10 +84,15 @@ export class ProfileService {
       where: { userId }
     })
 
-    const wallet = await prisma.wallet.findUnique({
-      where: { userId }
-    })
-    const walletBalance = wallet?.balance ?? 0
+    // Read wallet balance — create at 0 if not yet initialised.
+    // Credits are earned only via referrals (100 on signup, 200 per successful referral).
+    let wallet = await prisma.wallet.findUnique({ where: { userId } })
+    if (!wallet) {
+      wallet = await prisma.wallet.create({
+        data: { userId, balance: 0.0 }
+      })
+    }
+    const walletBalance = wallet.balance
 
     return {
       tripsCreated: tripsCount,
@@ -209,20 +214,12 @@ export class ProfileService {
     let wallet = await prisma.wallet.findUnique({
       where: { userId }
     })
-    
-    // Create wallet if it doesn't exist yet
+
+    // Create wallet with 0 balance if it doesn't exist yet.
+    // Credits are earned exclusively through referrals.
     if (!wallet) {
       wallet = await prisma.wallet.create({
-        data: { userId, balance: 500.0 } // give some initial welcome points!
-      })
-      // log transaction
-      await prisma.walletTransaction.create({
-        data: {
-          userId,
-          amount: 500.0,
-          type: 'credit',
-          reason: 'Welcome Sage Points Reward'
-        }
+        data: { userId, balance: 0.0 }
       })
     }
 

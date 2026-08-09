@@ -28,7 +28,7 @@ export default function Referral() {
   const { getToken, userId } = useAuth()
   const [copied, setCopied] = useState(false)
   const [referrals, setReferrals] = useState<ReferralRecord[]>([])
-  const [walletBalance, setWalletBalance] = useState<number | null>(null)
+  const [walletBalance, setWalletBalance] = useState<number>(0)
   const [loadingReferrals, setLoadingReferrals] = useState(true)
   const [loadingWallet, setLoadingWallet] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -139,7 +139,7 @@ export default function Referral() {
               ) : (
                 <>
                   <span className="text-4xl font-black text-[#1A1A1A] leading-none">
-                    {walletBalance !== null ? walletBalance.toLocaleString() : '—'}
+                    {walletBalance.toLocaleString()}
                   </span>
                   <span className="text-sm font-bold text-slate-400 mb-1">credits</span>
                 </>

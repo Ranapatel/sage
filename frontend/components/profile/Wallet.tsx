@@ -27,7 +27,7 @@ interface Perk {
 
 export default function Wallet() {
   const { getToken } = useAuth()
-  const [balance, setBalance] = useState(500)
+  const [balance, setBalance] = useState(0)
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [unlockedPerks, setUnlockedPerks] = useState<string[]>(['unlimited_ai'])
   const [loading, setLoading] = useState(true)
@@ -45,28 +45,16 @@ export default function Wallet() {
           headers: { Authorization: `Bearer ${token}` }
         })
         if (response.data?.success && response.data?.data) {
-          setBalance(response.data.data.balance ?? 500)
+          setBalance(response.data.data.balance ?? 0)
           setTransactions(response.data.data.transactions || [])
         } else {
-          setBalance(500)
-          setTransactions([{
-            id: 'tx-1',
-            amount: 500,
-            type: 'credit',
-            reason: 'Welcome Bonus Reward',
-            createdAt: new Date().toISOString()
-          }])
+          setBalance(0)
+          setTransactions([])
         }
       } catch (err: any) {
         console.warn('[Wallet] Could not load wallet:', err.response?.status || err.message)
-        setBalance(500)
-        setTransactions([{
-          id: 'tx-1',
-          amount: 500,
-          type: 'credit',
-          reason: 'Welcome Bonus Reward',
-          createdAt: new Date().toISOString()
-        }])
+        setBalance(0)
+        setTransactions([])
       } finally {
         setLoading(false)
       }
