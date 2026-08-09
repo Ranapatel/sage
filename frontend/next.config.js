@@ -23,16 +23,7 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.wikipedia.org' },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: '/:path*',
-        has: [{ type: 'header', key: 'host', value: 'www.tripsage.in' }],
-        destination: 'https://tripsage.in/:path*',
-        permanent: true,
-      },
-    ]
-  },
+
   async headers() {
     return [
       {
