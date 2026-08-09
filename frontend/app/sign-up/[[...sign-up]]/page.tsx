@@ -1,18 +1,17 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { SignUp } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Gift } from 'lucide-react'
 
-export const metadata: Metadata = {
-  title: 'Sign Up | TripSage AI Travel OS',
-  description: 'Create your account to start planning trips with AI.',
-  robots: {
-    index: false,
-    follow: false,
-  },
-}
+// ── Inner component that reads searchParams (must be inside Suspense) ────────
+function SignUpContent() {
+  const searchParams = useSearchParams()
+  const refCode = searchParams.get('ref')
 
-export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] flex flex-col items-center justify-center p-4 relative overflow-hidden font-body">
       {/* Soft Ambient Radial Glow */}
@@ -38,9 +37,26 @@ export default function SignUpPage() {
           </p>
         </div>
 
+        {/* ── Referral Welcome Banner (shown only when ?ref= is present) ── */}
+        {refCode && (
+          <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3 text-left shadow-sm">
+            <div className="shrink-0 w-9 h-9 rounded-xl bg-[#EA580C] flex items-center justify-center shadow">
+              <Gift size={18} className="text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-extrabold text-[#1A1A1A]">You were referred! 🎉</p>
+              <p className="text-[11px] text-[#6B6B6B] font-medium leading-snug mt-0.5">
+                Sign up now and get <span className="font-extrabold text-[#EA580C]">+100 Free Sage Credits</span> added to your wallet instantly!
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Clerk Sign Up Container */}
         <div className="flex justify-center">
           <SignUp
+            // Pass ref code into Clerk unsafeMetadata so the webhook can read it
+            unsafeMetadata={refCode ? { referredBy: refCode } : {}}
             appearance={{
               variables: {
                 colorPrimary: '#EA580C',
@@ -70,5 +86,18 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// ── Page wrapper with Suspense boundary (required for useSearchParams) ────────
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#FFFBF7] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SignUpContent />
+    </Suspense>
   )
 }

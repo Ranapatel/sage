@@ -27,7 +27,7 @@ export default function Referral() {
   const [referrals, setReferrals] = useState<ReferralRecord[]>([])
   const [showShareModal, setShowShareModal] = useState(false)
 
-  const referralLink = `https://tripsage.in/signup?ref=${userId || 'explorer'}`
+  const referralLink = `https://tripsage.in/sign-up?ref=${userId || 'explorer'}`
   const shareMessage = `Hey! 🌍 Join me on TripSage to plan travel with AI. Use my link to claim 100 Free Sage Credits for unlimited AI itineraries & hotel discount vouchers: ${referralLink}`
 
   const fetchReferrals = async () => {
