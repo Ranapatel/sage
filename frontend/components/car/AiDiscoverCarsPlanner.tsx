@@ -87,6 +87,50 @@ export default function AiDiscoverCarsPlanner() {
     })
   }, [destination, pickupDate, dropoffDate, tripContext])
 
+  // Filter cars based on controls
+  const filteredCars = useMemo(() => {
+    const cars = plannerData?.cars || []
+    return cars.filter(car => {
+      if (activeCategory !== 'all' && car.category.toLowerCase() !== activeCategory.toLowerCase()) return false
+      if (activeBrand !== 'all' && car.brand.toLowerCase() !== activeBrand.toLowerCase()) return false
+      if (activeTransmission !== 'all' && car.transmission.toLowerCase() !== activeTransmission.toLowerCase()) return false
+      if (activeFuel !== 'all' && car.fuelType.toLowerCase() !== activeFuel.toLowerCase()) return false
+      if (activeSeats !== 'all') {
+        const numSeats = parseInt(activeSeats, 10)
+        if (numSeats === 7 && car.seats < 7) return false
+        if (numSeats < 7 && car.seats !== numSeats) return false
+      }
+      if (car.pricePerDay < minPrice || car.pricePerDay > maxPrice) return false
+      if (freeCancellationOnly && car.cancellationPolicy !== 'Free Cancellation') return false
+      if (unlimitedKmOnly && car.mileagePolicy !== 'Unlimited Kilometres') return false
+      return true
+    })
+  }, [plannerData?.cars, activeCategory, activeBrand, activeTransmission, activeFuel, activeSeats, minPrice, maxPrice, freeCancellationOnly, unlimitedKmOnly])
+
+  // Sorted Vehicles
+  const sortedCars = useMemo(() => {
+    const list = [...filteredCars]
+    switch (activeSort) {
+      case 'cheapest':
+        return list.sort((a, b) => a.pricePerDay - b.pricePerDay)
+      case 'best_rated':
+        return list.sort((a, b) => b.rating - a.rating)
+      case 'popular':
+        return list.sort((a, b) => b.score - a.score)
+      case 'fuel_efficient': {
+        const fuelRank = (f: string) => f === 'Electric' ? 0 : f === 'Hybrid' ? 1 : f === 'CNG' ? 2 : f === 'Diesel' ? 3 : 4
+        return list.sort((a, b) => fuelRank(a.fuelType) - fuelRank(b.fuelType))
+      }
+      case 'family':
+        return list.sort((a, b) => b.seats - a.seats)
+      case 'recommended':
+      default:
+        return list.sort((a, b) => (b.badge === 'Recommended' || b.badge === 'Top Pick' ? 1 : 0) - (a.badge === 'Recommended' || a.badge === 'Top Pick' ? 1 : 0))
+    }
+  }, [filteredCars, activeSort])
+
+  const heroCar = plannerData?.heroVehicle || sortedCars[0]
+
   // Domestic only check
   if (plannerData.isDomestic === false) {
     return (
@@ -132,49 +176,6 @@ export default function AiDiscoverCarsPlanner() {
     e.stopPropagation()
     setFavorites(prev => ({ ...prev, [carId]: !prev[carId] }))
   }
-
-  // Filter cars based on controls
-  const filteredCars = useMemo(() => {
-    return plannerData.cars.filter(car => {
-      if (activeCategory !== 'all' && car.category.toLowerCase() !== activeCategory.toLowerCase()) return false
-      if (activeBrand !== 'all' && car.brand.toLowerCase() !== activeBrand.toLowerCase()) return false
-      if (activeTransmission !== 'all' && car.transmission.toLowerCase() !== activeTransmission.toLowerCase()) return false
-      if (activeFuel !== 'all' && car.fuelType.toLowerCase() !== activeFuel.toLowerCase()) return false
-      if (activeSeats !== 'all') {
-        const numSeats = parseInt(activeSeats, 10)
-        if (numSeats === 7 && car.seats < 7) return false
-        if (numSeats < 7 && car.seats !== numSeats) return false
-      }
-      if (car.pricePerDay < minPrice || car.pricePerDay > maxPrice) return false
-      if (freeCancellationOnly && car.cancellationPolicy !== 'Free Cancellation') return false
-      if (unlimitedKmOnly && car.mileagePolicy !== 'Unlimited Kilometres') return false
-      return true
-    })
-  }, [plannerData.cars, activeCategory, activeBrand, activeTransmission, activeFuel, activeSeats, minPrice, maxPrice, freeCancellationOnly, unlimitedKmOnly])
-
-  // Sorted Vehicles
-  const sortedCars = useMemo(() => {
-    const list = [...filteredCars]
-    switch (activeSort) {
-      case 'cheapest':
-        return list.sort((a, b) => a.pricePerDay - b.pricePerDay)
-      case 'best_rated':
-        return list.sort((a, b) => b.rating - a.rating)
-      case 'popular':
-        return list.sort((a, b) => b.score - a.score)
-      case 'fuel_efficient': {
-        const fuelRank = (f: string) => f === 'Electric' ? 0 : f === 'Hybrid' ? 1 : f === 'CNG' ? 2 : f === 'Diesel' ? 3 : 4
-        return list.sort((a, b) => fuelRank(a.fuelType) - fuelRank(b.fuelType))
-      }
-      case 'family':
-        return list.sort((a, b) => b.seats - a.seats)
-      case 'recommended':
-      default:
-        return list.sort((a, b) => (b.badge === 'Recommended' || b.badge === 'Top Pick' ? 1 : 0) - (a.badge === 'Recommended' || a.badge === 'Top Pick' ? 1 : 0))
-    }
-  }, [filteredCars, activeSort])
-
-  const heroCar = plannerData.heroVehicle || sortedCars[0]
 
   if (!plannerData.cars || plannerData.cars.length === 0) {
     return (

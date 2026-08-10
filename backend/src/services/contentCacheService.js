@@ -356,7 +356,8 @@ function getFallbackHotelData(codeStr) {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash)
   }
-  const fallbackIndex = Math.abs(hash) % 4 + 1
+  // Use indices 1-5 but skip index 6 (004200a_hb_ro_006.jpg is the known broken placeholder)
+  const fallbackIndex = (Math.abs(hash) % 4) + 1
   const relPath = `00/004200/004200a_hb_ro_00${fallbackIndex}.jpg`
   
   hotelData.images = [{
@@ -425,7 +426,7 @@ async function getHotelContentDetails(hotelCode) {
     try {
       const sig = getSignature()
       const response = await axios.get(`${HOTELBEDS_CONTENT_URL}/hotels`, {
-        params: { codes: codeStr, fields: 'all', language: 'ENG', from: 1, to: 1 },
+        params: { codes: codeStr, fields: 'all', language: 'ENG', from: 1, to: 1, useSecondaryLanguage: false },
         headers: getHeaders(),
         timeout: 15000
       })
@@ -478,6 +479,7 @@ async function getHotelContentDetails(hotelCode) {
           categoryCode:  rawHotel.categoryCode || '',
           categoryName:  rawHotel.categoryName?.content || '',
           images: (rawHotel.images || [])
+            .filter(img => img.path && img.path !== '00/004200/004200a_hb_ro_006.jpg')
             .map(img => ({
               path: img.path,
               url:         `https://photos.hotelbeds.com/giata/${img.path}`,
@@ -491,7 +493,8 @@ async function getHotelContentDetails(hotelCode) {
               visualOrder: img.visualOrder,
               type: img.imageTypeCode
             }))
-            .sort((a, b) => (a.visualOrder || 999) - (b.visualOrder || 999)),
+            .sort((a, b) => (a.visualOrder || 999) - (b.visualOrder || 999))
+            .slice(0, 20),
           facilities,
           issues: (rawHotel.issues || [])
             .map(i => ({ code: String(i.issueCode), dateFrom: i.dateFrom, dateTo: i.dateTo }))
@@ -623,6 +626,7 @@ async function warmHotelCache(hotelCodes) {
             categoryCode:  rawHotel.categoryCode || '',
             categoryName:  rawHotel.categoryName?.content || '',
             images: (rawHotel.images || [])
+              .filter(img => img.path && img.path !== '00/004200/004200a_hb_ro_006.jpg')
               .map(img => ({
                 path: img.path,
                 url:         `https://photos.hotelbeds.com/giata/${img.path}`,
@@ -636,7 +640,8 @@ async function warmHotelCache(hotelCodes) {
                 visualOrder: img.visualOrder,
                 type: img.imageTypeCode
               }))
-              .sort((a, b) => (a.visualOrder || 999) - (b.visualOrder || 999)),
+              .sort((a, b) => (a.visualOrder || 999) - (b.visualOrder || 999))
+              .slice(0, 20),
             facilities,
             issues: (rawHotel.issues || [])
               .map(iss => ({ code: String(iss.issueCode), dateFrom: iss.dateFrom, dateTo: iss.dateTo }))
@@ -683,7 +688,7 @@ async function resolveRateComments({ rateCommentsId, hotelCode, checkin, stayTax
   // 1. Retrieve rate comment from Content API / cache
   if (rateCommentsId) {
     const parts = String(rateCommentsId).split('|')
-    const commentCode = parts[1] // Extract code from 'incomingCode|commentCode|code'
+    const commentCode = parts[1] // Extract commentCode from 'incomingOfficeId|commentCode|date'
     if (commentCode) {
       // Lazy load specific comment from API/Cache
       let commentRecord = await getCatalogItem('ratecomments', commentCode)

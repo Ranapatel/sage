@@ -10,6 +10,7 @@ import { SYMBOLS } from '@/lib/currency'
 import { useTripStore } from '@/store/tripStore'
 import { trackEvent, analytics } from '@/lib/analytics'
 import TransportPlanner from '@/components/transport-intelligence/TransportPlanner'
+import PlanGeneratingLoader from '@/components/plan/PlanGeneratingLoader'
 import TrainsPanel from '@/components/transport/TrainsPanel'
 import BusesPanel from '@/components/transport/BusesPanel'
 import AiFlightSearch from '@/components/flight/AiFlightSearch'
@@ -820,7 +821,7 @@ function TransportTab({
   const from = tripContext?.startLocation || searchForm?.from || ''
   const destCity = dest.split(',')[0].trim()
 
-  // Split transport list by type — flights enabled
+  // Split transport list by type —  flights enabled
   const { flights, trains, buses, cabs } = useMemo(() => {
     const flights = transport.filter(t => t.type === 'flight' || (!t.type && t.departure && t.type !== 'train' && t.type !== 'bus' && t.type !== 'car' && t.type !== 'cab'))
     const trains = transport.filter(t => t.type === 'train')
@@ -979,7 +980,9 @@ function TransportTab({
 
         {/* ———— TRAINS PANEL ———————————————————————————————————————————— */}
         {segment === 'trains' && (
-          isSameCountry(from, dest) ? (
+          loading ? (
+            <PlanGeneratingLoader destination={destCity || dest} />
+          ) : isSameCountry(from, dest) ? (
             <TrainsPanel
               origin={from}
               destination={dest}
@@ -1003,7 +1006,9 @@ function TransportTab({
 
         {/* ———— BUSES PANEL ————————————————————————————————————————————— */}
         {segment === 'buses' && (
-          isSameCountry(from, dest) ? (
+          loading ? (
+            <PlanGeneratingLoader destination={destCity || dest} />
+          ) : isSameCountry(from, dest) ? (
             <BusesPanel
               origin={from}
               destination={dest}
@@ -1046,7 +1051,7 @@ function TransportTab({
         {segment === 'cabs' ? (
           <AiDiscoverCarsPlanner />
         ) : segment !== 'smart-routes' && segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && (loading ? (
-          <SkeletonRouteCard />
+          <PlanGeneratingLoader destination={destCity || dest} />
         ) : bestForSegment ? (
           <BestValueCard
             item={bestForSegment}
@@ -1094,8 +1099,8 @@ function TransportTab({
           </>
         )}
 
-        {/* Skeleton grid while loading */}
-        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && loading && (
+        {/* Skeleton grid while loading — hidden on recommended since PlanGeneratingLoader covers it */}
+        {segment !== 'trains' && segment !== 'buses' && segment !== 'flights' && segment !== 'recommended' && loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => <SkeletonCompactCard key={i} />)}
           </div>
