@@ -11,7 +11,8 @@ import {
 import { tripAPI } from '@/lib/api'
 
 interface PlaceDetailsModalProps {
-  placeId: string | null
+  place?: any | null
+  placeId?: string | null
   onClose: () => void
   currency: string
 }
@@ -52,6 +53,9 @@ function Lightbox({ images, startIndex, onClose }: {
 
   const img = images[idx]
   if (!img) return null
+  const imgUrl = typeof img === 'string' ? img : (img?.url || '')
+  if (!imgUrl) return null
+  const attributions = typeof img === 'object' ? img.attributions : []
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/95 flex items-center justify-center"
@@ -84,7 +88,7 @@ function Lightbox({ images, startIndex, onClose }: {
       {/* Image */}
       <div className="relative w-full h-full max-w-5xl max-h-[85vh] mx-auto p-4">
         <Image
-          src={img.url}
+          src={imgUrl}
           alt={`Photo ${idx + 1}`}
           fill
           className="object-contain"
@@ -94,9 +98,9 @@ function Lightbox({ images, startIndex, onClose }: {
       </div>
 
       {/* Attributions */}
-      {img.attributions && img.attributions.length > 0 && (
+      {attributions && attributions.length > 0 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 text-[10px] bg-black/50 px-3 py-1 rounded-full">
-          Photo by {img.attributions.join(', ')}
+          Photo by {attributions.join(', ')}
         </div>
       )}
     </div>
@@ -294,44 +298,87 @@ function TravelIntelligenceWidget({ details }: { details: any }) {
   )
 }
 
-// ── Main Component ─────────────────────────────────────────────────────────────
+const GENERIC_NAMES = [
+  'featured destination spot',
+  'point of interest',
+  'local destination landmark',
+  'top attraction & landmark',
+  'local dining landmark'
+]
 
-export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceDetailsModalProps) {
-  const [details, setDetails] = useState<any>(null)
+function isGenericName(name?: string): boolean {
+  if (!name || typeof name !== 'string') return true
+  const lower = name.trim().toLowerCase()
+  return GENERIC_NAMES.some(g => lower.includes(g))
+}
+
+export default function PlaceDetailsModal({ place, placeId: propPlaceId, onClose, currency }: PlaceDetailsModalProps) {
+  const activeId = place?.id || propPlaceId || null
+  const [details, setDetails] = useState<any>(place || null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!placeId) return
+    if (place) {
+      setDetails(place)
+    } else {
+      setDetails(null)
+    }
+  }, [place])
+
+  useEffect(() => {
+    if (!activeId) return
     setLoading(true)
     setError(null)
-    setDetails(null)
 
-    tripAPI.getPlaceDetails(placeId)
+    tripAPI.getPlaceDetails(activeId)
       .then((res: any) => {
         const d = res?.data?.data ?? res?.data ?? res
-        if (d && d.id) {
-          setDetails(d)
-        } else {
-          setError('Failed to load details')
+        if (d) {
+          setDetails((prev: any) => {
+            if (!prev) return d
+            const nameToUse = (d.name && !isGenericName(d.name)) ? d.name : (prev.name || d.name)
+            const addressToUse = (d.address && !d.address.includes('City Center, Destination'))
+              ? d.address
+              : (prev.address || prev.formattedAddress || d.address || d.formattedAddress)
+            const photosToUse = (Array.isArray(d.photos) && d.photos.length > 0) ? d.photos : (prev.photos || (prev.heroImage ? [prev.heroImage] : d.photos))
+            const heroToUse = d.heroImage || prev.heroImage
+
+            return {
+              ...prev,
+              ...d,
+              name: nameToUse,
+              address: addressToUse,
+              formattedAddress: addressToUse,
+              photos: photosToUse,
+              heroImage: heroToUse,
+              rating: d.rating || prev.rating,
+              userRatingsTotal: d.userRatingsTotal || prev.userRatingsTotal || prev.userRatingCount,
+              description: d.description || prev.description,
+            }
+          })
         }
       })
       .catch((err: Error) => {
-        setError(err.message || 'Unable to load place details. Please try again.')
+        console.warn('[PlaceDetailsModal] Could not fetch extra place details:', err.message)
+        // If we don't have any details at all, set error
+        if (!place && !details) {
+          setError(err.message || 'Unable to load place details. Please try again.')
+        }
       })
       .finally(() => setLoading(false))
-  }, [placeId])
+  }, [activeId])
 
   useEffect(() => {
-    if (placeId) {
+    if (activeId) {
       document.body.style.overflow = 'hidden'
     }
     return () => { document.body.style.overflow = '' }
-  }, [placeId])
+  }, [activeId])
 
-  if (!placeId) return null
+  if (!activeId && !details) return null
 
   const handleShare = () => {
     if (!details) return
@@ -343,9 +390,33 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
     }
   }
 
-  const galleryPhotos = details?.photos || []
+  const rawPhotos = Array.isArray(details?.photos) && details.photos.length > 0
+    ? details.photos
+    : (Array.isArray(details?.galleryImages) && details.galleryImages.length > 0
+      ? details.galleryImages
+      : (details?.heroImage ? [details.heroImage] : []))
+
+  const galleryPhotos = rawPhotos.map((p: any) => {
+    if (typeof p === 'string') {
+      return { url: p, thumbnail: p, attributions: [] }
+    }
+    if (p && typeof p === 'object') {
+      const url = p.url || p.heroImage || p.src || p.thumbnail || ''
+      const thumbnail = p.thumbnail || url
+      return { url, thumbnail, attributions: Array.isArray(p.attributions) ? p.attributions : [] }
+    }
+    return { url: '', thumbnail: '', attributions: [] }
+  }).filter((p: any) => Boolean(p.url))
+
   const displayGallery = galleryPhotos.slice(0, 5)
   const remainingCount = galleryPhotos.length - 5
+  const fallbackHero = details?.heroImage || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
+  const displayAddress = details?.address || details?.formattedAddress || details?.vicinity || 'Address unavailable'
+  const phone = details?.phone || details?.nationalPhoneNumber || details?.phoneNumber
+  const website = details?.website || details?.websiteUri
+  const isOpen = details?.isOpenNow ?? details?.openNow
+  const rating = details?.rating
+  const reviewsTotal = details?.userRatingsTotal ?? details?.userRatingCount
 
   return (
     <>
@@ -395,7 +466,7 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
                 </div>
                 <p className="text-red-400 text-sm font-bold">Unable to load place details</p>
                 <p className="text-xs text-slate-400 max-w-sm">{error}</p>
-                <button onClick={() => { setError(null); setLoading(true); tripAPI.getPlaceDetails(placeId).then((res: any) => { setDetails(res?.data?.data ?? res?.data ?? res); }).catch(() => setError('Still unable to load. Try again later.')).finally(() => setLoading(false)) }}
+                <button onClick={() => { if (!activeId) return; setError(null); setLoading(true); tripAPI.getPlaceDetails(activeId).then((res: any) => { setDetails(res?.data?.data ?? res?.data ?? res); }).catch(() => setError('Still unable to load. Try again later.')).finally(() => setLoading(false)) }}
                   className="mt-2 px-6 py-2 bg-[var(--primary)] text-white text-xs font-bold rounded-xl hover:opacity-90 transition-opacity">
                   Try Again
                 </button>
@@ -460,7 +531,7 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
                   /* Fallback hero when no photos */
                   <div className="p-4 pb-0">
                     <div className="relative h-56 rounded-2xl overflow-hidden">
-                      <Image src={details.heroImage} alt={details.name} fill className="object-cover" sizes="600px" priority />
+                      <Image src={fallbackHero} alt={details.name} fill className="object-cover" sizes="600px" priority />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                     </div>
                   </div>
@@ -479,11 +550,13 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
 
                   {/* Quick stats row */}
                   <div className="flex flex-wrap items-center gap-3">
-                    {details.rating && (
+                    {rating && (
                       <div className="flex items-center gap-1.5 bg-yellow-400/10 text-yellow-400 px-2.5 py-1 rounded-lg border border-yellow-400/10">
                         <Star size={14} fill="currentColor" />
-                        <span className="text-sm font-black">{details.rating}</span>
-                        <span className="text-[10px] text-yellow-400/70">({details.userRatingsTotal?.toLocaleString()} reviews)</span>
+                        <span className="text-sm font-black">{rating}</span>
+                        {reviewsTotal && (
+                          <span className="text-[10px] text-yellow-400/70">({reviewsTotal.toLocaleString()} reviews)</span>
+                        )}
                       </div>
                     )}
                     {details.priceLevel !== null && details.priceLevel !== undefined && (
@@ -491,9 +564,9 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
                         {'$'.repeat(Math.max(details.priceLevel, 1))}
                       </span>
                     )}
-                    {details.isOpenNow !== null && (
-                      <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg border ${details.isOpenNow ? 'bg-green-500/10 text-green-400 border-green-500/10' : 'bg-red-500/10 text-red-400 border-red-500/10'}`}>
-                        {details.isOpenNow ? '● Open Now' : '● Closed'}
+                    {isOpen !== null && isOpen !== undefined && (
+                      <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg border ${isOpen ? 'bg-green-500/10 text-green-400 border-green-500/10' : 'bg-red-500/10 text-red-400 border-red-500/10'}`}>
+                        {isOpen ? '● Open Now' : '● Closed'}
                       </span>
                     )}
                   </div>
@@ -510,18 +583,18 @@ export default function PlaceDetailsModal({ placeId, onClose, currency }: PlaceD
                     <div className="space-y-2.5 text-xs text-slate-300">
                       <div className="flex gap-2 items-start">
                         <MapPin size={14} className="text-slate-500 flex-shrink-0 mt-0.5" />
-                        <span>{details.address}</span>
+                        <span>{displayAddress}</span>
                       </div>
-                      {details.phone && (
+                      {phone && (
                         <div className="flex items-center gap-2">
                           <Phone size={14} className="text-slate-500" />
-                          <a href={`tel:${details.phone}`} className="hover:underline text-[var(--primary)]">{details.phone}</a>
+                          <a href={`tel:${phone}`} className="hover:underline text-[var(--primary)]">{phone}</a>
                         </div>
                       )}
-                      {details.website && (
+                      {website && (
                         <div className="flex items-center gap-2">
                           <Globe size={14} className="text-slate-500" />
-                          <a href={details.website} target="_blank" rel="noopener noreferrer"
+                          <a href={website} target="_blank" rel="noopener noreferrer"
                             className="hover:underline text-[var(--primary)] truncate max-w-[200px]">
                             Visit Website
                           </a>

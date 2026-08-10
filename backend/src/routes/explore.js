@@ -258,27 +258,31 @@ router.get('/details/:placeId', [
   param('placeId').trim().notEmpty(),
 ], async (req, res) => {
   const { placeId } = req.params
+  const cleanId = (placeId || '').replace(/^places\//, '')
 
-  // 1. Soft fallback for mock or fallback place IDs (e.g. rest_fb_..., act_fb_..., mock_...)
-  if (placeId.startsWith('rest_fb_') || placeId.startsWith('act_fb_') || placeId.startsWith('mock_')) {
-    const isRest = placeId.startsWith('rest_fb_')
-    const heroImage = getCategoryFallbackImage(isRest ? 'dining' : 'attraction', 'Popular Landmark', placeId)
-    const gallery = getCategoryFallbackGallery(isRest ? 'dining' : 'attraction', 'Popular Landmark', placeId)
+  // 1. Soft fallback for mock or fallback place IDs (e.g. rest_fb_..., act_fb_..., mock_..., rest_..., act_...)
+  if (!cleanId.startsWith('ChI') && (cleanId.startsWith('rest_') || cleanId.startsWith('act_') || cleanId.startsWith('mock_') || cleanId.startsWith('fb_'))) {
+    const isRest = cleanId.startsWith('rest')
+    const heroImage = getCategoryFallbackImage(isRest ? 'dining' : 'attraction', 'Popular Landmark', cleanId)
+    const galleryUrls = getCategoryFallbackGallery(isRest ? 'dining' : 'attraction', 'Popular Landmark', cleanId)
+    const gallery = galleryUrls.map(url => ({ url, thumbnail: url, attributions: [] }))
 
     return res.json({
       success: true,
       data: {
-        id: placeId,
+        id: cleanId,
         name: isRest ? 'Local Dining Landmark' : 'Top Attraction & Landmark',
+        address: 'City Center, Destination',
         formattedAddress: 'City Center, Destination',
         category: isRest ? 'Restaurants' : 'Tourist Attractions',
         rating: 4.7,
         userRatingCount: 180,
-        priceLevel: '$$',
+        priceLevel: 2,
         heroImage,
         photos: gallery,
         photoCount: gallery.length,
         openNow: true,
+        isOpenNow: true,
         description: isRest
           ? 'Popular local restaurant serving authentic regional specialties with high visitor ratings.'
           : 'Highly recommended local attraction featuring rich cultural heritage and scenic views.',
@@ -293,22 +297,27 @@ router.get('/details/:placeId', [
   }
 
   try {
-    const details = await getPlaceDetailsWithNearby(placeId)
+    const details = await getPlaceDetailsWithNearby(cleanId)
     if (!details) {
       // Return graceful fallback rather than 404
-      const heroImage = getCategoryFallbackImage('attraction', 'Place Landmark', placeId)
+      const heroImage = getCategoryFallbackImage('attraction', 'Place Landmark', cleanId)
+      const gallery = getCategoryFallbackGallery('attraction', 'Place Landmark', cleanId).map(url => ({ url, thumbnail: url, attributions: [] }))
+
       return res.json({
         success: true,
         data: {
-          id: placeId,
-          name: 'Point of Interest',
-          formattedAddress: 'Destination Center',
+          id: cleanId,
+          name: 'Featured Destination Spot',
+          address: 'City Center, Destination',
+          formattedAddress: 'City Center, Destination',
           category: 'Attractions',
           rating: 4.6,
           userRatingCount: 120,
           heroImage,
-          photos: [heroImage],
+          photos: gallery.length > 0 ? gallery : [{ url: heroImage, thumbnail: heroImage, attributions: [] }],
+          photoCount: gallery.length || 1,
           openNow: true,
+          isOpenNow: true,
           source: 'fallback'
         },
         meta: { timestamp: new Date().toISOString(), source: 'fallback' }
@@ -322,20 +331,24 @@ router.get('/details/:placeId', [
     })
   } catch (err) {
     console.warn('[Explore Details Router] Soft fallback triggered:', err.message)
-    const heroImage = getCategoryFallbackImage('attraction', 'Place Details', placeId)
+    const heroImage = getCategoryFallbackImage('attraction', 'Place Details', cleanId)
+    const gallery = getCategoryFallbackGallery('attraction', 'Place Details', cleanId).map(url => ({ url, thumbnail: url, attributions: [] }))
 
     return res.json({
       success: true,
       data: {
-        id: placeId,
+        id: cleanId,
         name: 'Featured Destination Spot',
-        formattedAddress: 'City Center',
+        address: 'City Center, Destination',
+        formattedAddress: 'City Center, Destination',
         category: 'Attractions',
         rating: 4.6,
         userRatingCount: 150,
         heroImage,
-        photos: [heroImage],
+        photos: gallery.length > 0 ? gallery : [{ url: heroImage, thumbnail: heroImage, attributions: [] }],
+        photoCount: gallery.length || 1,
         openNow: true,
+        isOpenNow: true,
         source: 'soft_fallback',
         error: err.message
       },
