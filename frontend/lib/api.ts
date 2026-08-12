@@ -263,19 +263,22 @@ export const tripAPI = {
         return res
       })
       .catch(() => {
+        const heroUrl = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80'
         const fallback = {
           success: true,
           data: {
             id: placeId,
             name: 'Local Destination Landmark',
-            formattedAddress: 'City Center',
+            address: 'City Center, Destination',
+            formattedAddress: 'City Center, Destination',
             category: 'Attractions',
             rating: 4.7,
             userRatingCount: 180,
-            priceLevel: '$$',
-            heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
-            photos: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80'],
+            priceLevel: 2,
+            heroImage: heroUrl,
+            photos: [{ url: heroUrl, thumbnail: heroUrl, attributions: [] }],
             openNow: true,
+            isOpenNow: true,
             description: 'Popular local attraction featuring rich cultural heritage and scenic views.'
           }
         }

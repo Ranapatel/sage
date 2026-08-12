@@ -165,14 +165,16 @@ export async function searchActivities(
     }
     const thumbnail = heroPhoto ? buildPhotoUrl(heroPhoto, 400) : heroImage
 
+    const cleanId = (p.id || '').replace(/^places\//, '')
     return {
-      id: p.id || '',
+      id: cleanId,
       name,
       category,
       primaryType: p.primaryType || null,
       rating: ratingVal,
       userRatingsTotal: reviewCount,
       address: p.formattedAddress || '',
+      formattedAddress: p.formattedAddress || '',
       description: p.editorialSummary?.text || null,
       isOpenNow: isOpen,
       googleMapsUrl: p.googleMapsUri || '',
@@ -296,8 +298,9 @@ export async function searchRestaurants(
     }
     const thumbnail = heroPhoto ? buildPhotoUrl(heroPhoto, 400) : heroImage
 
+    const cleanId = (p.id || '').replace(/^places\//, '')
     return {
-      id: p.id || '',
+      id: cleanId,
       name,
       cuisine,
       category: 'dining',
@@ -307,6 +310,7 @@ export async function searchRestaurants(
       priceLevel: priceVal,
       isOpenNow: isOpen,
       address: p.formattedAddress || '',
+      formattedAddress: p.formattedAddress || '',
       description: p.editorialSummary?.text || null,
       googleMapsUrl: p.googleMapsUri || '',
       latitude: p.location?.latitude ?? 0,
@@ -373,17 +377,18 @@ const DETAIL_FIELD_MASK = [
 const NEARBY_FIELD_MASK = 'places.id,places.displayName,places.rating,places.photos,places.formattedAddress,places.location,places.primaryType'
 
 export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
+  const cleanPlaceId = (placeId || '').replace(/^places\//, '')
   let data: any = null
   try {
     data = await googleRequest<any>({
       method: 'GET',
-      path: `/places/${placeId}`,
+      path: `/places/${cleanPlaceId}`,
       fieldMask: DETAIL_FIELD_MASK,
       cachePrefix: 'gp_explore_detail',
       cacheTtl: 86400,
     })
   } catch (err: any) {
-    console.warn(`[getPlaceDetailsWithNearby] Google Places fetch failed for "${placeId}": ${err.message}`)
+    console.warn(`[getPlaceDetailsWithNearby] Google Places fetch failed for "${cleanPlaceId}": ${err.message}`)
     return null
   }
 
@@ -411,7 +416,7 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
   // If no photos returned by Google, fetch a gallery of unique images from ImageService
   if (galleryPhotos.length === 0) {
     const resolved = await ImageService.resolvePlaceImages({
-      placeId,
+      placeId: cleanPlaceId,
       placeName: name,
       city: address,
       category: data.primaryType || ''
@@ -470,10 +475,11 @@ export async function getPlaceDetailsWithNearby(placeId: string): Promise<any> {
   }
 
   const details: any = {
-    id: data.id || '',
+    id: cleanPlaceId,
     name,
     primaryType: data.primaryType || null,
     address,
+    formattedAddress: address,
     latitude: data.location?.latitude ?? 0,
     longitude: data.location?.longitude ?? 0,
     rating: ratingVal,

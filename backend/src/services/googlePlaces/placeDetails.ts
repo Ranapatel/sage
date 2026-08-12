@@ -29,9 +29,10 @@ const DETAIL_FIELD_MASK = [
 ].join(',')
 
 export async function getPlaceDetails(placeId: string): Promise<TripSagePlaceDetails> {
+  const cleanPlaceId = (placeId || '').replace(/^places\//, '')
   const data = await googleRequest<any>({
     method: 'GET',
-    path: `/places/${placeId}`,
+    path: `/places/${cleanPlaceId}`,
     fieldMask: DETAIL_FIELD_MASK,
     cachePrefix: 'gp_detail',
     cacheTtl: 86400, // 24 hours — details don't change often

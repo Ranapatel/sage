@@ -163,7 +163,7 @@ function PlaceCard({ place, isSaved, onToggleSave, onShare, onViewDetails, isMob
           )}
           <div className="flex gap-1.5 text-[10px] text-[#6B6B6B]">
             <MapPin size={12} className="text-[#EA580C] flex-shrink-0 mt-0.5" />
-            <span className="line-clamp-1">{place.address}</span>
+            <span className="line-clamp-1">{place.address || place.formattedAddress}</span>
           </div>
         </div>
 
@@ -213,7 +213,7 @@ export function ExploreSection({ destination: initialDestination }: Props) {
   const [restaurants, setRestaurants] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
+  const [selectedPlace, setSelectedPlace] = useState<any | null>(null)
   const [savedPlaces, setSavedPlaces] = useState<string[]>([])
 
   useEffect(() => {
@@ -417,7 +417,7 @@ export function ExploreSection({ destination: initialDestination }: Props) {
                   isSaved={savedPlaces.includes(a.id)}
                   onToggleSave={() => toggleSavePlace(a.id)}
                   onShare={() => handleSharePlace(a)}
-                  onViewDetails={() => setSelectedPlaceId(a.id)}
+                  onViewDetails={() => setSelectedPlace(a)}
                   isMobile={isMobile}
                 />
               ))}
@@ -449,7 +449,7 @@ export function ExploreSection({ destination: initialDestination }: Props) {
                   isSaved={savedPlaces.includes(r.id)}
                   onToggleSave={() => toggleSavePlace(r.id)}
                   onShare={() => handleSharePlace(r)}
-                  onViewDetails={() => setSelectedPlaceId(r.id)}
+                  onViewDetails={() => setSelectedPlace(r)}
                   isMobile={isMobile}
                 />
               ))}
@@ -464,8 +464,9 @@ export function ExploreSection({ destination: initialDestination }: Props) {
 
       {/* Details Modal */}
       <PlaceDetailsModal
-        placeId={selectedPlaceId}
-        onClose={() => setSelectedPlaceId(null)}
+        place={selectedPlace}
+        placeId={selectedPlace?.id || null}
+        onClose={() => setSelectedPlace(null)}
         currency={currency}
       />
     </div>
