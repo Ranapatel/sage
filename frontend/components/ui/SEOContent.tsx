@@ -116,42 +116,24 @@ export default function SEOContent({
         </div>
         
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-orange-500/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-orange-300 mb-8 border border-orange-500/30"
-          >
+          <div className="inline-flex items-center gap-2 bg-orange-500/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-orange-300 mb-8 border border-orange-500/30">
             <Sparkles className="w-4 h-4 text-orange-400" />
             AI-Powered Travel Intelligence
-          </motion.div>
+          </div>
           
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-extrabold mb-8 tracking-tight font-display"
-          >
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-8 tracking-tight font-display">
             {title}
-          </motion.h1>
+          </h1>
           
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-xl text-slate-200 max-w-3xl mx-auto mb-12 leading-relaxed font-medium"
-          >
+          <p className="text-xl text-slate-200 max-w-3xl mx-auto mb-12 leading-relaxed font-medium">
             {subtitle}
-          </motion.p>
+          </p>
           
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
+          <div>
             <Link href={ctaLink} className="py-4 px-10 text-lg font-extrabold inline-flex items-center gap-2 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-xl shadow-orange-500/20 transition-all cursor-pointer">
               {ctaText} <ArrowRight className="w-5 h-5" />
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -217,7 +199,7 @@ export default function SEOContent({
               { title: 'Solo Travel India', link: '/seo/solo-travel-guide-india', img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80', price: 'Expert Guide' }
             ].map((trip, i) => (
               <Link key={i} href={trip.link} className="bg-[#FFFBF7] rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:border-[#FED7AA] transition-all duration-300 group border border-[#E8E0D8]">
-                <div className="relative h-40">
+                <div className="relative h-40 bg-[#E8E0D8]">
                   <img src={trip.img} alt={trip.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-extrabold text-[#EA580C] shadow-xs border border-[#FED7AA]">
                     {trip.price}

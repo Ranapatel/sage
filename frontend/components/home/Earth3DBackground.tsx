@@ -38,10 +38,12 @@ const CONTINENT_VECTORS: [number, number][] = [
   [-18, 130], [-25, 134], [-32, 116], [-34, 150], [-22, 148], [-41, 174], [-36, 175],
 ]
 
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect
+
 export default function Earth3DBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -49,15 +51,19 @@ export default function Earth3DBackground() {
 
     let animationFrameId: number
     let rotationAngle = 0
-    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth)
-    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight)
+    let width = 0
+    let height = 0
 
     const handleResize = () => {
-      if (!canvas || !canvas.parentElement) return
-      width = canvas.width = canvas.parentElement.clientWidth
-      height = canvas.height = canvas.parentElement.clientHeight
+      if (!canvas) return
+      const parent = canvas.parentElement
+      const w = parent ? parent.clientWidth : window.innerWidth
+      const h = parent ? parent.clientHeight : window.innerHeight
+      width = canvas.width = Math.max(w, 300)
+      height = canvas.height = Math.max(h, 300)
     }
 
+    handleResize()
     window.addEventListener('resize', handleResize)
 
     // Projection helper: 3D sphere coordinate to 2D screen coordinate
@@ -261,8 +267,8 @@ export default function Earth3DBackground() {
   }, [])
 
   return (
-    <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-0">
-      <canvas ref={canvasRef} className="w-full h-full block opacity-85" />
+    <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-0 bg-[#FFFBF7]">
+      <canvas ref={canvasRef} className="w-full h-full block opacity-100" />
     </div>
   )
 }

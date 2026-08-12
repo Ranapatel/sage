@@ -126,11 +126,13 @@ export default function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 text-sm w-full md:w-auto">
             <div>
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Platform</h4>
-              <div className="flex flex-col gap-4">
-                <Link href="/#features" className="hover:text-[#EA580C] transition-colors">Features</Link>
-                <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors">Destinations</Link>
-                <Link href="/blog" className="hover:text-[#EA580C] transition-colors">Blog</Link>
-                <Link href="/plan" className="hover:text-[#EA580C] transition-colors">AI Planner</Link>
+              <div className="flex flex-col gap-3">
+                <Link href="/ai-trip-planner" className="hover:text-[#EA580C] transition-colors">AI Trip Planner</Link>
+                <Link href="/destinations" className="hover:text-[#EA580C] transition-colors">Destinations</Link>
+                <Link href="/visa" className="hover:text-[#EA580C] transition-colors">Visa Guides</Link>
+                <Link href="/itineraries" className="hover:text-[#EA580C] transition-colors">Travel Itineraries</Link>
+                <Link href="/budget" className="hover:text-[#EA580C] transition-colors">Budget Calculator</Link>
+                <Link href="/blog" className="hover:text-[#EA580C] transition-colors">Travel Blog</Link>
               </div>
             </div>
             <div>

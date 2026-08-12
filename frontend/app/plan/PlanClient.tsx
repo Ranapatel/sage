@@ -1049,6 +1049,7 @@ export default function PlanClient() {
                   updateCurrency(val as any)
                   setSearchForm(p => ({ ...p, currency: val }))
                 }}
+                align="right"
                 className="hidden sm:block"
               />
             </Suspense>

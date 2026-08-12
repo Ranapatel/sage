@@ -12,6 +12,7 @@ import Footer from '@/components/layout/Footer'
 import Earth3DBackground from '@/components/home/Earth3DBackground'
 import { useInView, motion } from 'framer-motion'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import CurrencySelector from '@/components/ui/CurrencySelector'
 import {
   MapPin, Calendar, ArrowRight, Plane, Shield, Sparkles, Plus, Minus, Info, ChevronRight, ChevronLeft, X, Search, SlidersHorizontal, Users, ShieldCheck, FileCheck, Globe
 } from 'lucide-react'
@@ -890,18 +891,19 @@ export default function HomeClient() {
               </div>
             </div>
 
-            {/* Budget Input */}
+            {/* Budget Input & Currency Selector */}
             <div className="space-y-1.5">
               <label className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B]">Total Trip Budget</label>
-              <div className="relative flex items-center">
-                <span className="absolute left-4 text-xs sm:text-sm font-semibold text-[#6B6B6B]">
-                  {form.currency === 'INR' ? '₹' : form.currency}
-                </span>
+              <div className="flex items-center gap-2">
+                <CurrencySelector
+                  value={form.currency || 'INR'}
+                  onChange={code => setForm(p => ({ ...p, currency: code as any }))}
+                />
                 <input
                   type="number"
                   value={form.budget}
                   onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
-                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl pl-8 pr-4 py-2.5 sm:py-3 outline-none text-[#1A1A1A] font-semibold text-xs sm:text-sm focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
+                  className="w-full bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl px-4 py-2.5 sm:py-3 outline-none text-[#1A1A1A] font-semibold text-xs sm:text-sm focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
                   placeholder="Enter total budget"
                 />
               </div>

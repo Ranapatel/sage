@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Icon3DTransport,
@@ -18,49 +18,17 @@ const ICONS = [
   { id: 'route',  Icon: Icon3DSmartRoute, color: '#D97706', glow: 'rgba(217,119,6,0.3)'  },
 ]
 
-const MESSAGES = [
-  'Scanning flight options',
-  'Comparing train schedules',
-  'Checking bus routes',
-  'Looking up rental cars',
-  'Finding the smartest routes',
-  'Crunching the best deals',
-  'Almost ready',
-]
-
 const LOOP_DURATION = 4
 
 interface Props { destination?: string }
 
 export default function PlanGeneratingLoader({ destination }: Props) {
-  const [msgIndex, setMsgIndex]   = useState(0)
-  const [typedText, setTypedText] = useState('')
-  const [progress, setProgress]   = useState(0)
-  const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     const id = setInterval(() => setProgress(p => Math.min(p + Math.random() * 3, 92)), 500)
     return () => clearInterval(id)
   }, [])
-
-  useEffect(() => {
-    const id = setInterval(() => setMsgIndex(p => (p + 1) % MESSAGES.length), 2400)
-    return () => clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    if (typingRef.current) clearTimeout(typingRef.current)
-    const full = MESSAGES[msgIndex]
-    setTypedText('')
-    let i = 0
-    const tick = () => {
-      i++
-      setTypedText(full.slice(0, i))
-      if (i < full.length) typingRef.current = setTimeout(tick, 36)
-    }
-    typingRef.current = setTimeout(tick, 60)
-    return () => { if (typingRef.current) clearTimeout(typingRef.current) }
-  }, [msgIndex])
 
   return (
     <div className="relative flex flex-col items-center justify-center py-14 px-6 overflow-hidden select-none">
@@ -98,11 +66,11 @@ export default function PlanGeneratingLoader({ destination }: Props) {
         </motion.div>
       )}
 
-      {/* Icons row — naked, no boxes, pure float only */}
+      {/* Icons row */}
       <div className="relative w-full max-w-[420px]">
 
         <div className="flex justify-between items-end px-1 mb-4">
-          {ICONS.map(({ id, Icon, color, glow }, i) => (
+          {ICONS.map(({ id, Icon, glow }, i) => (
             <motion.div
               key={id}
               animate={{ y: [0, -10, 0] }}
@@ -185,31 +153,17 @@ export default function PlanGeneratingLoader({ destination }: Props) {
         </div>
       </div>
 
-      {/* Typewriter text */}
-      <div className="flex flex-col items-center gap-3 mt-8 w-full px-4">
-        <div className="flex items-center justify-center min-h-[26px]">
-          <span className="text-[13px] font-semibold text-slate-500 text-center leading-snug">
-            {typedText}
-            <motion.span
-              animate={{ opacity: [1, 0, 1] }}
-              transition={{ duration: 0.65, repeat: Infinity }}
-              className="inline-block w-[2px] h-3 bg-[#EA580C] ml-[2px] rounded-full align-middle"
-            />
-          </span>
-        </div>
-
-        {/* Bouncing dots */}
-        <div className="flex items-center gap-1.5">
-          {[0, 1, 2].map(i => (
-            <motion.div
-              key={i}
-              className="rounded-full"
-              style={{ width: 5, height: 5, background: '#EA580C', opacity: 0.6 }}
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }}
-            />
-          ))}
-        </div>
+      {/* Bouncing loader dots below animation */}
+      <div className="flex items-center gap-1.5 mt-8">
+        {[0, 1, 2].map(i => (
+          <motion.div
+            key={i}
+            className="rounded-full"
+            style={{ width: 6, height: 6, background: '#EA580C', opacity: 0.7 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }}
+          />
+        ))}
       </div>
     </div>
   )

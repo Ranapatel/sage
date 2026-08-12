@@ -11,7 +11,6 @@ import { trackEvent } from '@/lib/analytics'
 import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
 import UserMenu from './UserMenu'
 import { useNavAuth } from '@/hooks/useNavAuth'
-
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useNavAuth()
   const { signOut } = useClerk()
@@ -50,11 +49,13 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Nav Links */}
-        <div className="hidden md:flex items-center gap-8 text-[13px] font-semibold text-[#6B6B6B]">
-          <Link href="/#features" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Features</Link>
-          <Link href="/#destinations" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Destinations</Link>
+        <div className="hidden md:flex items-center gap-7 text-[13px] font-semibold text-[#6B6B6B]">
+          <Link href="/ai-trip-planner" className="hover:text-[#EA580C] transition-colors duration-200 py-2">AI Planner</Link>
+          <Link href="/destinations" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Destinations</Link>
+          <Link href="/itineraries" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Itineraries</Link>
+          <Link href="/visa" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Visa</Link>
+          <Link href="/budget" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Budget</Link>
           <Link href="/blog" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Blog</Link>
-          <Link href="/visa-guide" className="hover:text-[#EA580C] transition-colors duration-200 py-2">Visa Guide</Link>
           <div className="relative group py-2">
             <Link href="/support" className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
               Support <ChevronDown size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
@@ -170,15 +171,16 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Home</Link>
-                <Link href="/#features" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Features</Link>
-                <Link href="/#destinations" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Destinations</Link>
-                <Link href="/support" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Support</Link>
-                <Link href="/visa-guide" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Visa Guide</Link>
-                <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[52px] px-4 text-lg font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Blog</Link>
+              <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Home</Link>
+                <Link href="/ai-trip-planner" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">AI Trip Planner</Link>
+                <Link href="/destinations" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Destinations</Link>
+                <Link href="/itineraries" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Itineraries</Link>
+                <Link href="/visa" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Visa Requirements</Link>
+                <Link href="/budget" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Budget Planner</Link>
+                <Link href="/support" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Support</Link>
 
-                <div className="h-px bg-slate-100 my-4 mx-4" />
+                <div className="h-px bg-slate-100 my-3 mx-4" />
 
                 {/* Auth section — gated on isLoaded to avoid flash */}
                 {!isLoaded ? (
