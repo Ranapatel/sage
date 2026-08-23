@@ -5,12 +5,15 @@ import { Suspense } from 'react'
 import { SignUp } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Gift } from 'lucide-react'
+import { isRakhiCampaignActive, RAKHI_CAMPAIGN } from '@/lib/campaignConfig'
+import { Flame, Sparkles, Gift } from 'lucide-react'
 
 // ── Inner component that reads searchParams (must be inside Suspense) ────────
 function SignUpContent() {
   const searchParams = useSearchParams()
   const refCode = searchParams.get('ref')
+  const isRakhiActive = isRakhiCampaignActive()
+  const bonusCredits = isRakhiActive ? RAKHI_CAMPAIGN.refereeCredits : RAKHI_CAMPAIGN.standardRefereeCredits
 
   return (
     <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] flex flex-col items-center justify-center p-4 relative overflow-hidden font-body">
@@ -39,14 +42,29 @@ function SignUpContent() {
 
         {/* ── Referral Welcome Banner (shown only when ?ref= is present) ── */}
         {refCode && (
-          <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3 text-left shadow-sm">
-            <div className="shrink-0 w-9 h-9 rounded-xl bg-[#EA580C] flex items-center justify-center shadow">
-              <Gift size={18} className="text-white" />
+          <div className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-left shadow-sm ${
+            isRakhiActive
+              ? 'bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border border-[#F59E0B]/50'
+              : 'bg-orange-50 border border-orange-200'
+          }`}>
+            <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow ${
+              isRakhiActive
+                ? 'bg-gradient-to-br from-[#EA580C] to-[#F59E0B] text-white'
+                : 'bg-[#EA580C] text-white'
+            }`}>
+              {isRakhiActive ? <Flame size={20} className="text-yellow-100 animate-pulse" /> : <Gift size={18} className="text-white" />}
             </div>
             <div>
-              <p className="text-xs font-extrabold text-[#1A1A1A]">You were referred! 🎉</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-extrabold text-[#1A1A1A]">
+                  {isRakhiActive ? '🎀 Raksha Bandhan Special Gift!' : 'You were referred! 🎉'}
+                </p>
+                {isRakhiActive && (
+                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-[#EA580C] text-white uppercase">2X BONUS</span>
+                )}
+              </div>
               <p className="text-[11px] text-[#6B6B6B] font-medium leading-snug mt-0.5">
-                Sign up now and get <span className="font-extrabold text-[#EA580C]">+100 Free Sage Credits</span> added to your wallet instantly!
+                Sign up now and get <span className="font-extrabold text-[#EA580C]">+{bonusCredits} Free Sage Credits</span> gifted to your travel wallet!
               </p>
             </div>
           </div>
@@ -56,7 +74,7 @@ function SignUpContent() {
         <div className="flex justify-center">
           <SignUp
             // Pass ref code into Clerk unsafeMetadata so the webhook can read it
-            unsafeMetadata={refCode ? { referredBy: refCode } : {}}
+            unsafeMetadata={refCode ? { referredBy: refCode, campaign: isRakhiActive ? 'raksha-bandhan-2026' : undefined, bonusCredits } : {}}
             appearance={{
               variables: {
                 colorPrimary: '#EA580C',

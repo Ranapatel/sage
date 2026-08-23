@@ -15,6 +15,14 @@ interface FAQ {
   answer: string
 }
 
+interface ArticleData {
+  author?: string
+  datePublished?: string
+  dateModified?: string
+  description?: string
+  image?: string
+}
+
 interface SEOContentProps {
   title: string
   subtitle: string
@@ -23,6 +31,7 @@ interface SEOContentProps {
   faqs: FAQ[]
   ctaText?: string
   ctaLink?: string
+  articleData?: ArticleData
 }
 
 export default function SEOContent({
@@ -32,7 +41,8 @@ export default function SEOContent({
   content,
   faqs,
   ctaText = "Start Planning Now",
-  ctaLink = "/plan"
+  ctaLink = "/plan",
+  articleData
 }: SEOContentProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const pathname = usePathname()
@@ -87,9 +97,44 @@ export default function SEOContent({
     }))
   } : null
 
+  // Generate dynamic Article Schema if articleData or default metadata is available
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : `${domain}${pathname || ''}`
+  const articleSchema = articleData ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": title,
+    "description": articleData.description || subtitle,
+    "image": articleData.image || heroImage,
+    "author": {
+      "@type": "Organization",
+      "name": articleData.author || "TripSage Travel Editorial Team",
+      "url": domain
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "TripSage",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${domain}/logo.png`
+      }
+    },
+    "datePublished": articleData.datePublished || "2026-08-01T00:00:00+05:30",
+    "dateModified": articleData.dateModified || new Date().toISOString(),
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": currentUrl
+    }
+  } : null
+
   return (
     <div className="bg-[#FFFBF7] text-[#6B6B6B] font-body">
       {/* Dynamic SEO JSON-LD structured data */}
+      {articleSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
+      )}
       {faqSchema && (
         <script
           type="application/ld+json"

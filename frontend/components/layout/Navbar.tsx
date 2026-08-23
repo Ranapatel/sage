@@ -11,6 +11,8 @@ import { trackEvent } from '@/lib/analytics'
 import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
 import UserMenu from './UserMenu'
 import { useNavAuth } from '@/hooks/useNavAuth'
+import RakhiCampaignBanner from '@/components/campaign/RakhiCampaignBanner'
+
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useNavAuth()
   const { signOut } = useClerk()

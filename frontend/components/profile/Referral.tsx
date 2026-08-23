@@ -11,6 +11,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+import { isRakhiCampaignActive, RAKHI_CAMPAIGN } from '@/lib/campaignConfig'
+import RakhiGiftModal from '@/components/campaign/RakhiGiftModal'
+
 interface ReferredUser {
   email: string
   firstName: string | null
@@ -32,14 +35,16 @@ export default function Referral() {
   const [loadingReferrals, setLoadingReferrals] = useState(true)
   const [loadingWallet, setLoadingWallet] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showRakhiModal, setShowRakhiModal] = useState(false)
+
+  const isRakhiActive = isRakhiCampaignActive()
+  const referrerReward = isRakhiActive ? RAKHI_CAMPAIGN.referrerCredits : RAKHI_CAMPAIGN.standardReferrerCredits
+  const refereeReward = isRakhiActive ? RAKHI_CAMPAIGN.refereeCredits : RAKHI_CAMPAIGN.standardRefereeCredits
 
   const referralLink = `https://tripsage.in/sign-up?ref=${userId || 'explorer'}`
-  const shareMessage = `🌍 Discover smart travel with TripSage AI — your personal assistant for custom itineraries and trip planning.
-
-🎁 Join via my exclusive invite link to claim 100 Sage Travel Credits:
-${referralLink}
-
-Earn an additional +200 Credits for every traveler you invite!`
+  const shareMessage = isRakhiActive
+    ? `🎁 Gift your sibling a trip this Raksha Bandhan!\n\nJoin TripSage with my Rakhi link & get ${refereeReward} FREE Sage Credits:\n${referralLink}\n\nLet's plan our next adventure together! ✈️✨`
+    : `🌍 Discover smart travel with TripSage AI — your personal assistant for custom itineraries and trip planning.\n\n🎁 Join via my exclusive invite link to claim 100 Sage Travel Credits:\n${referralLink}\n\nEarn an additional +200 Credits for every traveler you invite!`
 
   // ── Fetch wallet balance ─────────────────────────────────────────────────────
   const fetchWallet = useCallback(async () => {
@@ -190,11 +195,41 @@ Earn an additional +200 Credits for every traveler you invite!`
               <span className="text-sm font-bold text-blue-400 mb-1">friends</span>
             </div>
             <p className="text-[11px] text-blue-600 font-medium">
-              Each friend = +200 for you, +100 for them
+              {isRakhiActive
+                ? `Rakhi Special = +${referrerReward} for you, +${refereeReward} for sibling`
+                : `Each friend = +${referrerReward} for you, +${refereeReward} for them`}
             </p>
           </div>
         </div>
       </div>
+
+      {/* ── RAKSHA BANDHAN 2X CAMPAIGN CALLOUT CARD (shown when campaign is active) ── */}
+      {isRakhiActive && (
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#111114] via-[#24170E] to-[#111114] border border-[#F59E0B]/40 p-6 md:p-7 shadow-lg text-white">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#EA580C]/20 via-[#F59E0B]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1.5 max-w-xl">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#EA580C] text-white text-[10px] font-black uppercase tracking-wider shadow">
+                <Sparkles size={12} className="text-yellow-200" />
+                <span>Raksha Bandhan 2X Special Active (Aug 23 – 28)</span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-extrabold text-white font-display">
+                Double Referral Rewards: Earn 400 Credits per Sibling!
+              </h3>
+              <p className="text-xs text-amber-100/80 leading-relaxed font-medium">
+                Gift a trip memory instead of sweets! When your brother or sister signs up with your link, they receive <strong className="text-[#F59E0B]">200 Free Credits</strong> and you earn <strong className="text-[#F59E0B]">400 Credits</strong> automatically.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowRakhiModal(true)}
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#EA580C] via-[#F59E0B] to-[#EA580C] hover:opacity-95 text-white font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95 transition-all shrink-0 cursor-pointer"
+            >
+              <span>Send Rakhi Gift 🎁</span>
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── REFERRAL LINK CARD ───────────────────────────────────────────────── */}
       <div className="rounded-3xl border border-[#E8E0D8] bg-white p-6 md:p-8 shadow-sm space-y-5">
@@ -207,9 +242,9 @@ Earn an additional +200 Credits for every traveler you invite!`
               Invite Friends. Earn Credits. Instantly.
             </h2>
             <p className="text-xs text-[#6B6B6B] font-medium max-w-lg leading-relaxed">
-              Share your link on <strong className="text-[#1A1A1A]">WhatsApp, Instagram, Telegram, LinkedIn</strong> or anywhere.
-              When they sign up, <span className="font-extrabold text-[#EA580C]">you earn +200 Credits</span> and{' '}
-              <span className="font-extrabold text-[#EA580C]">they get +100 Credits</span> — automatically, no action needed.
+              Share your link across <strong className="text-[#1A1A1A]">WhatsApp, Instagram, Telegram, SMS, Email</strong> or anywhere.
+              When they sign up, <span className="font-extrabold text-[#EA580C]">you earn +{referrerReward} Credits</span> and{' '}
+              <span className="font-extrabold text-[#EA580C]">they get +{refereeReward} Credits</span> — automatically, no action needed.
             </p>
           </div>
         </div>
@@ -231,7 +266,7 @@ Earn an additional +200 Credits for every traveler you invite!`
           </button>
           <button
             type="button"
-            onClick={handleShare}
+            onClick={() => (isRakhiActive ? setShowRakhiModal(true) : handleShare())}
             className="flex items-center justify-center gap-2 px-5 py-3 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs rounded-2xl shadow transition-all cursor-pointer active:scale-95 shrink-0"
           >
             <Share2 size={15} />
@@ -242,9 +277,9 @@ Earn an additional +200 Credits for every traveler you invite!`
         {/* How it works steps */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#E8E0D8]">
           {[
-            { step: '01', title: 'Copy & Share Link', desc: 'Share on WhatsApp, Telegram, Instagram or anywhere.' },
-            { step: '02', title: 'Friend Signs Up',   desc: 'They open your link and create a TripSage account.' },
-            { step: '03', title: 'Both Earn Credits', desc: 'You get +200 Credits, they get +100 — instantly & automatically.' },
+            { step: '01', title: 'Copy & Share Link', desc: 'Share on WhatsApp, Telegram, SMS, Instagram or anywhere.' },
+            { step: '02', title: 'Sibling / Friend Signs Up', desc: 'They open your link and create their TripSage account.' },
+            { step: '03', title: 'Both Earn Credits', desc: `You get +${referrerReward} Credits, they get +${refereeReward} — instantly & automatically.` },
           ].map(({ step, title, desc }) => (
             <div key={step} className="flex items-start gap-3 p-4 bg-[#FFFBF7] rounded-2xl border border-[#E8E0D8]">
               <div className="w-8 h-8 rounded-xl bg-orange-100 text-[#EA580C] font-black text-[11px] flex items-center justify-center shrink-0 border border-orange-200">
@@ -258,6 +293,12 @@ Earn an additional +200 Credits for every traveler you invite!`
           ))}
         </div>
       </div>
+
+      {/* Sibling Travel Gift Pass Modal */}
+      <RakhiGiftModal
+        isOpen={showRakhiModal}
+        onClose={() => setShowRakhiModal(false)}
+      />
 
       {/* ── REFERRAL HISTORY LEDGER ──────────────────────────────────────────── */}
       <div className="rounded-3xl border border-[#E8E0D8] bg-white p-6 md:p-8 shadow-sm space-y-4">

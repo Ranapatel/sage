@@ -519,6 +519,25 @@ export default function PlanClient() {
       travelStyle: p.style,
     })
 
+    // Sync searchForm so Edit Trip modal and header show correct values
+    if (params) {
+      setSearchForm(prev => ({
+        ...prev,
+        from: p.from || prev.from,
+        to: p.to || prev.to,
+        startDate: p.startDate || prev.startDate,
+        endDate: p.endDate || prev.endDate,
+        budget: String(p.budget || prev.budget),
+        travelers: String(p.travelers || prev.travelers),
+        style: p.style || prev.style,
+        rooms: String(p.rooms || prev.rooms),
+        adults: String(p.adults || prev.adults),
+        children: String(p.children || prev.children),
+        isMultiCity: p.isMultiCity ?? prev.isMultiCity,
+        stops: p.stops ?? prev.stops,
+      }))
+    }
+
     try {
       // Fire all data fetches in parallel via Promise.all with timeout + retry
       const [searchResult, weatherResult, itineraryResult] = await Promise.all([
@@ -1299,13 +1318,14 @@ export default function PlanClient() {
 
           {/* Overview */}
           <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
-            <OverviewTab
+          <OverviewTab
               transport={mergedTransport} hotels={hotels}
               weather={weather} itinerary={itinerary}
               bookingStatus={bookingStatus}
               destination={tripContext.destination}
               loading={loading}
               onTabChange={setActiveTab}
+              onSearch={runSearch}
               tripStatus={tripStatus}
               tripHistory={tripHistory}
               onCompleteTrip={() => { completeTrip(); setShowFeedback(true) }}

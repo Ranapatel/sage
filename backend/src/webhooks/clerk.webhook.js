@@ -100,6 +100,23 @@ async function handleClerkWebhook(req, res) {
             })
 
             if (!existingReferral) {
+              // Check if Raksha Bandhan 2X Campaign is active (Aug 23 - 28, 2026 IST)
+              const now = new Date()
+              const rakhiStart = new Date('2026-08-23T00:00:00+05:30')
+              const rakhiEnd = new Date('2026-08-28T23:59:59+05:30')
+              const isRakhiActive = (now >= rakhiStart && now <= rakhiEnd) || data.unsafe_metadata?.campaign === 'raksha-bandhan-2026'
+
+              const referrerRewardAmount = isRakhiActive ? 400.0 : 200.0
+              const refereeRewardAmount = isRakhiActive ? 200.0 : 100.0
+
+              const referrerReason = isRakhiActive
+                ? `🎁 Raksha Bandhan 2X Referral Reward — ${email} signed up with your link (+400 Credits)`
+                : `Referral Reward — ${email} signed up with your link (+200 Credits)`
+
+              const refereeReason = isRakhiActive
+                ? `🎁 Raksha Bandhan 2X Sibling Gift Bonus — you joined via an invite! (+200 Credits)`
+                : `Referral Signup Bonus — you joined via a friend's invite! (+100 Credits)`
+
               // Atomic transaction: create referral + credit both wallets
               await prisma.$transaction([
                 // Referral record
@@ -108,39 +125,39 @@ async function handleClerkWebhook(req, res) {
                     referrerId: referrer.id,
                     referredUserId: newUser.id,
                     status: 'completed',
-                    reward: 200.0,
+                    reward: referrerRewardAmount,
                   }
                 }),
-                // Credit referrer +200
+                // Credit referrer
                 prisma.wallet.upsert({
                   where: { userId: referrer.id },
-                  update: { balance: { increment: 200.0 } },
-                  create: { userId: referrer.id, balance: 200.0 }
+                  update: { balance: { increment: referrerRewardAmount } },
+                  create: { userId: referrer.id, balance: referrerRewardAmount }
                 }),
                 prisma.walletTransaction.create({
                   data: {
                     userId: referrer.id,
-                    amount: 200.0,
+                    amount: referrerRewardAmount,
                     type: 'credit',
-                    reason: `Referral Reward — ${email} signed up with your link`
+                    reason: referrerReason
                   }
                 }),
-                // Credit new user +100 referral bonus (wallet already exists with 100 welcome credits)
+                // Credit new user (wallet already exists with 100 welcome credits)
                 prisma.wallet.update({
                   where: { userId: newUser.id },
-                  data: { balance: { increment: 100.0 } }
+                  data: { balance: { increment: refereeRewardAmount } }
                 }),
                 prisma.walletTransaction.create({
                   data: {
                     userId: newUser.id,
-                    amount: 100.0,
+                    amount: refereeRewardAmount,
                     type: 'credit',
-                    reason: 'Referral Signup Bonus — you joined via a friend\'s invite!'
+                    reason: refereeReason
                   }
                 }),
               ])
 
-              console.log(`[Clerk Webhook] ✅ Referral auto-credited: referrer=${referrer.id} (+200) → new user=${newUser.id} (+100)`)
+              console.log(`[Clerk Webhook] ✅ Referral auto-credited (${isRakhiActive ? '2X RAKHI SPECIAL' : 'STANDARD'}): referrer=${referrer.id} (+${referrerRewardAmount}) → new user=${newUser.id} (+${refereeRewardAmount})`)
             } else {
               console.log(`[Clerk Webhook] Referral already exists for user ${newUser.id}, skipping.`)
             }

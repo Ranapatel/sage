@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/TripSageIcons'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
+import RakhiEventCard from '@/components/campaign/RakhiEventCard'
 
 // ── Destination background images ─────────────────────────────────────────────
 const DESTINATION_IMAGES: Record<string, string> = {
@@ -123,6 +124,7 @@ interface Props {
   destination: string
   loading: boolean
   onTabChange: (tab: string) => void
+  onSearch: (params: { from: string; to: string; startDate: string; endDate: string; budget: number; travelers: number; style: string }) => void
   tripStatus: string
   tripHistory: any[]
   onCompleteTrip: () => void
@@ -176,8 +178,7 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
 
 // ── Empty state ───────────────────────────────────────────────────────────────
 
-function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
-  const { setTrip } = useTripStore()
+function EmptyState({ onTabChange, onSearch }: { onTabChange: (t: string) => void; onSearch: (params: any) => void }) {
   const [fromCity, setFromCity] = useState('Delhi')
   const [toCity, setToCity] = useState('')
   const [isBuilding, setIsBuilding] = useState(false)
@@ -197,38 +198,56 @@ function EmptyState({ onTabChange }: { onTabChange: (t: string) => void }) {
     const startStr = today.toISOString().split('T')[0]
     const endStr = future.toISOString().split('T')[0]
 
-    setTrip({
-      destination: dest,
-      startLocation: fromCity || 'Delhi',
+    // Use ₹1,00,000 as default — covers both domestic AND international trips
+    // (international minimum for 2 people x 4 days is ~₹53,500)
+    const DEFAULT_BUDGET = 100000
+
+    const searchParams = {
+      from: fromCity || 'Delhi',
+      to: dest,
       startDate: startStr,
       endDate: endStr,
-      currentDay: 1,
-    })
+      budget: DEFAULT_BUDGET,
+      travelers: 2,
+      style: 'adventure',
+      rooms: 1,
+      adults: 2,
+      children: 0,
+      isMultiCity: false,
+      stops: [],
+      preferences: [],
+    }
 
-    useTripStore.getState().setProfile({
-      budget: 25000,
-      members: 2,
-      travelStyle: 'adventure',
-    })
+    // Persist to sessionStorage so PlanClient restores on refresh
+    try {
+      sessionStorage.setItem('tripContext', JSON.stringify({
+        from: searchParams.from,
+        to: searchParams.to,
+        startDate: startStr,
+        endDate: endStr,
+        budget: String(DEFAULT_BUDGET),
+        travelers: '2',
+        style: 'adventure',
+        currency: 'INR',
+        rooms: '1',
+        adults: '2',
+        children: '0',
+        isMultiCity: false,
+        stops: [],
+      }))
+    } catch {}
 
-    useTripStore.getState().setItinerary([
-      {
-        day: 1,
-        date: startStr,
-        theme: `Arrival & Highlights of ${dest}`,
-        places: [
-          { name: `Central Landmark & Heritage Site`, category: 'landmark', time: '10:00', duration: '2 hrs' },
-          { name: `Scenic Local Market & Promenade`, category: 'shopping', time: '14:00', duration: '2 hrs' }
-        ]
-      }
-    ])
-
-    toast.success(`Trip plan generated for ${dest}!`)
+    // Trigger the real AI search pipeline
+    onSearch(searchParams)
+    onTabChange('transport')
     setIsBuilding(false)
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 text-center space-y-6 animate-fade-in">
+      {/* ── Raksha Bandhan Plan Event Spotlight ── */}
+      <RakhiEventCard variant="plan" />
+
       <div className="flex justify-center">
         <div className="w-16 h-16 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center shadow-sm">
           <Plane className="w-8 h-8 text-[#EA580C]" />
@@ -1549,7 +1568,7 @@ function TripPerksCard({ onDownloadPDF, pdfGenerating }: { onDownloadPDF: () => 
 
 function OverviewTab({
   transport, hotels, weather, itinerary, bookingStatus,
-  destination, loading, onTabChange, onShare, onSave,
+  destination, loading, onTabChange, onSearch, onShare, onSave,
 }: Props) {
   const { user } = useAuthStore()
   const currency = user?.currency ?? 'INR'
@@ -1715,12 +1734,6 @@ function OverviewTab({
   const { fmt, travel, stay, activities, totalEstimated, remaining, perPerson, pctUsed } =
     useBudgetBreakdown(budget, nights, travelers, currency)
 
-  const hasSearched = !!(tripContext.destination || destination)
-
-  if (!hasSearched && !loading) {
-    return <EmptyState onTabChange={onTabChange} />
-  }
-
   const routeText = useMemo(() => {
     if (tripContext.isMultiCity && tripContext.stops && tripContext.stops.length > 0) {
       const stopCities = tripContext.stops.map(s => s.city.split(',')[0].trim()).join(' → ')
@@ -1731,6 +1744,12 @@ function OverviewTab({
       ? `${tripContext.startLocation.split(',')[0].trim()} → ${tripContext.destination.split(',')[0].trim()}`
       : tripContext.destination || destination || 'Your Trip'
   }, [tripContext.isMultiCity, tripContext.stops, tripContext.startLocation, tripContext.destination, destination])
+
+  const hasSearched = !!(tripContext.destination || destination)
+
+  if (!hasSearched && !loading) {
+    return <EmptyState onTabChange={onTabChange} onSearch={onSearch} />
+  }
 
   const datesText = tripContext.startDate && tripContext.endDate
     ? `${formatDate(tripContext.startDate)} – ${formatDate(tripContext.endDate)} · ${days}d`

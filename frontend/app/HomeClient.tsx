@@ -13,6 +13,7 @@ import Earth3DBackground from '@/components/home/Earth3DBackground'
 import { useInView, motion } from 'framer-motion'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import CurrencySelector from '@/components/ui/CurrencySelector'
+import RakhiEventCard from '@/components/campaign/RakhiEventCard'
 import {
   MapPin, Calendar, ArrowRight, Plane, Shield, Sparkles, Plus, Minus, Info, ChevronRight, ChevronLeft, X, Search, SlidersHorizontal, Users, ShieldCheck, FileCheck, Globe
 } from 'lucide-react'
@@ -440,6 +441,9 @@ export default function HomeClient() {
   return (
     <div className="min-h-screen bg-[#FFFBF7] text-[#6B6B6B] font-body selection:bg-orange-500/20 selection:text-[#EA580C] antialiased w-full max-w-full overflow-x-hidden relative">
       <Navbar />
+
+      {/* ─── RAKSHA BANDHAN 2X EVENT SPOTLIGHT (Centered Overlay with 'X' Cancel) ─── */}
+      <RakhiEventCard variant="home" asModalOverlay={true} />
 
       {/* ─── HERO SECTION (Warm Light Cream Quiet Luxury Theme) ─────────────────── */}
       <section className="relative min-h-[82vh] flex flex-col items-center justify-center px-4 md:px-8 overflow-visible bg-[#FFFBF7] text-[#6B6B6B] pt-10 pb-14 md:pt-14 md:pb-20">
