@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import { AlertCircle, ExternalLink, Check, FileText, Globe, Clock, ShieldCheck, Heart } from 'lucide-react'
 
 interface VisaDetails {
@@ -166,7 +166,7 @@ export default function VisaGuideTab({ destination = '' }: Props) {
 
   // Clear checklist when destination changes
   useEffect(() => {
-    setCheckedItems({})
+    startTransition(() => setCheckedItems({}))
   }, [destination])
 
   const toggleCheck = (id: string) => {

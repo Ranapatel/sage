@@ -1,5 +1,5 @@
 'use client'
-import React, { memo } from 'react'
+import React, { memo, startTransition } from 'react'
 import Image from 'next/image'
 
 import { useTripStore } from '@/store/tripStore'
@@ -50,7 +50,7 @@ function TransportCard({ item, showDetail }: Props) {
   const [bannerSrc, setBannerSrc] = React.useState(initialBanner)
 
   React.useEffect(() => {
-    setBannerSrc(initialBanner)
+    startTransition(() => setBannerSrc(initialBanner))
   }, [initialBanner])
 
   return (

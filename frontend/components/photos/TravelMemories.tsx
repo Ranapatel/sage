@@ -299,6 +299,7 @@ export default function TravelMemories({
         }, 4000)
       })()
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getToken is a stable Clerk function reference
     [tripId, itineraryDayId, dayNumber, isUnsavedTrip, photoApi, requireAuth]
   )
 
@@ -478,7 +479,6 @@ export default function TravelMemories({
               style={{ background: '#F0EBE4' }}
               onClick={() => setLightboxPhoto(photo)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photo.thumbnailUrl || photo.secureUrl || photo.originalUrl}
                 alt={photo.locationName || 'Travel photo'}
@@ -538,7 +538,6 @@ export default function TravelMemories({
           >
             <X size={24} />
           </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={lightboxPhoto.originalUrl}
             alt={lightboxPhoto.locationName || 'Travel photo'}

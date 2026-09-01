@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'react-hot-toast' // Note: actually axios should be imported, wait, let's look at lines 4-6
 import axiosInstance from 'axios'
@@ -45,26 +45,28 @@ export default function PersonalProfile({ initialData, onSaveSuccess }: Personal
 
   // Synchronize state when initial data or Clerk user loads
   useEffect(() => {
-    if (clerkUser) {
-      setFirstName(clerkUser.firstName || '')
-      setLastName(clerkUser.lastName || '')
-    } else if (storeUser) {
-      const parts = storeUser.name.split(' ')
-      setFirstName(parts[0] || '')
-      setLastName(parts.slice(1).join(' ') || '')
-    }
+    startTransition(() => {
+      if (clerkUser) {
+        setFirstName(clerkUser.firstName || '')
+        setLastName(clerkUser.lastName || '')
+      } else if (storeUser) {
+        const parts = storeUser.name.split(' ')
+        setFirstName(parts[0] || '')
+        setLastName(parts.slice(1).join(' ') || '')
+      }
+    })
   }, [clerkUser, storeUser])
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
+      startTransition(() => setFormData({
         phoneNumber: initialData.phoneNumber || '',
         dateOfBirth: initialData.dateOfBirth ? new Date(initialData.dateOfBirth).toISOString().slice(0, 10) : '',
         gender: initialData.gender || '',
         country: initialData.country || '',
         city: initialData.city || '',
         language: initialData.language || ''
-      })
+      }))
     }
   }, [initialData])
 

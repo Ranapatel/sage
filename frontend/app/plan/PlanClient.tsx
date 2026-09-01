@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, lazy, Suspense, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, lazy, Suspense, useCallback, useMemo, useRef, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -301,6 +301,8 @@ export default function PlanClient() {
     }
   }, [])
 
+  const runSearchRef = useRef<((params?: any) => Promise<void>) | null>(null)
+
 
   // Load from session on mount
   useEffect(() => {
@@ -339,7 +341,7 @@ export default function PlanClient() {
             setActiveTab('transport')
             // Auto-trigger search so flights, trains, buses, and hotels load immediately
             setTimeout(() => {
-              runSearch({
+              runSearchRef.current?.({
                 from: ctx.from,
                 to: ctx.to,
                 startDate: ctx.startDate || '',
@@ -375,18 +377,20 @@ export default function PlanClient() {
       // Clear any stale persisted trip data (flights, hotels, itinerary) so the plan
       // page starts completely blank instead of showing the last trip's results.
       startNewTrip()
-      setSearchForm({
-        from: '', to: '', startDate: '', endDate: '',
-        budget: '2000', travelers: '2', style: 'adventure',
-        currency: user?.currency ?? 'INR',
-        rooms: '1', adults: '2', children: '0',
-        isMultiCity: false,
-        stops: [{ city: '', nights: 2 }, { city: '', nights: 3 }]
+      startTransition(() => {
+        setSearchForm({
+          from: '', to: '', startDate: '', endDate: '',
+          budget: '2000', travelers: '2', style: 'adventure',
+          currency: user?.currency ?? 'INR',
+          rooms: '1', adults: '2', children: '0',
+          isMultiCity: false,
+          stops: [{ city: '', nights: 2 }, { city: '', nights: 3 }]
+        })
+        setTabCache({ overview: true })
       })
       resultCacheRef.current = {}
-      setTabCache({ overview: true })
     }
-    setInitialized(true)
+    startTransition(() => setInitialized(true))
   }, [setTrip, setProfile]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -663,6 +667,9 @@ export default function PlanClient() {
       setAiThinking(false)
     }
   }
+  useEffect(() => {
+    runSearchRef.current = runSearch
+  })
 
   const handleRegenerate = useCallback(async () => {
     const toastId = toast.loading("Regenerating itinerary...")
@@ -681,12 +688,12 @@ export default function PlanClient() {
       // Clear cache key first to force a fresh Miss/API call
       delete resultCacheRef.current[key]
 
-      await runSearch(currentParams)
+      await runSearchRef.current?.(currentParams)
       toast.success("Itinerary regenerated successfully!", { id: toastId })
     } catch (err: any) {
       toast.error(err.message || "Failed to regenerate", { id: toastId })
     }
-  }, [searchForm, userProfile, getCacheKey, runSearch])
+  }, [searchForm, userProfile, getCacheKey])
 
   const handleShareTrip = useCallback(() => {
     const destination = tripContext.destination || 'my trip'

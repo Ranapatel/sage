@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, startTransition } from 'react';
 import Image from 'next/image';
 import { MapPin, Navigation, Plane, Compass, Utensils, Landmark, Trees, Zap, ShoppingBag, Building2 } from 'lucide-react';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
@@ -105,11 +105,11 @@ const PlaceGallery = memo(({ place, destination, isMobile }: { place: any; desti
   useEffect(() => {
     // Reuse pre-resolved gallery and hero image from the backend if available
     if (place.galleryImages && place.galleryImages.length > 0) {
-      setImages(place.galleryImages.slice(0, 4));
+      startTransition(() => setImages(place.galleryImages.slice(0, 4)));
       return;
     }
     if (place.heroImage) {
-      setImages([place.heroImage]);
+      startTransition(() => setImages([place.heroImage]));
       return;
     }
 

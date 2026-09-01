@@ -123,7 +123,7 @@ export default function Footer() {
               TripSage helps you build customized itineraries and find flight and hotel bookings that fit your budget.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 text-sm w-full md:w-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 text-sm w-full md:w-auto">
             <div>
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Platform</h4>
               <div className="flex flex-col gap-3">
@@ -138,8 +138,18 @@ export default function Footer() {
             <div>
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Company</h4>
               <div className="flex flex-col gap-4">
+                <Link href="/about" className="hover:text-[#EA580C] transition-colors">About Us</Link>
                 <Link href="/support" className="hover:text-[#EA580C] transition-colors">Support Center</Link>
                 <Link href="/support#contact" className="hover:text-[#EA580C] transition-colors">Contact Us</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Trust</h4>
+              <div className="flex flex-col gap-3">
+                <Link href="/methodology" className="hover:text-[#EA580C] transition-colors">Our Methodology</Link>
+                <Link href="/editorial-policy" className="hover:text-[#EA580C] transition-colors">Editorial Policy</Link>
+                <Link href="/authors" className="hover:text-[#EA580C] transition-colors">Our Authors</Link>
+                <Link href="/sources" className="hover:text-[#EA580C] transition-colors">Sources</Link>
               </div>
             </div>
             <div>

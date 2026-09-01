@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, startTransition } from 'react'
 import axios from 'axios'
 import {
   Navigation,
@@ -99,6 +99,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
   const weather = useTripStore((s) => s.weather)
 
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [mapInstance, setMapInstance] = useState<any>(null)
   const [loadingRoute, setLoadingRoute] = useState(false)
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null)
   const [routeGeometry, setRouteGeometry] = useState<any>(null)
@@ -196,6 +197,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       })
 
       mapRef.current = mapInstance
+      startTransition(() => setMapInstance(mapInstance))
 
       // Add navigation controls
       mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'top-right')
@@ -212,6 +214,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
       mapRef.current = null
       setMapLoaded(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- initial map creation only
   }, [])
 
   // ── Geolocation tracking logic ──────────────────────────────────────────────
@@ -242,7 +245,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         )
       } else {
         console.warn('Geolocation is not supported by this browser.')
-        setIsTrackingUser(false)
+        startTransition(() => setIsTrackingUser(false))
       }
     } else {
       if (geolocationWatchId.current !== null) {
@@ -253,7 +256,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         userMarkerRef.current.remove()
         userMarkerRef.current = null
       }
-      setUserCoords(null)
+      startTransition(() => setUserCoords(null))
     }
 
     return () => {
@@ -369,6 +372,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         updatePlaceStatus(placeId, 'completed')
       }
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- activeDay and updatePlaceStatus are stable
   }, [userCoords, validPlaces, visitStatuses])
 
   // ── Load & save Map Layers Recommendations ────────────────────────────────
@@ -381,7 +385,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
     nearbyMarkersRefs.current = []
 
     if (activeLayers.length === 0 || (!userCoords && !validPlaces.length)) {
-      setNearbyMarkers([])
+      startTransition(() => setNearbyMarkers([]))
       return
     }
 
@@ -456,6 +460,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
 
       setNearbyMarkers(allFetched)
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- userProfile.travelStyle is read inside the async closure and doesn't need to be a dep
   }, [activeLayers, userCoords, validPlaces, mapLoaded])
 
   const toggleLayer = (layer: string) => {
@@ -563,8 +568,10 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
     markersRef.current = []
 
     if (validPlaces.length === 0) {
-      setRouteGeometry(null)
-      setRouteInfo(null)
+      startTransition(() => {
+        setRouteGeometry(null)
+        setRouteInfo(null)
+      })
       return
     }
 
@@ -730,6 +737,7 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
         )
       }
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tripId, validPlaces, visitStatuses intentionally excluded to avoid excessive API calls
   }, [places, mapLoaded, activeDay])
 
   return (
@@ -753,8 +761,8 @@ export default function TripMap({ places, activeDay }: TripMapProps) {
           </button>
         </div>
 
-        {mapRef.current && (
-          <RouteLayer map={mapRef.current} geometry={routeGeometry} />
+        {mapInstance && (
+          <RouteLayer map={mapInstance} geometry={routeGeometry} />
         )}
 
         {/* Loading Overlay */}

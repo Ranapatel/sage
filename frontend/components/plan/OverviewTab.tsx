@@ -173,7 +173,7 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
     const comfortPerPerson = Math.round(perPerson * 1.15)
 
     return { sym, fmt, travel, stay, activities, totalEstimated, remaining, perPerson, pctUsed, saverPerPerson, comfortPerPerson }
-  }, [budget, nights, travelers, currency])
+  }, [budget, travelers, currency])
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
@@ -339,14 +339,16 @@ function DonutRing({ segments, size = 80 }: { segments: { value: number; color: 
   const circumference = 2 * Math.PI * r
   const total = segments.reduce((s, seg) => s + seg.value, 0)
 
-  let offset = 0
-  const arcs = segments.map(seg => {
-    const pct = total > 0 ? seg.value / total : 0
-    const dash = pct * circumference
-    const arc = { dash, offset: -offset * circumference / total * total, color: seg.color, pct }
-    offset += seg.value
-    return arc
-  })
+  const arcs = segments.reduce<{ dash: number; offset: number; color: string; pct: number }[]>(
+    (acc, seg, i) => {
+      const prevOffset = i === 0 ? 0 : acc[i - 1].offset + segments[i - 1].value
+      const pct = total > 0 ? seg.value / total : 0
+      const dash = pct * circumference
+      acc.push({ dash, offset: -prevOffset * circumference / total * total, color: seg.color, pct })
+      return acc
+    },
+    []
+  )
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
@@ -837,6 +839,7 @@ function WeatherOptModal({
       }, 2500)
       return () => clearTimeout(timer)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- setIsOptimizing and setSuccess are stable setState refs
   }, [isOptimizing])
 
   return (

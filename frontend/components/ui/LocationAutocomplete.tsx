@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, startTransition } from 'react'
 import { MapPin, Plane, Sparkles, TrendingUp } from 'lucide-react'
 import { tripAPI } from '@/lib/api'
 
@@ -283,7 +283,7 @@ export default function LocationAutocomplete({
     if (queryCache.has(cacheKey)) {
       abortRef.current?.abort()
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      setIsFetching(false)
+      startTransition(() => setIsFetching(false))
 
       const cached = queryCache.get(cacheKey)!
       Promise.resolve().then(() => {

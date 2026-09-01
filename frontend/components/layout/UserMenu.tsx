@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, startTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -31,7 +31,7 @@ export default function UserMenu() {
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   // Portal is only available after client mount
-  useEffect(() => { setPortalReady(true) }, [])
+  useEffect(() => { startTransition(() => setPortalReady(true)) }, [])
 
   const updateCoords = useCallback(() => {
     if (buttonRef.current) {
@@ -77,7 +77,7 @@ export default function UserMenu() {
   }, [])
 
   // Close on route change
-  useEffect(() => { setIsOpen(false) }, [pathname])
+  useEffect(() => { startTransition(() => setIsOpen(false)) }, [pathname])
 
   // ── All hooks done. Now safe to have early return. ──────────────────────────
   // Navbar already shows a skeleton while this is null — don't render anything

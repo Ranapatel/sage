@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, startTransition } from 'react'
 import { useTripStore } from '@/store/tripStore'
 import {
   Compass, Navigation, RefreshCw, X, MapPin,
@@ -257,6 +257,7 @@ export default function MapView({
         }
       })
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- geocodedStops updated asynchronously
   }, [itinerary, destination])
 
   // ── Multi-city Day Reference Coordinate Resolver ─────────────────────────
@@ -278,6 +279,7 @@ export default function MapView({
   // ── Resolve default destination reference coordinate ─────────────────────
   const refCoords = useMemo((): [number, number] | null => {
     return getDayRefCoords(0)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getDayRefCoords is helper derived from destCoord, destination
   }, [destCoord, destination])
 
   // ── Map validated itinerary stops with full details ──────────────────────
@@ -327,6 +329,7 @@ export default function MapView({
       })
     })
     return stops
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getDayRefCoords is helper derived from destination, destCoord
   }, [itinerary, geocodedStops, destination, destCoord])
 
   // Active day stops (or all stops if selectedDay === 0)
@@ -562,7 +565,7 @@ export default function MapView({
     if (!destination) return
     const key = `tripsage_offline_${destination.toLowerCase().trim()}`
     if (localStorage.getItem(key)) {
-      setIsOfflineSaved(true)
+      startTransition(() => setIsOfflineSaved(true))
     }
   }, [destination])
 
@@ -573,7 +576,7 @@ export default function MapView({
     if (!city) return
     const fallback = FALLBACK_COORDS[city.toLowerCase()]
     if (fallback) {
-      setDestCoord({ name: city, coordinates: fallback })
+      startTransition(() => setDestCoord({ name: city, coordinates: fallback }))
       return
     }
     const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
@@ -602,7 +605,7 @@ export default function MapView({
     if (!city) return
     const fallback = FALLBACK_COORDS[city.toLowerCase()]
     if (fallback) {
-      setOriginCoord({ name: city, coordinates: fallback })
+      startTransition(() => setOriginCoord({ name: city, coordinates: fallback }))
       return
     }
     const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
@@ -663,7 +666,9 @@ export default function MapView({
     return () => {
       setMapLoaded(false)
       if (hotelMarkerRef.current) hotelMarkerRef.current.remove()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (originBadgeRef.current) originBadgeRef.current.remove()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (destBadgeRef.current) destBadgeRef.current.remove()
       markersRef.current.forEach(m => m.remove())
       nearbyMarkersRef.current.forEach(m => m.remove())

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo, useState, useMemo, useEffect } from 'react'
+import React, { memo, useState, useMemo, useEffect, startTransition } from 'react'
 import HotelCard from '../hotel/HotelCard'
 import HotelDetailModal from '../hotel/HotelDetailModal'
 import HotelBookingFlow from '../hotel/HotelBookingFlow'
@@ -82,7 +82,9 @@ function HotelsTab({ hotels, loading, tripContext, searchForm }: Props) {
     if (hotels && hotels.length > 0) {
       const highest = Math.max(...hotels.map(h => h.price || 0))
       if (highest > 0) {
-        setPriceLimit(prev => (prev === 1000000 ? highest : Math.max(prev, highest)))
+        startTransition(() =>
+          setPriceLimit(prev => (prev === 1000000 ? highest : Math.max(prev, highest)))
+        )
       }
     }
   }, [hotels])

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, startTransition } from 'react'
 import {
   Bus, Clock, MapPin, Sparkles,
   Zap, Award, PiggyBank, ArrowUpDown, CheckCircle2,
@@ -34,9 +34,11 @@ export default function AiSmartBusPlanner() {
 
   // Sync state if tripContext updates
   useEffect(() => {
-    if (tripContext.startLocation) setFromCity(tripContext.startLocation)
-    if (tripContext.destination) setToCity(tripContext.destination)
-    if (tripContext.startDate) setJourneyDate(tripContext.startDate)
+    startTransition(() => {
+      if (tripContext.startLocation) setFromCity(tripContext.startLocation)
+      if (tripContext.destination) setToCity(tripContext.destination)
+      if (tripContext.startDate) setJourneyDate(tripContext.startDate)
+    })
   }, [tripContext.startLocation, tripContext.destination, tripContext.startDate])
 
   // Swap locations

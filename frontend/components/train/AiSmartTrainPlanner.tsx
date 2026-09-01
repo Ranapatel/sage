@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, startTransition } from 'react'
 import {
   Train, Bus, Clock, MapPin, ShieldCheck, Sparkles,
   ArrowUpDown, ExternalLink, Compass,
@@ -38,9 +38,11 @@ export default function AiSmartTrainPlanner() {
 
   // Sync state if tripContext updates
   useEffect(() => {
-    if (tripContext.startLocation) setFromCity(tripContext.startLocation)
-    if (tripContext.destination) setToCity(tripContext.destination)
-    if (tripContext.startDate) setJourneyDate(tripContext.startDate)
+    startTransition(() => {
+      if (tripContext.startLocation) setFromCity(tripContext.startLocation)
+      if (tripContext.destination) setToCity(tripContext.destination)
+      if (tripContext.startDate) setJourneyDate(tripContext.startDate)
+    })
   }, [tripContext.startLocation, tripContext.destination, tripContext.startDate])
 
   // Swap locations

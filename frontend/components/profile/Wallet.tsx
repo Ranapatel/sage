@@ -60,6 +60,7 @@ export default function Wallet() {
       }
     }
     fetchWallet()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getToken is a stable Clerk function reference
   }, [])
 
   const handleRedeemPerk = (perk: Perk) => {

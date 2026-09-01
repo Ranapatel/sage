@@ -13,6 +13,12 @@ import UserMenu from './UserMenu'
 import { useNavAuth } from '@/hooks/useNavAuth'
 import RakhiCampaignBanner from '@/components/campaign/RakhiCampaignBanner'
 
+// ─── Auth skeleton: a fixed-size grey pill shown while Clerk loads ───────────
+// This prevents layout shift AND stops wrong icons flashing in
+function AuthSkeleton() {
+  return <div className="w-[72px] h-[36px] rounded-full bg-slate-100 animate-pulse" />
+}
+
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useNavAuth()
   const { signOut } = useClerk()
@@ -21,12 +27,6 @@ export default function Navbar() {
   const pathname = usePathname()
   const isHomePage = pathname === '/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  // ─── Auth skeleton: a fixed-size grey pill shown while Clerk loads ───────────
-  // This prevents layout shift AND stops wrong icons flashing in
-  const AuthSkeleton = () => (
-    <div className="w-[72px] h-[36px] rounded-full bg-slate-100 animate-pulse" />
-  )
 
   return (
     <>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Clock, Gift, Plane, X } from 'lucide-react'
@@ -23,14 +23,16 @@ export default function RakhiEventCard({
   const [timeLeft, setTimeLeft] = useState({ days: 5, hours: 11, minutes: 46, seconds: 6, isExpired: false })
 
   useEffect(() => {
-    setMounted(true)
-    if (isRakhiCampaignActive()) {
-      setActive(true)
-      setTimeLeft(getCampaignTimeRemaining())
-      if (typeof window !== 'undefined' && sessionStorage.getItem('tripsage_rakhi_card_dismissed')) {
-        setDismissed(true)
+    startTransition(() => {
+      setMounted(true)
+      if (isRakhiCampaignActive()) {
+        setActive(true)
+        setTimeLeft(getCampaignTimeRemaining())
+        if (typeof window !== 'undefined' && sessionStorage.getItem('tripsage_rakhi_card_dismissed')) {
+          setDismissed(true)
+        }
       }
-    }
+    })
 
     const timer = setInterval(() => {
       const remaining = getCampaignTimeRemaining()

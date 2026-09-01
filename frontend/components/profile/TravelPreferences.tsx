@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
@@ -58,14 +58,14 @@ export default function TravelPreferences({ initialData, onSaveSuccess }: Travel
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
+      startTransition(() => setFormData({
         travelStyle: initialData.travelStyle || '',
         budgetRange: initialData.budgetRange || '',
         interests: initialData.interests || [],
         foodPreference: initialData.foodPreference || [],
         accommodationPreference: initialData.accommodationPreference || '',
         tripDuration: initialData.tripDuration || ''
-      })
+      }))
     }
   }, [initialData])
 

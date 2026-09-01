@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { Clock, Flame, ArrowRight, X } from 'lucide-react'
 import { isRakhiCampaignActive, getCampaignTimeRemaining } from '@/lib/campaignConfig'
@@ -13,8 +13,10 @@ export default function RakhiCampaignBanner() {
   useEffect(() => {
     const isDismissed = sessionStorage.getItem('rakhi_banner_dismissed') === 'true'
     if (!isDismissed && isRakhiCampaignActive()) {
-      setActive(true)
-      setTimeLeft(getCampaignTimeRemaining())
+      startTransition(() => {
+        setActive(true)
+        setTimeLeft(getCampaignTimeRemaining())
+      })
     }
 
     const timer = setInterval(() => {

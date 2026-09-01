@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, startTransition } from 'react';
 import { Search, MapPin, Calendar, Users, Sparkles } from 'lucide-react';
 import { tripAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
@@ -87,7 +87,7 @@ export function TransportPlanner({
   // ── Compact mode: auto-search if all fields are pre-filled ──
   React.useEffect(() => {
     if (compact && defaultOrigin && defaultDestination && defaultDate && !results && !loading) {
-      handleSearch();
+      startTransition(() => { handleSearch(); });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compact]);

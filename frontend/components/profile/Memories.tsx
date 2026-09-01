@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, startTransition } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
@@ -134,7 +134,7 @@ export default function Memories() {
   }
 
   useEffect(() => {
-    fetchMemories()
+    startTransition(() => { fetchMemories() })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {

@@ -71,6 +71,7 @@ export default function TripHistory() {
       setLoading(false)
     }
     fetchTrips()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getToken is a stable Clerk function reference
   }, [tripHistory])
 
   const getStatusBadge = (status: string) => {

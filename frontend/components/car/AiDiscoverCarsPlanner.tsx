@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, startTransition } from 'react'
 import {
   Car, ShieldCheck, CheckCircle2, Sparkles, ChevronLeft, ChevronRight,
   ExternalLink, Heart, Star, Users, Briefcase, Zap,
@@ -59,21 +59,20 @@ export default function AiDiscoverCarsPlanner() {
 
   // Sync state if tripContext updates
   useEffect(() => {
-    if (tripContext.destination) setDestination(tripContext.destination)
-    if (tripContext.startDate) setPickupDate(tripContext.startDate)
-    if (tripContext.endDate) setDropoffDate(tripContext.endDate)
+    startTransition(() => {
+      if (tripContext.destination) setDestination(tripContext.destination)
+      if (tripContext.startDate) setPickupDate(tripContext.startDate)
+      if (tripContext.endDate) setDropoffDate(tripContext.endDate)
+    })
   }, [tripContext.destination, tripContext.startDate, tripContext.endDate])
-
-  // Domestic route validation check
-  const originCity = tripContext.startLocation || searchFromCity(tripContext) || ''
-  const isDomesticRoute = useMemo(() => {
-    if (!originCity || !destination) return true
-    return isSameCountry(originCity, destination)
-  }, [originCity, destination])
 
   function searchFromCity(ctx: any): string {
     return ctx?.from || ctx?.startCity || ctx?.origin || ''
   }
+
+  // Domestic route validation check
+  const originCity = tripContext.startLocation || searchFromCity(tripContext) || ''
+  const isDomesticRoute = !originCity || !destination ? true : isSameCountry(originCity, destination)
 
   // Generate Smart Car Planner Data
   const plannerData: SmartCarPlannerResult = useMemo(() => {
@@ -105,7 +104,7 @@ export default function AiDiscoverCarsPlanner() {
       if (unlimitedKmOnly && car.mileagePolicy !== 'Unlimited Kilometres') return false
       return true
     })
-  }, [plannerData?.cars, activeCategory, activeBrand, activeTransmission, activeFuel, activeSeats, minPrice, maxPrice, freeCancellationOnly, unlimitedKmOnly])
+  }, [plannerData, activeCategory, activeBrand, activeTransmission, activeFuel, activeSeats, minPrice, maxPrice, freeCancellationOnly, unlimitedKmOnly])
 
   // Sorted Vehicles
   const sortedCars = useMemo(() => {

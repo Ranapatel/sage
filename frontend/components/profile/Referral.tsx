@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, startTransition } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAuth } from '@clerk/nextjs'
@@ -85,8 +85,10 @@ export default function Referral() {
   }, [getToken])
 
   useEffect(() => {
-    fetchWallet()
-    fetchReferrals()
+    startTransition(() => {
+      fetchWallet()
+      fetchReferrals()
+    })
   }, [fetchWallet, fetchReferrals])
 
   // ── Copy link ────────────────────────────────────────────────────────────────

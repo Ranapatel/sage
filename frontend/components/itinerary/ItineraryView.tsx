@@ -1,5 +1,5 @@
 'use client'
-import React, { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import React, { memo, useState, useEffect, useCallback, useRef, useMemo, startTransition } from 'react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { resolvePlaceImage, type PlaceImageResult } from '@/lib/placeImageResolver'
@@ -296,17 +296,19 @@ const StopCard = memo(({ place, index, dayIndex, destination, isLast, onReplace 
       ? place.image
       : (place.photoUrl || (typeof place.image === 'string' ? place.image : null))
     if (imgUrl) {
-      setImgLoaded(false)
-      setImgError(false)
-      setImageResult({
-        imageUrl: imgUrl,
-        source: 'curated',
-        confidence: 'exact',
-        attribution: place.isAiIllustration ? 'AI Illustration' : null,
-        attributionUrl: null,
-        license: null,
-        altText: place.name,
-        showAsBackground: true,
+      startTransition(() => {
+        setImgLoaded(false)
+        setImgError(false)
+        setImageResult({
+          imageUrl: imgUrl,
+          source: 'curated',
+          confidence: 'exact',
+          attribution: place.isAiIllustration ? 'AI Illustration' : null,
+          attributionUrl: null,
+          license: null,
+          altText: place.name,
+          showAsBackground: true,
+        })
       })
       return
     }
@@ -1023,7 +1025,6 @@ function ItineraryView({
   }, [loading, totalDayCount, dateRangeDayCount, itinerary])
 
   if (validationError && process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line no-console
     console.error('[ItineraryView] validation error:', validationError)
   }
 
@@ -1113,7 +1114,7 @@ function ItineraryView({
   // Clamp activeDay within bounds whenever itinerary changes
   useEffect(() => {
     if (activeDay >= totalDayCount && totalDayCount > 0) {
-      setActiveDay(0)
+      startTransition(() => setActiveDay(0))
     }
   }, [totalDayCount, activeDay])
 

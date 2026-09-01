@@ -158,6 +158,7 @@ function ProfilePageContent() {
     }
 
     fetchProfileData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getToken is a stable Clerk function reference
   }, [user, isLoaded, isStoreLoggedIn])
 
   // ── Auth guard — redirect unauthenticated visitors ──────────────────────────

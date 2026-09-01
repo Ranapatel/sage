@@ -61,6 +61,7 @@ export default function SavedItems() {
       await fetchSavedItems()
     }
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchSavedItems is defined in component scope and stable
   }, [])
 
   const handleDelete = async (id: string, referenceId: string) => {

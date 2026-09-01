@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useAuth, SignInButton, SignUpButton } from '@clerk/nextjs'
@@ -29,8 +29,10 @@ export default function RakshaBandhanEventPage() {
 
   // ── Live Countdown Clock (client-side only to prevent hydration mismatch) ──
   useEffect(() => {
-    setMounted(true)
-    setTimeLeft(getCampaignTimeRemaining())
+    startTransition(() => {
+      setMounted(true)
+      setTimeLeft(getCampaignTimeRemaining())
+    })
 
     const timer = setInterval(() => {
       setTimeLeft(getCampaignTimeRemaining())

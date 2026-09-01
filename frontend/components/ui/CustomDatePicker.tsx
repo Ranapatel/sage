@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, startTransition } from 'react'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface CustomDatePickerProps {
@@ -30,7 +30,7 @@ export default function CustomDatePicker({
     if (startDate) {
       const d = new Date(startDate)
       if (!isNaN(d.getTime())) {
-        setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1))
+        startTransition(() => setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1)))
       }
     }
   }, [startDate])

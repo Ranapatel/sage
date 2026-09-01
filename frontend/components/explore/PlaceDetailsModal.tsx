@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useCallback, useRef, startTransition } from 'react'
 import Image from 'next/image'
 import {
   X, Star, MapPin, Phone, Globe, Clock, ExternalLink,
@@ -321,17 +321,21 @@ export default function PlaceDetailsModal({ place, placeId: propPlaceId, onClose
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
   useEffect(() => {
-    if (place) {
-      setDetails(place)
-    } else {
-      setDetails(null)
-    }
+    startTransition(() => {
+      if (place) {
+        setDetails(place)
+      } else {
+        setDetails(null)
+      }
+    })
   }, [place])
 
   useEffect(() => {
     if (!activeId) return
-    setLoading(true)
-    setError(null)
+    startTransition(() => {
+      setLoading(true)
+      setError(null)
+    })
 
     tripAPI.getPlaceDetails(activeId)
       .then((res: any) => {
@@ -369,6 +373,7 @@ export default function PlaceDetailsModal({ place, placeId: propPlaceId, onClose
         }
       })
       .finally(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- place and details are read in catch fallback only
   }, [activeId])
 
   useEffect(() => {

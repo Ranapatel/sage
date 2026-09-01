@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo, useState, useEffect } from 'react'
+import React, { memo, useState, useEffect, startTransition } from 'react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
@@ -220,7 +220,7 @@ export function ExploreSection({ destination: initialDestination }: Props) {
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem('tripsage_saved_places')
-        if (stored) setSavedPlaces(JSON.parse(stored))
+        if (stored) startTransition(() => setSavedPlaces(JSON.parse(stored)))
       } catch {}
     }
   }, [])
@@ -246,8 +246,10 @@ export function ExploreSection({ destination: initialDestination }: Props) {
 
   useEffect(() => {
     if (!activeDest) return
-    setLoading(true)
-    setError(null)
+    startTransition(() => {
+      setLoading(true)
+      setError(null)
+    })
 
     const params: Record<string, any> = {
       rating: ratingFilter > 0 ? ratingFilter : undefined,
@@ -280,7 +282,7 @@ export function ExploreSection({ destination: initialDestination }: Props) {
         })
         .finally(() => setLoading(false))
     } else {
-      setLoading(false)
+      startTransition(() => setLoading(false))
     }
   }, [activeDest, activeType, activeCategory, ratingFilter, priceFilter, openNowFilter, sortBy])
 
