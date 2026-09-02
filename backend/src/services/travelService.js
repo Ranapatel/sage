@@ -426,7 +426,7 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
       departureDate,
       adults: parseInt(travelers, 10) || 1,
       cabinClass: cabin,
-    }, { timeout: 7000 })
+    }, { timeout: 1500 })
 
     if (nestRes.data && Array.isArray(nestRes.data.offers) && nestRes.data.offers.length > 0) {
       flightResults = nestRes.data.offers.map((offer, idx) => {
@@ -489,7 +489,7 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
       
       const kiwiRes = await axios.get(kiwiUrl, {
         headers: { apikey: kiwiApiKey },
-        timeout: 8000
+        timeout: 4000
       })
 
       if (kiwiRes.data && Array.isArray(kiwiRes.data.data) && kiwiRes.data.data.length > 0) {
