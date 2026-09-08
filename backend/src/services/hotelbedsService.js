@@ -298,8 +298,8 @@ async function searchHotels({ destination, checkin, checkout, members = 2, budge
         'Content-Type':    'application/json',
         'Accept-Encoding': 'gzip'
       },
-      timeout: 15000
-    }), { maxAttempts: 3 })
+      timeout: 5000
+    }), { maxAttempts: 1 })
 
     const hbdHotelsRaw = response.data?.hotels?.hotels || []
     const seenCodes = new Set()

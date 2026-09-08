@@ -211,7 +211,7 @@ export async function fetchWithRetry<T>(
         // Final attempt failed
         recordCircuitFailure(endpoint)
         if (!silent) {
-          console.error(JSON.stringify({
+          console.warn(JSON.stringify({
             event: 'API_REQUEST_EXHAUSTED',
             requestId,
             correlationId,
