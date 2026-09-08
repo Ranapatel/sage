@@ -446,14 +446,13 @@ export default function PlanClient() {
       toast.error(`Your budget of ${formatPrice(budgetInINR, currency)} is too low. The minimum estimated budget for ${p.travelers} ${p.travelers === 1 ? 'person' : 'people'} for ${days} days is ${minRequiredFormatted}.`)
       analytics.plannerError({
         errorCategory: 'budget_too_low',
-        destination: p.to,
+        // destination intentionally omitted — privacy rule: no trip destinations
       })
       return
     }
 
     analytics.plannerStarted({
-      origin: p.from,
-      destination: p.to,
+      // origin/destination intentionally omitted — privacy rule: no trip destinations
       source: 'planner_page',
       hasDates: Boolean(p.startDate && p.endDate),
     })
@@ -672,7 +671,7 @@ export default function PlanClient() {
 
       // SEO Phase 5 Analytics: Trip plan successfully generated
       analytics.plannerCompleted({
-        destination: p.to,
+        // destination intentionally omitted — privacy rule: no trip destinations
         durationDays: days,
         travelers: p.travelers,
         hasTransport: Boolean(searchResult?.data?.transport?.length),
@@ -696,7 +695,7 @@ export default function PlanClient() {
 
       analytics.plannerError({
         errorCategory: safeErrorCategory,
-        destination: p.to,
+        // destination intentionally omitted — privacy rule: no trip destinations
       })
     }
   }

@@ -6,7 +6,7 @@ import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 import { useState } from 'react'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import { Plane, Building2, PlaneTakeoff, PlaneLanding, Clock, Info, FileText, XCircle, CheckCircle2 } from 'lucide-react'
 
 const STATUS_STEPS = ['INIT', 'SELECTED', 'PENDING', 'CONFIRMED']
@@ -301,7 +301,7 @@ export default function BookingStatus() {
               <a
                 href={bookingStatus.selectedFlight?.bookingLink || '#'}
                 target="_blank" rel="noopener noreferrer"
-                onClick={() => trackEvent('booking_click', { type: 'flight', name: bookingStatus.selectedFlight?.name, price: bookingStatus.selectedFlight?.price })}
+                onClick={() => analytics.outboundBookingClicked({ provider: bookingStatus.selectedFlight?.name || 'Flight Provider', category: 'flight' })}
                 style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '6px', display: 'block' }}
               >
                 View booking details →

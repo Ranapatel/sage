@@ -5,7 +5,7 @@ import { Train, Bus, Car, Navigation, ExternalLink, Clock, Wallet, ArrowDown, Ma
 import { formatPrice } from '@/lib/currency';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, analytics } from '@/lib/analytics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,12 +65,11 @@ function JourneyCard({ journey, isRecommended }: JourneyCardProps) {
   const { requireAuth } = useRequireAuth();
 
   const handleBook = requireAuth(() => {
-    trackEvent('booking_click', {
-      type: 'transport-intelligence',
-      isDirect: journey.isDirect,
-      transfers: journey.transfers,
-      cost: journey.totalCost,
-      url: journey.bookingUrl,
+    analytics.outboundBookingClicked({
+      provider: journey.isDirect ? 'Direct Provider' : 'Multi-leg Provider',
+      category: journey.legs?.[0]?.mode === 'train' ? 'train'
+        : journey.legs?.[0]?.mode === 'bus' ? 'bus'
+        : 'cab',
     });
     window.open(journey.bookingUrl, '_blank', 'noopener,noreferrer');
   });

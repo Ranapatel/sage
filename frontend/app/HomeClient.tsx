@@ -922,8 +922,7 @@ export default function HomeClient() {
                 setLoading(true)
                 trackEvent('plan_trip_click', { source: 'preference_modal' })
                 analytics.plannerStarted({
-                  origin: form.from,
-                  destination: form.to,
+                  // origin/destination intentionally omitted — privacy rule: no trip destinations
                   source: 'home_hero_search',
                   hasDates: Boolean(form.startDate),
                 })

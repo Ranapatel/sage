@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
-import { trackEvent } from '@/lib/analytics'
+import { analytics } from '@/lib/analytics'
 import React, { memo } from 'react'
 import { Users, Tag } from 'lucide-react'
 
@@ -58,7 +58,10 @@ function CarCard({ item }: Props) {
   const isAvailable = item.liveStatus === 'Available'
 
   const handleBook = () => {
-    trackEvent('booking_click', { type: 'car', name: item.name, price: item.price })
+    analytics.outboundBookingClicked({
+      provider: item.name || 'Car Rental Provider',
+      category: 'car_rental',
+    })
   }
 
   return (

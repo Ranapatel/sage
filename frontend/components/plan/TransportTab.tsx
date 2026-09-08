@@ -556,7 +556,7 @@ function BestValueCard({
             href={item.bookingLink ?? '#'}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
+            onClick={() => analytics.outboundBookingClicked({ provider: item.name || item.type || 'Transport Provider', category: item.type || 'flight' })}
             className="flex-1 h-12 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-[14px] rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md shadow-orange-500/20 active:scale-95 cursor-pointer"
           >
             {ctaText} <ArrowRight size={16} />
@@ -710,7 +710,7 @@ function ComparisonCard({
           href={item.bookingLink ?? '#'}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => trackEvent('booking_click', { type: item.type, name: item.name, price: item.price })}
+          onClick={() => analytics.outboundBookingClicked({ provider: item.name || item.type || 'Transport Provider', category: item.type || 'flight' })}
           className="flex-1 py-2.5 px-4 rounded-xl font-extrabold text-xs bg-gradient-to-r from-[#EA580C] to-[#F97316] text-white hover:shadow-md hover:shadow-orange-500/25 transition-all text-center"
         >
           {ctaText} →
