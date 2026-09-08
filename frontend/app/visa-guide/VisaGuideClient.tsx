@@ -6,6 +6,8 @@ import Footer from '@/components/layout/Footer'
 import { motion } from 'framer-motion'
 import { Globe, ArrowUpRight } from 'lucide-react'
 
+import { analytics } from '@/lib/analytics'
+
 interface VisaCard {
   flag: string
   name: string
@@ -88,6 +90,20 @@ const VISA_DATA: VisaCard[] = [
 ]
 
 export default function VisaGuideClient() {
+  React.useEffect(() => {
+    analytics.visaGuideViewed({
+      source: 'visa_guide_portal',
+    })
+  }, [])
+
+  const handleApplyClick = (visa: VisaCard) => {
+    analytics.outboundBookingClicked({
+      provider: visa.name,
+      category: 'visa_portal',
+      destination: visa.name,
+    })
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FFFBF7] text-[#6B6B6B] font-body">
       <Navbar />
@@ -164,6 +180,7 @@ export default function VisaGuideClient() {
                   href={visa.applyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => handleApplyClick(visa)}
                   className="w-full bg-[#FFFBF7] hover:bg-[#FFF4EE] border border-[#E8E0D8] hover:border-[#FED7AA] text-[#EA580C] font-extrabold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
                 >
                   Apply Now <ArrowUpRight size={14} strokeWidth={2} />
@@ -173,6 +190,7 @@ export default function VisaGuideClient() {
           })}
         </div>
       </main>
+
 
       <Footer />
     </div>

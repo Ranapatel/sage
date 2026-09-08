@@ -13,7 +13,7 @@ import { formatDate, getDaysBetween, getDayCount, getDateForDay } from '@/lib/ut
 import { useAuthStore } from '@/store/authStore'
 import { useUser } from '@clerk/nextjs'
 import { SYMBOLS, formatPrice, ALL_CURRENCIES, convertToINR } from '@/lib/currency'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics, type SafePlannerErrorCategory } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -444,9 +444,19 @@ export default function PlanClient() {
     if (budgetInINR < minBudgetInINR) {
       const minRequiredFormatted = formatPrice(minBudgetInINR, currency)
       toast.error(`Your budget of ${formatPrice(budgetInINR, currency)} is too low. The minimum estimated budget for ${p.travelers} ${p.travelers === 1 ? 'person' : 'people'} for ${days} days is ${minRequiredFormatted}.`)
+      analytics.plannerError({
+        errorCategory: 'budget_too_low',
+        destination: p.to,
+      })
       return
     }
 
+    analytics.plannerStarted({
+      origin: p.from,
+      destination: p.to,
+      source: 'planner_page',
+      hasDates: Boolean(p.startDate && p.endDate),
+    })
 
     // Dismiss any active inputs (closes mobile keyboard and dropdowns instantly)
     if (document.activeElement instanceof HTMLElement) {
@@ -660,11 +670,34 @@ export default function PlanClient() {
       saveToCache()
       toast.success('Trip plan generated!', { id: 'search-done' })
 
+      // SEO Phase 5 Analytics: Trip plan successfully generated
+      analytics.plannerCompleted({
+        destination: p.to,
+        durationDays: days,
+        travelers: p.travelers,
+        hasTransport: Boolean(searchResult?.data?.transport?.length),
+        hasHotels: Boolean(searchResult?.data?.hotels?.length),
+        hasItinerary: Boolean(itineraryResult?.data?.itinerary?.length),
+      })
+
     } catch (err: any) {
       setError(err.message)
       toast.error(err.message || 'Search failed after retries')
       setLoading(false)
       setAiThinking(false)
+
+      // SEO Phase 5 Analytics: Planner error event with safe category only
+      const safeErrorCategory: SafePlannerErrorCategory = 
+        err.name === 'AbortError' ? 'timeout_error' :
+        err.message?.includes('network') ? 'network_error' :
+        err.message?.includes('timeout') ? 'timeout_error' :
+        err.message?.includes('rate limit') ? 'rate_limit' :
+        'server_error';
+
+      analytics.plannerError({
+        errorCategory: safeErrorCategory,
+        destination: p.to,
+      })
     }
   }
   useEffect(() => {

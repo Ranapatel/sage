@@ -6,7 +6,7 @@ import { useTripStore } from '@/store/tripStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import toast from 'react-hot-toast'
 import { Plane } from 'lucide-react'
 import { getOptimizedImageUrl, getLogoUrl } from '@/lib/imageUtils'
@@ -149,6 +149,11 @@ function TransportCard({ item, showDetail }: Props) {
             e.preventDefault()
             requireAuth(() => {
               trackEvent('booking_click', { type: 'flight', name: item.name, price: item.price })
+              analytics.outboundBookingClicked({
+                provider: item.name || 'Flight Provider',
+                category: 'flight',
+                price: typeof item.price === 'number' ? item.price : undefined,
+              })
               window.open(item.bookingLink, '_blank', 'noopener,noreferrer')
             })()
           }}

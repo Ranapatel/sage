@@ -30,24 +30,135 @@ import {
   AiFeedbackParams,
   ErrorParams,
   PerformanceParams,
+  PlannerStartedParams,
+  PlannerCompletedParams,
+  PlannerErrorParams,
+  GuideCtaClickedParams,
+  DestinationViewedParams,
+  VisaGuideViewedParams,
+  OutboundBookingClickedParams,
 } from './types';
 
 export const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-2F49Z4DK2H';
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-P4KSB6TZVG';
+
+// PII detection patterns for privacy protection
+const EMAIL_REGEX = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/gi;
+const PHONE_REGEX = /(\+?\d{1,4}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/g;
+const PASSPORT_REGEX = /\b[A-PR-WYa-pr-wy][1-9]\d\s?\d{4}[1-9]\b/g;
+
+/**
+ * Strips potential PII (emails, phone numbers, passport patterns, sensitive fields)
+ * Never send names, emails, passport data, or personal form input to analytics.
+ */
+function sanitizeValue(value: any, keyName?: string): any {
+  if (value === null || value === undefined) return value;
+  
+  // Explicitly drop banned PII fields
+  if (keyName) {
+    const lowerKey = keyName.toLowerCase();
+    if (
+      lowerKey.includes('email') ||
+      (lowerKey.includes('name') &&
+        lowerKey !== 'destinationname' &&
+        lowerKey !== 'itemname' &&
+        lowerKey !== 'partnername' &&
+        lowerKey !== 'guidetitle' &&
+        lowerKey !== 'metricname') ||
+      lowerKey.includes('phone') ||
+      lowerKey.includes('mobile') ||
+      lowerKey.includes('passport') ||
+      lowerKey.includes('aadhaar') ||
+      lowerKey.includes('ssn') ||
+      lowerKey.includes('holder') ||
+      lowerKey.includes('guest') ||
+      lowerKey.includes('passenger') ||
+      lowerKey.includes('address') ||
+      lowerKey.includes('password')
+    ) {
+      return undefined;
+    }
+  }
+
+  if (typeof value === 'string') {
+    const emailRegex = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/gi;
+    const phoneRegex = /(\+?\d{1,4}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/g;
+    const passportRegex = /\b[A-PR-WYa-pr-wy][1-9]\d\s?\d{4}[1-9]\b/g;
+
+    let sanitized = value
+      .replace(emailRegex, '[REDACTED_EMAIL]')
+      .replace(phoneRegex, '[REDACTED_PHONE]')
+      .replace(passportRegex, '[REDACTED_DOC]');
+    return sanitized;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => sanitizeValue(item)).filter(v => v !== undefined);
+  }
+
+  if (typeof value === 'object') {
+    const cleaned: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      const sanitizedChild = sanitizeValue(v, k);
+      if (sanitizedChild !== undefined) {
+        cleaned[k] = sanitizedChild;
+      }
+    }
+    return cleaned;
+  }
+
+  return value;
+}
 
 class AnalyticsService {
   private recentEvents = new Map<string, number>();
   private readonly dedupWindowMs = 1000; // 1 second deduplication window
 
   /**
-   * Helper to resolve device type client-side
+   * Helper to resolve device category client-side
    */
-  private getDeviceType(): string {
+  public getDeviceCategory(): 'mobile' | 'tablet' | 'desktop' | 'server' {
     if (typeof window === 'undefined') return 'server';
     const width = window.innerWidth;
     if (width < 640) return 'mobile';
     if (width < 1024) return 'tablet';
     return 'desktop';
+  }
+
+  /**
+   * Infers route type from current pathname for SEO and funnel analysis
+   */
+  public getRouteType(path?: string): string {
+    if (typeof window === 'undefined' && !path) return 'server';
+    const pathname = path || (typeof window !== 'undefined' ? window.location.pathname : '/');
+    if (pathname === '/') return 'home';
+    if (pathname.startsWith('/seo/') || pathname.startsWith('/guides/')) return 'seo_guide';
+    if (pathname === '/destinations' || pathname.startsWith('/destinations/')) return 'destination_hub';
+    if (pathname === '/visa' || pathname === '/visa-guide' || pathname.startsWith('/visa/')) return 'visa_guide';
+    if (pathname === '/plan') return 'trip_planner';
+    if (pathname.startsWith('/itineraries')) return 'itineraries_hub';
+    if (pathname.startsWith('/budget')) return 'budget_hub';
+    if (pathname.startsWith('/blog')) return 'blog';
+    return 'other';
+  }
+
+  /**
+   * Extracts standard UTM campaign parameters safely from the current URL
+   */
+  public getUtmParams(): Record<string, string> {
+    if (typeof window === 'undefined') return {};
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const utm: Record<string, string> = {};
+      const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+      for (const k of keys) {
+        const val = params.get(k);
+        if (val) utm[k] = val.slice(0, 100);
+      }
+      return utm;
+    } catch {
+      return {};
+    }
   }
 
   /**
@@ -59,11 +170,20 @@ class AnalyticsService {
     }
 
     try {
-      // Automatic metadata enrichment
+      // 1. Sanitize all incoming parameters against PII
+      const sanitizedParams = sanitizeValue(params) || {};
+
+      // 2. Automatic metadata enrichment: page, page title, route type, device category, UTMs
+      const pathname = window.location.pathname;
       const enrichedParams: CommonMetadata = {
-        deviceType: this.getDeviceType(),
+        page: pathname,
+        page_title: typeof document !== 'undefined' ? document.title : '',
+        route_type: this.getRouteType(pathname),
+        device_category: this.getDeviceCategory(),
+        deviceType: this.getDeviceCategory(), // backward compatibility
+        ...this.getUtmParams(),
         timestamp: new Date().toISOString(),
-        ...params,
+        ...sanitizedParams,
       };
 
       // Event Deduplication Check
@@ -81,11 +201,11 @@ class AnalyticsService {
 
       // Cleanup old dedup map keys periodically
       if (this.recentEvents.size > 100) {
-        for (const [key, timestamp] of this.recentEvents.entries()) {
+        Array.from(this.recentEvents.entries()).forEach(([key, timestamp]) => {
           if (now - timestamp > this.dedupWindowMs * 5) {
             this.recentEvents.delete(key);
           }
-        }
+        });
       }
 
       // Development Safeguards & Logging
@@ -105,10 +225,11 @@ class AnalyticsService {
       }
 
       // Dispatch event to window.gtag
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', eventName, enrichedParams);
-      } else if (Array.isArray(window.dataLayer)) {
-        window.dataLayer.push({
+      const w = window as any;
+      if (typeof w.gtag === 'function') {
+        w.gtag('event', eventName, enrichedParams);
+      } else if (Array.isArray(w.dataLayer)) {
+        w.dataLayer.push({
           event: eventName,
           ...enrichedParams,
         });
@@ -130,16 +251,32 @@ class AnalyticsService {
     try {
       const isDev = process.env.NODE_ENV === 'development';
       const isDebugEnabled = process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === 'true';
+      const pageTitle = title || (typeof document !== 'undefined' ? document.title : '');
+      const pathname = url.split('?')[0];
+
+      const pageParams = {
+        page_path: url,
+        page_title: pageTitle,
+        route_type: this.getRouteType(pathname),
+        device_category: this.getDeviceCategory(),
+        ...this.getUtmParams(),
+      };
 
       if (isDev) {
-        console.log(`[GA4 PageView] Path: ${url} ${title ? `| Title: ${title}` : ''}`);
+        console.log(`[GA4 PageView] Path: ${url} | Title: ${pageTitle} | Route: ${pageParams.route_type}`);
         if (!isDebugEnabled) return;
       }
 
-      if (typeof window.gtag === 'function') {
-        window.gtag('config', GA_MEASUREMENT_ID, {
-          page_path: url,
-          page_title: title || document.title,
+      const pw = window as any;
+      if (typeof pw.gtag === 'function') {
+        pw.gtag('config', GA_MEASUREMENT_ID, {
+          ...pageParams,
+        });
+        pw.gtag('event', 'page_view', pageParams);
+      } else if (Array.isArray(pw.dataLayer)) {
+        pw.dataLayer.push({
+          event: 'page_view',
+          ...pageParams,
         });
       }
     } catch (err) {
@@ -150,6 +287,39 @@ class AnalyticsService {
   }
 
   // ─── Strongly Typed Domain Methods ──────────────────────────────────────────
+
+  // 10. SEO Phase 5 Conversion & Journey Events
+  public plannerStarted(params: PlannerStartedParams = {}): void {
+    this.trackEvent('planner_started', params);
+  }
+
+  public plannerCompleted(params: PlannerCompletedParams = {}): void {
+    this.trackEvent('planner_completed', params);
+  }
+
+  public plannerError(params: PlannerErrorParams): void {
+    this.trackEvent('planner_error', params);
+  }
+
+  public guideCtaClicked(params: GuideCtaClickedParams): void {
+    this.trackEvent('guide_cta_clicked', params);
+  }
+
+  public destinationViewed(params: DestinationViewedParams): void {
+    this.trackEvent('destination_viewed', params);
+  }
+
+  public visaGuideViewed(params: VisaGuideViewedParams): void {
+    this.trackEvent('visa_guide_viewed', params);
+  }
+
+  public outboundBookingClicked(params: OutboundBookingClickedParams): void {
+    this.trackEvent('outbound_booking_clicked', params);
+  }
+
+  public trackCustomEvent(eventName: string, params: Record<string, any> = {}): void {
+    this.trackEvent(eventName as AnalyticsEventName, params);
+  }
 
   // 1. Authentication
   public signup(params: SignupParams): void {
@@ -280,3 +450,4 @@ class AnalyticsService {
 
 // Singleton Instance Export
 export const analytics = new AnalyticsService();
+

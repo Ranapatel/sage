@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Train, ExternalLink, Clock, ShieldCheck } from 'lucide-react'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
@@ -27,6 +27,7 @@ export interface TrainResult {
   bookingUrl: string
   originCode: string
   destinationCode: string
+  price?: number
 }
 
 interface TrainCardProps {
@@ -54,6 +55,11 @@ export function TrainCard({ train }: TrainCardProps) {
       trainNumber: train.trainNumber,
       trainName: train.trainName,
       url: train.bookingUrl,
+    })
+    analytics.outboundBookingClicked({
+      provider: 'IRCTC / Rail Partner',
+      category: 'train',
+      price: typeof train.price === 'number' ? train.price : undefined,
     })
     const url = (train.bookingUrl && !train.bookingUrl.includes('makemytrip.com'))
       ? train.bookingUrl

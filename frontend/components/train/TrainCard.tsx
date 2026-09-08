@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Clock, Star, MapPin, ChevronDown, ChevronUp, ExternalLink, Shield, Share2 } from 'lucide-react'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import { formatPrice } from '@/lib/currency'
 import { useAuthStore } from '@/store/authStore'
 import { handleUniversalShare } from '../plan/TransportTab'
@@ -68,6 +68,11 @@ export default function TrainCard({ train }: TrainCardProps) {
       trainName: train.trainName,
       class: activeClassCode,
       price: activePrice,
+    })
+    analytics.outboundBookingClicked({
+      provider: 'IRCTC / Rail Partner',
+      category: 'train',
+      price: typeof activePrice === 'number' ? activePrice : undefined,
     })
     const irctcUrl = (train.bookingUrl && !train.bookingUrl.includes('makemytrip.com'))
       ? train.bookingUrl

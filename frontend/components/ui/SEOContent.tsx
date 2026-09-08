@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { analytics } from '@/lib/analytics'
 
 interface FAQ {
   question: string
@@ -32,6 +33,7 @@ interface SEOContentProps {
   ctaText?: string
   ctaLink?: string
   articleData?: ArticleData
+  destinationName?: string
 }
 
 export default function SEOContent({
@@ -42,11 +44,46 @@ export default function SEOContent({
   faqs,
   ctaText = "Start Planning Now",
   ctaLink = "/plan",
-  articleData
+  articleData,
+  destinationName
 }: SEOContentProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const pathname = usePathname()
   const isMobile = useIsMobile()
+
+  // Extract destination name if not explicitly provided
+  const inferredDestination = React.useMemo(() => {
+    if (destinationName) return destinationName
+    if (!pathname) return ''
+    const match = pathname.match(/\/(?:seo|guides)\/([a-z0-9-]+)/i)
+    if (match && match[1]) {
+      return match[1]
+        .replace(/-(?:trip-planner|travel-guide|trip|itinerary|under-\d+|for-indian-citizens)/g, '')
+        .split('-')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+    }
+    return ''
+  }, [destinationName, pathname])
+
+  // Fire destination_viewed when an SEO guide is loaded
+  React.useEffect(() => {
+    if (inferredDestination) {
+      analytics.destinationViewed({
+        destinationName: inferredDestination,
+        source: 'seo_content_page'
+      })
+    }
+  }, [inferredDestination])
+
+  const handleCtaClick = (buttonLocation: 'hero_cta' | 'bottom_cta') => {
+    analytics.guideCtaClicked({
+      guideSlug: pathname || '',
+      guideTitle: title,
+      ctaText: buttonLocation === 'hero_cta' ? ctaText : 'Get Started Free',
+      targetDestination: inferredDestination || undefined
+    })
+  }
 
   // Generate dynamic BreadcrumbList Schema
   const domain = "https://tripsage.in"
@@ -175,12 +212,17 @@ export default function SEOContent({
           </p>
           
           <div>
-            <Link href={ctaLink} className="py-4 px-10 text-lg font-extrabold inline-flex items-center gap-2 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-xl shadow-orange-500/20 transition-all cursor-pointer">
+            <Link 
+              href={ctaLink} 
+              onClick={() => handleCtaClick('hero_cta')}
+              className="py-4 px-10 text-lg font-extrabold inline-flex items-center gap-2 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-xl shadow-orange-500/20 transition-all cursor-pointer"
+            >
               {ctaText} <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
       </section>
+
 
       {/* Main Content */}
       <section className="py-20 px-6 max-w-4xl mx-auto">
@@ -222,7 +264,11 @@ export default function SEOContent({
           <p className="text-orange-100 mb-10 text-base md:text-lg max-w-2xl mx-auto font-medium">
             Plan your perfect trip in seconds with our AI travel engine. Compare prices, generate itineraries, and book with confidence.
           </p>
-          <Link href="/plan" className="bg-[#1A1A1A] text-white hover:bg-slate-800 py-4 px-10 rounded-2xl font-extrabold text-base transition-all inline-block shadow-lg cursor-pointer">
+          <Link 
+            href="/plan" 
+            onClick={() => handleCtaClick('bottom_cta')}
+            className="bg-[#1A1A1A] text-white hover:bg-slate-800 py-4 px-10 rounded-2xl font-extrabold text-base transition-all inline-block shadow-lg cursor-pointer"
+          >
             Get Started Free
           </Link>
         </div>

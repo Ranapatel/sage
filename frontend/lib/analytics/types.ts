@@ -131,9 +131,76 @@ export interface PerformanceParams extends CommonMetadata {
   path?: string;
 }
 
+// 10. SEO & Phase 5 Conversion Events
+export interface PlannerStartedParams extends CommonMetadata {
+  origin?: string;
+  destination?: string;
+  source?: string;
+  hasDates?: boolean;
+}
+
+export interface PlannerCompletedParams extends CommonMetadata {
+  destination?: string;
+  durationDays?: number;
+  travelers?: number;
+  totalCostEstimate?: number;
+  hasTransport?: boolean;
+  hasHotels?: boolean;
+  hasItinerary?: boolean;
+}
+
+export type SafePlannerErrorCategory =
+  | 'validation_error'
+  | 'network_error'
+  | 'timeout_error'
+  | 'budget_too_low'
+  | 'rate_limit'
+  | 'server_error'
+  | 'no_results'
+  | 'unknown_error';
+
+export interface PlannerErrorParams extends CommonMetadata {
+  errorCategory: SafePlannerErrorCategory;
+  destination?: string;
+}
+
+export interface GuideCtaClickedParams extends CommonMetadata {
+  guideSlug: string;
+  guideTitle?: string;
+  ctaText?: string;
+  targetDestination?: string;
+}
+
+export interface DestinationViewedParams extends CommonMetadata {
+  destinationName: string;
+  destinationCategory?: string;
+  source?: string;
+}
+
+export interface VisaGuideViewedParams extends CommonMetadata {
+  destinationCountry?: string;
+  visaType?: string;
+  source?: string;
+}
+
+export interface OutboundBookingClickedParams extends CommonMetadata {
+  provider: string;
+  category: 'flight' | 'train' | 'bus' | 'cab' | 'car_rental' | 'hotel' | 'visa_portal' | 'activity' | string;
+  destination?: string;
+  bookingRefAvailable?: boolean;
+}
+
 // ─── Event Name Map ──────────────────────────────────────────────────────────
 
 export type AnalyticsEventName =
+  // SEO Phase 5 Conversion & Journey Events
+  | 'planner_started'
+  | 'planner_completed'
+  | 'planner_error'
+  | 'guide_cta_clicked'
+  | 'destination_viewed'
+  | 'visa_guide_viewed'
+  | 'outbound_booking_clicked'
   // Auth
   | 'signup'
   | 'login'
@@ -182,3 +249,4 @@ export type AnalyticsEventName =
   // General / Legacy
   | 'page_view'
   | string;
+

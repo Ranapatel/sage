@@ -9,6 +9,7 @@ import {
   SmartBusRoute, buildRedBusDeepLink, buildOtherBusBookingLinks
 } from '@/lib/smartBusPlanner'
 import toast from 'react-hot-toast'
+import { analytics } from '@/lib/analytics'
 
 interface RedBusBookingModalProps {
   isOpen: boolean
@@ -170,6 +171,13 @@ export default function RedBusBookingModal({
                         href={legRedBusUrl}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => {
+                          analytics.outboundBookingClicked({
+                            provider: 'redBus',
+                            category: 'bus',
+                            destination: leg.toCity,
+                          })
+                        }}
                         className="flex-1 sm:flex-none px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5"
                       >
                         <span>Book Leg {index + 1} on redBus</span>
@@ -246,6 +254,13 @@ export default function RedBusBookingModal({
                 href={masterRedBusUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  analytics.outboundBookingClicked({
+                    provider: 'redBus',
+                    category: 'bus',
+                    destination: toCity,
+                  })
+                }}
                 className="w-full sm:w-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <span>Continue to Official redBus Portal</span>

@@ -9,6 +9,7 @@ import BookingConfirmationPanel from '../booking/BookingConfirmationPanel'
 import VoucherPage from '../booking/VoucherPage'
 import toast from 'react-hot-toast'
 import { X } from 'lucide-react'
+import { analytics } from '@/lib/analytics'
 
 export default function HotelBookingFlow() {
   const { bookingFlow, setBookingFlowStep, closeBookingFlow, tripContext } = useTripStore()
@@ -120,6 +121,13 @@ export default function HotelBookingFlow() {
           })
 
           toast.success('Room booked successfully! 🎉')
+          analytics.outboundBookingClicked({
+            provider: 'Hotelbeds',
+            category: 'hotel',
+            destination: hotel.location || tripContext.destination,
+            price: activePrice * nights,
+            bookingRefAvailable: true,
+          })
           setBookingFlowStep('confirmed')
         } else {
           throw new Error(response.error || 'Hotelbeds rejected the reservation.')

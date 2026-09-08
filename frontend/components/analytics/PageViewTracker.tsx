@@ -25,6 +25,24 @@ export function PageViewTracker() {
     lastTrackedUrl.current = fullUrl;
 
     analytics.pageview(fullUrl);
+
+    // Contextual SEO Event Triggering
+    if (pathname === '/visa' || pathname === '/visa-guide' || pathname.startsWith('/visa/')) {
+      const countryMatch = pathname.match(/\/visa\/([a-z0-9-]+)-visa/i);
+      const destinationCountry = countryMatch && countryMatch[1]
+        ? countryMatch[1].charAt(0).toUpperCase() + countryMatch[1].slice(1)
+        : pathname.includes('visa-guide') ? 'All' : 'General';
+      
+      analytics.visaGuideViewed({
+        destinationCountry,
+        source: 'route_navigation',
+      });
+    } else if (pathname === '/destinations' || pathname.startsWith('/destinations/')) {
+      analytics.destinationViewed({
+        destinationName: pathname === '/destinations' ? 'All Destinations' : pathname.replace('/destinations/', ''),
+        source: 'destinations_hub',
+      });
+    }
   }, [pathname, searchParams]);
 
   return null;

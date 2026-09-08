@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import BookUberButton from './BookUberButton';
+import { analytics } from '@/lib/analytics';
 
 interface RideButtonProps {
   destinationName: string;
@@ -45,6 +46,11 @@ export default function RideButton({
 
       if (response.data && response.data.url) {
         console.log('[RideButton] Frontend URL before opening:', response.data.url);
+        analytics.outboundBookingClicked({
+          provider: 'Uber',
+          category: 'cab',
+          destination: destinationName,
+        });
         window.open(response.data.url, '_blank');
         toast.success('Opening Uber App...');
       } else {

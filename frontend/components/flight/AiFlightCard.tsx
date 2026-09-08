@@ -8,6 +8,7 @@ import {
 import { formatPrice } from '@/lib/currency'
 import { buildKiwiAffiliateUrl, KiwiFlightParams } from '@/lib/kiwiAffiliate'
 import { SageScoreRing } from '@/components/ui/SageScoreBadge'
+import { analytics } from '@/lib/analytics'
 
 export interface FlightOfferItem {
   id: string
@@ -105,6 +106,12 @@ export default function AiFlightCard({
   const kiwiUrl = flight.kiwiBookingUrl || buildKiwiAffiliateUrl(flight, searchParams)
 
   const handleBookWithKiwi = () => {
+    analytics.outboundBookingClicked({
+      provider: 'Kiwi.com',
+      category: 'flight',
+      destination: flight.destination,
+      price: typeof flight.price === 'number' ? flight.price : undefined,
+    })
     window.open(kiwiUrl, '_blank', 'noopener,noreferrer')
   }
 

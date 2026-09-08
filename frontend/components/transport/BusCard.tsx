@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react'
 import { Bus, Star, ExternalLink, Shield, Share2 } from 'lucide-react'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice } from '@/lib/currency'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
@@ -38,6 +38,11 @@ function BusCard({ bus }: BusCardProps) {
       operator: bus.operator,
       price: bus.fare,
       url: bus.bookingUrl,
+    })
+    analytics.outboundBookingClicked({
+      provider: bus.operator || 'redBus / Bus Operator',
+      category: 'bus',
+      price: typeof bus.fare === 'number' ? bus.fare : undefined,
     })
     window.open(bus.bookingUrl, '_blank', 'noopener,noreferrer')
   })

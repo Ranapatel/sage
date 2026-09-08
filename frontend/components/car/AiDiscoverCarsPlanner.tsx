@@ -13,6 +13,7 @@ import {
   generateSmartCarPlanner, SmartCarPlannerResult, CarVehicle, getSupplierLogo
 } from '@/lib/smartCarPlanner'
 import { SageScoreRing } from '@/components/ui/SageScoreBadge'
+import { analytics } from '@/lib/analytics'
 
 export default function AiDiscoverCarsPlanner() {
   const { tripContext } = useTripStore()
@@ -464,6 +465,14 @@ export default function AiDiscoverCarsPlanner() {
                             href={car.bookingUrl}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={() => {
+                              analytics.outboundBookingClicked({
+                                provider: car.supplier?.name || 'DiscoverCars',
+                                category: 'car_rental',
+                                destination,
+                                price: typeof car.totalPrice === 'number' ? car.totalPrice : undefined,
+                              })
+                            }}
                             className="px-4 py-2.5 rounded-xl font-black text-xs bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-xs hover:shadow-md transition-all shrink-0 flex items-center gap-1 cursor-pointer active:scale-95 font-display"
                           >
                             <span>Book Rental</span>

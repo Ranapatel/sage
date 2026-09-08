@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import LocationAutocomplete from '@/components/ui/LocationAutocomplete'
 import CustomDatePicker from '@/components/ui/CustomDatePicker'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, analytics } from '@/lib/analytics'
 import { tripAPI } from '@/lib/api'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -921,6 +921,12 @@ export default function HomeClient() {
               onClick={async () => {
                 setLoading(true)
                 trackEvent('plan_trip_click', { source: 'preference_modal' })
+                analytics.plannerStarted({
+                  origin: form.from,
+                  destination: form.to,
+                  source: 'home_hero_search',
+                  hasDates: Boolean(form.startDate),
+                })
                 if (form.currency) {
                   updateCurrency(form.currency as any)
                 }
