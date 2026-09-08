@@ -269,10 +269,11 @@ class AnalyticsService {
 
       const pw = window as any;
       if (typeof pw.gtag === 'function') {
+        // gtag('config', …) sends exactly one page_view with all params.
+        // Do NOT also call gtag('event', 'page_view', …) — that would double-count.
         pw.gtag('config', GA_MEASUREMENT_ID, {
           ...pageParams,
         });
-        pw.gtag('event', 'page_view', pageParams);
       } else if (Array.isArray(pw.dataLayer)) {
         pw.dataLayer.push({
           event: 'page_view',
