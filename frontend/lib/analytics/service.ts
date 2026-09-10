@@ -187,7 +187,11 @@ class AnalyticsService {
       };
 
       // Event Deduplication Check
-      const dedupKey = `${eventName}:${JSON.stringify(enrichedParams)}`;
+      // Exclude timestamp from the key so the 1-second window actually fires for
+      // rapid double-submits (timestamp is millisecond-precise — every call would
+      // otherwise produce a unique key, making dedup a no-op).
+      const { timestamp: _ts, ...paramsForDedup } = enrichedParams as any;
+      const dedupKey = `${eventName}:${JSON.stringify(paramsForDedup)}`;
       const now = Date.now();
       const lastFired = this.recentEvents.get(dedupKey);
 
@@ -225,15 +229,19 @@ class AnalyticsService {
       }
 
       // Dispatch event to window.gtag
+      // If gtag.js hasn't loaded yet, install the standard shim so the call is
+      // queued in dataLayer and replayed automatically when the script arrives.
+      // A raw dataLayer.push({ event, ...params }) is GTM syntax and is silently
+      // ignored by GA4 — we must always go through the gtag() function.
       const w = window as any;
-      if (typeof w.gtag === 'function') {
-        w.gtag('event', eventName, enrichedParams);
-      } else if (Array.isArray(w.dataLayer)) {
-        w.dataLayer.push({
-          event: eventName,
-          ...enrichedParams,
-        });
+      if (typeof w.gtag !== 'function') {
+        w.dataLayer = w.dataLayer || [];
+        w.gtag = function gtag() {
+          // eslint-disable-next-line prefer-rest-params
+          w.dataLayer.push(arguments);
+        };
       }
+      w.gtag('event', eventName, enrichedParams);
     } catch (err) {
       // Fail silently in production so UI flow is never broken
       if (process.env.NODE_ENV === 'development') {
@@ -268,18 +276,20 @@ class AnalyticsService {
       }
 
       const pw = window as any;
-      if (typeof pw.gtag === 'function') {
-        // gtag('config', …) sends exactly one page_view with all params.
-        // Do NOT also call gtag('event', 'page_view', …) — that would double-count.
-        pw.gtag('config', GA_MEASUREMENT_ID, {
-          ...pageParams,
-        });
-      } else if (Array.isArray(pw.dataLayer)) {
-        pw.dataLayer.push({
-          event: 'page_view',
-          ...pageParams,
-        });
+      // Install the gtag shim if gtag.js hasn't loaded yet so the config call
+      // is queued in dataLayer and replayed when the script arrives.
+      if (typeof pw.gtag !== 'function') {
+        pw.dataLayer = pw.dataLayer || [];
+        pw.gtag = function gtag() {
+          // eslint-disable-next-line prefer-rest-params
+          pw.dataLayer.push(arguments);
+        };
       }
+      // gtag('config', …) sends exactly one page_view with all params.
+      // Do NOT also call gtag('event', 'page_view', …) — that would double-count.
+      pw.gtag('config', GA_MEASUREMENT_ID, {
+        ...pageParams,
+      });
     } catch (err) {
       if (process.env.NODE_ENV === 'development') {
         console.error('[GA4 Error] PageView tracking failed:', err);
