@@ -185,13 +185,13 @@ export default function AcademyDashboard({
         </div>
 
         {/* Circular Progress & Stats Pill */}
-        <div className="flex items-center gap-5 shrink-0 bg-[#FFFBF7] px-5 py-4 rounded-2xl border border-[#E8E0D8]">
-          <div className="space-y-1.5">
+        <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-5 w-full sm:w-auto shrink-0 bg-[#FFFBF7] px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border border-[#E8E0D8]">
+          <div className="space-y-1.5 flex-1 sm:flex-initial">
             <div className="flex items-center justify-between text-xs font-bold text-[#1A1A1A]">
               <span>Course Progress</span>
               <span className="text-[#EA580C] font-mono">{progressPercent}%</span>
             </div>
-            <div className="w-48 sm:w-56 h-2.5 rounded-full bg-[#E8E0D8] overflow-hidden">
+            <div className="w-full sm:w-56 h-2.5 rounded-full bg-[#E8E0D8] overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-[#EA580C] to-[#F97316] transition-all duration-500"
                 style={{ width: `${Math.max(progressPercent, 4)}%` }}
@@ -202,7 +202,7 @@ export default function AcademyDashboard({
             </div>
           </div>
 
-          <div className="w-11 h-11 rounded-2xl bg-orange-100 border border-orange-200 flex items-center justify-center text-[#EA580C]">
+          <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-orange-100 border border-orange-200 flex items-center justify-center text-[#EA580C] shrink-0">
             <Award className="w-5 h-5" />
           </div>
         </div>

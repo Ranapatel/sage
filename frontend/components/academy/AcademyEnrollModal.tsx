@@ -124,7 +124,7 @@ export default function AcademyEnrollModal({ isOpen, onClose, onEnrolled }: Acad
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="relative w-full max-w-lg rounded-3xl bg-white border border-[#E8E0D8] shadow-[0_25px_70px_rgba(0,0,0,0.18)] p-6 sm:p-8 z-10 overflow-hidden text-[#1A1A1A]"
+            className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl sm:rounded-3xl bg-white border border-[#E8E0D8] shadow-[0_25px_70px_rgba(0,0,0,0.18)] p-5 sm:p-8 z-10 text-[#1A1A1A]"
           >
             {/* Top Accent Gradient Ribbon */}
             <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#FBBF24]" />
@@ -132,20 +132,20 @@ export default function AcademyEnrollModal({ isOpen, onClose, onEnrolled }: Acad
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Header */}
-            <div className="space-y-2 mb-6">
+            <div className="space-y-1.5 sm:space-y-2 mb-5 sm:mb-6 pr-6 sm:pr-0">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#EA580C] text-[11px] font-extrabold uppercase tracking-wider">
                 <GraduationCap className="w-3.5 h-3.5" />
                 Free Course Enrollment
               </div>
 
               <h2
-                className="text-2xl sm:text-3xl font-black text-[#1A1A1A] tracking-tight"
+                className="text-xl sm:text-3xl font-black text-[#1A1A1A] tracking-tight"
                 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
               >
                 Join TripSage Academy

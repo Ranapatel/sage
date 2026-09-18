@@ -117,6 +117,21 @@ export default function Navbar() {
 
         {/* ── Mobile Right ── */}
         <div className="flex md:hidden items-center gap-2 shrink-0">
+          {/* Direct Mobile Academy Pill */}
+          <Link
+            href="/academy"
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-xs font-bold transition-all active:scale-95 shadow-2xs shrink-0 ${
+              pathname === '/academy'
+                ? 'bg-orange-100 border-[#EA580C] text-[#EA580C]'
+                : 'bg-orange-50/90 border-orange-200 text-[#EA580C] hover:bg-orange-100'
+            }`}
+          >
+            <span className="font-extrabold text-[12px] tracking-tight">Academy</span>
+            <span className="text-[10px] font-black uppercase tracking-wider bg-[#EA580C] text-white px-1.5 py-0.5 rounded-md leading-none">
+              Free
+            </span>
+          </Link>
+
           {!isLoaded ? (
             // Skeleton prevents layout shift while Clerk loads
             <div className="w-9 h-9 rounded-full bg-slate-100 animate-pulse" />
@@ -168,7 +183,7 @@ export default function Navbar() {
               className="fixed top-0 right-0 h-full w-[75%] bg-white z-[9999] shadow-2xl p-6 flex flex-col md:hidden"
             >
               {/* Close button — X stays inside drawer, never outside */}
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-5">
                 <span className="text-sm font-extrabold text-slate-900 tracking-tight">Menu</span>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
@@ -180,6 +195,37 @@ export default function Navbar() {
               </div>
 
               <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+                {/* 🌟 Featured Academy Card in Mobile Menu */}
+                <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-b from-[#FFF9F5] to-[#FFF4EC] border border-orange-200/90 shadow-2xs space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#EA580C] to-[#F97316] text-white flex items-center justify-center shrink-0 shadow-sm shadow-orange-500/20 text-lg">
+                      🎓
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <h3 className="text-xs font-black text-[#1A1A1A] tracking-tight truncate">
+                          TripSage Academy
+                        </h3>
+                        <span className="px-1.5 py-0.5 rounded-md bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shrink-0 leading-none">
+                          FREE
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#78716C] font-medium leading-tight mt-1 truncate">
+                        5-Episode Masterclass on AGI
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/academy"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2 px-3 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-xs active:scale-98 transition-all"
+                  >
+                    <span>Enroll for Free</span>
+                    <ArrowRight size={13} strokeWidth={2.5} />
+                  </Link>
+                </div>
+
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Home</Link>
                 <Link href="/ai-trip-planner" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">AI Trip Planner</Link>
                 <Link href="/destinations" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Destinations</Link>
@@ -187,14 +233,6 @@ export default function Navbar() {
                 <Link href="/visa" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Visa Requirements</Link>
                 <Link href="/budget" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Budget Planner</Link>
                 <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Blog</Link>
-                <Link href="/academy" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-orange-50/60 rounded-xl">
-                  <span className="flex items-center gap-2">
-                    <span>🎓</span> Academy
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#EA580C] text-white text-[10px] font-extrabold tracking-wide uppercase">
-                    🔥 NEW
-                  </span>
-                </Link>
                 <Link href="/support" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Support</Link>
 
                 <div className="h-px bg-slate-100 my-3 mx-4" />
