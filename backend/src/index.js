@@ -128,6 +128,9 @@ app.use('/api/bus',           require('./routes/bus'))
 // Travelport Flights Integration (Phase 1)
 app.use('/api/travelport/flights', require('./modules/travelport').default)
 
+// TripSage Academy (AGI Campaign)
+app.use('/api/academy',            require('./routes/academy.routes'))
+
 // Payments route removed (was only used for Activities booking)
 
 // Geocoding

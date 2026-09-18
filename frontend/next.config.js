@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'standalone',
   compress: true,
+  allowedDevOrigins: ['192.168.0.123', '192.168.0.123:3000', 'localhost:3000'],
   images: {
     unoptimized: true,
     remotePatterns: [
