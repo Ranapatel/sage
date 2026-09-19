@@ -30,19 +30,19 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-30 w-full border-b border-[#E8E0D8]/70 bg-[#FFFBF7]/90 backdrop-blur-md px-4 md:px-6 py-2.5 md:py-4 flex items-center justify-between transition-all duration-200">
+      <nav className="sticky top-0 z-30 w-full border-b border-[#E8E0D8]/70 bg-[#FFFBF7]/90 backdrop-blur-md px-3 sm:px-4 md:px-6 py-2.5 md:py-4 flex items-center justify-between transition-all duration-200">
         {/* Logo */}
-        <div className="flex items-center gap-3 min-w-0">
-          <Link href="/" className="flex items-center gap-2 min-h-[44px] py-1 shrink-0 active:scale-95 transition-transform">
+        <div className="flex items-center gap-2 shrink-0">
+          <Link href="/" className="flex items-center gap-2 min-h-[40px] py-1 shrink-0 active:scale-95 transition-transform">
             <img
               src="/logo.png"
               alt="TripSage"
               width={34}
               height={34}
-              className="rounded-lg shadow-2xs w-[28px] sm:w-[34px] h-[28px] sm:h-[34px] object-contain"
+              className="rounded-lg shadow-2xs w-[28px] sm:w-[34px] h-[28px] sm:h-[34px] object-contain shrink-0"
             />
             <span
-              className="font-display text-sm sm:text-base md:text-lg font-extrabold text-[#1A1A1A] tracking-tight truncate max-w-[120px] sm:max-w-none"
+              className="font-display text-base sm:text-lg font-extrabold text-[#1A1A1A] tracking-tight shrink-0 select-none"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               TripSage
@@ -116,33 +116,35 @@ export default function Navbar() {
         </div>
 
         {/* ── Mobile Right ── */}
-        <div className="flex md:hidden items-center gap-2 shrink-0">
-          {/* Direct Mobile Academy Pill */}
+        <div className="flex md:hidden items-center gap-1.5 shrink-0">
+          {/* Direct Mobile Academy Pill — compact on small screens */}
           <Link
             href="/academy"
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-xs font-bold transition-all active:scale-95 shadow-2xs shrink-0 ${
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-bold transition-all active:scale-95 shadow-2xs shrink-0 ${
               pathname === '/academy'
                 ? 'bg-orange-100 border-[#EA580C] text-[#EA580C]'
                 : 'bg-orange-50/90 border-orange-200 text-[#EA580C] hover:bg-orange-100'
             }`}
           >
-            <span className="font-extrabold text-[12px] tracking-tight">Academy</span>
-            <span className="text-[10px] font-black uppercase tracking-wider bg-[#EA580C] text-white px-1.5 py-0.5 rounded-md leading-none">
+            <span className="font-extrabold text-[11px] tracking-tight">Academy</span>
+            <span className="text-[9px] font-black uppercase tracking-wider bg-[#EA580C] text-white px-1 py-0.5 rounded leading-none">
               Free
             </span>
           </Link>
 
           {!isLoaded ? (
             // Skeleton prevents layout shift while Clerk loads
-            <div className="w-9 h-9 rounded-full bg-slate-100 animate-pulse" />
+            <div className="w-8 h-8 rounded-full bg-slate-100 animate-pulse shrink-0" />
           ) : isSignedIn ? (
             // Signed in: show avatar/initial via UserMenu
-            <UserMenu />
+            <div className="shrink-0">
+              <UserMenu />
+            </div>
           ) : (
-            // Signed out: show Sign In pill
+            // Signed out: Sign In always visible
             <Link
               href="/sign-in"
-              className="flex items-center px-3.5 py-2 min-h-[44px] text-xs font-bold text-[#EA580C] border border-[#EA580C]/40 rounded-full hover:bg-[#EA580C]/5 transition-all active:scale-95"
+              className="flex items-center px-2.5 py-1.5 text-[11px] font-bold text-[#EA580C] border border-[#EA580C]/40 rounded-full hover:bg-[#EA580C]/5 transition-all active:scale-95 shrink-0 whitespace-nowrap"
             >
               Sign In
             </Link>
@@ -154,9 +156,9 @@ export default function Navbar() {
             suppressHydrationWarning
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open navigation menu"
-            className="flex items-center justify-center w-[44px] h-[44px] rounded-full border border-[#E8E0D8] bg-white hover:bg-slate-50 active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="flex items-center justify-center w-[36px] h-[36px] rounded-full border border-[#E8E0D8] bg-white hover:bg-slate-50 active:scale-95 transition-all cursor-pointer shadow-2xs shrink-0"
           >
-            <Menu size={18} strokeWidth={2} className="text-[#1A1A1A]" />
+            <Menu size={16} strokeWidth={2} className="text-[#1A1A1A]" />
           </button>
         </div>
       </nav>

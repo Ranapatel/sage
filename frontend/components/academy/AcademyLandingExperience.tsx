@@ -31,8 +31,8 @@ const EPISODES = [
     desc: "Understand what Artificial General Intelligence actually means, philosophical foundations, and how general cognitive architectures differ from today's narrow LLMs.",
     date: 'Sep 21, 2026',
     duration: '8 min',
-    status: 'Available Now',
-    unlocked: true,
+    status: 'Unlocks Sep 21',
+    unlocked: false,
   },
   {
     num: '02',
@@ -136,6 +136,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
             <span>5 Masterclasses</span>
           </div>
 
+
           {/* Desktop/Tablet Floating Card 1: Autonomous Reasoning (Left Top) */}
           <motion.div
             animate={{ y: [0, -5, 0] }}
@@ -227,25 +228,27 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           </button>
         </div>
 
-        {/* ─── Glowing CTA Button: Enroll for Free → ─── */}
+        {/* ─── Glowing CTA Button: Enroll for Free ─── */}
         <div className="mt-6 sm:mt-10 space-y-3 sm:space-y-4 w-full sm:w-auto px-2 sm:px-0">
-          <div className="relative group w-full sm:w-auto inline-block">
-            {/* Ambient Warm Radiant Glow */}
-            <div className="absolute -inset-1.5 rounded-full bg-[#EA580C] opacity-35 blur-lg group-hover:opacity-70 transition-opacity duration-300 animate-pulse" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="relative group w-full sm:w-auto inline-block">
+              {/* Ambient Warm Radiant Glow */}
+              <div className="absolute -inset-1.5 rounded-full bg-[#EA580C] opacity-35 blur-lg group-hover:opacity-70 transition-opacity duration-300 animate-pulse" />
 
-            <button
-              onClick={() => setModalOpen(true)}
-              className="relative w-full sm:w-auto inline-flex items-center justify-center px-8 sm:px-14 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#D97706] text-white text-base sm:text-lg font-black tracking-tight shadow-[0_10px_25px_rgba(234,88,12,0.4)] hover:brightness-105 active:scale-98 transition-all select-none border-t border-orange-200/50"
-            >
-              <span>Enroll for Free →</span>
-            </button>
+              <button
+                onClick={() => setModalOpen(true)}
+                className="relative w-full sm:w-auto inline-flex items-center justify-center px-8 sm:px-12 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#D97706] text-white text-base sm:text-lg font-black tracking-tight shadow-[0_10px_25px_rgba(234,88,12,0.4)] hover:brightness-105 active:scale-98 transition-all select-none border-t border-orange-200/50"
+              >
+                <span>Enroll for Free →</span>
+              </button>
+            </div>
           </div>
 
           {/* Subtext Metadata Badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest text-[#6B6B6B] pt-1 sm:pt-2">
             <span className="inline-flex items-center gap-1.5 text-[#1A1A1A] bg-white sm:bg-transparent px-2.5 py-1 sm:p-0 rounded-full border border-stone-200/80 sm:border-0 shadow-2xs sm:shadow-none">
               <Video className="w-3.5 h-3.5 text-[#EA580C]" />
-              5 Episodes
+              5 Masterclasses
             </span>
             <span className="hidden sm:inline text-stone-300">·</span>
             <span className="inline-flex items-center gap-1.5 text-[#1A1A1A] bg-white sm:bg-transparent px-2.5 py-1 sm:p-0 rounded-full border border-stone-200/80 sm:border-0 shadow-2xs sm:shadow-none">
@@ -412,7 +415,8 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
         </div>
       </section>
 
-      {/* ─── 5. ENROLLMENT MODAL ─── */}
+
+      {/* ─── 6. ENROLLMENT MODAL ─── */}
       <AcademyEnrollModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

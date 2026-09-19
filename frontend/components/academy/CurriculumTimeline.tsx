@@ -16,8 +16,8 @@ const EPISODES = [
     desc: "Understand what Artificial General Intelligence actually means and how it differs from today's AI.",
     date: 'Sep 21, 2026',
     duration: '8 min',
-    status: 'Available Now',
-    unlocked: true,
+    status: 'Unlocks Sep 21',
+    unlocked: false,
   },
   {
     num: '02',

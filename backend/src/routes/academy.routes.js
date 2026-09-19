@@ -29,8 +29,8 @@ const DEFAULT_AGI_COURSE = {
       durationText: '~8 min',
       releaseDateText: 'September 21, 2026',
       releaseDate: new Date('2026-09-21T00:00:00Z'),
-      status: 'available',
-      videoUrl: '/academy/intro.mp4',
+      status: 'unlocks_date',
+      videoUrl: '',
       resources: [{ title: 'Course Notes & Definitions', url: '#' }],
     },
     {
