@@ -159,9 +159,27 @@ export default function AcademyDashboard({
   const totalEpisodes = 5
   const progressPercent = Math.round((completedCount / totalEpisodes) * 100)
 
+  // Persist progress to localStorage so it survives page refreshes
+  const persistProgress = (updatedEpisodes: number[], updatedIntro: boolean) => {
+    try {
+      const stored = localStorage.getItem('tripsage_academy_user')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        parsed.progress = {
+          completedEpisodes: updatedEpisodes,
+          hasWatchedIntro: updatedIntro,
+        }
+        localStorage.setItem('tripsage_academy_user', JSON.stringify(parsed))
+      }
+    } catch (e) {
+      console.warn('Could not persist academy progress to localStorage')
+    }
+  }
+
   const handleToggleIntroWatched = () => {
     const next = !hasWatchedIntro
     setHasWatchedIntro(next)
+    persistProgress(completedEpisodes, next)
     if (next) {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       fetch(`${backendUrl}/api/academy/intro-watched`, {
@@ -180,6 +198,7 @@ export default function AcademyDashboard({
       next = [...completedEpisodes, epNum].sort((a, b) => a - b)
     }
     setCompletedEpisodes(next)
+    persistProgress(next, hasWatchedIntro)
 
     // Sync to backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
