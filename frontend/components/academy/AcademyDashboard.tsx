@@ -13,6 +13,7 @@ import {
   Award,
   RotateCcw,
   Video,
+  FileDown,
 } from 'lucide-react'
 import AcademyVideoPlayer from './AcademyVideoPlayer'
 
@@ -25,6 +26,7 @@ interface Episode {
   status: 'available' | 'unlocks_date' | 'upcoming'
   unlockDate: string
   videoUrl?: string
+  notesUrl?: string
   takeaways: string[]
 }
 
@@ -52,8 +54,9 @@ const EPISODES_DATA: Episode[] = [
     durationText: '8 min',
     releaseDateText: 'Sep 21, 2026',
     unlockDate: 'Sep 21',
-    status: 'unlocks_date',
-    videoUrl: '',
+    status: 'available',
+    videoUrl: '/academy/episode1.mp4',
+    notesUrl: '/academy/episode1-notes.docx',
     takeaways: [
       'Definition of General Intelligence vs Narrow AI',
       'The Turing, ARC, and reasoning benchmarks',
@@ -424,6 +427,20 @@ export default function AcademyDashboard({
                     ))}
                   </div>
                 </div>
+
+                {/* Download Notes */}
+                {activeEpisode.notesUrl && (
+                  <div className="pt-4 border-t border-[#E8E0D8]">
+                    <a
+                      href={activeEpisode.notesUrl}
+                      download
+                      className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-gradient-to-r from-[#FFFBF7] to-[#FFF8F3] border border-orange-200 hover:border-[#EA580C] text-[#EA580C] text-xs font-bold transition-all hover:shadow-sm group"
+                    >
+                      <FileDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+                      Download Episode Notes (.docx)
+                    </a>
+                  </div>
+                )}
               </div>
             </>
           ) : null}
