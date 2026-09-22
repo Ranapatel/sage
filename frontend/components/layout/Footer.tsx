@@ -172,7 +172,7 @@ export default function Footer() {
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Social</h4>
               <div className="flex flex-col gap-4">
                 <a
-                  href="https://www.instagram.com/tripsage_?igsh=NDBzdWhzejgwaDh1"
+                  href="https://www.instagram.com/tripsage.in?stkn=MTB3YjA4eWYzdXo0"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2 group"
