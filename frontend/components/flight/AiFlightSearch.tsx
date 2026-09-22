@@ -14,6 +14,7 @@ interface AiFlightSearchProps {
   loading?: boolean
   flightValidation?: {
     hasCommercialAirport?: boolean
+    isNearestAirport?: boolean
     reason?: string
     noAirportCity?: string
     nearestAirport?: {

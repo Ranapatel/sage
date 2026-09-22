@@ -308,11 +308,35 @@ const path = require('path');
 let nestProcess = null;
 let nestServiceStatus = process.env.SPAWN_NEST === 'false' ? 'disabled' : 'starting';
 
+function cleanPortWindows(port) {
+  if (process.platform === 'win32') {
+    try {
+      const { execSync } = require('child_process');
+      const stdout = execSync(`netstat -ano | findstr :${port}`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString();
+      const lines = stdout.trim().split('\n');
+      for (const line of lines) {
+        const parts = line.trim().split(/\s+/);
+        const pid = parts[parts.length - 1];
+        if (pid && !isNaN(parseInt(pid, 10)) && parseInt(pid, 10) !== process.pid && parseInt(pid, 10) !== 0) {
+          try {
+            execSync(`taskkill /PID ${pid} /T /F`, { stdio: 'ignore' });
+            console.log(`[TripSage] 🧹 Freed port ${port} by terminating orphaned PID ${pid}`);
+          } catch { /* already dead */ }
+        }
+      }
+    } catch {
+      // Port is clean
+    }
+  }
+}
+
 function startNestService() {
   if (process.env.SPAWN_NEST === 'false') {
     console.log('[TripSage] ℹ️ NestJS transport microservice spawn skipped (disabled via SPAWN_NEST=false).');
     return;
   }
+  cleanPortWindows(4001);
+
   const isProd = process.env.NODE_ENV === 'production';
   console.log(`[TripSage] 🚀 Starting NestJS transport microservice (${isProd ? 'production' : 'development'})...`);
 
@@ -347,10 +371,17 @@ createAndListen(activePort)
 // ── Graceful shutdown ──────────────────────────────────────────────────────────
 function shutdown(signal) {
   console.log(`\n[TripSage] ${signal} received — shutting down gracefully...`)
-  if (nestProcess) {
+  if (nestProcess && nestProcess.pid) {
     console.log('[TripSage] 🛑 Stopping NestJS transport service...');
-    nestProcess.kill('SIGINT');
+    if (process.platform === 'win32') {
+      try {
+        require('child_process').execSync(`taskkill /PID ${nestProcess.pid} /T /F`, { stdio: 'ignore' });
+      } catch { /* silent */ }
+    } else {
+      nestProcess.kill('SIGINT');
+    }
   }
+  cleanPortWindows(4001);
   if (ioServer) ioServer.close()
   if (httpServer) {
     httpServer.close(() => {

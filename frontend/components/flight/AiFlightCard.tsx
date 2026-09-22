@@ -42,6 +42,13 @@ export interface FlightOfferItem {
   tag?: string
   score?: number
   kiwiBookingUrl?: string
+  isNearestAirport?: boolean
+  nearestAirportCity?: string
+  nearestAirportName?: string
+  nearestAirportIata?: string
+  nearestAirportDistanceKm?: number
+  finalDestination?: string
+  routeNotice?: string
 }
 
 interface AiFlightCardProps {

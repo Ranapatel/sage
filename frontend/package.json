@@ -16,7 +16,7 @@
     "@sentry/nextjs": "^10.66.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/leaflet": "^1.9.21",
-    "@types/three": "^0.185.1",
+    "@types/three": "^0.185.4",
     "axios": "^1.6.8",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
