@@ -528,11 +528,41 @@ function generateMockPlaces(destination) {
   const city = destination.split(',')[0].trim()
   
   // Custom mock data for popular destinations
+  const isManali = city.toLowerCase().includes('manali')
   const isGoa = city.toLowerCase().includes('goa')
   const isBali = city.toLowerCase().includes('bali')
   const isDubai = city.toLowerCase().includes('dubai')
   const isBangkok = city.toLowerCase().includes('bangkok')
   const isSingapore = city.toLowerCase().includes('singapore')
+
+  if (isManali) {
+    return [
+      { name: 'Hadimba Devi Temple', category: 'Must See', description: 'Iconic 16th-century wooden pagoda temple nestled inside a fragrant cedar forest.', cost: 50, bestTime: '9:00 AM - 11:30 AM' },
+      { name: 'Solang Valley Adventure Point', category: 'Outdoor', description: 'Famous valley hub for paragliding, zorbing, quad biking, and alpine snow views.', cost: 500, bestTime: 'Morning 9:00 AM - 2:00 PM' },
+      { name: 'Old Manali & Manu Temple', category: 'Must See', description: 'Charming historic quarter with rustic stone houses, bohemian vibe, and ancient Manu shrine.', cost: 0, bestTime: '10:00 AM - 1:00 PM' },
+      { name: 'Jogini Waterfall Trek', category: 'Outdoor', description: 'Scenic short hike through pine groves and apple orchards leading to cascading mountain falls.', cost: 0, bestTime: 'Morning 8:30 AM' },
+      { name: 'Vashisht Hot Water Springs & Temple', category: 'Must See', description: 'Centuries-old sulfur spring baths known for therapeutic minerals with mountain backdrop.', cost: 0, bestTime: 'Early Morning or Sunset' },
+      { name: 'Atal Tunnel & Sissu Waterfall', category: 'Outdoor', description: 'World-record high-altitude tunnel opening into the dramatic Lahaul Valley and Sissu lake.', cost: 200, bestTime: 'Morning 9:00 AM - 3:00 PM' },
+      { name: 'Rohtang Pass Snow Crest', category: 'Must See', description: 'Legendary 13,058 ft mountain pass offering jaw-dropping 360-degree Himalayan glaciers.', cost: 550, bestTime: 'Early Morning 7:00 AM' },
+      { name: 'Naggar Castle & Roerich Art Gallery', category: 'Must See', description: 'Medieval timber-and-stone fortress with royal Beas river views and Himalayan oil paintings.', cost: 100, bestTime: '11:00 AM - 4:00 PM' },
+      { name: 'Van Vihar National Forest Park', category: 'Outdoor', description: 'Tranquil deodar sanctuary with walking trails running alongside the roaring Beas River.', cost: 30, bestTime: 'Late Afternoon 3:30 PM' },
+      { name: 'Mall Road & Tibetan Monastery', category: 'Local Food', description: 'Lively pedestrian boulevard with Tibetan handicraft bazaars and authentic momo stalls.', cost: 0, bestTime: 'Evening 5:00 PM - 9:00 PM' },
+      { name: 'Cafe 1947 by the River', category: 'Local Food', description: 'Legendary riverside cafe offering Italian delicacies, live acoustic music, and mountain soundscape.', cost: 650, bestTime: 'Lunch or Sunset' },
+      { name: 'Johnson\'s Cafe & Bar', category: 'Local Food', description: 'Famous heritage garden restaurant celebrated for fresh Himalayan wood-fired trout.', cost: 850, bestTime: 'Dinner 7:30 PM' },
+      { name: 'The Lazy Dog Lounge Old Manali', category: 'Local Food', description: 'Riverside wooden deck serving craft beverages, continental platters, and local trout.', cost: 700, bestTime: 'Evening' },
+      { name: 'Anjani Mahadev Snow Lingam', category: 'Hidden Gems', description: 'Spiritual waterfall forming a natural winter ice lingam reached by horse trail.', cost: 0, bestTime: 'Morning' },
+      { name: 'Gulaba Alpine Meadow', category: 'Outdoor', description: 'Lush mountain slopes surrounded by snow-capped peaks, ideal for nature photography.', cost: 0, bestTime: 'Daytime' },
+      { name: 'Nehru Kund Cold Spring', category: 'Hidden Gems', description: 'Pristine natural cold water spring named after India\'s first Prime Minister.', cost: 0, bestTime: 'Morning' },
+      { name: 'Bhrigu Lake Trek Base', category: 'Outdoor', description: 'High-altitude glacial lake trail renowned for mythic folklore and alpine wildflowers.', cost: 1200, bestTime: 'Early Morning' },
+      { name: 'Kullu Shawl Weaving & River Rafting', category: 'Outdoor', description: 'Thrilling grade-3 rapids rafting on the Beas River paired with local wool artisans.', cost: 1000, bestTime: '10:00 AM - 2:00 PM' },
+      { name: 'Gadhan Thekchhokling Gompa', category: 'Must See', description: 'Vibrant yellow-roofed Buddhist monastery filled with historic murals and prayer wheels.', cost: 0, bestTime: 'Morning or Evening' },
+      { name: 'Drifters\' Cafe Old Manali', category: 'Local Food', description: 'Cozy traveler retreat with board games, local herbal infusions, and fresh waffles.', cost: 400, bestTime: 'Breakfast or Afternoon' },
+      { name: 'Kothi Village & Gorge View', category: 'Hidden Gems', description: 'Picturesque hamlet perched at the foot of Rohtang Pass offering dramatic gorge cliffs.', cost: 0, bestTime: 'Afternoon' },
+      { name: 'Hampta Pass Viewpoint', category: 'Outdoor', description: 'Spectacular crossover point between the green Kullu valley and arid Spiti deserts.', cost: 1500, bestTime: 'Morning' },
+      { name: 'Chopsticks Restaurant', category: 'Local Food', description: 'Beloved Mall Road institution for authentic Thukpa, Tibetan dumplings, and hot ginger lemon tea.', cost: 350, bestTime: 'Lunch or Dinner' },
+      { name: 'Jana Waterfall & Traditional Dhaba', category: 'Hidden Gems', description: 'Hidden forest fall near Naggar with wooden bridges serving local Himachali Siddu & Makki roti.', cost: 150, bestTime: 'Lunchtime' }
+    ]
+  }
 
   if (isGoa) {
     return [

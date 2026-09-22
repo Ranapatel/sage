@@ -272,17 +272,39 @@ export default function AiFlightSearch({
 
       {/* ── Main Full-Width Flight Cards Container ── */}
       <div className="w-full space-y-4">
+
+        {/* Nearest Airport Route Banner */}
+        {sortedFlights.length > 0 && (flightValidation?.isNearestAirport || sortedFlights.some(f => (f as any).isNearestAirport)) && (
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 border border-amber-300/60">
+              <Plane size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-xs font-black text-amber-950 font-display uppercase tracking-wider">
+                  Nearest Commercial Airport Route
+                </h4>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200/80 text-amber-900 border border-amber-300">
+                  {flightValidation?.nearestAirport?.iata || 'KUU'} Airport
+                </span>
+              </div>
+              <p className="text-xs text-amber-900/90 mt-1 font-medium leading-relaxed">
+                {flightValidation?.message || (sortedFlights[0] as any)?.routeNotice || `Flights land at ${flightValidation?.nearestAirport?.name || 'the nearest commercial airport'} (${flightValidation?.nearestAirport?.iata || 'KUU'}), located ~${flightValidation?.nearestAirport?.distanceKm || '50'} km from ${tripContext?.to || 'your destination'}. Seamless local cabs & scenic Volvo buses are readily available.`}
+              </p>
+            </div>
+          </div>
+        )}
           
-          {sortedFlights.length > 0 ? (
-            sortedFlights.map(flight => (
-              <AiFlightCard
-                key={flight.id}
-                flight={flight}
-                searchParams={searchParams}
-                currency={currency}
-              />
-            ))
-          ) : (
+        {sortedFlights.length > 0 ? (
+          sortedFlights.map(flight => (
+            <AiFlightCard
+              key={flight.id}
+              flight={flight}
+              searchParams={searchParams}
+              currency={currency}
+            />
+          ))
+        ) : (
             /* Smart Empty State — Non-airport city or no operating flights */
             <div className="bg-white border border-[#E8E0D8] rounded-2xl p-8 text-center space-y-4 shadow-xs">
               <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">

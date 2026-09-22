@@ -267,7 +267,9 @@ function createAndListen(port) {
     console.warn('[TripSage] ⚠️ Could not register SocketIO with notification engine:', err.message)
   }
 
-  server.listen(port, '0.0.0.0')
+  // Listen on port without restricting to IPv4 0.0.0.0, enabling dual-stack (IPv6 [::1] + IPv4 127.0.0.1)
+  // on Windows so modern browsers requesting http://localhost:PORT don't get ERR_CONNECTION_REFUSED.
+  server.listen(port)
 
   server.once('listening', () => {
     activePort = port

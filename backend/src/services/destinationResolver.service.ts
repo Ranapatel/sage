@@ -36,7 +36,7 @@ export class DestinationResolverService {
       throw new Error('Destination string is required.')
     }
 
-    const cacheKey = generateCacheKey('canonical_dest', { input: trimmed.toLowerCase() })
+    const cacheKey = generateCacheKey('canonical_dest_v2', { input: trimmed.toLowerCase() })
 
     // 1. Check Memory Cache
     if (memoryContextCache.has(cacheKey)) {
@@ -135,7 +135,14 @@ export class DestinationResolverService {
       city = 'Manali'
       keywordsSet.add('manali')
       keywordsSet.add('kullu')
+      keywordsSet.add('solang')
+      keywordsSet.add('rohtang')
+      keywordsSet.add('sissu')
+      keywordsSet.add('naggar')
+      keywordsSet.add('vashisht')
+      keywordsSet.add('bhuntar')
       keywordsSet.add('himachal pradesh')
+      keywordsSet.add('himachal')
       state = 'Himachal Pradesh'
     } else if (lowerCity === 'ooty' || lowerCity === 'udhagamandalam') {
       city = 'Ooty'
@@ -156,6 +163,8 @@ export class DestinationResolverService {
       state = 'Rajasthan'
     }
 
+    const defaultRadius = lowerCity === 'manali' || lowerCity === 'munnar' || lowerCity === 'ooty' || lowerCity === 'goa' ? 65 : 35
+
     const canonical: CanonicalDestinationContext = {
       city,
       state: state || city,
@@ -165,7 +174,7 @@ export class DestinationResolverService {
       longitude,
       placeId,
       timezone: 'Asia/Kolkata', // default timezone for Indian subcontinent
-      radiusKm: 35, // 35km bounding radius
+      radiusKm: defaultRadius, // Expanded bounding radius for valley/region destinations
       keywords: Array.from(keywordsSet),
     }
 

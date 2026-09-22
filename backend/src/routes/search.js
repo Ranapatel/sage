@@ -221,6 +221,7 @@ router.post('/', searchValidation, async (req, res) => {
         flightError: flightResult.error || null,
         flightValidation: {
           hasCommercialAirport: flightResult.hasCommercialAirport ?? true,
+          isNearestAirport: flightResult.isNearestAirport ?? false,
           reason: flightResult.reason || null,
           noAirportCity: flightResult.noAirportCity || null,
           nearestAirport: flightResult.nearestAirport || null,

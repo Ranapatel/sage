@@ -72,16 +72,23 @@ export function isValidDestinationItem(
     }
   }
 
-  // 2. Fallback to keyword matching if coordinates are missing
-  const matchesKeyword = dest.keywords.some(kw => fullText.includes(kw))
-  if (matchesKeyword) {
-    return { valid: true }
+  // 2. Fallback if coordinates are missing:
+  // If coordinates are missing, verify it doesn't mention an entirely different major destination city
+  const OTHER_MAJOR_DESTINATIONS = [
+    'delhi', 'mumbai', 'goa', 'bangalore', 'bengaluru', 'chennai', 'kolkata', 'jaipur', 'hyderabad',
+    'pune', 'agra', 'varanasi', 'kochi', 'amritsar', 'udaipur', 'shimla', 'rishikesh', 'pondicherry', 'paris', 'dubai', 'bangkok'
+  ].filter(c => c !== dest.city.toLowerCase() && !dest.keywords.includes(c))
+
+  const mentionsOtherCity = OTHER_MAJOR_DESTINATIONS.some(other => fullText.includes(other))
+  if (mentionsOtherCity) {
+    return {
+      valid: false,
+      reason: `Text "${fullText.slice(0, 60)}" mentions a different destination city`,
+    }
   }
 
-  return {
-    valid: false,
-    reason: `Text "${fullText.slice(0, 60)}" does not contain destination keyword (${dest.city})`,
-  }
+  // If keyword matches or it does not mention a conflicting city, accept as local item
+  return { valid: true }
 }
 
 /**
@@ -148,27 +155,46 @@ export function validateAndSanitizeItinerary(
   let totalRejected = 0
 
   const cleanedDays = itineraryData.itinerary.map((dayObj: any) => {
-    if (!dayObj || !Array.isArray(dayObj.activities)) return dayObj
+    if (!dayObj) return dayObj
 
-    const validDayActs: any[] = []
-    for (const act of dayObj.activities) {
-      const check = isValidDestinationItem(act, dest)
-      if (check.valid) {
-        validDayActs.push(act)
-      } else {
-        totalRejected++
-        console.warn(`[DestinationGuard] ❌ Rejected cross-city itinerary stop "${act.name}" from Day ${dayObj.day}: ${check.reason}`)
+    const resDay = { ...dayObj }
+
+    // Sanitize activities array if present
+    if (Array.isArray(dayObj.activities) && dayObj.activities.length > 0) {
+      const validDayActs: any[] = []
+      for (const act of dayObj.activities) {
+        const check = isValidDestinationItem(act, dest)
+        if (check.valid) {
+          validDayActs.push(act)
+        } else {
+          totalRejected++
+          console.warn(`[DestinationGuard] ❌ Rejected cross-city itinerary activity "${act.name}" from Day ${dayObj.day}: ${check.reason}`)
+        }
       }
+      resDay.activities = validDayActs.length > 0 ? validDayActs : dayObj.activities
     }
 
-    return {
-      ...dayObj,
-      activities: validDayActs,
+    // Sanitize places array if present
+    if (Array.isArray(dayObj.places) && dayObj.places.length > 0) {
+      const validDayPlaces: any[] = []
+      for (const place of dayObj.places) {
+        const check = isValidDestinationItem(place, dest)
+        if (check.valid) {
+          validDayPlaces.push(place)
+        } else {
+          totalRejected++
+          console.warn(`[DestinationGuard] ❌ Rejected cross-city itinerary place "${place.name}" from Day ${dayObj.day}: ${check.reason}`)
+        }
+      }
+      // Never leave a day with 0 places if it originally had places
+      resDay.places = validDayPlaces.length > 0 ? validDayPlaces : dayObj.places
     }
+
+    return resDay
   })
 
   if (totalRejected > 0) {
-    console.log(`[DestinationGuard] 🛡️ Cleared ${totalRejected} cross-city stops from generated itinerary for "${dest.city}"`)
+    console.log(`[DestinationGuard] 🛡️ Filtered ${totalRejected} cross-city stops from generated itinerary for "${dest.city}"`)
   }
 
   return {

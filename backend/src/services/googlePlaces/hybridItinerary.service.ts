@@ -39,7 +39,7 @@ export class HybridItineraryService {
     const destinationCity = destContext.city
 
     // ── 0. Redis Cache Check ────────────────────────────────────────────────
-    const cacheKey = generateCacheKey('hybrid_itinerary', {
+    const cacheKey = generateCacheKey('hybrid_itinerary_v6', {
       destination: destContext.city,
       lat: destContext.latitude,
       lng: destContext.longitude,
@@ -54,8 +54,8 @@ export class HybridItineraryService {
 
     try {
       const cached = await cacheGet(cacheKey)
-      if (cached) {
-        console.log(`[HybridItinerary] ✅ Cache HIT for "${destContext.city}"`)
+      if (cached && Array.isArray((cached as any).itinerary) && (cached as any).itinerary.length >= days) {
+        console.log(`[HybridItinerary] ✅ Cache HIT for "${destContext.city}" (${(cached as any).itinerary.length} days)`)
         return cached as HybridItinerary
       }
     } catch { /* proceed without cache */ }
@@ -66,26 +66,33 @@ export class HybridItineraryService {
     let candidates = await this.discoverCandidates(destContext.normalizedName, preferences, destContext)
     console.log(`[HybridItinerary] Discovered ${candidates.length} candidate places in "${destContext.city}"`)
 
-    if (candidates.length === 0) {
-      console.warn(`[HybridItinerary] 0 candidates discovered from Google Places for "${destContext.city}" — generating fallback candidates from destination intelligence`)
+    const minRequiredCandidates = Math.max(20, days * 3)
+    if (candidates.length < minRequiredCandidates) {
+      console.warn(`[HybridItinerary] Candidates pool (${candidates.length}) is below optimal count (${minRequiredCandidates}) — augmenting with curated destination intelligence`)
       const { generateMockPlaces } = require('../aiService')
       const mockPlaces = generateMockPlaces(destContext.city)
-      candidates = mockPlaces.map((p: any, i: number) => ({
-        id: `mock_cand_${i}_${Date.now()}`,
-        name: p.name,
-        address: `${p.name}, ${destContext.city}`,
-        latitude: destContext.latitude + (i * 0.005),
-        longitude: destContext.longitude + (i * 0.005),
-        rating: 4.7,
-        userRatingsTotal: 100,
-        priceLevel: p.cost ? (p.cost > 500 ? 2 : 1) : 0,
-        category: (p.category || 'attractions').toLowerCase(),
-        types: ['tourist_attraction'],
-        photoUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop',
-        googleMapsUrl: '',
-        isOpenNow: true,
-        source: 'google_places' as const,
-      }))
+      const existingNames = new Set(candidates.map(c => c.name.toLowerCase()))
+
+      mockPlaces.forEach((p: any, i: number) => {
+        if (!existingNames.has(p.name.toLowerCase())) {
+          candidates.push({
+            id: `curated_cand_${i}_${Date.now()}`,
+            name: p.name,
+            address: `${p.name}, ${destContext.city}`,
+            latitude: destContext.latitude + ((i + 1) * 0.004 * (i % 2 === 0 ? 1 : -1)),
+            longitude: destContext.longitude + ((i + 1) * 0.004 * (i % 3 === 0 ? 1 : -1)),
+            rating: 4.7,
+            userRatingsTotal: 150 + i * 25,
+            priceLevel: p.cost ? (p.cost > 500 ? 2 : 1) : 0,
+            category: (p.category || 'attractions').toLowerCase(),
+            types: ['tourist_attraction'],
+            photoUrl: null,
+            googleMapsUrl: '',
+            isOpenNow: true,
+            source: 'google_places' as const,
+          })
+        }
+      })
     }
 
     // ── 2. Phase 2: AI Place Ranking ────────────────────────────────────────
@@ -465,7 +472,7 @@ ${candidatesListStr}`
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 3000,
+        max_tokens: 4096,
         temperature: 0.2,
         response_format: { type: 'json_object' }
       }, {
@@ -473,12 +480,27 @@ ${candidatesListStr}`
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        timeout: 30000,
+        timeout: 35000,
       })
 
       const content = res.data.choices[0]?.message?.content
       const parsed = JSON.parse(content || '{}')
       if (parsed.itinerary && Array.isArray(parsed.itinerary) && parsed.itinerary.length > 0) {
+        // Guarantee all requested days are present
+        if (parsed.itinerary.length < days) {
+          console.warn(`[HybridItinerary/Generation] LLM returned ${parsed.itinerary.length}/${days} days. Backfilling missing days...`)
+          const fallback = this.buildFallbackHybridItinerary(rankedCandidates, params)
+          const existingDayNums = new Set(parsed.itinerary.map((d: any) => d.day))
+          for (let d = 1; d <= days; d++) {
+            if (!existingDayNums.has(d)) {
+              const fbDay = fallback.itinerary.find((f: any) => f.day === d) || fallback.itinerary[d - 1]
+              if (fbDay) {
+                parsed.itinerary.push({ ...fbDay, day: d })
+              }
+            }
+          }
+          parsed.itinerary.sort((a: any, b: any) => a.day - b.day)
+        }
         return parsed
       }
       return this.buildFallbackHybridItinerary(rankedCandidates, params)
@@ -498,11 +520,40 @@ ${candidatesListStr}`
     const { days = 3, budget = 50000, currency = 'INR', destination } = params
     const destCity = destination.split(',')[0].trim()
 
-    const itinerary: any[] = []
-    const candList = candidates.length > 0 ? candidates : [
-      { id: 'fb_1', name: `Central Landmark — ${destCity}`, category: 'attractions', rating: 4.8, userRatingsTotal: 250, priceLevel: 1, latitude: 0, longitude: 0, address: destCity, types: ['landmark'], photoUrl: null, googleMapsUrl: '', isOpenNow: true, source: 'google_places' }
-    ]
+    let candList = [...candidates]
+    if (candList.length < Math.max(15, days * 3)) {
+      const { generateMockPlaces } = require('../aiService')
+      const mockPlaces = generateMockPlaces(destCity)
+      const existingNames = new Set(candList.map(c => c.name.toLowerCase()))
+      mockPlaces.forEach((p: any, i: number) => {
+        if (!existingNames.has(p.name.toLowerCase())) {
+          candList.push({
+            id: `fb_cand_${i}_${Date.now()}`,
+            name: p.name,
+            address: `${p.name}, ${destCity}`,
+            latitude: 0,
+            longitude: 0,
+            rating: 4.8,
+            userRatingsTotal: 250,
+            priceLevel: p.cost ? (p.cost > 500 ? 2 : 1) : 0,
+            category: (p.category || 'attractions').toLowerCase(),
+            types: ['landmark'],
+            photoUrl: null,
+            googleMapsUrl: '',
+            isOpenNow: true,
+            source: 'google_places' as const,
+          })
+        }
+      })
+    }
 
+    if (candList.length === 0) {
+      candList = [
+        { id: 'fb_1', name: `Central Landmark — ${destCity}`, category: 'attractions', rating: 4.8, userRatingsTotal: 250, priceLevel: 1, latitude: 0, longitude: 0, address: destCity, types: ['landmark'], photoUrl: null, googleMapsUrl: '', isOpenNow: true, source: 'google_places' }
+      ]
+    }
+
+    const itinerary: any[] = []
     let candIdx = 0
     for (let d = 1; d <= days; d++) {
       const morningCand = candList[candIdx % candList.length]
@@ -510,6 +561,8 @@ ${candidatesListStr}`
       const afternoonCand = candList[candIdx % candList.length]
       candIdx++
       const eveningCand = candList[candIdx % candList.length]
+      candIdx++
+      const nightCand = candList[candIdx % candList.length]
       candIdx++
 
       itinerary.push({
@@ -519,38 +572,48 @@ ${candidatesListStr}`
           morning: {
             placeId: morningCand.id,
             name: morningCand.name,
-            time: '09:30',
+            time: '09:00',
             category: morningCand.category || 'attractions',
-            activity: `Explore ${morningCand.name}`,
+            activity: `Morning exploration & sightseeing at ${morningCand.name}`,
             visitDurationMinutes: 90,
             estimatedCost: 100,
-            tip: 'Visit in the morning for best experience'
+            tip: 'Visit in the morning for crisp views and fewer crowds'
           },
           afternoon: {
             placeId: afternoonCand.id,
             name: afternoonCand.name,
-            time: '13:30',
+            time: '13:00',
             category: afternoonCand.category || 'dining',
-            activity: `Lunch and sightseeing at ${afternoonCand.name}`,
+            activity: `Lunch and heritage visit at ${afternoonCand.name}`,
             visitDurationMinutes: 90,
             estimatedCost: 250,
-            tip: 'Try local specialties'
+            tip: 'Try authentic local cuisine and specialties'
           },
           evening: {
             placeId: eveningCand.id,
             name: eveningCand.name,
-            time: '17:30',
+            time: '17:00',
             category: eveningCand.category || 'attractions',
-            activity: `Sunset stroll and exploration around ${eveningCand.name}`,
+            activity: `Golden hour stroll and photography around ${eveningCand.name}`,
             visitDurationMinutes: 120,
             estimatedCost: 150,
-            tip: 'Great spot for evening photography'
+            tip: 'Great spot for scenic photography and sunset vibes'
+          },
+          night: {
+            placeId: nightCand.id,
+            name: nightCand.name,
+            time: '20:00',
+            category: nightCand.category || 'dining',
+            activity: `Dinner, local bazaar stroll and cafe experience at ${nightCand.name}`,
+            visitDurationMinutes: 90,
+            estimatedCost: 350,
+            tip: 'Enjoy the vibrant evening atmosphere and local desserts'
           }
         },
         travelTimeMinutes: 30,
         walkingDistanceMeters: 1200,
-        transportation: 'Local taxi or walking recommended',
-        rainyDayAlternatives: [`${destCity} Museum`, `${destCity} Cultural Center`]
+        transportation: 'Local taxi or scenic walking recommended',
+        rainyDayAlternatives: [`${destCity} Art Gallery & Cultural Museum`, `${destCity} Local Crafts Bazaar`]
       })
     }
 
@@ -566,8 +629,8 @@ ${candidatesListStr}`
       },
       tips: [
         `Plan your morning visits early to avoid crowds in ${destCity}.`,
-        `Carry water and comfortable walking shoes.`,
-        `Check local opening hours in advance.`
+        `Carry water, comfortable footwear, and a light jacket.`,
+        `Check local weather and road conditions in advance.`
       ]
     }
   }
@@ -786,6 +849,47 @@ ${JSON.stringify(placesForSummary, null, 2)}`
         enrichedSlots.evening,
         enrichedSlots.night
       ].filter(Boolean)
+
+      // Invariant: Ensure every day has at least 3 active places
+      if (placesList.length < 3) {
+        const { generateMockPlaces } = require('../aiService')
+        const backupPlaces = generateMockPlaces(destinationCity || 'Destination')
+        const usedNames = new Set(placesList.map((p: any) => p.name?.toLowerCase()))
+        const allSlots = ['morning', 'afternoon', 'evening', 'night']
+
+        for (const slotKey of allSlots) {
+          if (!enrichedSlots[slotKey]) {
+            const pick = backupPlaces.find((bp: any) => !usedNames.has(bp.name.toLowerCase())) || backupPlaces[placesList.length % backupPlaces.length]
+            if (pick) {
+              usedNames.add(pick.name.toLowerCase())
+              const defaultTimes: Record<string, string> = { morning: '09:00', afternoon: '13:00', evening: '17:00', night: '20:00' }
+              enrichedSlots[slotKey] = {
+                placeId: null,
+                name: pick.name,
+                time: defaultTimes[slotKey] || '12:00',
+                category: (pick.category || 'attractions').toLowerCase(),
+                activity: pick.description || `Sightseeing & exploration at ${pick.name}`,
+                visitDurationMinutes: 90,
+                estimatedCost: pick.cost || 100,
+                tip: `Recommended timing: ${pick.bestTime || 'daytime'}`,
+                rating: 4.8,
+                reviewsCount: 180,
+                photoUrl: null,
+                image: null,
+                isAiIllustration: false,
+                googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pick.name + ' ' + destinationCity)}`,
+                phone: null,
+                website: null,
+                openingHours: null,
+                coordinates: null,
+                reviewSummary: null,
+              }
+              placesList.push(enrichedSlots[slotKey])
+              if (placesList.length >= 3) break
+            }
+          }
+        }
+      }
 
       enrichedDays.push({
         ...d,

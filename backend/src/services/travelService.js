@@ -363,7 +363,7 @@ const AIRLINES = [
 async function searchFlights({ from, to, date, returnDate, budget, travelers = 2, cabin = 'Economy' }) {
   console.log(`[FlightSearch] Search request: from="${from}", to="${to}", date="${date}", travelers=${travelers}`)
 
-  // 1. Strict Commercial Airport Validation
+  // 1. Commercial Airport Validation with Smart Nearest Airport Routing
   const originValidation = validateCityAirport(from)
   const destValidation = validateCityAirport(to)
 
@@ -371,13 +371,26 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
     ? date
     : new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]
 
-  // If either origin or destination lacks a commercial airport: NEVER invent flights!
-  if (!originValidation.hasCommercialAirport || !destValidation.hasCommercialAirport) {
-    const nonAirportCity = !originValidation.hasCommercialAirport ? from : to
-    const nearestInfo = findNearestCommercialAirport(nonAirportCity)
+  let isNearestAirportRoute = false
+  let nearestDestAirportInfo = null
+  let originIata = originValidation.iataCode
+  let destIata = destValidation.iataCode
 
-    console.log(`[FlightSearch] Non-airport city detected: "${nonAirportCity}". Nearest airport: ${nearestInfo.name} (${nearestInfo.iata}), ${nearestInfo.distanceKm}km.`)
+  if (!originValidation.hasCommercialAirport) {
+    const nearestOrigin = findNearestCommercialAirport(from)
+    originIata = nearestOrigin.iata
+    console.log(`[FlightSearch] Origin non-airport city: "${from}". Using nearest: ${nearestOrigin.name} (${nearestOrigin.iata})`)
+  }
 
+  if (!destValidation.hasCommercialAirport) {
+    nearestDestAirportInfo = findNearestCommercialAirport(to)
+    destIata = nearestDestAirportInfo.iata
+    isNearestAirportRoute = true
+    console.log(`[FlightSearch] Destination non-airport city: "${to}". Routing to nearest commercial airport: ${nearestDestAirportInfo.name} (${nearestDestAirportInfo.iata}), ${nearestDestAirportInfo.distanceKm}km.`)
+  }
+
+  if (!originIata || !destIata) {
+    const nonAirportCity = !originIata ? from : to
     return {
       success: true,
       hasCommercialAirport: false,
@@ -385,25 +398,14 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
       data: [],
       reason: 'NO_COMMERCIAL_AIRPORT',
       noAirportCity: nonAirportCity,
-      nearestAirport: nearestInfo,
+      nearestAirport: nearestDestAirportInfo,
       alternativeModes: ['train', 'bus', 'car'],
-      message: `No commercial airport exists in ${nonAirportCity}. Nearest commercial airport is ${nearestInfo.name} (${nearestInfo.iata}), located approximately ${nearestInfo.distanceKm} km away.`,
-      meta: {
-        cache: false,
-        source: 'airport_validation',
-        hasCommercialAirport: false,
-        noAirportCity: nonAirportCity,
-        nearestAirport: nearestInfo,
-        verified: true,
-        verifiedAt: new Date().toISOString()
-      }
+      message: `No commercial airport found near ${nonAirportCity}.`,
+      meta: { cache: false, source: 'airport_validation', hasCommercialAirport: false }
     }
   }
 
-  const originIata = originValidation.iataCode
-  const destIata = destValidation.iataCode
-
-  console.log(`[FlightSearch] Validated commercial airports: ${originIata} -> ${destIata}`)
+  console.log(`[FlightSearch] Validated commercial airports: ${originIata} -> ${destIata} (isNearestAirport: ${isNearestAirportRoute})`)
 
   // Short-term Redis Cache Key (180s)
   const cacheKey = generateCacheKey('flights_live_verified_v1', { originIata, destIata, departureDate, returnDate, travelers, cabin })
@@ -626,24 +628,47 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
   }
 
 
+  // If nearest airport route, tag each flight offer
+  if (isNearestAirportRoute && nearestDestAirportInfo) {
+    flightResults = flightResults.map(f => ({
+      ...f,
+      isNearestAirport: true,
+      nearestAirportCity: nearestDestAirportInfo.city,
+      nearestAirportName: nearestDestAirportInfo.name,
+      nearestAirportIata: nearestDestAirportInfo.iata,
+      nearestAirportDistanceKm: nearestDestAirportInfo.distanceKm,
+      finalDestination: to,
+      routeNotice: `Flight lands at ${nearestDestAirportInfo.name} (${nearestDestAirportInfo.iata}) • ~${nearestDestAirportInfo.distanceKm} km from ${to}. Direct cabs & buses available to destination.`
+    }))
+  }
+
   const result = {
     success: true,
-    hasCommercialAirport: true,
+    hasCommercialAirport: !isNearestAirportRoute,
+    isNearestAirport: isNearestAirportRoute,
+    noAirportCity: isNearestAirportRoute ? to : null,
+    nearestAirport: nearestDestAirportInfo,
     hasLiveFlights: flightResults.length > 0,
     data: flightResults,
     flights: flightResults,
     reason: flightResults.length === 0 ? 'NO_FLIGHTS_OPERATING' : null,
     originIata,
     destIata,
-    alternativeModes: flightResults.length === 0 ? ['train', 'bus', 'car'] : [],
-    message: flightResults.length === 0
-      ? `No live operating commercial flights found for ${originIata} → ${destIata} on ${departureDate}.`
-      : `Found ${flightResults.length} verified live flight offers.`,
+    alternativeModes: isNearestAirportRoute ? ['train', 'bus', 'car'] : (flightResults.length === 0 ? ['train', 'bus', 'car'] : []),
+    message: isNearestAirportRoute && nearestDestAirportInfo
+      ? `Found ${flightResults.length} flights landing at nearest airport: ${nearestDestAirportInfo.name} (${nearestDestAirportInfo.iata}), located ~${nearestDestAirportInfo.distanceKm} km from ${to}.`
+      : (flightResults.length === 0
+        ? `No live operating commercial flights found for ${originIata} → ${destIata} on ${departureDate}.`
+        : `Found ${flightResults.length} verified live flight offers.`),
     meta: {
       cache: false,
       destIata,
       departureDate,
       travelers,
+      hasCommercialAirport: !isNearestAirportRoute,
+      isNearestAirport: isNearestAirportRoute,
+      noAirportCity: isNearestAirportRoute ? to : null,
+      nearestAirport: nearestDestAirportInfo,
       verified: true,
       verifiedAt: new Date().toISOString()
     }
