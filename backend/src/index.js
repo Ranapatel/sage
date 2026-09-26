@@ -1,3 +1,8 @@
+try {
+  require('ts-node').register({ transpileOnly: true })
+} catch (_) {
+  // ts-node already registered or running in precompiled mode
+}
 require('dotenv').config()
 
 // ── Production environment guards ─────────────────────────────────────────────
@@ -316,12 +321,17 @@ function cleanPortWindows(port) {
       const lines = stdout.trim().split('\n');
       for (const line of lines) {
         const parts = line.trim().split(/\s+/);
+        // Columns: Proto, Local Address, Foreign Address, State, PID
+        const localAddr = parts[1] || '';
+        const state = parts[3] || '';
         const pid = parts[parts.length - 1];
-        if (pid && !isNaN(parseInt(pid, 10)) && parseInt(pid, 10) !== process.pid && parseInt(pid, 10) !== 0) {
-          try {
-            execSync(`taskkill /PID ${pid} /T /F`, { stdio: 'ignore' });
-            console.log(`[TripSage] 🧹 Freed port ${port} by terminating orphaned PID ${pid}`);
-          } catch { /* already dead */ }
+        if (localAddr.endsWith(`:${port}`) && state === 'LISTENING') {
+          if (pid && !isNaN(parseInt(pid, 10)) && parseInt(pid, 10) !== process.pid && parseInt(pid, 10) !== 0) {
+            try {
+              execSync(`taskkill /PID ${pid} /T /F`, { stdio: 'ignore' });
+              console.log(`[TripSage] 🧹 Freed port ${port} by terminating orphaned PID ${pid}`);
+            } catch { /* already dead */ }
+          }
         }
       }
     } catch {
@@ -361,6 +371,10 @@ function startNestService() {
     nestServiceStatus = code === 0 ? 'stopped' : 'crashed';
     console.warn(`[TripSage] ⚠️  NestJS transport microservice exited with code: ${code}, signal: ${signal}`);
   });
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  cleanPortWindows(activePort);
 }
 
 startNestService();
