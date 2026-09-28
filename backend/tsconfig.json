@@ -28,5 +28,8 @@
     "src/**/*.spec.ts",
     "src/**/*.spec.js",
     "src/tests/**"
-  ]
+  ],
+  "ts-node": {
+    "transpileOnly": true
+  }
 }
