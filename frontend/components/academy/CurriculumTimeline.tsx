@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Calendar, Clock, Lock, Unlock, Play, Sparkles } from 'lucide-react'
+import { Calendar, Lock, Play, Sparkles } from 'lucide-react'
 import AcademyCard3D from './AcademyCard3D'
 import AcademyButton3D from './AcademyButton3D'
 
@@ -15,7 +15,6 @@ const EPISODES = [
     title: 'What Is AGI, Really?',
     desc: "Understand what Artificial General Intelligence actually means and how it differs from today's AI.",
     date: 'Sep 21, 2026',
-    duration: '8 min',
     status: 'Unlocks Sep 21',
     unlocked: false,
   },
@@ -23,36 +22,32 @@ const EPISODES = [
     num: '02',
     title: "AI vs AGI: What's the Difference?",
     desc: 'Understand narrow AI, generative AI, and the capabilities generally associated with AGI.',
-    date: 'Sep 24, 2026',
-    duration: '8 min',
-    status: 'Unlocks Sep 24',
+    date: 'Oct 5, 2026',
+    status: 'Unlocks Oct 5',
     unlocked: false,
   },
   {
     num: '03',
     title: 'How Does Intelligence Work?',
     desc: 'Explore learning, reasoning, memory, planning, and adaptation across modern cognitive architectures.',
-    date: 'Sep 28, 2026',
-    duration: '9 min',
-    status: 'Unlocks Sep 28',
+    date: 'Oct 12, 2026',
+    status: 'Unlocks Oct 12',
     unlocked: false,
   },
   {
     num: '04',
     title: 'AI Agents: From Chatbots to Action',
     desc: 'Learn how AI agents combine models, memory, tools, reasoning, and autonomous multi-step actions.',
-    date: 'Oct 1, 2026',
-    duration: '10 min',
-    status: 'Unlocks Oct 1',
+    date: 'Oct 19, 2026',
+    status: 'Unlocks Oct 19',
     unlocked: false,
   },
   {
     num: '05',
     title: 'The Road to AGI',
     desc: 'Explore the major capabilities, challenges, open questions, and possible directions toward more general AI.',
-    date: 'Oct 5, 2026',
-    duration: '10 min',
-    status: 'Unlocks Oct 5',
+    date: 'Oct 26, 2026',
+    status: 'Unlocks Oct 26',
     unlocked: false,
   },
 ]
@@ -127,10 +122,6 @@ export default function CurriculumTimeline({ onOpenEnroll }: CurriculumTimelineP
                     <span className="flex items-center gap-1 font-medium">
                       <Calendar className="w-3.5 h-3.5" />
                       {ep.date}
-                    </span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <Clock className="w-3.5 h-3.5" />~{ep.duration}
                     </span>
                   </div>
                 </div>

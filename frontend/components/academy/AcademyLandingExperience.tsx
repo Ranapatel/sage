@@ -11,7 +11,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Calendar,
-  Clock,
   Lock,
   Play,
   Award,
@@ -30,7 +29,6 @@ const EPISODES = [
     title: 'What Is AGI, Really?',
     desc: "Understand what Artificial General Intelligence actually means, philosophical foundations, and how general cognitive architectures differ from today's narrow LLMs.",
     date: 'Sep 21, 2026',
-    duration: '8 min',
     status: 'Unlocks Sep 21',
     unlocked: false,
   },
@@ -38,36 +36,32 @@ const EPISODES = [
     num: '02',
     title: "AI vs AGI: What's the Difference?",
     desc: 'Understand narrow AI, generative models, transformer limitations, and the core cognitive capabilities generally associated with AGI.',
-    date: 'Sep 24, 2026',
-    duration: '8 min',
-    status: 'Unlocks Sep 24',
+    date: 'Oct 5, 2026',
+    status: 'Unlocks Oct 5',
     unlocked: false,
   },
   {
     num: '03',
     title: 'How Does Intelligence Work?',
     desc: 'Explore working memory, episodic memory, planning trees, test-time compute, and continual adaptation.',
-    date: 'Sep 28, 2026',
-    duration: '9 min',
-    status: 'Unlocks Sep 28',
+    date: 'Oct 12, 2026',
+    status: 'Unlocks Oct 12',
     unlocked: false,
   },
   {
     num: '04',
     title: 'AI Agents: From Chatbots to Action',
     desc: 'Learn how AI agents combine models, memory, tools, reasoning loops, and multi-agent autonomous coordination.',
-    date: 'Oct 1, 2026',
-    duration: '10 min',
-    status: 'Unlocks Oct 1',
+    date: 'Oct 19, 2026',
+    status: 'Unlocks Oct 19',
     unlocked: false,
   },
   {
     num: '05',
     title: 'The Road to AGI',
     desc: 'Explore frontier compute scaling, safety alignment, neuro-symbolic architectures, and the roadmap toward general intelligence.',
-    date: 'Oct 5, 2026',
-    duration: '10 min',
-    status: 'Unlocks Oct 5',
+    date: 'Oct 26, 2026',
+    status: 'Unlocks Oct 26',
     unlocked: false,
   },
 ]
@@ -331,11 +325,6 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
                     <span className="flex items-center gap-1 sm:gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-[#EA580C]" />
                       {ep.date}
-                    </span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1 sm:gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#EA580C]" />
-                      ~{ep.duration}
                     </span>
                   </div>
                 </div>

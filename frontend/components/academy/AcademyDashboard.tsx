@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Lock,
   Calendar,
-  Clock,
   Plane,
   Sparkles,
   Award,
@@ -21,7 +20,6 @@ interface Episode {
   episodeNumber: number
   title: string
   synopsis: string
-  durationText: string
   releaseDateText: string
   status: 'available' | 'unlocks_date' | 'upcoming'
   unlockDate: string
@@ -35,7 +33,6 @@ const INTRO_VIDEO_DATA = {
   subtitle: 'Welcome to TripSage Academy',
   synopsis:
     'An orientation into TripSage Academy, our educational mission, how modern cognitive architectures operate, and how to navigate the 5-episode masterclass curriculum.',
-  durationText: '2 min',
   videoUrl: '/academy/intro.mp4',
   takeaways: [
     'Why TripSage Academy created this free 5-part AGI masterclass',
@@ -51,7 +48,6 @@ const EPISODES_DATA: Episode[] = [
     title: 'What Is AGI, Really?',
     synopsis:
       "Understand what Artificial General Intelligence actually means, the philosophical foundations, and how general cognitive architectures differ from today's narrow LLMs.",
-    durationText: '8 min',
     releaseDateText: 'Sep 21, 2026',
     unlockDate: 'Sep 21',
     status: 'available',
@@ -68,9 +64,8 @@ const EPISODES_DATA: Episode[] = [
     title: "AI vs AGI: What's the Difference?",
     synopsis:
       'A deep dive into generative AI, transformer limitations, and the fundamental cognitive capabilities generally associated with genuine AGI.',
-    durationText: '8 min',
-    releaseDateText: 'Sep 24, 2026',
-    unlockDate: 'Sep 24',
+    releaseDateText: 'Oct 5, 2026',
+    unlockDate: 'Oct 5',
     status: 'unlocks_date',
     videoUrl: '',
     takeaways: [
@@ -84,9 +79,8 @@ const EPISODES_DATA: Episode[] = [
     title: 'How Does Intelligence Work?',
     synopsis:
       'Explore the mechanics of learning, working memory, episodic memory, planning trees, and self-supervised adaptation.',
-    durationText: '9 min',
-    releaseDateText: 'Sep 28, 2026',
-    unlockDate: 'Sep 28',
+    releaseDateText: 'Oct 12, 2026',
+    unlockDate: 'Oct 12',
     status: 'upcoming',
     videoUrl: '',
     takeaways: [
@@ -100,9 +94,8 @@ const EPISODES_DATA: Episode[] = [
     title: 'AI Agents: From Chatbots to Action',
     synopsis:
       'Understand how models turn into active agents through tool use, sensory grounding, and multi-agent coordination loops.',
-    durationText: '10 min',
-    releaseDateText: 'Oct 1, 2026',
-    unlockDate: 'Oct 1',
+    releaseDateText: 'Oct 19, 2026',
+    unlockDate: 'Oct 19',
     status: 'upcoming',
     videoUrl: '',
     takeaways: [
@@ -116,9 +109,8 @@ const EPISODES_DATA: Episode[] = [
     title: 'The Road to AGI',
     synopsis:
       'The frontiers ahead: scaling laws, compute bottlenecks, neural-symbolic hybridization, safety alignment, and society.',
-    durationText: '10 min',
-    releaseDateText: 'Oct 5, 2026',
-    unlockDate: 'Oct 5',
+    releaseDateText: 'Oct 26, 2026',
+    unlockDate: 'Oct 26',
     status: 'upcoming',
     videoUrl: '',
     takeaways: [
@@ -292,10 +284,6 @@ export default function AcademyDashboard({
                         <Video className="w-3.5 h-3.5 text-[#EA580C]" /> Course Orientation
                       </span>
                       <span>·</span>
-                      <span className="flex items-center gap-1 text-slate-500 font-medium">
-                        <Clock className="w-3.5 h-3.5" /> {INTRO_VIDEO_DATA.durationText}
-                      </span>
-                      <span>·</span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         Available to Stream
                       </span>
@@ -388,10 +376,6 @@ export default function AcademyDashboard({
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-xs font-bold text-[#EA580C] uppercase tracking-wider">
                       <span>Episode {activeEpisode.episodeNumber}</span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1 text-slate-500 font-medium">
-                        <Clock className="w-3.5 h-3.5" /> {activeEpisode.durationText}
-                      </span>
                       <span>·</span>
                       <span className="flex items-center gap-1 text-slate-500 font-medium">
                         <Calendar className="w-3.5 h-3.5" /> {activeEpisode.releaseDateText}
@@ -519,8 +503,6 @@ export default function AcademyDashboard({
                     {INTRO_VIDEO_DATA.title}
                   </h4>
                   <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                    <span>{INTRO_VIDEO_DATA.durationText}</span>
-                    <span>·</span>
                     <span>Start Here</span>
                   </div>
                 </div>
@@ -585,8 +567,6 @@ export default function AcademyDashboard({
                           {ep.title}
                         </h4>
                         <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                          <span>{ep.durationText}</span>
-                          <span>·</span>
                           <span>{isUnlocked ? 'Available' : ep.unlockDate}</span>
                         </div>
                       </div>
