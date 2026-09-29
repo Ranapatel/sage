@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Calendar, Lock, Play, Sparkles } from 'lucide-react'
+import { Play, Lock, Sparkles } from 'lucide-react'
 import AcademyCard3D from './AcademyCard3D'
 import AcademyButton3D from './AcademyButton3D'
 
@@ -14,41 +14,31 @@ const EPISODES = [
     num: '01',
     title: 'What Is AGI, Really?',
     desc: "Understand what Artificial General Intelligence actually means and how it differs from today's AI.",
-    date: 'Sep 21, 2026',
-    status: 'Unlocks Sep 21',
-    unlocked: false,
+    available: true,
   },
   {
     num: '02',
     title: "AI vs AGI: What's the Difference?",
     desc: 'Understand narrow AI, generative AI, and the capabilities generally associated with AGI.',
-    date: 'Oct 5, 2026',
-    status: 'Unlocks Oct 5',
-    unlocked: false,
+    available: true,
   },
   {
     num: '03',
     title: 'How Does Intelligence Work?',
     desc: 'Explore learning, reasoning, memory, planning, and adaptation across modern cognitive architectures.',
-    date: 'Oct 12, 2026',
-    status: 'Unlocks Oct 12',
-    unlocked: false,
+    available: false,
   },
   {
     num: '04',
     title: 'AI Agents: From Chatbots to Action',
     desc: 'Learn how AI agents combine models, memory, tools, reasoning, and autonomous multi-step actions.',
-    date: 'Oct 19, 2026',
-    status: 'Unlocks Oct 19',
-    unlocked: false,
+    available: false,
   },
   {
     num: '05',
     title: 'The Road to AGI',
     desc: 'Explore the major capabilities, challenges, open questions, and possible directions toward more general AI.',
-    date: 'Oct 26, 2026',
-    status: 'Unlocks Oct 26',
-    unlocked: false,
+    available: false,
   },
 ]
 
@@ -57,14 +47,14 @@ export default function CurriculumTimeline({ onOpenEnroll }: CurriculumTimelineP
     <div className="w-full space-y-6 pt-16">
       <div className="text-center space-y-2 max-w-xl mx-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[#EA580C] text-xs font-bold uppercase tracking-wider">
-          <Calendar className="w-3.5 h-3.5" />
-          5-Part Syllabus
+          <Sparkles className="w-3.5 h-3.5" />
+          Course Syllabus
         </div>
         <h2
           className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1A1A1A] tracking-tight"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          Course Curriculum & Schedule
+          Course Curriculum
         </h2>
         <p className="text-[#6B7280] text-sm">
           A structured roadmap from foundational concepts to frontier agentic architectures.
@@ -77,16 +67,16 @@ export default function CurriculumTimeline({ onOpenEnroll }: CurriculumTimelineP
             key={ep.num}
             depth={14}
             className={`p-6 rounded-2xl border transition-all ${
-              ep.unlocked
+              ep.available
                 ? 'bg-white/90 border-[#FED7AA] shadow-[0_8px_24px_rgba(234,88,12,0.08)] ring-1 ring-orange-200/60'
-                : 'bg-white/70 border-[#E8E0D8] shadow-sm'
+                : 'bg-white/70 border-[#E8E0D8] shadow-sm opacity-60'
             }`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-xs ${
-                    ep.unlocked
+                    ep.available
                       ? 'bg-gradient-to-tr from-[#EA580C] to-[#F97316] text-white shadow-orange-500/30'
                       : 'bg-gray-100 text-gray-500'
                   }`}
@@ -99,13 +89,13 @@ export default function CurriculumTimeline({ onOpenEnroll }: CurriculumTimelineP
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#9CA3AF]">
                       EPISODE {ep.num}
                     </span>
-                    {ep.unlocked ? (
+                    {ep.available ? (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-                        🔓 {ep.status}
+                        🔓 Available
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">
-                        🔒 {ep.status}
+                        🔒 Upcoming
                       </span>
                     )}
                   </div>
@@ -117,23 +107,16 @@ export default function CurriculumTimeline({ onOpenEnroll }: CurriculumTimelineP
                   <p className="text-xs sm:text-sm text-[#4B5563] max-w-xl leading-relaxed">
                     {ep.desc}
                   </p>
-
-                  <div className="flex items-center gap-4 text-xs text-[#6B7280] pt-1">
-                    <span className="flex items-center gap-1 font-medium">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {ep.date}
-                    </span>
-                  </div>
                 </div>
               </div>
 
               <div className="sm:text-right shrink-0">
                 <AcademyButton3D
                   size="sm"
-                  variant={ep.unlocked ? 'primary' : 'secondary'}
+                  variant={ep.available ? 'primary' : 'secondary'}
                   onClick={onOpenEnroll}
                 >
-                  {ep.unlocked ? (
+                  {ep.available ? (
                     <>
                       <Play className="w-3 h-3 fill-current" />
                       Enroll to Watch

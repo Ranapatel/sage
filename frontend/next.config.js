@@ -28,6 +28,24 @@ const nextConfig = {
 
   async headers() {
     return [
+      // Enable proper streaming & caching for academy video files
+      {
+        source: '/academy/:slug*.mp4',
+        headers: [
+          {
+            key: 'Accept-Ranges',
+            value: 'bytes',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Content-Type',
+            value: 'video/mp4',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [

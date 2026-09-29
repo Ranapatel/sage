@@ -6,7 +6,6 @@ import {
   Play,
   CheckCircle2,
   Lock,
-  Calendar,
   Plane,
   Sparkles,
   Award,
@@ -20,9 +19,6 @@ interface Episode {
   episodeNumber: number
   title: string
   synopsis: string
-  releaseDateText: string
-  status: 'available' | 'unlocks_date' | 'upcoming'
-  unlockDate: string
   videoUrl?: string
   notesUrl?: string
   takeaways: string[]
@@ -32,11 +28,11 @@ const INTRO_VIDEO_DATA = {
   title: 'Course Intro & Orientation',
   subtitle: 'Welcome to TripSage Academy',
   synopsis:
-    'An orientation into TripSage Academy, our educational mission, how modern cognitive architectures operate, and how to navigate the 5-episode masterclass curriculum.',
+    'An orientation into TripSage Academy, our educational mission, how modern cognitive architectures operate, and how to navigate the masterclass curriculum.',
   videoUrl: '/academy/intro.mp4',
   takeaways: [
-    'Why TripSage Academy created this free 5-part AGI masterclass',
-    'How the syllabus and drip release dates are organized',
+    'Why TripSage Academy created this free AGI masterclass',
+    'How the syllabus and course structure are organized',
     'How to track progress towards earning your Verified Certificate',
     'Practical real-world application to autonomous agent systems',
   ],
@@ -48,9 +44,6 @@ const EPISODES_DATA: Episode[] = [
     title: 'What Is AGI, Really?',
     synopsis:
       "Understand what Artificial General Intelligence actually means, the philosophical foundations, and how general cognitive architectures differ from today's narrow LLMs.",
-    releaseDateText: 'Sep 21, 2026',
-    unlockDate: 'Sep 21',
-    status: 'available',
     videoUrl: '/academy/episode1.mp4',
     notesUrl: '/academy/episode1-notes.docx',
     takeaways: [
@@ -64,59 +57,11 @@ const EPISODES_DATA: Episode[] = [
     title: "AI vs AGI: What's the Difference?",
     synopsis:
       'A deep dive into generative AI, transformer limitations, and the fundamental cognitive capabilities generally associated with genuine AGI.',
-    releaseDateText: 'Oct 5, 2026',
-    unlockDate: 'Oct 5',
-    status: 'unlocks_date',
-    videoUrl: '',
+    videoUrl: '/academy/episode2.mp4',
     takeaways: [
       'Why pattern completion is not full reasoning',
       'System 1 (fast/intuitive) vs System 2 (deliberate) thinking',
       'World models and grounded causal reasoning',
-    ],
-  },
-  {
-    episodeNumber: 3,
-    title: 'How Does Intelligence Work?',
-    synopsis:
-      'Explore the mechanics of learning, working memory, episodic memory, planning trees, and self-supervised adaptation.',
-    releaseDateText: 'Oct 12, 2026',
-    unlockDate: 'Oct 12',
-    status: 'upcoming',
-    videoUrl: '',
-    takeaways: [
-      'Working memory vs long-term episodic retrieval',
-      'Tree-search algorithms and test-time verification',
-      'Continual learning without catastrophic forgetting',
-    ],
-  },
-  {
-    episodeNumber: 4,
-    title: 'AI Agents: From Chatbots to Action',
-    synopsis:
-      'Understand how models turn into active agents through tool use, sensory grounding, and multi-agent coordination loops.',
-    releaseDateText: 'Oct 19, 2026',
-    unlockDate: 'Oct 19',
-    status: 'upcoming',
-    videoUrl: '',
-    takeaways: [
-      'Perception-Action loops and tool invocation',
-      'Subagent orchestration and verification pipelines',
-      'How TripSage applies autonomous planning to travel logistics',
-    ],
-  },
-  {
-    episodeNumber: 5,
-    title: 'The Road to AGI',
-    synopsis:
-      'The frontiers ahead: scaling laws, compute bottlenecks, neural-symbolic hybridization, safety alignment, and society.',
-    releaseDateText: 'Oct 26, 2026',
-    unlockDate: 'Oct 26',
-    status: 'upcoming',
-    videoUrl: '',
-    takeaways: [
-      'Frontier compute trajectories and data limits',
-      'Safety boundaries and reward hacking mitigation',
-      'Preparing engineering careers for the cognitive age',
     ],
   },
 ]
@@ -225,7 +170,7 @@ export default function AcademyDashboard({
             Welcome, {student.name} 👋
           </h1>
           <p className="text-xs sm:text-sm text-[#57534E]">
-            Start with the Course Orientation video below, follow the 5-episode curriculum, and earn your certificate.
+            Start with the Course Orientation video below, follow the curriculum, and earn your certificate.
           </p>
         </div>
 
@@ -339,35 +284,15 @@ export default function AcademyDashboard({
             </>
           ) : activeEpisode ? (
             <>
-              {/* Theater: Episode Video Player or Schedule Card */}
+              {/* Theater: Episode Video Player */}
               <div className="rounded-3xl overflow-hidden bg-black shadow-xl border border-slate-900">
-                {activeEpisode.videoUrl ? (
-                  <AcademyVideoPlayer
-                    src={activeEpisode.videoUrl}
-                    title={`Episode ${activeEpisode.episodeNumber}: ${activeEpisode.title}`}
-                    subtitle="TripSage Academy"
-                    autoplay={false}
-                    onEnded={() => handleToggleComplete(activeEpisode.episodeNumber)}
-                  />
-                ) : (
-                  <div className="aspect-video w-full bg-[#18181B] flex flex-col items-center justify-center text-center p-8 text-white space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-orange-400">
-                      <Lock className="w-7 h-7" />
-                    </div>
-                    <div className="space-y-1 max-w-md">
-                      <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
-                        Masterclass Schedule
-                      </span>
-                      <h3 className="text-xl font-bold">
-                        Episode {activeEpisode.episodeNumber} Unlocks {activeEpisode.unlockDate}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-400">
-                        This episode is scheduled to release on {activeEpisode.releaseDateText}. You will
-                        receive instant streaming access as soon as it unlocks.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                <AcademyVideoPlayer
+                  src={activeEpisode.videoUrl}
+                  title={`Episode ${activeEpisode.episodeNumber}: ${activeEpisode.title}`}
+                  subtitle="TripSage Academy"
+                  autoplay={false}
+                  onEnded={() => handleToggleComplete(activeEpisode.episodeNumber)}
+                />
               </div>
 
               {/* Episode Info */}
@@ -376,10 +301,6 @@ export default function AcademyDashboard({
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-xs font-bold text-[#EA580C] uppercase tracking-wider">
                       <span>Episode {activeEpisode.episodeNumber}</span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1 text-slate-500 font-medium">
-                        <Calendar className="w-3.5 h-3.5" /> {activeEpisode.releaseDateText}
-                      </span>
                     </div>
                     <h2
                       className="text-xl sm:text-2xl font-bold text-[#1A1A1A] tracking-tight"
@@ -526,14 +447,13 @@ export default function AcademyDashboard({
               <h3 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">
                 Course Episodes
               </h3>
-              <span className="text-xs font-semibold text-slate-500">5 Masterclasses</span>
+              <span className="text-xs font-semibold text-slate-500">5 Episodes</span>
             </div>
 
             <div className="space-y-3">
               {EPISODES_DATA.map((ep) => {
                 const isSelected = activeView === ep.episodeNumber
                 const isDone = completedEpisodes.includes(ep.episodeNumber)
-                const isUnlocked = ep.status === 'available'
 
                 return (
                   <div
@@ -567,29 +487,58 @@ export default function AcademyDashboard({
                           {ep.title}
                         </h4>
                         <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                          <span>{isUnlocked ? 'Available' : ep.unlockDate}</span>
+                          <span>Available</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="shrink-0">
-                      {isUnlocked ? (
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                            isSelected ? 'bg-orange-100 text-[#EA580C]' : 'text-slate-400'
-                          }`}
-                        >
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                        </div>
-                      ) : (
-                        <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                          <Lock className="w-3.5 h-3.5" />
-                        </div>
-                      )}
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                          isSelected ? 'bg-orange-100 text-[#EA580C]' : 'text-slate-400'
+                        }`}
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                      </div>
                     </div>
                   </div>
                 )
               })}
+            </div>
+
+            {/* Upcoming Episodes */}
+            <div className="space-y-3 pt-3 border-t border-[#E8E0D8]">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2">Coming Soon</span>
+
+              {[
+                { num: 3, title: 'How Does Intelligence Work?' },
+                { num: 4, title: 'AI Agents: From Chatbots to Action' },
+                { num: 5, title: 'The Road to AGI' },
+              ].map((ep) => (
+                <div
+                  key={ep.num}
+                  className="p-4 rounded-2xl border border-[#E8E0D8] flex items-center justify-between gap-3 bg-white/60 opacity-60 cursor-default"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black shrink-0 bg-slate-100 text-slate-400">
+                      0{ep.num}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-400 truncate">
+                        {ep.title}
+                      </h4>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                        <span>Upcoming</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <Lock className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

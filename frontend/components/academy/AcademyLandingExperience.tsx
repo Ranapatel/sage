@@ -10,7 +10,6 @@ import {
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  Calendar,
   Lock,
   Play,
   Award,
@@ -28,41 +27,29 @@ const EPISODES = [
     num: '01',
     title: 'What Is AGI, Really?',
     desc: "Understand what Artificial General Intelligence actually means, philosophical foundations, and how general cognitive architectures differ from today's narrow LLMs.",
-    date: 'Sep 21, 2026',
-    status: 'Unlocks Sep 21',
-    unlocked: false,
   },
   {
     num: '02',
     title: "AI vs AGI: What's the Difference?",
     desc: 'Understand narrow AI, generative models, transformer limitations, and the core cognitive capabilities generally associated with AGI.',
-    date: 'Oct 5, 2026',
-    status: 'Unlocks Oct 5',
-    unlocked: false,
   },
+]
+
+const UPCOMING_EPISODES = [
   {
     num: '03',
     title: 'How Does Intelligence Work?',
     desc: 'Explore working memory, episodic memory, planning trees, test-time compute, and continual adaptation.',
-    date: 'Oct 12, 2026',
-    status: 'Unlocks Oct 12',
-    unlocked: false,
   },
   {
     num: '04',
     title: 'AI Agents: From Chatbots to Action',
     desc: 'Learn how AI agents combine models, memory, tools, reasoning loops, and multi-agent autonomous coordination.',
-    date: 'Oct 19, 2026',
-    status: 'Unlocks Oct 19',
-    unlocked: false,
   },
   {
     num: '05',
     title: 'The Road to AGI',
     desc: 'Explore frontier compute scaling, safety alignment, neuro-symbolic architectures, and the roadmap toward general intelligence.',
-    date: 'Oct 26, 2026',
-    status: 'Unlocks Oct 26',
-    unlocked: false,
   },
 ]
 
@@ -110,7 +97,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           transition={{ delay: 0.14 }}
           className="text-sm sm:text-lg md:text-xl text-[#57534E] max-w-2xl mx-auto mt-3 sm:mt-4 font-normal leading-relaxed px-1 sm:px-0"
         >
-          A free 5-episode masterclass into the foundations, cognitive architectures, and future of
+          A free masterclass into the foundations, cognitive architectures, and future of
           human-level AI.
         </motion.p>
 
@@ -127,7 +114,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           {/* Subtle mobile stream badge on image */}
           <div className="absolute top-3 right-3 sm:hidden px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold flex items-center gap-1.5 border border-white/15 shadow-sm">
             <Sparkles className="w-3 h-3 text-orange-400" />
-            <span>5 Masterclasses</span>
+            <span>2 Episodes</span>
           </div>
 
 
@@ -163,7 +150,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
               <div className="text-xs md:text-sm font-bold text-[#1A1A1A] tracking-tight">
                 Foundations of AGI
               </div>
-              <div className="text-[10px] text-slate-500 font-medium">5-Part Syllabus</div>
+              <div className="text-[10px] text-slate-500 font-medium">Course Syllabus</div>
             </div>
           </motion.div>
 
@@ -207,7 +194,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
               <Layers className="w-3.5 h-3.5" />
             </div>
             <span className="text-[11px] font-bold text-[#1A1A1A] leading-tight">Syllabus</span>
-            <span className="text-[9px] text-slate-500 font-medium">5 Episodes</span>
+            <span className="text-[9px] text-slate-500 font-medium">2 Episodes</span>
           </button>
 
           <button
@@ -242,12 +229,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest text-[#6B6B6B] pt-1 sm:pt-2">
             <span className="inline-flex items-center gap-1.5 text-[#1A1A1A] bg-white sm:bg-transparent px-2.5 py-1 sm:p-0 rounded-full border border-stone-200/80 sm:border-0 shadow-2xs sm:shadow-none">
               <Video className="w-3.5 h-3.5 text-[#EA580C]" />
-              5 Masterclasses
-            </span>
-            <span className="hidden sm:inline text-stone-300">·</span>
-            <span className="inline-flex items-center gap-1.5 text-[#1A1A1A] bg-white sm:bg-transparent px-2.5 py-1 sm:p-0 rounded-full border border-stone-200/80 sm:border-0 shadow-2xs sm:shadow-none">
-              <Calendar className="w-3.5 h-3.5 text-[#EA580C]" />
-              Drip Schedule
+              2 Available · 5 Total
             </span>
             <span className="hidden sm:inline text-stone-300">·</span>
             <span className="inline-flex items-center gap-1.5 text-[#EA580C] font-extrabold bg-orange-50 sm:bg-transparent px-2.5 py-1 sm:p-0 rounded-full border border-orange-200 sm:border-0 shadow-2xs sm:shadow-none">
@@ -258,21 +240,21 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
         </div>
       </section>
 
-      {/* ─── 2. 5-PART SYLLABUS & SCHEDULE ─── */}
+      {/* ─── 2. SYLLABUS ─── */}
       <section id="curriculum" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8 pt-2 sm:pt-4">
         <div className="text-center space-y-2 sm:space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#EA580C] text-xs font-bold uppercase tracking-wider">
-            <Calendar className="w-3.5 h-3.5" />
-            Master Schedule
+            <Sparkles className="w-3.5 h-3.5" />
+            Course Syllabus
           </div>
           <h2
             className="text-2xl sm:text-4xl font-black text-[#1A1A1A] tracking-tight"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            Course Episodes & Release Dates
+            Course Episodes
           </h2>
           <p className="text-[#6B6B6B] text-xs sm:text-sm">
-            5 structured episodes released every 3–4 days to ensure complete conceptual mastery.
+            Structured episodes to ensure complete conceptual mastery.
           </p>
         </div>
 
@@ -280,19 +262,11 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           {EPISODES.map((ep) => (
             <div
               key={ep.num}
-              className={`p-4 sm:p-7 rounded-2xl sm:rounded-3xl border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 bg-white ${
-                ep.unlocked
-                  ? 'border-orange-300 shadow-[0_8px_30px_rgba(234,88,12,0.1)] ring-1 ring-orange-400/20'
-                  : 'border-[#E8E0D8] shadow-2xs'
-              }`}
+              className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 bg-white border-orange-300 shadow-[0_8px_30px_rgba(234,88,12,0.1)] ring-1 ring-orange-400/20"
             >
               <div className="flex items-start gap-3 sm:gap-5">
                 <div
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-inner ${
-                    ep.unlocked
-                      ? 'bg-gradient-to-tr from-[#EA580C] to-[#F97316] text-white shadow-[0_4px_15px_rgba(234,88,12,0.35)]'
-                      : 'bg-[#FFFBF7] text-slate-400 border border-[#E8E0D8]'
-                  }`}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-inner bg-gradient-to-tr from-[#EA580C] to-[#F97316] text-white shadow-[0_4px_15px_rgba(234,88,12,0.35)]"
                 >
                   {ep.num}
                 </div>
@@ -302,15 +276,9 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#6B6B6B]">
                       EPISODE {ep.num}
                     </span>
-                    {ep.unlocked ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        🔓 {ep.status}
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                        🔒 {ep.status}
-                      </span>
-                    )}
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      🔓 Available
+                    </span>
                   </div>
 
                   <h3 className="text-base sm:text-xl font-bold text-[#1A1A1A] tracking-tight">
@@ -320,36 +288,63 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
                   <p className="text-xs sm:text-sm text-[#57534E] max-w-2xl leading-relaxed">
                     {ep.desc}
                   </p>
-
-                  <div className="flex items-center gap-3 sm:gap-4 text-xs text-[#6B6B6B] pt-1 font-medium">
-                    <span className="flex items-center gap-1 sm:gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#EA580C]" />
-                      {ep.date}
-                    </span>
-                  </div>
                 </div>
               </div>
 
               <div className="w-full sm:w-auto sm:text-right shrink-0 pt-2 sm:pt-0 border-t border-stone-100 sm:border-0">
                 <button
                   onClick={() => setModalOpen(true)}
-                  className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                    ep.unlocked
-                      ? 'bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-md'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                  }`}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-md"
                 >
-                  {ep.unlocked ? (
-                    <>
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      Enroll to Stream
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5 text-slate-400" />
-                      Enroll to Reserve
-                    </>
-                  )}
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  Enroll to Stream
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Upcoming Episodes */}
+        <div className="space-y-3 sm:space-y-4">
+          {UPCOMING_EPISODES.map((ep) => (
+            <div
+              key={ep.num}
+              className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 bg-white border-[#E8E0D8] shadow-2xs opacity-60"
+            >
+              <div className="flex items-start gap-3 sm:gap-5">
+                <div
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-inner bg-[#FFFBF7] text-slate-400 border border-[#E8E0D8]"
+                >
+                  {ep.num}
+                </div>
+
+                <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#6B6B6B]">
+                      EPISODE {ep.num}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                      🔒 Upcoming
+                    </span>
+                  </div>
+
+                  <h3 className="text-base sm:text-xl font-bold text-[#1A1A1A] tracking-tight">
+                    {ep.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-[#57534E] max-w-2xl leading-relaxed">
+                    {ep.desc}
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full sm:w-auto sm:text-right shrink-0 pt-2 sm:pt-0 border-t border-stone-100 sm:border-0">
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+                >
+                  <Lock className="w-3.5 h-3.5 text-slate-400" />
+                  Enroll to Reserve
                 </button>
               </div>
             </div>

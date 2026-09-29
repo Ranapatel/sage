@@ -166,6 +166,7 @@ export default function AcademyVideoPlayer({
       <video
         ref={videoRef}
         src={src}
+        preload="metadata"
         playsInline
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleVideoEnded}

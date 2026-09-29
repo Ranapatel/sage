@@ -119,7 +119,7 @@ export default function AcademyEnrollForm({ onEnrolled }: AcademyEnrollFormProps
             Learn Artificial General Intelligence
           </h1>
           <p className="text-[#4B5563] text-sm sm:text-base leading-relaxed">
-            A free 5-episode course designed to help you understand AGI, modern AI systems, reasoning,
+            A free course designed to help you understand AGI, modern AI systems, reasoning,
             agents, and the future of intelligent machines.
           </p>
         </div>

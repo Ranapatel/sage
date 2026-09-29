@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Video, Calendar, Code2, FileText, BarChart3, Award, Sparkles } from 'lucide-react'
+import { Video, Code2, FileText, BarChart3, Award, Sparkles } from 'lucide-react'
 import AcademyCard3D from './AcademyCard3D'
 
 const PERKS = [
@@ -13,15 +13,6 @@ const PERKS = [
     span: 'col-span-1 md:col-span-2',
     accent: 'from-orange-500/10 to-amber-500/10',
     iconColor: 'text-[#EA580C]',
-  },
-  {
-    icon: Calendar,
-    title: 'Drip Release Schedule',
-    desc: 'Episodes unlock weekly to ensure deep conceptual retention without cognitive overload.',
-    tag: 'Sep 21 – Oct 26',
-    span: 'col-span-1',
-    accent: 'from-blue-500/10 to-indigo-500/10',
-    iconColor: 'text-blue-600',
   },
   {
     icon: Code2,
@@ -44,7 +35,7 @@ const PERKS = [
   {
     icon: BarChart3,
     title: 'Interactive Progress Tracking',
-    desc: 'Visual 0 to 5 episode completion meter saved securely in MongoDB Atlas across all your devices.',
+    desc: 'Visual episode completion meter saved securely in MongoDB Atlas across all your devices.',
     tag: 'Cloud Sync',
     span: 'col-span-1',
     accent: 'from-purple-500/10 to-pink-500/10',
