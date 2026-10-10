@@ -42,7 +42,7 @@ export default function SEOContent({
   heroImage = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=90",
   content,
   faqs,
-  ctaText = "Start Planning Now",
+  ctaText = "Plan with TripSage",
   ctaLink = "/plan",
   articleData,
   destinationName
@@ -214,6 +214,7 @@ export default function SEOContent({
           <div>
             <Link 
               href={ctaLink} 
+              rel="nofollow"
               onClick={() => handleCtaClick('hero_cta')}
               className="py-4 px-10 text-lg font-extrabold inline-flex items-center gap-2 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-xl shadow-orange-500/20 transition-all cursor-pointer"
             >
@@ -265,11 +266,12 @@ export default function SEOContent({
             Plan your perfect trip in seconds with our AI travel engine. Compare prices, generate itineraries, and book with confidence.
           </p>
           <Link 
-            href="/plan" 
+            href={ctaLink} 
+            rel="nofollow"
             onClick={() => handleCtaClick('bottom_cta')}
             className="bg-[#1A1A1A] text-white hover:bg-slate-800 py-4 px-10 rounded-2xl font-extrabold text-base transition-all inline-block shadow-lg cursor-pointer"
           >
-            Get Started Free
+            {ctaText || "Plan with TripSage"}
           </Link>
         </div>
       </section>

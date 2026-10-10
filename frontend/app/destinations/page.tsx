@@ -102,13 +102,13 @@ export default function DestinationsHubPage() {
         title="Explore Domestic & International Travel Destinations"
         subtitle="Discover incredible travel destinations across India, Southeast Asia, the Middle East, and beyond. Explore localized guides, seasonal tips, and plan your trip with TripSage AI."
         heroImage="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=90"
-        ctaText="Plan Destination Trip"
+        ctaText="Plan with TripSage"
         ctaLink="/plan"
         content={
           <>
             <h2>Discover Popular Travel Regions</h2>
             <p>
-              Whether you are craving serene beaches, high-altitude mountain trails, royal palaces, or vibrant global metropolises, <strong>TripSage</strong> helps you find the ideal destination and builds a customized day-by-day plan tailored to your preferences.
+              Whether you are craving serene beaches in <Link href="/seo/goa-trip-under-10000">Goa</Link>, tropical retreats in <Link href="/seo/budget-bali-trip">Bali</Link>, high-altitude mountain trails in <Link href="/seo/manali-trip-planner">Manali</Link>, or modern luxury in <Link href="/guides/dubai-trip-planner-from-india">Dubai</Link>, <strong>TripSage</strong> helps you find the ideal destination and builds a customized day-by-day plan tailored to your preferences.
             </p>
 
             {/* Popular Destination Cards */}
@@ -196,9 +196,10 @@ export default function DestinationsHubPage() {
               </p>
               <Link
                 href="/plan"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all"
+                rel="nofollow"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Plan Destination Itinerary <ArrowRight className="w-4 h-4" />
+                Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </>

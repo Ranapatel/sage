@@ -58,7 +58,7 @@ export default function VisaHubPage() {
           <>
             <h2>Essential International Visa Categories</h2>
             <p>
-              Understanding entry policies before booking international flights is essential for hassle-free travel. <strong>TripSage</strong> outlines verified entry rules and processing times for top destination countries.
+              Understanding entry policies before booking international flights is essential for hassle-free travel. <strong>TripSage</strong> outlines verified entry rules and processing times for top destination countries. Explore our comprehensive guides for <Link href="/visa/thailand-visa-for-indian-citizens">Thailand Visa on Arrival rules</Link> and <Link href="/visa/bali-visa-for-indian-citizens">Bali eVisa requirements</Link>, or plan custom trips to Dubai, Singapore, and Vietnam.
             </p>
 
             {/* Destination Visa Overview Table */}
@@ -146,9 +146,10 @@ export default function VisaHubPage() {
                 </Link>
                 <Link
                   href="/plan"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#1A1A1A] hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition-all"
+                  rel="nofollow"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#1A1A1A] hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer"
                 >
-                  Plan Trip Now <ArrowRight className="w-3.5 h-3.5" />
+                  Plan with TripSage <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>

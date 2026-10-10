@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Access your planned itineraries, saved flights & hotels, and resume your active travels with TripSage AI.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 }
 

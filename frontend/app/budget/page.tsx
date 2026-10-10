@@ -88,13 +88,13 @@ export default function BudgetHubPage() {
         title="Travel Budget Planner & Expense Estimator"
         subtitle="Take the guesswork out of vacation spending. Plan, calculate, and optimize your travel costs across flights, hotels, daily food, and activities with TripSage."
         heroImage="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=1920&q=90"
-        ctaText="Calculate Trip Budget"
+        ctaText="Plan with TripSage"
         ctaLink="/plan"
         content={
           <>
             <h2>Understanding Travel Expense Allocation</h2>
             <p>
-              An accurate trip budget requires breaking expenses down into core buckets. <strong>TripSage</strong> helps you estimate costs prior to departure so you can travel with confidence without overspending.
+              An accurate trip budget requires breaking expenses down into core buckets. <strong>TripSage</strong> helps you estimate costs prior to departure so you can travel with confidence without overspending. Check out our verified real-world budget breakdowns including <Link href="/seo/goa-trip-under-10000">Goa under ₹10,000</Link>, our <Link href="/budget/bali-trip-cost-from-india">itemized Bali trip cost guide</Link>, and the <Link href="/seo/cheapest-international-trips-from-india">top cheapest international trips from India</Link>.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-8 not-prose">
@@ -208,9 +208,10 @@ export default function BudgetHubPage() {
               </p>
               <Link
                 href="/plan"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all"
+                rel="nofollow"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Start Budget Planning <ArrowRight className="w-4 h-4" />
+                Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </>

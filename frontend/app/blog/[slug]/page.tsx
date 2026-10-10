@@ -130,7 +130,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <div className="flex items-center justify-center md:justify-start gap-4 text-xs font-bold">
                   <Link href="/blog" className="text-[#EA580C] hover:underline">More Articles by {post.author.split(' ')[0]}</Link>
                   <span className="text-[#E8E0D8]">•</span>
-                  <Link href="/plan" className="text-[#EA580C] hover:underline">Plan Trip with AI</Link>
+                  <Link href="/plan" rel="nofollow" className="text-[#EA580C] hover:underline">Plan with TripSage</Link>
                 </div>
               </div>
             </div>
@@ -141,8 +141,8 @@ export default async function BlogPostPage({ params }: PageProps) {
                  <ArrowLeft size={16} />
                  All Journal Articles
               </Link>
-              <Link href="/plan" className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white flex items-center justify-center gap-2 text-sm font-extrabold shadow-md shadow-orange-500/20 transition-all cursor-pointer">
-                Plan Your Trip with AI
+              <Link href="/plan" rel="nofollow" className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white flex items-center justify-center gap-2 text-sm font-extrabold shadow-md shadow-orange-500/20 transition-all cursor-pointer">
+                Plan with TripSage
               </Link>
             </div>
           </div>

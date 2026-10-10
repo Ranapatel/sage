@@ -10,14 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         '/api/',
         '/admin/',
-        '/plan',
-        '/sign-in',
-        '/dashboard',
-        '/profile',
-        '/my-trips',
-        '/trips',
-        // Block all query-string URLs EXCEPT the referral sign-up link (?ref=)
-        '/sign-up/*?*',
       ],
     },
     sitemap: `${baseUrl}/sitemap.xml`,

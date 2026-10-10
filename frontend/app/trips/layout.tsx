@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: 'View your saved trips and itineraries.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 }
 

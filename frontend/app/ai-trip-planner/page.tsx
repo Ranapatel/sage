@@ -43,13 +43,13 @@ export default function AITripPlannerPage() {
         title="AI Trip Planner: Instant Personalized Travel Itineraries"
         subtitle="Turn your dream trip into a complete, day-by-day travel plan in seconds. TripSage combines AI itinerary creation, real-time flight and hotel price search, and transport intelligence into one seamless experience."
         heroImage="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=90"
-        ctaText="Plan Your Trip Now"
+        ctaText="Plan with TripSage"
         ctaLink="/plan"
         content={
           <>
             <h2>How the TripSage AI Trip Planner Works</h2>
             <p>
-              Traditional travel planning requires juggling dozens of tabs—comparing flight prices, searching for hotels, mapping out local transport, and trying to estimate costs. <strong>TripSage</strong> simplifies this into a single, intelligent flow.
+              Traditional travel planning requires juggling dozens of tabs—comparing flight prices, searching for hotels, mapping out local transport, and trying to estimate costs. <strong>TripSage</strong> simplifies this into a single, intelligent flow. Whether you want to plan a <Link href="/seo/goa-trip-under-10000">Goa budget trip under ₹10k</Link>, an exotic <Link href="/seo/budget-bali-trip">budget Bali getaway</Link>, a scenic <Link href="/seo/manali-trip-planner">Manali mountain tour</Link>, or a 5-day <Link href="/guides/dubai-trip-planner-from-india">Dubai holiday</Link>, our AI engine builds realistic day-by-day itineraries tailored to your dates and budget.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8 not-prose">
@@ -111,9 +111,10 @@ export default function AITripPlannerPage() {
               </p>
               <Link
                 href="/plan"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all"
+                rel="nofollow"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Launch AI Planner <Sparkles className="w-4 h-4" />
+                Plan with TripSage — Free <Sparkles className="w-4 h-4" />
               </Link>
             </div>
 

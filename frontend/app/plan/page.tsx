@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: ['AI travel planner', 'personalized itinerary', 'trip planning software', 'smart travel planning'],
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 }
 

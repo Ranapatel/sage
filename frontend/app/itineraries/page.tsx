@@ -94,13 +94,13 @@ export default function ItinerariesHubPage() {
         title="Curated Travel Itineraries & Smart Route Guides"
         subtitle="Explore expertly crafted itineraries for short weekend trips, 1-week vacations, and multi-city international adventures. Customize any plan instantly with TripSage AI."
         heroImage="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=90"
-        ctaText="Generate Custom Itinerary"
+        ctaText="Plan with TripSage"
         ctaLink="/plan"
         content={
           <>
             <h2>Itineraries Structured for Ideal Travel Pacing</h2>
             <p>
-              A great travel itinerary balances sightseeing with adequate rest, realistic travel times, and local dining. <strong>TripSage</strong> formats itineraries into structured morning, afternoon, and evening phases so you never waste time in transit.
+              A great travel itinerary balances sightseeing with adequate rest, realistic travel times, and local dining. <strong>TripSage</strong> formats itineraries into structured morning, afternoon, and evening phases so you never waste time in transit. Explore our verified routes including our <Link href="/itineraries/bali-7-day-itinerary-from-india">7-Day Bali island itinerary</Link>, <Link href="/seo/golden-triangle-india-itinerary">6-Day Golden Triangle route</Link>, and <Link href="/seo/kerala-backwaters-trip-planner">7-Day Kerala Backwaters tour</Link>.
             </p>
 
             {/* Duration Filters Overview */}
@@ -199,9 +199,10 @@ export default function ItinerariesHubPage() {
               </p>
               <Link
                 href="/plan"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all"
+                rel="nofollow"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Create Custom Itinerary <ArrowRight className="w-4 h-4" />
+                Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </>

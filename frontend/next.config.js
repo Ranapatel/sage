@@ -26,6 +26,20 @@ const nextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      { source: '/ai-trip-planner-india', destination: '/seo/ai-trip-planner-india', permanent: true },
+      { source: '/goa-trip-under-10000', destination: '/seo/goa-trip-under-10000', permanent: true },
+      { source: '/budget-bali-trip', destination: '/seo/budget-bali-trip', permanent: true },
+      { source: '/best-honeymoon-destinations-india', destination: '/seo/best-honeymoon-destinations-india', permanent: true },
+      { source: '/cheapest-international-trips-from-india', destination: '/seo/cheapest-international-trips-from-india', permanent: true },
+      { source: '/manali-trip-planner', destination: '/seo/manali-trip-planner', permanent: true },
+      { source: '/best-beaches-in-india', destination: '/seo/best-beaches-in-india', permanent: true },
+      { source: '/solo-travel-guide-india', destination: '/seo/solo-travel-guide-india', permanent: true },
+      { source: '/family-trip-planner-india', destination: '/seo/family-trip-planner-india', permanent: true },
+    ]
+  },
+
   async headers() {
     return [
       // Enable proper streaming & caching for academy video files

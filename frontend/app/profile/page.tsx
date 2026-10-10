@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Manage your TripSage travel profile, update dietary options, select preferred currencies, and view your accumulated booking cashback rewards.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 }
 

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: 'Sign in to access your saved itineraries and AI travel dashboard.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 }
 

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: 'Manage your travel plans, saved itineraries, and user preferences.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 }
 

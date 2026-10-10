@@ -51,7 +51,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <h2>3. Majuli, Assam</h2>
       <p>The world's largest river island, Majuli is a hub of Assamese neo-Vaishnavite culture and incredible natural beauty.</p>
       
-      <p>Exploring these hidden gems not only gives you a more authentic experience but also helps support local communities away from over-touristed hubs. Use our <a href="/plan">AI Trip Planner</a> to find the best routes to these remote locations.</p>
+      <p>Exploring these hidden gems not only gives you a more authentic experience but also helps support local communities away from over-touristed hubs. Use our <a href="/ai-trip-planner">AI Trip Planner</a> to find the best routes to these remote locations.</p>
     `
   },
   {
@@ -147,7 +147,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <p>If you want the ultimate monsoon experience, visit the wettest places on earth. The green cliffs of Meghalaya are covered in mist, and hundreds of dramatic waterfalls plunge into deep gorges. Explore the unique living root bridges that grow stronger as they absorb the monsoon rain.</p>
 
       <h2>Embrace the Rainy Season Smartly</h2>
-      <p>Monsoon travel requires careful planning, as heavy downpours can occasionally lead to road closures or flight delays. Using a smart assistant like the <a href="/plan">TripSage AI Trip Planner</a> helps you track weather warnings and adapt your plans dynamically. For more travel tips and budget hacks, be sure to read our <a href="/blog/budget-travel-hacks-2026">Expert Budget Travel Hacks</a> guide.</p>
+      <p>Monsoon travel requires careful planning, as heavy downpours can occasionally lead to road closures or flight delays. Using a smart assistant like the <a href="/ai-trip-planner">TripSage AI Trip Planner</a> helps you track weather warnings and adapt your plans dynamically. For more travel tips and budget hacks, be sure to read our <a href="/blog/budget-travel-hacks-2026">Expert Budget Travel Hacks</a> guide.</p>
     `
   }
 ];

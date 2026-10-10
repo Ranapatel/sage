@@ -86,6 +86,7 @@ export default function Navbar() {
               {!isHomePage && (
                 <Link
                   href="/plan"
+                  rel="nofollow"
                   onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })}
                   className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2.5 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200 min-h-[44px] flex"
                 >
@@ -98,6 +99,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               <Link
                 href="/sign-in"
+                rel="nofollow"
                 className="text-sm py-2 px-4 items-center justify-center rounded-lg font-bold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors duration-200 min-h-[44px] flex"
               >
                 Sign In
@@ -105,6 +107,7 @@ export default function Navbar() {
               {!isHomePage && (
                 <Link
                   href="/plan"
+                  rel="nofollow"
                   onClick={() => trackEvent('plan_trip_click', { source: 'navbar' })}
                   className="bg-[#EA580C] text-white whitespace-nowrap text-xs py-2.5 px-4 items-center justify-center gap-1.5 rounded-full font-extrabold shadow-2xs hover:bg-[#C2410C] transition-all duration-200 min-h-[44px] flex"
                 >
@@ -284,6 +287,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     href="/sign-in"
+                    rel="nofollow"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center h-[52px] px-4 text-lg font-semibold text-[#EA580C] hover:bg-orange-50 rounded-xl"
                   >
