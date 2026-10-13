@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Home, Search, Compass, User } from 'lucide-react'
+import { Home, Search, Compass, User, Sparkles } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 export default function MobileBottomNav() {
@@ -11,7 +11,8 @@ export default function MobileBottomNav() {
   
   const tabs = [
     { name: 'Home', href: '/', icon: Home },
-    { name: 'Search', href: '/plan', icon: Search },
+    { name: 'Events', href: '/dussehra', icon: Sparkles },
+    { name: 'Plan', href: '/plan', icon: Search },
     { name: 'Explore', href: '/blog', icon: Compass },
     { name: 'Profile', href: '/profile', icon: User },
   ]

@@ -11,7 +11,7 @@ import { trackEvent } from '@/lib/analytics'
 import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
 import UserMenu from './UserMenu'
 import { useNavAuth } from '@/hooks/useNavAuth'
-import RakhiCampaignBanner from '@/components/campaign/RakhiCampaignBanner'
+import DussehraTopBanner from '@/components/campaign/DussehraTopBanner'
 
 // ─── Auth skeleton: a fixed-size grey pill shown while Clerk loads ───────────
 // This prevents layout shift AND stops wrong icons flashing in
@@ -30,6 +30,7 @@ export default function Navbar() {
 
   return (
     <>
+      <DussehraTopBanner />
       <nav className="sticky top-0 z-30 w-full border-b border-[#E8E0D8]/70 bg-[#FFFBF7]/90 backdrop-blur-md px-3 sm:px-4 md:px-6 py-2.5 md:py-4 flex items-center justify-between transition-all duration-200">
         {/* Logo */}
         <div className="flex items-center gap-2 shrink-0">
@@ -64,6 +65,45 @@ export default function Navbar() {
               🔥 NEW
             </span>
           </Link>
+          <div className="relative group py-2">
+            <Link
+              href="/dussehra"
+              className={`hover:text-[#EA580C] transition-colors duration-200 py-2 flex items-center gap-1.5 group font-semibold ${
+                pathname === '/dussehra' ? 'text-[#EA580C]' : ''
+              }`}
+            >
+              <span>Events</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#EA580C] to-[#F59E0B] text-white text-[9px] font-black tracking-wide uppercase shadow-[0_2px_6px_rgba(234,88,12,0.35)] group-hover:scale-105 transition-transform flex items-center gap-0.5">
+                🏹 Dussehra
+              </span>
+              <ChevronDown size={14} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
+            </Link>
+            <div className="absolute left-0 mt-1 w-56 bg-white border border-[#E8E0D8] rounded-xl shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50 p-1.5 text-xs font-semibold">
+              <Link
+                href="/dussehra"
+                className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors"
+              >
+                <span className="text-base shrink-0">🏹</span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-[#1A1A1A]">Dussehra Escape</span>
+                    <span className="px-1 py-0.2 rounded bg-orange-100 text-[#EA580C] text-[9px] font-black uppercase">LIVE</span>
+                  </div>
+                  <p className="text-[10px] text-[#6B6B6B] font-normal leading-tight mt-0.5">Burn boring plans. Plan your next adventure.</p>
+                </div>
+              </Link>
+              <Link
+                href="/raksha-bandhan"
+                className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-[#FFFBF7] hover:text-[#EA580C] transition-colors"
+              >
+                <span className="text-base shrink-0">🎁</span>
+                <div>
+                  <span className="font-bold text-[#1A1A1A]">Raksha Bandhan</span>
+                  <p className="text-[10px] text-[#6B6B6B] font-normal leading-tight mt-0.5">Sibling Travel Gift Pass</p>
+                </div>
+              </Link>
+            </div>
+          </div>
           <div className="relative group py-2">
             <Link href="/support" className="flex items-center gap-1 hover:text-[#EA580C] transition-colors duration-200 outline-none">
               Support <ChevronDown size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
@@ -120,19 +160,17 @@ export default function Navbar() {
 
         {/* ── Mobile Right ── */}
         <div className="flex md:hidden items-center gap-1.5 shrink-0">
-          {/* Direct Mobile Academy Pill — compact on small screens */}
+          {/* Direct Mobile Events Pill */}
           <Link
-            href="/academy"
-            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-bold transition-all active:scale-95 shadow-2xs shrink-0 ${
-              pathname === '/academy'
+            href="/dussehra"
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-bold transition-all active:scale-95 shadow-2xs shrink-0 ${
+              pathname === '/dussehra'
                 ? 'bg-orange-100 border-[#EA580C] text-[#EA580C]'
                 : 'bg-orange-50/90 border-orange-200 text-[#EA580C] hover:bg-orange-100'
             }`}
           >
-            <span className="font-extrabold text-[11px] tracking-tight">Academy</span>
-            <span className="text-[9px] font-black uppercase tracking-wider bg-[#EA580C] text-white px-1 py-0.5 rounded leading-none">
-              Free
-            </span>
+            <span className="text-[11px]">🏹</span>
+            <span className="font-extrabold text-[11px] tracking-tight">Events</span>
           </Link>
 
           {!isLoaded ? (
@@ -200,6 +238,37 @@ export default function Navbar() {
               </div>
 
               <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+                {/* 🏹 Featured Dussehra Event Card in Mobile Menu */}
+                <div className="mb-3 p-3.5 rounded-2xl bg-gradient-to-b from-[#FFF5ED] to-[#FFEDD5]/60 border border-orange-300 shadow-2xs space-y-2.5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#EA580C] to-[#F97316] text-white flex items-center justify-center shrink-0 shadow-sm shadow-orange-500/20 text-lg">
+                      🏹
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <h3 className="text-xs font-black text-[#1A1A1A] tracking-tight truncate">
+                          Dussehra Escape
+                        </h3>
+                        <span className="px-1.5 py-0.5 rounded-md bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shrink-0 leading-none">
+                          LIVE
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#78716C] font-medium leading-tight mt-0.5 truncate">
+                        Burn boring plans. Plan getaways.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/dussehra"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2 px-3 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-xs active:scale-98 transition-all"
+                  >
+                    <span>Explore Dussehra Event</span>
+                    <ArrowRight size={13} strokeWidth={2.5} />
+                  </Link>
+                </div>
+
                 {/* 🌟 Featured Academy Card in Mobile Menu */}
                 <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-b from-[#FFF9F5] to-[#FFF4EC] border border-orange-200/90 shadow-2xs space-y-3">
                   <div className="flex items-center gap-3">
@@ -232,6 +301,21 @@ export default function Navbar() {
                 </div>
 
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Home</Link>
+                <Link
+                  href="/dussehra"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-between h-[44px] px-4 text-base font-semibold rounded-xl ${
+                    pathname === '/dussehra' ? 'bg-orange-50 text-[#EA580C]' : 'text-slate-900 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>🏹</span>
+                    <span>Events</span>
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[10px] font-extrabold uppercase">
+                    Dussehra Live
+                  </span>
+                </Link>
                 <Link href="/ai-trip-planner" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">AI Trip Planner</Link>
                 <Link href="/destinations" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Destinations</Link>
                 <Link href="/itineraries" onClick={() => setMobileMenuOpen(false)} className="flex items-center h-[44px] px-4 text-base font-semibold text-slate-900 hover:bg-slate-50 rounded-xl">Itineraries</Link>
