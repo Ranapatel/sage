@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { Sparkles, Zap, Map, PiggyBank, HeadphonesIcon, BellRing, CheckCircle, ChevronDown } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'How TripSage Works - AI Travel Planning & Itineraries',
+  title: 'How TripSage Works | TripSage',
   description: 'Learn how TripSage uses AI to generate personalized itineraries, find the best deals, and orchestrate your entire travel experience.',
   alternates: {
-    canonical: 'https://tripsage.in/learn-more'
+    canonical: 'https://www.tripsage.in/learn-more'
   }
 }
 

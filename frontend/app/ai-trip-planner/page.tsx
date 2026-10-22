@@ -6,20 +6,20 @@ import Link from 'next/link'
 import { Sparkles, Compass, Search, Calendar, ShieldCheck, Zap } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'AI Trip Planner | Instant Personalized Travel Itineraries | TripSage',
+  title: 'AI Trip Planner for Indian Travellers | TripSage',
   description: 'Plan custom travel itineraries in seconds with TripSage\'s AI trip planner. Instant day-by-day plans, flight & hotel price comparisons, budget breakdowns, and smart recommendations.',
   keywords: ['AI trip planner', 'personalized travel itinerary', 'AI itinerary generator', 'flight hotel price comparison', 'TripSage AI', 'smart travel planning'],
   alternates: {
-    canonical: 'https://tripsage.in/ai-trip-planner',
+    canonical: 'https://www.tripsage.in/ai-trip-planner',
   },
   openGraph: {
-    title: 'AI Trip Planner | Instant Personalized Travel Itineraries | TripSage',
+    title: 'AI Trip Planner for Indian Travellers | TripSage',
     description: 'Plan custom travel itineraries in seconds with TripSage\'s AI trip planner. Instant day-by-day plans, flight & hotel price comparisons, and budget breakdowns.',
-    url: 'https://tripsage.in/ai-trip-planner',
+    url: 'https://www.tripsage.in/ai-trip-planner',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage AI Trip Planner',
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Trip Planner | Instant Personalized Travel Itineraries | TripSage',
+    title: 'AI Trip Planner for Indian Travellers | TripSage',
     description: 'Plan custom travel itineraries in seconds with TripSage\'s AI trip planner. Instant day-by-day plans, flight & hotel comparisons.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -40,8 +40,8 @@ export default function AITripPlannerPage() {
   return (
     <LandingLayout>
       <SEOContent
-        title="AI Trip Planner: Instant Personalized Travel Itineraries"
-        subtitle="Turn your dream trip into a complete, day-by-day travel plan in seconds. TripSage combines AI itinerary creation, real-time flight and hotel price search, and transport intelligence into one seamless experience."
+        title="AI trip planner for Indian travellers"
+        subtitle="Day-by-day plans with rupee budgets and visa notes. Fare and hotel options come with links to book directly with providers."
         heroImage="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=90"
         ctaText="Plan with TripSage"
         ctaLink="/plan"

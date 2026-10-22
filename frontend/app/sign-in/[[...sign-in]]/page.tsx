@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Sign In | TripSage AI Travel OS',
+  title: 'Sign In | TripSage',
   description: 'Sign in to access your saved itineraries and AI travel dashboard.',
   robots: {
     index: false,

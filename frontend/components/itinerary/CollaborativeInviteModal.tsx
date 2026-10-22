@@ -23,7 +23,7 @@ export default function CollaborativeInviteModal({
 
   if (!isOpen) return null
 
-  const inviteLink = `https://tripsage.in/plan?trip=${encodeURIComponent(destination)}&ref=${userId || 'explorer'}`
+  const inviteLink = `https://www.tripsage.in/plan?trip=${encodeURIComponent(destination)}&ref=${userId || 'explorer'}`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink)

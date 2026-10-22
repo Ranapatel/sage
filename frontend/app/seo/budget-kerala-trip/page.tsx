@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Budget Kerala Trip Planner | Cheap Kerala Itinerary | TripSage',
+  title: 'Budget Kerala Trip Planner | TripSage',
   description: 'Plan an affordable trip to Kerala. Discover budget houseboats, cheap homestays in Munnar, free attractions, and get an AI Kerala travel guide.',
   keywords: ['budget Kerala trip', 'cheap Kerala tour package', 'Kerala budget travel guide', 'TripSage Kerala budget'],
-  alternates: { canonical: 'https://tripsage.in/seo/budget-kerala-trip' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/budget-kerala-trip' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Experience God's Own Country without overspending on luxury resorts."
         heroImage="https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Explore God's Own Country on a Budget</h2>

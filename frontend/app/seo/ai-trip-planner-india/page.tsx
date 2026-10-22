@@ -5,24 +5,24 @@ import Link from 'next/link'
 import { Sparkles, ArrowRight, ShieldCheck, Compass, Map, Calendar, Train, Zap, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'AI Trip Planner India: Free Instant Travel Itineraries (2026)',
-  description: 'Build custom India travel itineraries in seconds with TripSage AI. Free route optimizer for Goa, Kerala, Rajasthan, Manali & Ladakh with train & flight intelligence.',
+  title: 'AI Itinerary for India Trips | TripSage',
+  description: 'Day-by-day AI itineraries for trips around India, including Goa, Kerala, Rajasthan, Manali and Ladakh. The main planner is linked on this page.',
   keywords: ['AI trip planner India', 'automated itinerary India', 'plan trip India AI', 'India travel guide', 'smart travel planner India', 'best AI travel planner for Indian trips'],
-  alternates: { canonical: 'https://tripsage.in/seo/ai-trip-planner-india' },
+  alternates: { canonical: 'https://www.tripsage.in/seo/ai-trip-planner-india' },
   openGraph: {
-    title: 'AI Trip Planner India: Smart Day-by-Day Travel Itineraries | TripSage',
+    title: 'AI Itinerary for India Trips | TripSage',
     description: 'Experience India travel planning powered by AI. Personalized itineraries, multi-city route optimization, and live transit comparisons.',
-    url: 'https://tripsage.in/seo/ai-trip-planner-india',
+    url: 'https://www.tripsage.in/seo/ai-trip-planner-india',
     siteName: 'TripSage',
-    images: [{ url: 'https://tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage AI Trip Planner India' }],
+    images: [{ url: 'https://www.tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage AI Trip Planner India' }],
     locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Trip Planner India: Free Instant Travel Itineraries (2026)',
+    title: 'AI Itinerary for India Trips | TripSage',
     description: 'Instant customized itineraries across India with TripSage AI. Compare trains, flights, hotels, and local activities.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -33,8 +33,8 @@ export default function Page() {
   return (
     <LandingLayout>
       <SEOContent
-        title="AI Trip Planner India: Smart Day-by-Day Travel Itineraries"
-        subtitle="Turn your dream Indian vacation into an actionable, day-by-day blueprint in seconds. TripSage combines AI route intelligence, rail connectivity, live flight search, and hyper-local insights."
+        title="AI itinerary for India trips"
+        subtitle="Day-by-day itineraries for trips around India. The main AI trip planner lives on its own page."
         heroImage="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1920&q=90"
         ctaText="Plan with TripSage"
         ctaLink="/plan"
@@ -47,6 +47,9 @@ export default function Page() {
         destinationName="India"
         content={
           <>
+            <p>
+              Looking for the AI trip planner itself? Open <Link href="/ai-trip-planner">the AI trip planner</Link>. This page is about building an AI itinerary for trips around India.
+            </p>
             <h2>Why Traditional India Travel Planning is Broken</h2>
             <p>
               Planning travel across India involves managing intricate rail schedules, seasonal climates, regional distances, and fluctuating accommodation rates. TripSage is the first specialized AI trip planner for India that unifies domestic route optimization, IRCTC train timing awareness, real-time flight search, and localized daily activity scheduling into one interactive dashboard. Whether you are mapping a 4-day budget Goa getaway, a 6-day royal Rajasthan circuit, or a 7-day serene Kerala backwater cruise, our engine builds realistic, hour-by-hour itineraries tailored to your budget and travel preferences.

@@ -37,6 +37,7 @@ const nextConfig = {
       { source: '/best-beaches-in-india', destination: '/seo/best-beaches-in-india', permanent: true },
       { source: '/solo-travel-guide-india', destination: '/seo/solo-travel-guide-india', permanent: true },
       { source: '/family-trip-planner-india', destination: '/seo/family-trip-planner-india', permanent: true },
+      { source: '/raksha-bandhan', destination: '/', permanent: true },
     ]
   },
 

@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Golden Triangle India Itinerary | Delhi, Agra, Jaipur Tour | TripSage',
+  title: 'Golden Triangle Itinerary: Delhi to Jaipur | TripSage',
   description: 'Plan the ultimate 4-6 day Golden Triangle tour of India. Explore Delhi\'s historical heritage, Agra\'s Taj Mahal, and Jaipur\'s royal palaces with TripSage AI.',
   keywords: ['Golden Triangle India itinerary', 'Delhi Agra Jaipur tour', 'India Golden Triangle trip planner', 'Delhi Agra Jaipur travel guide', 'TripSage Golden Triangle'],
-  alternates: { canonical: 'https://tripsage.in/seo/golden-triangle-india-itinerary' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/golden-triangle-india-itinerary' }
 }
 
 export default function Page() {

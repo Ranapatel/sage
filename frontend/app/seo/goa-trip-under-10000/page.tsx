@@ -5,14 +5,14 @@ import Link from 'next/link'
 import { Sparkles, ArrowRight, ShieldCheck, Wallet, MapPin, Calendar, Compass, Sun, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Goa Trip Under 10000: 4-Day Budget Itinerary & Costs (2026)',
-  description: 'Can you plan a Goa trip under ₹10,000? Yes! 4-day budget itinerary, hostel prices (₹600/night), scooter rentals, cheap food, train tips & instant AI trip planner.',
+  title: 'Goa Trip Under ₹10,000: 4-Day Plan | TripSage',
+  description: 'A 4-day Goa trip can fit within ₹10,000 per person with overnight trains via Madgaon or Thivim and off-peak dates.',
   keywords: ['Goa trip under 10000', 'budget Goa trip', 'cheap Goa travel guide', 'Goa on a budget', 'Goa 4 day itinerary cost', 'Goa trip plan for students'],
-  alternates: { canonical: 'https://tripsage.in/seo/goa-trip-under-10000' },
+  alternates: { canonical: 'https://www.tripsage.in/seo/goa-trip-under-10000' },
   openGraph: {
-    title: 'Goa Trip Under 10000: 4-Day Budget Itinerary & Expense Guide (2026)',
+    title: 'Goa Trip Under ₹10,000: 4-Day Plan | TripSage',
     description: 'Complete verified Goa budget guide. Itemized expenses, top cheap hostels, scooter rentals, and a 4-day itinerary under ₹10,000.',
-    url: 'https://tripsage.in/seo/goa-trip-under-10000',
+    url: 'https://www.tripsage.in/seo/goa-trip-under-10000',
     siteName: 'TripSage',
     images: [{ url: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=85', width: 1200, height: 630, alt: 'Goa Budget Trip Guide Under 10000' }],
     locale: 'en_IN',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Goa Trip Under 10000: 4-Day Budget Itinerary & Costs (2026)',
+    title: 'Goa Trip Under ₹10,000: 4-Day Plan | TripSage',
     description: 'Complete 4-day Goa budget blueprint under ₹10k: hostels, scooter rentals, beach shacks, and free sights.',
     images: ['https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=85'],
   },
@@ -52,7 +52,7 @@ export default function Page() {
               Planning a Goa trip under ₹10,000 is entirely achievable with the right strategy. For a 4-day, 3-night trip from major Indian cities, your realistic expense breakdown is: ₹2,400 for hostel stays, ₹2,200 for delicious local Goan thalis and beach cafe dining, ₹1,200 for scooter rental and fuel, ₹1,500 for entry tickets and water activities, and ₹1,500 for sleeper-class train tickets or advance bus bookings. That leaves ₹1,200 for contingency, keeping your total comfortably between ₹8,500 and ₹9,800 per person.
             </p>
             <p>
-              By leveraging our <Link href="/ai-trip-planner">AI trip planner</Link> and choosing off-peak travel dates or booking overnight trains via Madgaon (MAO) or Thivim (THVM), thousands of solo travelers, couples, and students complete Goa memorably within this exact budget.
+              With overnight trains via Madgaon or Thivim and off-peak dates, a 4-day Goa trip can fit within ₹10,000 per person. You can build the days with our <Link href="/ai-trip-planner">AI trip planner</Link>.
             </p>
 
             {/* Itemized Budget Table */}

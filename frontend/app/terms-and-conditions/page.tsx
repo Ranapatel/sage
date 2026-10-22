@@ -3,19 +3,19 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions | TripSage AI Travel Operating System',
+  title: 'Terms & Conditions | TripSage',
   description: 'Read the official terms and conditions for using TripSage, your AI-powered travel planning, flight search, and hotel booking platform.',
   alternates: {
-    canonical: 'https://tripsage.in/terms-and-conditions',
+    canonical: 'https://www.tripsage.in/terms-and-conditions',
   },
   openGraph: {
-    title: 'Terms & Conditions | TripSage AI Travel Operating System',
+    title: 'Terms & Conditions | TripSage',
     description: 'Terms and conditions governing the use of TripSage travel services and platform.',
-    url: 'https://tripsage.in/terms-and-conditions',
+    url: 'https://www.tripsage.in/terms-and-conditions',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Terms & Conditions',
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Terms & Conditions | TripSage AI Travel',
+    title: 'Terms & Conditions | TripSage',
     description: 'Official Terms & Conditions for TripSage AI travel platform.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 

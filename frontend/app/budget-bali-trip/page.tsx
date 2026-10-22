@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Budget Bali Trip Guide | Affordable Bali Itinerary | TripSage',
+  title: 'Budget Bali Trip from India | TripSage',
   description: 'Plan an affordable Bali trip from India. Discover the best time to visit, cheap flights, and budget stays in Ubud, Kuta, and Uluwatu.',
   keywords: ['budget Bali trip', 'Bali trip from India cost', 'affordable Bali itinerary', 'Bali travel guide'],
-  alternates: { canonical: 'https://tripsage.in/budget-bali-trip' }
+  alternates: { canonical: 'https://www.tripsage.in/budget-bali-trip' }
 }
 
 export default function Page() {

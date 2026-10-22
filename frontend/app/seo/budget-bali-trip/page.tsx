@@ -2,17 +2,18 @@ import type { Metadata } from 'next'
 import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 import Link from 'next/link'
+import ScooterIdpNote from '@/components/content/ScooterIdpNote'
 import { Sparkles, ArrowRight, ShieldCheck, Wallet, MapPin, Calendar, Compass, Plane, FileText } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Budget Bali Trip from India (2026): Total Cost, 6-Day Plan & Flights',
-  description: 'Can you do Bali on a budget? Complete 2026 cost breakdown for Indian tourists: ₹42,000 all-inclusive, cheap flights from ₹20k, VoA fees, warungs & AI trip planner.',
+  title: 'Budget Bali Trip from India | TripSage',
+  description: 'Budget Bali from India: ₹46,000–₹62,000 per person for 5 nights, including the IDR 150,000 tourist levy. Checked 22 Oct 2026.',
   keywords: ['budget Bali trip', 'Bali trip from India cost', 'affordable Bali itinerary', 'Bali travel guide India', 'Bali 6 day trip cost', 'Bali visa on arrival for Indians'],
-  alternates: { canonical: 'https://tripsage.in/seo/budget-bali-trip' },
+  alternates: { canonical: 'https://www.tripsage.in/seo/budget-bali-trip' },
   openGraph: {
-    title: 'Budget Bali Trip from India: Total Cost, 6-Day Itinerary & Hacks (2026)',
-    description: 'Expert verified Bali budget guide for Indian passport holders. Complete expenses, flight hacks, scooter tips, and a 6-day island itinerary under ₹45,000.',
-    url: 'https://tripsage.in/seo/budget-bali-trip',
+    title: 'Budget Bali Trip from India | TripSage',
+    description: 'Budget Bali from India: ₹46,000–₹62,000 per person for 5 nights, including the IDR 150,000 tourist levy. Checked 22 Oct 2026.',
+    url: 'https://www.tripsage.in/seo/budget-bali-trip',
     siteName: 'TripSage',
     images: [{ url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85', width: 1200, height: 630, alt: 'Budget Bali Trip from India Guide' }],
     locale: 'en_IN',
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Budget Bali Trip from India (2026): Total Cost & 6-Day Itinerary',
+    title: 'Budget Bali Trip from India | TripSage',
     description: 'Complete 2026 Bali budget guide for Indian travelers: flights from ₹20k, VoA fee, warung meals, and 6-day itinerary.',
     images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85'],
   },
@@ -49,7 +50,7 @@ export default function Page() {
           <>
             <h2>How Much Does a Budget Bali Trip from India Really Cost?</h2>
             <p>
-              Planning a budget Bali trip from India can easily be achieved for ₹40,000 to ₹50,000 all-inclusive for a 6-day holiday. A realistic expense allocation consists of: ₹20,000 to ₹25,000 for round-trip flights booked 6–8 weeks in advance from Kochi, Chennai, or Mumbai, ₹6,000 for boutique homestays or private pool villas shared with a friend, ₹2,700 (500,000 IDR) for the mandatory Visa on Arrival, ₹4,500 for authentic Indonesian warung meals, and ₹3,500 for local scooter rentals or Grab rides. With the Indonesian Rupiah's favorable conversion rate, your Indian Rupee stretches remarkably far.
+              The sourced range checked on 22 October 2026 is ₹46,000–₹62,000 per person for 5 nights. That is costs other than flights of ₹20,379 plus fares of ₹25,661–₹41,337 seen that day. The table below is a category guide and now includes the IDR 150,000 Bali tourist levy.
             </p>
             <p>
               For deep-dive details on official embassy regulations and daily route maps, read our dedicated <Link href="/visa/bali-visa-for-indian-citizens">Bali Visa Guide for Indians</Link>, check out our detailed <Link href="/budget/bali-trip-cost-from-india">Itemized Bali Cost Breakdown</Link>, and review our day-by-day <Link href="/itineraries/bali-7-day-itinerary-from-india">7-Day Bali Travel Itinerary</Link>.
@@ -89,7 +90,12 @@ export default function Page() {
                   <tr>
                     <td className="py-3 px-4 font-bold text-[#1A1A1A]">Local Transportation</td>
                     <td className="py-3 px-4 font-bold text-[#EA580C]">₹2,500 – ₹3,500</td>
-                    <td className="py-3 px-4">Scooter rental (₹400/day) or Gojek/Grab bike taxis for quick town hops</td>
+                    <td className="py-3 px-4">Scooter rental (₹400/day) or Gojek/Grab bike taxis for quick town hops. An Indian driving licence is not valid in Indonesia; you need an IDP (cgibali.gov.in, checked 22 Oct 2026). Without an IDP, use a car with a driver or app taxis.</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 font-bold text-[#1A1A1A]">Bali tourist levy</td>
+                    <td className="py-3 px-4 font-bold text-[#EA580C]">IDR 150,000</td>
+                    <td className="py-3 px-4">Separate from the visa. Love Bali levy. Checked 22 Oct 2026.</td>
                   </tr>
                   <tr>
                     <td className="py-3 px-4 font-bold text-[#1A1A1A]">Temple Entry &amp; Sights</td>
@@ -98,8 +104,8 @@ export default function Page() {
                   </tr>
                   <tr className="bg-[#FFFBF7] font-black text-sm text-[#1A1A1A]">
                     <td className="py-3.5 px-4 font-black">Total Expected Budget</td>
-                    <td className="py-3.5 px-4 text-[#EA580C]">₹35,700 – ₹46,700</td>
-                    <td className="py-3.5 px-4 text-emerald-700">Incredible value for a 6-day international holiday!</td>
+                    <td className="py-3.5 px-4 text-[#EA580C]">₹46,000 – ₹62,000</td>
+                    <td className="py-3.5 px-4 text-emerald-700">Checked 22 Oct 2026, per person, 5 nights. Not the sum of the older category rows.</td>
                   </tr>
                 </tbody>
               </table>
@@ -114,7 +120,7 @@ export default function Page() {
 
             <h3>Day 2: Cultural Ubud: Rice Terraces, Waterfalls &amp; Monkey Forest</h3>
             <p>
-              Rent a scooter for 70,000 IDR (₹380) per day. Ride early to the emerald Tegalalang Rice Terraces before tour buses arrive. Cool off with an afternoon dip at Tegenungan or Kanto Lampo Waterfall (entry ~20,000 IDR). Spend your late afternoon visiting Ubud Palace (free entry) and browsing handcrafted souvenirs at the Ubud Traditional Art Market.
+              Rent a scooter for 70,000 IDR (₹380) per day. <ScooterIdpNote /> Ride early to the emerald Tegalalang Rice Terraces before tour buses arrive. Cool off with an afternoon dip at Tegenungan or Kanto Lampo Waterfall (entry ~20,000 IDR). Spend your late afternoon visiting Ubud Palace (free entry) and browsing handcrafted souvenirs at the Ubud Traditional Art Market.
             </p>
 
             <h3>Day 3: Mount Batur Sunrise or Tirta Empul Sacred Water Temple</h3>
@@ -165,7 +171,7 @@ export default function Page() {
             <ul>
               <li><strong>Use Forex Cards with Zero Markups:</strong> Avoid exchanging cash at airport kiosks which charge 7–12% fees. Use multi-currency cards like Niyo or Fi with near-zero markup at local BCA or Mandiri ATMs.</li>
               <li><strong>Download Grab and Gojek Apps:</strong> Never take unmetered street taxis. Grab and Gojek offer transparent, fixed-price car and bike taxi fares.</li>
-              <li><strong>Carry an International Driving Permit (IDP):</strong> Balinese traffic police conduct regular checks in Canggu and Kuta. An IDP ensures you avoid spot fines.</li>
+              <li><ScooterIdpNote /></li>
               <li><strong>Check Our Visa Hub:</strong> Review the latest entry documents on our <Link href="/visa">visa requirements hub</Link> before departure.</li>
             </ul>
           </>

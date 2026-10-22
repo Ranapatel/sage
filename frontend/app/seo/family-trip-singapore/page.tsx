@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Family Trip to Singapore | Ultimate Singapore Family Guide | TripSage',
+  title: 'Family Trip to Singapore Guide | TripSage',
   description: 'Plan the perfect family vacation to Singapore. Find kid-friendly hotels, top theme parks, family discounts, and an AI-generated itinerary.',
   keywords: ['family trip Singapore', 'Singapore family package', 'kid friendly Singapore itinerary', 'TripSage Singapore family'],
-  alternates: { canonical: 'https://tripsage.in/seo/family-trip-singapore' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/family-trip-singapore' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Embark on the ultimate multi-generational holiday to the safest city in the world."
         heroImage="https://images.unsplash.com/photo-1565967511849-76a60a516170?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Create Lasting Memories with Your Family in Singapore</h2>

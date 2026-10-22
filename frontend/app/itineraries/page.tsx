@@ -6,20 +6,20 @@ import Link from 'next/link'
 import { Map, Clock, Sparkles, ArrowRight, Compass, ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Curated Travel Itineraries & AI Route Guides | TripSage',
-  description: 'Browse curated travel itineraries for weekend getaways, honeymoon trips, solo adventures, and family holidays. Generate your custom itinerary with TripSage AI.',
+  title: 'Travel Itineraries & Route Guides | TripSage',
+  description: 'Curated itineraries for weekends, honeymoons, solo trips and family holidays, plus a link to build your own plan.',
   keywords: ['travel itineraries', '3 day itinerary', '7 day trip plan', '10 day India tour', 'AI route planner', 'Golden Triangle itinerary', 'TripSage itineraries'],
   alternates: {
-    canonical: 'https://tripsage.in/itineraries',
+    canonical: 'https://www.tripsage.in/itineraries',
   },
   openGraph: {
-    title: 'Curated Travel Itineraries & AI Route Guides | TripSage',
+    title: 'Travel Itineraries & Route Guides | TripSage',
     description: 'Browse curated travel itineraries for weekend getaways, honeymoon trips, solo adventures, and family holidays with TripSage AI.',
-    url: 'https://tripsage.in/itineraries',
+    url: 'https://www.tripsage.in/itineraries',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Travel Itineraries Hub',
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Curated Travel Itineraries & AI Route Guides | TripSage',
+    title: 'Travel Itineraries & Route Guides | TripSage',
     description: 'Browse curated travel itineraries and custom route plans on TripSage.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Sparkles, ArrowRight, Plane, Bus, Hotel, MapPin, CheckCircle2 } from 'lucide-react'
+import { Sparkles, ArrowRight, Plane, Bus, Hotel, MapPin } from 'lucide-react'
 
 interface Props {
   onBuildTripClick?: () => void
@@ -216,10 +216,7 @@ export default function DussehraHowItWorks({ onBuildTripClick }: Props) {
             </div>
 
             <div className="pt-2 border-t border-[#E8E0D8]/60 flex items-center justify-between text-[10px] text-[#9CA3AF]">
-              <span>Real-time availability</span>
-              <span className="flex items-center gap-1 text-[#16A34A] font-bold">
-                <CheckCircle2 size={11} /> Verified APIs
-              </span>
+              <span>Fare and hotel options with links to book directly with providers</span>
             </div>
           </div>
         </div>

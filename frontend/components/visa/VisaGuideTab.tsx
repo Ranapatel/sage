@@ -40,8 +40,8 @@ const VISA_DATA: Record<string, VisaDetails> = {
   uae: {
     country: 'United Arab Emirates (Dubai)',
     visaType: '30-Day Tourist Visa (Single Entry)',
-    fee: 'AED 350 - 400 (~₹7,500 - ₹9,000 INR depending on processing channel)',
-    processingTime: '3 to 5 working days',
+    fee: 'AED 200 + 5% VAT government fee (30 days), plus agent or airline charges. A 60-day visa is AED 300 + VAT.',
+    processingTime: 'About 48 hours (GDRFA)',
     officialLink: 'https://smartservices.icp.gov.ae/',
     requirements: [
       'Color copy of Passport first & last page (valid for 6 months)',
@@ -55,21 +55,20 @@ const VISA_DATA: Record<string, VisaDetails> = {
       'Minors traveling must have birth certificate copy in English',
     ],
     tips: [
-      'If you hold a US Visa/Green Card or UK/EU Residence permit, you qualify for Visa-on-Arrival at Dubai Airport.',
+      '14-day visa on arrival is only for Indian ordinary-passport holders with a US visa or green card, or a UK or EU residence visa, each valid for 6 months or more (GDRFA). It can be extended once. ICP added residence permits from Singapore, Japan, South Korea, Australia, New Zealand and Canada on 25 June 2026. ICP lists the 14-day visa at AED 100. Overstay fine: AED 50 per day (ICP). Checked 22 Oct 2026.',
       'Check if your airline (e.g. Emirates, flydubai, IndiGo) offers visa application services directly in their booking panel.',
     ],
   },
   thailand: {
     country: 'Thailand',
-    visaType: 'Visa Exemption (Visa-Free Entry)',
-    fee: '₹0 INR (Free under current bilateral exemptions)',
-    processingTime: 'Granted instantly at border control',
-    officialLink: 'https://www.immigration.go.th/',
+    visaType: '30-day visa exemption for tourism (from 15 Sep 2026)',
+    fee: 'Free',
+    processingTime: 'No visa needed',
+    officialLink: 'https://newdelhi.thaiembassy.org/en/page/visa',
     requirements: [
       'Passport valid for at least 6 months from arrival date',
-      'Confirmed return flight ticket showing departure within 30 days',
+      'Onward or return ticket',
       'Hotel booking confirmation matching travel dates',
-      'Sufficient funds: Min. 10,000 THB (~₹23,000 INR) per person or 20,000 THB per family (cash or equivalent, checked occasionally)',
     ],
     essentialChecklist: [
       'Completed arrival card (if distributed in-flight)',
@@ -77,14 +76,13 @@ const VISA_DATA: Record<string, VisaDetails> = {
       'Digital or print copy of hotel vouchers',
     ],
     tips: [
-      'Visa-free entry is valid for up to 30 days. You can extend it once for an additional 30 days at any local immigration office for 1,900 THB.',
-      'Carry some Cash in THB or USD to satisfy the funds checks at immigration if requested.',
+      'Rule since 15 Sep 2026, Royal Thai Embassy New Delhi. Checked 22 Oct 2026. For a longer stay or another purpose, check the embassy visa page before you travel.',
     ],
   },
   vietnam: {
     country: 'Vietnam',
     visaType: 'Electronic Visa (eVisa)',
-    fee: '$25 USD (~₹2,100 INR)',
+    fee: 'US$25 (single) / US$50 (multiple). Stay up to 90 days.',
     processingTime: '3 to 4 working days',
     officialLink: 'https://evisa.xuatnhapcanh.gov.vn/',
     requirements: [

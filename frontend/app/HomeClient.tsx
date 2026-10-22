@@ -17,6 +17,7 @@ import RakhiEventCard from '@/components/campaign/RakhiEventCard'
 import {
   MapPin, Calendar, ArrowRight, Plane, Shield, Sparkles, Plus, Minus, Info, ChevronRight, ChevronLeft, X, Search, SlidersHorizontal, Users, ShieldCheck, FileCheck, Globe
 } from 'lucide-react'
+import { HOME_FAQS } from '@/lib/homeFaqs'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -29,10 +30,10 @@ const BLUEPRINT_DESTINATIONS = [
     country: 'Indonesia',
     visa: 'Visa on Arrival',
     visaType: 'warning',
-    budget: '₹45,000',
-    duration: '6 nights',
+    budget: '₹46,000–62,000 pp',
+    duration: '5 nights',
     bestFor: 'Couples, Adventure',
-    link: '/seo/budget-bali-trip',
+    link: '/budget/bali-trip-cost-from-india',
   },
   {
     name: 'Dubai, UAE',
@@ -42,10 +43,10 @@ const BLUEPRINT_DESTINATIONS = [
     country: 'UAE',
     visa: 'E-Visa Required',
     visaType: 'warning',
-    budget: '₹70,000',
-    duration: '5 nights',
+    budget: '₹65,000–70,000 pp',
+    duration: '5 nights · Jan–Feb fares',
     bestFor: 'Luxury, Shopping',
-    link: '',
+    link: '/guides/dubai-trip-planner-from-india',
   },
   {
     name: 'Bangkok, Thailand',
@@ -58,7 +59,7 @@ const BLUEPRINT_DESTINATIONS = [
     budget: '₹35,000',
     duration: '5 nights',
     bestFor: 'Food, Culture',
-    link: '',
+    link: '/seo/mumbai-to-bangkok-trip-planner',
   },
   {
     name: 'Hanoi, Vietnam',
@@ -71,7 +72,7 @@ const BLUEPRINT_DESTINATIONS = [
     budget: '₹30,000',
     duration: '5 nights',
     bestFor: 'History, Food',
-    link: '',
+    link: '/seo/cheapest-international-trips-from-india',
   },
   {
     name: 'Maldives',
@@ -352,28 +353,7 @@ const DOMESTIC_DESTINATIONS = [
   },
 ]
 
-const FAQS = [
-  {
-    q: 'Is TripSage completely free to use?',
-    a: 'Yes, generating itineraries and using our basic planning tools is completely free. We earn money through affiliate bookings with our flight and hotel partners, meaning you pay the exact same price.',
-  },
-  {
-    q: 'Where does TripSage get flight and hotel rates?',
-    a: 'We query aggregated travel APIs and partner networks to fetch live availability and baseline price estimations.',
-  },
-  {
-    q: 'Can I customize the generated itineraries?',
-    a: 'Absolutely. Every day is modular. You can add, edit, remove activities, swap hotels, or search for different transport connections.',
-  },
-  {
-    q: 'What destinations does TripSage support?',
-    a: 'While we support planning for global routes, our blueprint destinations are highly optimized for direct bookings, itineraries, and visa requirements.',
-  },
-  {
-    q: 'Does TripSage handle booking cancellations?',
-    a: 'TripSage is a planning assistant. Stays and partner options are booked directly with official providers (such as Hotelbeds, Booking.com, etc.), and cancellations are managed according to each provider’s terms.',
-  },
-]
+const FAQS = HOME_FAQS
 
 export default function HomeClient() {
   const router = useRouter()
@@ -463,10 +443,7 @@ export default function HomeClient() {
               className="font-display text-2xl sm:text-3xl md:text-[38px] font-semibold text-[#1A1A1A] tracking-tight leading-[1.18] text-center"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              The smartest way to{' '}
-              <span className="font-bold text-[#EA580C]">
-                explore the world.
-              </span>
+              AI trip planner for Indian travellers: ₹ budgets, visa notes, day-by-day plans
             </h1>
             
             {/* Subtitle - High Contrast Charcoal */}
@@ -564,7 +541,7 @@ export default function HomeClient() {
           <div className="relative z-10 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest text-[#6B6B6B] pt-12 sm:pt-24 md:pt-44 uppercase">
             <span>Precision Day-by-Day Itineraries</span> &nbsp;·&nbsp;
             <span>Live Visa Guidance</span> &nbsp;·&nbsp;
-            <span>Transparent Real-Time Fares</span>
+            <span>Fare and hotel options with links to book directly with providers</span>
           </div>
 
         </div>
@@ -588,7 +565,7 @@ export default function HomeClient() {
               <span className="text-sm font-bold text-[#EA580C] block mb-1">02</span>
               <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 2 — We build the plan</h4>
               <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
-                Our system fetches live connection options and hotels.
+                Fare and hotel options with links to book directly with providers.
               </p>
             </div>
 
@@ -830,11 +807,9 @@ export default function HomeClient() {
                       <Plus size={16} className="text-[#6B6B6B]" strokeWidth={1.5} />
                     )}
                   </button>
-                  {isOpen && (
-                    <div className="px-5 pb-5 text-xs md:text-sm text-[#6B6B6B] leading-relaxed border-t border-[#E8E0D8]/45 pt-4">
-                      {faq.a}
-                    </div>
-                  )}
+                  <div className={`px-5 pb-5 text-xs md:text-sm text-[#6B6B6B] leading-relaxed border-t border-[#E8E0D8]/45 pt-4 ${isOpen ? '' : 'sr-only'}`}>
+                    {faq.a}
+                  </div>
                 </div>
               )
             })}

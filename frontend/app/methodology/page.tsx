@@ -3,22 +3,22 @@ import Link from 'next/link'
 import { FlaskConical, AlertTriangle, CheckCircle, Clock, ExternalLink, Info } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Our Methodology | How TripSage Creates Itineraries & Estimates — TripSage',
-  description: 'Understand how TripSage generates travel itineraries, budget estimates, and visa summaries. Learn our data sources, limitations, and how to verify travel information.',
+  title: 'How TripSage Builds Itineraries | TripSage',
+  description: 'How TripSage builds itineraries, budget estimates and visa summaries, including sources and what the guides do not cover.',
   keywords: ['TripSage methodology', 'how TripSage works', 'AI itinerary methodology', 'travel data accuracy', 'visa information verification'],
   alternates: {
-    canonical: 'https://tripsage.in/methodology',
+    canonical: 'https://www.tripsage.in/methodology',
   },
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: 'Our Methodology | How TripSage Creates Itineraries & Estimates',
+    title: 'How TripSage Builds Itineraries | TripSage',
     description: 'Learn how TripSage generates AI itineraries, budget estimates, and visa summaries, and how you should verify the information before travelling.',
-    url: 'https://tripsage.in/methodology',
+    url: 'https://www.tripsage.in/methodology',
     siteName: 'TripSage',
-    images: [{ url: 'https://tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Methodology' }],
+    images: [{ url: 'https://www.tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Methodology' }],
     locale: 'en_IN',
     type: 'website',
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Our Methodology | TripSage',
     description: 'How TripSage creates itineraries, budget estimates, and visa summaries — and how to verify everything.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -34,8 +34,8 @@ const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tripsage.in' },
-    { '@type': 'ListItem', position: 2, name: 'Methodology', item: 'https://tripsage.in/methodology' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.tripsage.in' },
+    { '@type': 'ListItem', position: 2, name: 'Methodology', item: 'https://www.tripsage.in/methodology' },
   ],
 }
 

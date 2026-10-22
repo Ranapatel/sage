@@ -56,7 +56,7 @@ export function getCampaignTimeRemaining() {
  */
 export function getFestiveSharePayload(userId?: string | null) {
   const code = userId || 'explorer'
-  const referralUrl = `https://tripsage.in/sign-up?ref=${code}`
+  const referralUrl = `https://www.tripsage.in/sign-up?ref=${code}`
 
   const message = `🎁 Gift your sibling a trip this Raksha Bandhan!\n\nJoin TripSage with my exclusive Rakhi invite link & claim 200 FREE Sage Travel Credits:\n${referralUrl}\n\nLet's plan our next dream vacation together! ✈️✨`
 

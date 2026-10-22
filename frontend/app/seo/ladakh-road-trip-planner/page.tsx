@@ -4,10 +4,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Ladakh Road Trip Planner | Manali to Leh Route & Guide | TripSage',
+  title: 'Ladakh Road Trip Planner | TripSage',
   description: 'Plan the adventure of a lifetime. Get the ultimate Ladakh road trip route, packing checklists, acclimatization tips, and safety FAQs with TripSage AI.',
   keywords: ['Ladakh road trip planner', 'Manali to Leh highway route', 'Leh Ladakh road trip guide', 'acclimatization tips Ladakh', 'TripSage Ladakh'],
-  alternates: { canonical: 'https://tripsage.in/seo/ladakh-road-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/ladakh-road-trip-planner' }
 }
 
 export default function Page() {

@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Cheapest International Trips from India | Budget Foreign Travel | TripSage',
+  title: 'Cheapest International Trips from India | TripSage',
   description: 'Explore the world without a huge budget. Discover the cheapest international trips from India, including Thailand, Vietnam, and Sri Lanka.',
   keywords: ['cheapest international trips from India', 'budget foreign trips', 'low cost foreign travel', 'cheap countries to visit from India'],
-  alternates: { canonical: 'https://tripsage.in/cheapest-international-trips-from-india' }
+  alternates: { canonical: 'https://www.tripsage.in/cheapest-international-trips-from-india' }
 }
 
 export default function Page() {

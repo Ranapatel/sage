@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Kerala Backwaters Trip Planner | Hill Stations & Houseboats | TripSage',
+  title: 'Kerala Backwaters Trip Planner | TripSage',
   description: 'Plan your dream Kerala vacation. Custom houseboat itineraries in Alleppey, tea gardens of Munnar, and pristine beaches of Kovalam with TripSage AI.',
   keywords: ['Kerala trip planner', 'Kerala houseboat itinerary', 'Munnar hill station guide', 'Alleppey backwaters', 'TripSage Kerala'],
-  alternates: { canonical: 'https://tripsage.in/seo/kerala-backwaters-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/kerala-backwaters-trip-planner' }
 }
 
 export default function Page() {

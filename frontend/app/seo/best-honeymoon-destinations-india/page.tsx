@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Best Honeymoon Destinations in India | Romantic Getaways | TripSage',
+  title: 'Best Honeymoon Destinations in India | TripSage',
   description: 'Plan your romantic escape with the best honeymoon destinations in India. From Udaipur to Andaman, find your perfect match with TripSage AI.',
   keywords: ['best honeymoon destinations India', 'romantic trips India', 'honeymoon guide India', 'top couple destinations'],
-  alternates: { canonical: 'https://tripsage.in/seo/best-honeymoon-destinations-india' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/best-honeymoon-destinations-india' }
 }
 
 export default function Page() {

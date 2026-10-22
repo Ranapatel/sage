@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Bangalore to Dubai Trip Planner | Ultimate Dubai Guide | TripSage',
+  title: 'Bangalore to Dubai Trip Planner | TripSage',
   description: 'Plan your dream Dubai vacation from Bangalore. Discover flight options, cheap luxury stays, desert safaris, and customize an AI itinerary.',
   keywords: ['Bangalore to Dubai trip planner', 'Dubai itinerary AI', 'best time to visit Dubai', 'Dubai travel guide', 'TripSage Dubai'],
-  alternates: { canonical: 'https://tripsage.in/seo/bangalore-to-dubai-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/bangalore-to-dubai-trip-planner' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Embark on a luxury and adventure filled vacation from Silicon Valley of India to Dubai."
         heroImage="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Experience the Wonders of Dubai from Bangalore</h2>

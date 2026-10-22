@@ -23,6 +23,7 @@ import {
   CalendarDays, Users, LayoutDashboard, Building2, Share2, BookmarkPlus, User, Pencil, Sliders
 } from 'lucide-react'
 import UserMenu from '@/components/layout/UserMenu'
+import WhatsAppShareButton from '@/components/plan/WhatsAppShareButton'
 import { addBookmark } from '@/lib/bookmarkUtils'
 import { 
   Icon3DOverview, 
@@ -730,7 +731,7 @@ export default function PlanClient() {
   const handleShareTrip = useCallback(() => {
     const destination = tripContext.destination || 'my trip'
     const shareText = `Check out my ${destination} trip plan on TripSage! 🌍✈️`
-    const shareUrl = `https://tripsage.in/plan`
+    const shareUrl = `https://www.tripsage.in/plan`
 
     // Use native Web Share API on mobile devices (shows OS share sheet)
     if (navigator.share) {
@@ -1354,6 +1355,12 @@ export default function PlanClient() {
 
 
 
+
+          {itinerary.length > 0 && (
+            <div className="mx-auto mb-4 flex max-w-2xl justify-center px-4">
+              <WhatsAppShareButton destination={tripContext.destination} />
+            </div>
+          )}
 
           {/* Overview */}
           <div className={activeTab === 'overview' ? 'block' : 'hidden'}>

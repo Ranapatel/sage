@@ -9,8 +9,8 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Bali 7-Day Itinerary from India (2026 Route Guide): Ubud, Beaches & Nusa Penida | TripSage',
-  description: 'The definitive 7-day Bali itinerary for Indian travelers. Day-by-day route: Ubud jungle & waterfalls, Nusa Penida island speedboat trip, Mount Batur sunrise, Seminyak beach clubs, and Uluwatu Kecak dance.',
+  title: 'Bali 7-Day Itinerary from India | TripSage',
+  description: 'A 7-day Bali route from India covering Ubud, Nusa Penida, Seminyak and Uluwatu, with day-by-day stops for a first visit.',
   keywords: [
     'Bali 7 day itinerary from India',
     'Bali one week itinerary',
@@ -20,12 +20,12 @@ export const metadata: Metadata = {
     'Bali first time travel guide'
   ],
   alternates: {
-    canonical: 'https://tripsage.in/itineraries/bali-7-day-itinerary-from-india',
+    canonical: 'https://www.tripsage.in/itineraries/bali-7-day-itinerary-from-india',
   },
   openGraph: {
-    title: 'Bali 7-Day Itinerary from India: The Complete Route Guide for First-Timers',
+    title: 'Bali 7-Day Itinerary from India | TripSage',
     description: 'Perfect 1-week day-by-day Bali travel plan from India. Structured route covering Ubud culture, Nusa Penida beaches, and Uluwatu sunsets.',
-    url: 'https://tripsage.in/itineraries/bali-7-day-itinerary-from-india',
+    url: 'https://www.tripsage.in/itineraries/bali-7-day-itinerary-from-india',
     siteName: 'TripSage',
     images: [
       {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bali 7-Day Itinerary from India: Complete 1-Week Route Guide',
+    title: 'Bali 7-Day Itinerary from India | TripSage',
     description: 'Day-by-day 7-day travel schedule for Bali covering Ubud, Nusa Penida, Seminyak, and Uluwatu.',
     images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85'],
   },
@@ -75,12 +75,12 @@ export default function BaliSevenDayItineraryPage() {
                 </div>
                 <div>
                   <p className="font-extrabold text-[#1A1A1A]">Written by TripSage Travel Editorial Team</p>
-                  <p className="text-[#6B6B6B]">Reviewed & Fact-Checked by Senior Itinerary Specialists</p>
+                  <p className="text-[#6B6B6B]">Facts checked against published sources in August 2026 by the TripSage team</p>
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end gap-2 text-[#6B6B6B]">
                 <span><strong>Published:</strong> August 2026</span>
-                <span><strong>Last Verified:</strong> August 2026</span>
+                <span><strong>Last checked:</strong> August 2026</span>
               </div>
             </div>
 

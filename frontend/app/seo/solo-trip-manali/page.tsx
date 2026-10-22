@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Solo Trip to Manali Guide | Manali Solo Travel Itinerary | TripSage',
+  title: 'Solo Trip to Manali Guide | TripSage',
   description: 'Plan a safe and exciting solo trip to Manali. Discover vibrant backpacker hostels, solo travel tips, hiking trails, and get a custom AI itinerary.',
   keywords: ['solo trip Manali', 'Manali solo travel guide', 'backpacker hostels Manali', 'TripSage Manali solo'],
-  alternates: { canonical: 'https://tripsage.in/seo/solo-trip-manali' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/solo-trip-manali' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Embark on an empowering solo journey to the heart of the Himachal Himalayas."
         heroImage="https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>The Ultimate Solo Backpacker's Guide to Manali</h2>

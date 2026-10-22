@@ -200,7 +200,7 @@ export const DUSSEHRA_FAQS: FAQItem[] = [
  * Share URLs with UTM tracking parameters
  */
 export function getDussehraSharePayload(source = 'share_button') {
-  const baseUrl = 'https://tripsage.in/dussehra'
+  const baseUrl = 'https://www.tripsage.in/dussehra'
   const utmParams = `utm_source=${source}&utm_medium=campaign&utm_campaign=dussehra_2026`
   const fullUrl = `${baseUrl}?${utmParams}`
 

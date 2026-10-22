@@ -5,14 +5,14 @@ import Link from 'next/link'
 import { Sparkles, ArrowRight, ShieldCheck, Mountain, Calendar, Compass, Sun, Snowflake } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Manali Trip Planner (2026): 4-Day Itinerary, Snow Seasons & Costs',
+  title: 'Manali Trip Planner: 4-Day Itinerary | TripSage',
   description: 'Plan your Manali trip from Delhi or Chandigarh. 4-day itinerary, Rohtang Pass permits, Solang adventure costs, Volvo bus tips & instant AI route generator.',
   keywords: ['Manali trip planner', 'Manali itinerary AI', 'best time to visit Manali', 'Manali budget guide', 'Delhi to Manali 4 day trip', 'Rohtang pass permit cost'],
-  alternates: { canonical: 'https://tripsage.in/seo/manali-trip-planner' },
+  alternates: { canonical: 'https://www.tripsage.in/seo/manali-trip-planner' },
   openGraph: {
-    title: 'Manali Trip Planner: 4-Day Himalayan Itinerary & Cost Guide (2026)',
+    title: 'Manali Trip Planner: 4-Day Itinerary | TripSage',
     description: 'Expert verified Manali travel guide. 4-day day-by-day plan, Rohtang Pass tips, Atal Tunnel transit, and complete expense breakdown.',
-    url: 'https://tripsage.in/seo/manali-trip-planner',
+    url: 'https://www.tripsage.in/seo/manali-trip-planner',
     siteName: 'TripSage',
     images: [{ url: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1200&q=85', width: 1200, height: 630, alt: 'Manali Himalayan Trip Planner' }],
     locale: 'en_IN',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Manali Trip Planner (2026): 4-Day Itinerary & Snow Guide',
+    title: 'Manali Trip Planner: 4-Day Itinerary | TripSage',
     description: 'Complete 4-day Manali blueprint: Volvo buses from Delhi, Old Manali cafes, Solang Valley, and Rohtang permits.',
     images: ['https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1200&q=85'],
   },

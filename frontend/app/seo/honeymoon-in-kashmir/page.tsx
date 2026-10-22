@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Kashmir Honeymoon Planner | Romantic Kashmir Itinerary | TripSage',
+  title: 'Kashmir Honeymoon Planner | TripSage',
   description: 'Plan a romantic honeymoon in Kashmir. Discover cozy houseboats in Srinagar, snow-filled Gulmarg, scenic Pahalgam, and get a custom AI itinerary.',
   keywords: ['honeymoon in Kashmir', 'Kashmir honeymoon package', 'romantic Kashmir trip', 'TripSage Kashmir honeymoon'],
-  alternates: { canonical: 'https://tripsage.in/seo/honeymoon-in-kashmir' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/honeymoon-in-kashmir' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Embark on a dreamlike romantic getaway to the paradise of the Himalayas."
         heroImage="https://images.unsplash.com/photo-1616036740257-9449ea1f6605?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Begin Your Forever in Heaven on Earth</h2>

@@ -2,17 +2,18 @@ import type { Metadata } from 'next'
 import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 import Link from 'next/link'
+import ScooterIdpNote from '@/components/content/ScooterIdpNote'
 import { Sparkles, ArrowRight, ShieldCheck, Globe, Plane, Wallet, FileText, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Cheapest International Trips from India Under ₹45,000 (2026 Guide)',
-  description: 'Top 6 cheapest countries to visit from India under ₹45,000 all-inclusive: Vietnam, Thailand, Bali, Sri Lanka, Nepal & Malaysia. Flight hacks, visa rules & costs.',
+  title: 'Cheapest International Trips from India | TripSage',
+  description: 'Lower-cost international trips from India, including Vietnam, Thailand, Bali, Sri Lanka, Nepal and Malaysia, with visa notes.',
   keywords: ['cheapest international trips from India', 'budget foreign trips', 'low cost foreign travel', 'cheap countries to visit from India', 'international trips under 50000', 'budget international holidays from India'],
-  alternates: { canonical: 'https://tripsage.in/seo/cheapest-international-trips-from-india' },
+  alternates: { canonical: 'https://www.tripsage.in/seo/cheapest-international-trips-from-india' },
   openGraph: {
-    title: 'Cheapest International Trips from India: 6 Countries Under ₹40,000–₹50,000 (2026)',
+    title: 'Cheapest International Trips from India | TripSage',
     description: 'Expert verified guide to the most affordable foreign holidays for Indian travelers. Itemized costs, cheap flights, visa rules, and day plans.',
-    url: 'https://tripsage.in/seo/cheapest-international-trips-from-india',
+    url: 'https://www.tripsage.in/seo/cheapest-international-trips-from-india',
     siteName: 'TripSage',
     images: [{ url: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=85', width: 1200, height: 630, alt: 'Cheapest International Trips from India' }],
     locale: 'en_IN',
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cheapest International Trips from India Under ₹45,000 (2026 Guide)',
+    title: 'Cheapest International Trips from India | TripSage',
     description: 'Complete 2026 guide: Vietnam, Thailand, Bali, Sri Lanka, Nepal, Malaysia under ₹45k all-inclusive.',
     images: ['https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=85'],
   },
@@ -49,7 +50,7 @@ export default function Page() {
           <>
             <h2>The Top 6 Budget-Friendly International Destinations for Indians</h2>
             <p>
-              Planning an international holiday from India does not require lakhs of rupees. In 2026, multiple neighboring destinations in Southeast Asia and South Asia offer all-inclusive 5-to-7 day vacations for under ₹40,000 to ₹50,000 per person, including round-trip flights. The top 6 cheapest international destinations for Indian travelers are: Vietnam (flights from ₹15k, daily cost ₹1,800), Thailand (visa-free/VoA, flights from ₹14k, daily cost ₹2,200), Bali (flights from ₹20k, daily cost ₹2,500), Sri Lanka (flights from ₹12k, daily cost ₹2,000), Nepal (no passport/visa required for Indians, budget from ₹15k), and Malaysia (visa-free entry, flights from ₹16k).
+              Planning an international holiday from India does not require lakhs of rupees. In 2026, multiple neighboring destinations in Southeast Asia and South Asia offer all-inclusive 5-to-7 day vacations for under ₹40,000 to ₹50,000 per person, including round-trip flights. The top 6 cheapest international destinations for Indian travelers are: Vietnam (flights from ₹15k, daily cost ₹1,800), Thailand (30-day visa exemption from 15 Sep 2026, flights from ₹14k, daily cost ₹2,200), Bali (flights from ₹20k, daily cost ₹2,500), Sri Lanka (flights from ₹12k, daily cost ₹2,000), Nepal (no passport/visa required for Indians, budget from ₹15k), and Malaysia (visa-free for up to 30 days until 31 Dec 2026, with MDAC before arrival; flights from ₹16k).
             </p>
             <p>
               With our <Link href="/ai-trip-planner">AI trip planner</Link>, you can compare live multi-city airfares, discover clean central hostels and hotels, and simulate your daily spending down to the last rupee.
@@ -79,7 +80,7 @@ export default function Page() {
                     <td className="py-3 px-4 font-bold text-[#1A1A1A]">Thailand (Bangkok &amp; Phuket)</td>
                     <td className="py-3 px-4 font-bold text-[#EA580C]">₹13,000 – ₹17,000</td>
                     <td className="py-3 px-4">₹2,000 – ₹2,800 / day</td>
-                    <td className="py-3 px-4">Visa-Free or VoA (check <Link href="/visa/thailand-visa-for-indian-citizens" className="text-[#EA580C] underline">rules</Link>)</td>
+                    <td className="py-3 px-4">Visa exemption, up to 30 days from 15 Sep 2026 (check <Link href="/visa/thailand-visa-for-indian-citizens" className="text-[#EA580C] underline">rules</Link>)</td>
                     <td className="py-3 px-4 font-bold text-emerald-700">₹30,000 – ₹40,000</td>
                   </tr>
                   <tr>
@@ -107,7 +108,7 @@ export default function Page() {
                     <td className="py-3 px-4 font-bold text-[#1A1A1A]">Malaysia (Kuala Lumpur &amp; Penang)</td>
                     <td className="py-3 px-4 font-bold text-[#EA580C]">₹15,000 – ₹19,000</td>
                     <td className="py-3 px-4">₹2,200 – ₹3,000 / day</td>
-                    <td className="py-3 px-4">Visa-Free 30 Days (MDAC registration)</td>
+                    <td className="py-3 px-4">Visa-free for up to 30 days until 31 Dec 2026 (check kln.gov.my for any extension); submit the MDAC before arrival.</td>
                     <td className="py-3 px-4 font-bold text-emerald-700">₹35,000 – ₹45,000</td>
                   </tr>
                 </tbody>
@@ -129,6 +130,7 @@ export default function Page() {
             <h3>3. Bali, Indonesia: Tropical Paradise on a Budget</h3>
             <p>
               While flight tickets are slightly higher due to flight duration, living costs in Bali are surprisingly modest. Clean private pool homestays in Ubud cost as little as ₹1,200 to ₹1,500 per night. Renting a scooter for ₹350 per day allows you to explore waterfalls, rice terraces, and cliffside temples on your own schedule. Read our <Link href="/seo/budget-bali-trip">Budget Bali Trip Guide</Link> and <Link href="/budget/bali-trip-cost-from-india">Itemized Bali Cost Breakdown</Link>.
+              <ScooterIdpNote />
             </p>
 
             {/* Call to Action Box */}

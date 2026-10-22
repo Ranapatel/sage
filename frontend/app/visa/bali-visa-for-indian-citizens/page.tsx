@@ -9,8 +9,8 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Bali Visa for Indian Citizens (2026 Guide): e-VOA Cost, Requirements & Rules | TripSage',
-  description: 'Complete verified guide on Bali visa for Indian passport holders. Check official e-VOA (IDR 500,000), Tourist Levy (IDR 150,000), ECD customs declaration, 30-day stay rules, and extension process.',
+  title: 'Bali Visa for Indians: e-VOA Cost & Rules | TripSage',
+  description: 'Bali visa for Indian citizens: the IDR 500,000 e-VOA is filed at evisa.imigrasi.go.id. Submit the arrival card within 3 days. Checked 22 Oct 2026.',
   keywords: [
     'Bali visa for Indian citizens',
     'Bali visa on arrival for Indians',
@@ -20,12 +20,12 @@ export const metadata: Metadata = {
     'Bali entry requirements 2026'
   ],
   alternates: {
-    canonical: 'https://tripsage.in/visa/bali-visa-for-indian-citizens',
+    canonical: 'https://www.tripsage.in/visa/bali-visa-for-indian-citizens',
   },
   openGraph: {
-    title: 'Bali Visa for Indian Citizens (2026): e-VOA Cost, Requirements & Application Guide',
+    title: 'Bali Visa for Indians: e-VOA Cost & Rules | TripSage',
     description: 'Verified official guidelines on Bali e-VOA fee (IDR 500,000), 30-day validity, tourist levy, and document checklist for Indian travelers.',
-    url: 'https://tripsage.in/visa/bali-visa-for-indian-citizens',
+    url: 'https://www.tripsage.in/visa/bali-visa-for-indian-citizens',
     siteName: 'TripSage',
     images: [
       {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bali Visa for Indian Citizens (2026 Guide): e-VOA Fees & Rules',
+    title: 'Bali Visa for Indians: e-VOA Cost & Rules | TripSage',
     description: 'Official rules on Bali e-VOA, tourist levy, customs form, and 30-day extension rules for Indian travelers.',
     images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85'],
   },
@@ -75,12 +75,12 @@ export default function BaliVisaPage() {
                 </div>
                 <div>
                   <p className="font-extrabold text-[#1A1A1A]">Written by TripSage Travel Editorial Team</p>
-                  <p className="text-[#6B6B6B]">Reviewed & Fact-Checked by International Travel Specialists</p>
+                  <p className="text-[#6B6B6B]">Facts checked against evisa.imigrasi.go.id and imigrasi.go.id on 22 Oct 2026 by the TripSage team</p>
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end gap-2 text-[#6B6B6B]">
                 <span><strong>Published:</strong> August 2026</span>
-                <span><strong>Last Verified:</strong> August 2026</span>
+                <span><strong>Last checked:</strong> 22 October 2026</span>
               </div>
             </div>
 
@@ -118,7 +118,7 @@ export default function BaliVisaPage() {
             </p>
             <ul>
               <li>
-                <strong>e-VOA (Recommended):</strong> Applied online via the official Indonesian Immigration portal (<code>molina.imigrasi.go.id</code>) before traveling. You pay online with a credit card, skip the payment counters upon arrival at Denpasar (DPS) airport, and proceed straight through automated e-gates or dedicated immigration lines.
+                <strong>e-VOA (Recommended):</strong> Applied online via the official Indonesian Immigration portal (<code>evisa.imigrasi.go.id</code>) before traveling. You pay online with a credit card, skip the payment counters upon arrival at Denpasar (DPS) airport, and proceed straight through automated e-gates or dedicated immigration lines.
               </li>
               <li>
                 <strong>Physical VoA at Airport:</strong> Pay at the designated bank counter inside Denpasar International Airport arrival hall in cash (USD, IDR) or credit card, then join the main immigration queue.
@@ -159,7 +159,7 @@ export default function BaliVisaPage() {
                     <td className="p-4 font-bold text-[#1A1A1A]">30-Day Extension Fee (Optional)</td>
                     <td className="p-4">IDR 500,000</td>
                     <td className="p-4 font-semibold text-[#EA580C]">~₹2,750</td>
-                    <td className="p-4">Online via Molina portal or local Immigration Office</td>
+                    <td className="p-4">Online via evisa.imigrasi.go.id portal or local Immigration Office</td>
                   </tr>
                 </tbody>
               </table>
@@ -200,7 +200,7 @@ export default function BaliVisaPage() {
             <h2>4. Step-by-Step Guide: How to Apply for Bali e-VOA Online</h2>
             <ol>
               <li>
-                <strong>Access the Official Website:</strong> Visit only the official Indonesian Immigration website at <code>molina.imigrasi.go.id</code> (avoid unofficial third-party visa agents).
+                <strong>Access the Official Website:</strong> Visit only the official Indonesian Immigration website at <code>evisa.imigrasi.go.id</code> (avoid unofficial third-party visa agents). Submit the arrival card within 3 days before arrival (evisa.imigrasi.go.id). Checked 22 Oct 2026.
               </li>
               <li>
                 <strong>Register Account & Select Visa:</strong> Choose <em>Tourism / Vacation</em> and select <em>B1 - Tourist (Visa on Arrival)</em> for 30 days.
@@ -222,7 +222,7 @@ export default function BaliVisaPage() {
                 <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-red-900 block font-bold mb-0.5">Fake Visa Websites:</strong>
-                  <span className="text-red-800">Only use <code>molina.imigrasi.go.id</code>. Do not pay on third-party sites charging $80-$120 for the $32 visa.</span>
+                  <span className="text-red-800">Only use <code>evisa.imigrasi.go.id</code>. Do not pay on third-party sites charging $80-$120 for the IDR 500,000 visa.</span>
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-xs">
@@ -266,7 +266,7 @@ export default function BaliVisaPage() {
 
             {/* Official Travel Disclaimer */}
             <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-[#6B6B6B] my-6 not-prose">
-              <strong>Official Travel Information Disclaimer:</strong> Visa regulations, government levies, and entry policies are established by the Directorate General of Immigration of Indonesia and provincial authorities. While TripSage verifies information with official sources regularly, rules may change without prior notice. Always verify your entry documents with the official <a href="https://molina.imigrasi.go.id" target="_blank" rel="noopener noreferrer" className="text-[#EA580C] font-semibold underline">Indonesian Immigration portal</a> prior to travel.
+              <strong>Official Travel Information Disclaimer:</strong> Visa regulations, government levies, and entry policies are established by the Directorate General of Immigration of Indonesia and provincial authorities. While TripSage verifies information with official sources regularly, rules may change without prior notice. Always verify your entry documents with the official <a href="https://evisa.imigrasi.go.id" target="_blank" rel="noopener noreferrer" className="text-[#EA580C] font-semibold underline">Indonesian Immigration portal</a> prior to travel.
             </div>
 
             {/* Related Guides Links */}
@@ -301,11 +301,11 @@ export default function BaliVisaPage() {
           },
           {
             question: "What is the official website to apply for Bali e-VOA?",
-            answer: "The only official Indonesian government website for applying for an e-VOA is molina.imigrasi.go.id. Avoid third-party commercial portals that charge inflated fees."
+            answer: "The only official Indonesian government website for applying for an e-VOA is evisa.imigrasi.go.id. Avoid third-party commercial portals that charge inflated fees."
           },
           {
             question: "Can I extend my Bali 30-day tourist visa?",
-            answer: "Yes, the 30-day e-VOA/VoA can be extended once for an additional 30 days (total 60 days) either online through the official Molina portal or in person at a local Indonesian immigration office for IDR 500,000."
+            answer: "Yes, the 30-day e-VOA/VoA can be extended once for an additional 30 days (total 60 days) either online through the official evisa.imigrasi.go.id portal or in person at a local Indonesian immigration office for IDR 500,000."
           },
           {
             question: "What is the Bali Tourist Tax (Levy) and do Indians need to pay it?",

@@ -18,16 +18,16 @@ export const metadata: Metadata = {
     'Pondicherry trip planner',
   ],
   alternates: {
-    canonical: 'https://tripsage.in/dussehra',
+    canonical: 'https://www.tripsage.in/dussehra',
   },
   openGraph: {
     title: 'TripSage Dussehra Escape | Plan Your Next Trip',
     description: 'Plan your next getaway with TripSage. Explore destinations and create a personalized travel itinerary around your dates and budget.',
-    url: 'https://tripsage.in/dussehra',
+    url: 'https://www.tripsage.in/dussehra',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Dussehra Campaign — The Great Dussehra Escape',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TripSage Dussehra Escape | Plan Your Next Trip',
     description: 'Plan your next getaway with TripSage. Explore destinations and create a personalized travel itinerary around your dates and budget.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
     creator: '@tripsage',
   },
   robots: {
@@ -65,13 +65,13 @@ export default function DussehraPage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://tripsage.in',
+        item: 'https://www.tripsage.in',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'The Great Dussehra Escape',
-        item: 'https://tripsage.in/dussehra',
+        item: 'https://www.tripsage.in/dussehra',
       },
     ],
   }
@@ -100,20 +100,20 @@ export default function DussehraPage() {
     eventStatus: 'https://schema.org/EventScheduled',
     location: {
       '@type': 'VirtualLocation',
-      url: 'https://tripsage.in/dussehra',
+      url: 'https://www.tripsage.in/dussehra',
     },
     organizer: {
       '@type': 'Organization',
       name: 'TripSage',
-      url: 'https://tripsage.in',
-      logo: 'https://tripsage.in/logo.png',
+      url: 'https://www.tripsage.in',
+      logo: 'https://www.tripsage.in/logo.png',
     },
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'INR',
       availability: 'https://schema.org/InStock',
-      url: 'https://tripsage.in/dussehra',
+      url: 'https://www.tripsage.in/dussehra',
     },
   }
 

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Learn what TripSage does, who it is for, and how it works. TripSage is an AI travel planning tool — not a booking provider or travel agency.',
   keywords: ['about TripSage', 'TripSage travel planner', 'AI travel planning India', 'TripSage team', 'TripSage mission'],
   alternates: {
-    canonical: 'https://tripsage.in/about',
+    canonical: 'https://www.tripsage.in/about',
   },
   robots: {
     index: true,
@@ -16,11 +16,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About TripSage | AI-Powered Travel Planning for India',
     description: 'TripSage is an AI-powered travel planning platform built for Indian travellers. Learn what we do, who we serve, and what we do not do.',
-    url: 'https://tripsage.in/about',
+    url: 'https://www.tripsage.in/about',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'About TripSage — AI Travel Planning Platform',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'About TripSage | AI-Powered Travel Planning for India',
     description: 'TripSage is an AI travel planning tool — not a booking provider or travel agency. Learn about our mission and how we work.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -45,13 +45,13 @@ const breadcrumbSchema = {
       '@type': 'ListItem',
       position: 1,
       name: 'Home',
-      item: 'https://tripsage.in',
+      item: 'https://www.tripsage.in',
     },
     {
       '@type': 'ListItem',
       position: 2,
       name: 'About',
-      item: 'https://tripsage.in/about',
+      item: 'https://www.tripsage.in/about',
     },
   ],
 }
@@ -60,8 +60,8 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'TripSage',
-  url: 'https://tripsage.in',
-  logo: 'https://tripsage.in/logo.png',
+  url: 'https://www.tripsage.in',
+  logo: 'https://www.tripsage.in/logo.png',
   foundingDate: '2026',
   foundingLocation: {
     '@type': 'Place',
@@ -213,8 +213,8 @@ export default function AboutPage() {
                   desc: 'Visa summaries on TripSage are informational only. Always verify visa requirements through the official embassy or consulate of your destination country.',
                 },
                 {
-                  label: 'Not a referral or affiliate platform',
-                  desc: 'TripSage may earn revenue through affiliate links on some bookings, but this does not influence the recommendations or rankings you see on our platform.',
+                  label: 'How we are paid',
+                  desc: 'TripSage does not sell bookings. Some links to booking partners may be affiliate links, and TripSage may earn a commission; this does not change the options we show.',
                 },
               ].map((item) => (
                 <div key={item.label} className="flex gap-3">

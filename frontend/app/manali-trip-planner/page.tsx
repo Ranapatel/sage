@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Manali Trip Planner | Ultimate Manali Itinerary | TripSage',
+  title: 'Manali Trip Planner: 4-Day Itinerary | TripSage',
   description: 'Plan your perfect Manali trip. From Solang Valley to Old Manali, get the best AI-generated Manali itinerary, hotel recommendations, and more.',
   keywords: ['Manali trip planner', 'Manali itinerary AI', 'best time to visit Manali', 'Manali budget guide'],
-  alternates: { canonical: 'https://tripsage.in/manali-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/manali-trip-planner' }
 }
 
 export default function Page() {

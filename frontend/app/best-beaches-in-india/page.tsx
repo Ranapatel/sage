@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Best Beaches in India | Top Coastal Destinations | TripSage',
+  title: 'Best Beaches in India | TripSage',
   description: 'Explore the most beautiful beaches in India. From the party beaches of Goa to the pristine shores of Radhanagar, find your paradise with TripSage.',
   keywords: ['best beaches in India', 'pristine beaches India', 'Goa beaches guide', 'Andaman beaches'],
-  alternates: { canonical: 'https://tripsage.in/best-beaches-in-india' }
+  alternates: { canonical: 'https://www.tripsage.in/best-beaches-in-india' }
 }
 
 export default function Page() {

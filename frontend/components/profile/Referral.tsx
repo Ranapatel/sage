@@ -41,7 +41,7 @@ export default function Referral() {
   const referrerReward = isRakhiActive ? RAKHI_CAMPAIGN.referrerCredits : RAKHI_CAMPAIGN.standardReferrerCredits
   const refereeReward = isRakhiActive ? RAKHI_CAMPAIGN.refereeCredits : RAKHI_CAMPAIGN.standardRefereeCredits
 
-  const referralLink = `https://tripsage.in/sign-up?ref=${userId || 'explorer'}`
+  const referralLink = `https://www.tripsage.in/sign-up?ref=${userId || 'explorer'}`
   const shareMessage = isRakhiActive
     ? `🎁 Gift your sibling a trip this Raksha Bandhan!\n\nJoin TripSage with my Rakhi link & get ${refereeReward} FREE Sage Credits:\n${referralLink}\n\nLet's plan our next adventure together! ✈️✨`
     : `🌍 Discover smart travel with TripSage AI — your personal assistant for custom itineraries and trip planning.\n\n🎁 Join via my exclusive invite link to claim 100 Sage Travel Credits:\n${referralLink}\n\nEarn an additional +200 Credits for every traveler you invite!`

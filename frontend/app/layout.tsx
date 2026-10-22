@@ -19,10 +19,10 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tripsage.in'),
+  metadataBase: new URL('https://www.tripsage.in'),
   title: {
     default: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-    template: '%s | TripSage AI Travel OS'
+    template: '%s'
   },
   description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
   keywords: ['AI trip planner India', 'travel planner app', 'cheapest flights India', 'itinerary planner AI', 'TripSage', 'smart travel', 'AI travel agent', 'holiday planner'],
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
-    url: 'https://tripsage.in',
+    url: 'https://www.tripsage.in',
     siteName: 'TripSage',
     images: [
       {
@@ -59,7 +59,8 @@ export const metadata: Metadata = {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
     images: ['/logo.png'],
-    creator: '@tripsage',
+    // TODO(B1): Do not set twitter:site or twitter:creator until the founder confirms the official X handle.
+    // https://twitter.com/tripsage belongs to an unrelated account and must not be used.
   },
   robots: {
     index: true,
@@ -73,7 +74,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://tripsage.in',
+    canonical: 'https://www.tripsage.in',
   },
 }
 
@@ -81,11 +82,13 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'TripSage',
-  url: 'https://tripsage.in',
-  logo: 'https://tripsage.in/logo.png',
+  url: 'https://www.tripsage.in',
+  logo: 'https://www.tripsage.in/logo.png',
+  // TODO(B1): Official X/Twitter handle is not confirmed. Do not add https://twitter.com/tripsage
+  // (unrelated account) or any new X URL here until the founder confirms it.
   sameAs: [
-    'https://twitter.com/tripsage',
-    'https://instagram.com/tripsage.in',
+    'https://www.instagram.com/tripsage.in',
+    'https://www.linkedin.com/company/tripsage/',
   ],
   description: 'AI-powered travel planning platform in India for instant itineraries, flights, and hotel bookings.',
 }
@@ -99,19 +102,19 @@ const softwareSchema = {
   "offers": {
     "@type": "Offer",
     "price": "0",
-    "priceCurrency": "USD"
+    "priceCurrency": "INR"
   }
 };
 
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "url": "https://tripsage.in",
+  "url": "https://www.tripsage.in",
   "name": "TripSage",
   "alternateName": ["TripSage AI", "TripSage Travel"],
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://tripsage.in/plan?q={search_term_string}",
+    "target": "https://www.tripsage.in/plan?q={search_term_string}",
     "query-input": "required name=search_term_string"
   }
 };

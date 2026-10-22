@@ -3,24 +3,25 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Best Places to Visit in December in India | Winter Travel | TripSage',
-  description: 'Discover the top destinations to visit in India during December. From snowy mountains to sunny beaches, plan your winter getaway with TripSage AI.',
+  title: 'Long Weekends in India: Nov 2026–Jan 2027 | TripSage',
+  description: 'Long weekends in India from November 2026 to January 2027, including December holidays in the mountains, deserts and on the coast.',
   keywords: ['best places December India', 'places to visit in December', 'winter holiday India', 'TripSage winter travel'],
-  alternates: { canonical: 'https://tripsage.in/seo/best-places-december-india' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/best-places-december-india' }
 }
 
 export default function Page() {
   return (
     <LandingLayout>
       <SEOContent
-        title="Best Places to Visit in December in India"
-        subtitle="Discover snowy peaks, vibrant desert festivals, and warm sunny beaches in peak winter."
+        title="Long weekends in India, November 2026 to January 2027"
+        subtitle="December holidays and the long weekends around them, from the mountains to the coast."
         heroImage="https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
-            <h2>Top Winter Getaways in India for December</h2>
+            <h2>Long weekends, November 2026 to January 2027</h2>
+            <p>This page is the evergreen guide for long weekends from November 2026 through January 2027. December is the busiest stretch of that window.</p>
             <p>Discover the best places to visit in December in India and plan the ultimate winter escape with our expert guide. December is a spectacular month for travel in India, as the weather is wonderfully pleasant across the country, offering diverse options for every traveler. You can head north to experience snowy wonderlands and winter sports in places like Auli and Gulmarg, or travel south to bask in the warm sunshine on the tropical beaches of Goa, Gokarna, and Kerala. It is also the absolute perfect time to explore the vast, golden deserts of Jaisalmer and catch the vibrant Rann Utsav festival in Gujarat. Whether you want to enjoy a chilly mountain retreat or dynamic coastal celebrations, our AI-powered travel planner helps you explore top-rated winter destinations, compares seasonal travel rates, and creates a tailored holiday itinerary that makes your December vacation extraordinary.</p>
             
             <div className="my-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm">

@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Goa Trip Under 10000 | Budget Goa Itinerary & Guide | TripSage',
+  title: 'Goa Trip Under ₹10,000: 4-Day Plan | TripSage',
   description: 'Plan a full Goa trip under ₹10,000. Discover budget-friendly beaches, cheap stays, and affordable ways to explore Goa with TripSage AI.',
   keywords: ['Goa trip under 10000', 'budget Goa trip', 'cheap Goa travel guide', 'Goa on a budget'],
-  alternates: { canonical: 'https://tripsage.in/goa-trip-under-10000' }
+  alternates: { canonical: 'https://www.tripsage.in/goa-trip-under-10000' }
 }
 
 export default function Page() {

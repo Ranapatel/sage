@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'AI Trip Planner India | Free Personalized Itineraries | TripSage',
-  description: 'Plan your perfect Indian holiday with TripSage, the best AI trip planner for India. Get personalized itineraries for North, South, East, and West India instantly.',
+  title: 'AI Trip Planner for Indian Travellers | TripSage',
+  description: 'AI trip planner for Indian travellers. Build a day-by-day India itinerary, then open the main TripSage planner.',
   keywords: ['AI trip planner India', 'automated itinerary India', 'plan trip India AI', 'India travel guide'],
-  alternates: { canonical: 'https://tripsage.in/ai-trip-planner-india' }
+  alternates: { canonical: 'https://www.tripsage.in/ai-trip-planner-india' }
 }
 
 export default function Page() {

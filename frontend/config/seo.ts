@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const siteConfig = {
   name: 'TripSage',
-  url: 'https://tripsage.in',
+  url: 'https://www.tripsage.in',
   description: 'AI-powered trip planner and travel guide.',
 };
 
