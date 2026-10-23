@@ -35,7 +35,7 @@ export const DUSSEHRA_CAMPAIGN: DussehraCampaignConfig = {
   startDate: '2026-10-14T00:00:00+05:30',
   endDate: '2026-10-25T23:59:59+05:30',
   isFreePlanning: true,
-  freePlanningNote: 'Draft a day-by-day plan for one route.',
+  freePlanningNote: 'TripSage is free to use.',
 }
 
 export type CampaignStatus = 'upcoming' | 'active' | 'post_festival'
@@ -176,7 +176,7 @@ export interface FAQItem {
 export const DUSSEHRA_FAQS: FAQItem[] = [
   {
     question: 'Is TripSage free to use?',
-    answer: 'You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee.',
+    answer: 'Yes. TripSage is free to use.',
   },
   {
     question: 'Does TripSage book flights and hotels directly?',

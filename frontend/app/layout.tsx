@@ -99,7 +99,12 @@ const softwareSchema = {
   "name": "TripSage",
   "operatingSystem": "Any",
   "applicationCategory": "TravelApplication",
-  "description": "Day-by-day trip drafts for one route, with rupee estimates and visa notes for Indian passports."
+  "description": "Day-by-day trip drafts for one route, with rupee estimates and visa notes for Indian passports.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "INR"
+  }
 };
 
 const websiteSchema = {

@@ -29,7 +29,7 @@ export default function Page() {
           </>
         }
         faqs={[
-          { question: "Is TripSage's AI planner free?", answer: "You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee." },
+          { question: "Is TripSage's AI planner free?", answer: "Yes. TripSage is free to use." },
           { question: "Can it plan for specific Indian states?", answer: "Absolutely! Our AI covers all 28 states and 8 union territories, providing detailed plans for any city or region." },
           { question: "Does it include budget options?", answer: "Yes, you can specify your budget during the planning phase, and the AI will prioritize options that fit your financial range." }
         ]}

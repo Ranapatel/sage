@@ -161,7 +161,7 @@ export default function Page() {
                   rel="nofollow"
                   className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
                 >
-                  Plan with TripSage <ArrowRight className="w-4 h-4" />
+                  Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/itineraries"
@@ -176,7 +176,7 @@ export default function Page() {
         faqs={[
           {
             question: "Is the TripSage AI Trip Planner free for Indian destinations?",
-            answer: "You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee."
+            answer: "Yes. TripSage is free to use."
           },
           {
             question: "Does TripSage calculate real train and road travel times across India?",

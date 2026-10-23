@@ -45,7 +45,7 @@ export default function Page({ params }: Props) {
           </>
         }
         faqs={[
-          { question: "Is this planner free?", answer: "You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee." },
+          { question: "Is this planner free?", answer: "Yes. TripSage is free to use." },
           { question: `Can it plan a multi-day trip to ${formattedDestination}?`, answer: "Absolutely! Our AI can handle trips of any length." },
         ]}
       />

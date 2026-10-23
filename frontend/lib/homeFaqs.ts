@@ -1,7 +1,7 @@
 export const HOME_FAQS = [
   {
     q: 'Is TripSage completely free to use?',
-    a: 'You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee.',
+    a: 'Yes. TripSage is free to use.',
   },
   {
     q: 'Does TripSage show live flight and hotel prices?',

@@ -211,7 +211,7 @@ export default function BudgetHubPage() {
                 rel="nofollow"
                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Plan with TripSage <ArrowRight className="w-4 h-4" />
+                Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </>

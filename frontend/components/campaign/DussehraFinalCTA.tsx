@@ -43,7 +43,7 @@ export default function DussehraFinalCTA({ onPlanTripClick }: Props) {
         </div>
 
         <p className="text-xs text-orange-200/90 font-medium">
-          No sign-up required to draft a plan
+          TripSage is free to use · No sign-up required to draft a plan
         </p>
       </div>
     </section>

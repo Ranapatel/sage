@@ -339,7 +339,7 @@ export default function DussehraPlannerForm({
           </button>
 
           <p className="text-[11px] text-center text-[#9CA3AF] font-medium pt-0.5">
-            Draft a day-by-day plan · Rupee estimates, not live fares
+            TripSage is free to use · Rupee estimates, not live fares
           </p>
         </form>
       </div>

@@ -133,7 +133,7 @@ export default function LearnMorePage() {
           <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">Frequently Asked Questions</h2>
           <div className="space-y-4">
             {[
-              { q: 'Is TripSage free to use?', a: 'You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee.' },
+              { q: 'Is TripSage free to use?', a: 'Yes. TripSage is free to use.' },
               { q: 'How does the AI create itineraries?', a: 'The planner writes a day-by-day draft from one departure city, one destination, and your dates. It does not use live flight or hotel prices.' },
               { q: 'Can I book flights and hotels directly?', a: 'Not on TripSage. Book on the airline or hotel site. The planner does not take payment.' },
               { q: 'Can I share my itinerary with friends?', a: 'A share action copies a link to the planner. It does not send your personal itinerary to someone else.' },

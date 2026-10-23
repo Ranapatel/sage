@@ -107,14 +107,14 @@ export default function AITripPlannerPage() {
               <Zap className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Ready to create your custom itinerary?</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Generate a day-by-day draft for one route, with a rupee estimate and visa notes.
+                TripSage is free to use. Generate a day-by-day draft for one route, with a rupee estimate and visa notes.
               </p>
               <Link
                 href="/plan"
                 rel="nofollow"
                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Plan with TripSage <Sparkles className="w-4 h-4" />
+                Plan with TripSage — Free <Sparkles className="w-4 h-4" />
               </Link>
             </div>
 
@@ -144,7 +144,7 @@ export default function AITripPlannerPage() {
         faqs={[
           {
             question: "Is the TripSage AI Trip Planner free to use?",
-            answer: "You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee."
+            answer: "Yes. TripSage is free to use."
           },
           {
             question: "How does TripSage generate my itinerary?",
