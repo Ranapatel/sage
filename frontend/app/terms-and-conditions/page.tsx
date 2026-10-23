@@ -3,19 +3,19 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions | TripSage AI Travel Operating System',
+  title: 'Terms & Conditions | TripSage',
   description: 'Read the official terms and conditions for using TripSage, your AI-powered travel planning, flight search, and hotel booking platform.',
   alternates: {
-    canonical: 'https://tripsage.in/terms-and-conditions',
+    canonical: 'https://www.tripsage.in/terms-and-conditions',
   },
   openGraph: {
-    title: 'Terms & Conditions | TripSage AI Travel Operating System',
+    title: 'Terms & Conditions | TripSage',
     description: 'Terms and conditions governing the use of TripSage travel services and platform.',
-    url: 'https://tripsage.in/terms-and-conditions',
+    url: 'https://www.tripsage.in/terms-and-conditions',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Terms & Conditions',
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Terms & Conditions | TripSage AI Travel',
+    title: 'Terms & Conditions | TripSage',
     description: 'Official Terms & Conditions for TripSage AI travel platform.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -74,21 +74,21 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">3. Third-Party Services</h2>
             <p>
-              TripSage acts as a search engine and aggregator for transport and activities, redirecting you to external third-party providers for finalizing reservations. We are not responsible for the pricing, availability, cancellations, or service quality provided by these third parties.
+              TripSage drafts a day-by-day plan for one route. It does not search live flights or hotels and it does not take bookings. Anything you buy, you buy on the airline, hotel, or other provider’s own site, under that provider’s terms.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">4. Pricing</h2>
             <p>
-              All prices displayed on TripSage are dynamic, estimated, and subject to change based on real-time availability. Hotel rooms are booked directly on our platform via our direct booking system. For other services (activities, local ground transport), TripSage may earn affiliate commissions from partner bookings made through our links.
+              Figures in a TripSage draft are estimates, not live prices. TripSage does not run a checkout and does not state a product price on this page.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">5. Cancellations & Refunds</h2>
             <p>
-              For hotel reservations booked directly on TripSage, modifications and cancellations are subject to the specific room cancellation policies selected at the time of booking. For flights and other third-party services, cancellations and refunds are strictly managed by their respective providers.
+              TripSage does not take bookings, so it does not change or cancel them. Cancellations and refunds are handled by the provider you pay.
             </p>
           </section>
 

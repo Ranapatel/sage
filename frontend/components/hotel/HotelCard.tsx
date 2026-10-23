@@ -121,13 +121,13 @@ function HotelCard({ item, showDetail }: Props) {
       timestamp: new Date().toISOString(),
       read: false,
     })
-    toast.success('Hotel selected! Complete booking →')
+    toast.success('Hotel noted on this draft.')
   }, [item, displayPrice, setHotelDetailId, setBookingStatus, addNotification])
 
   // ── Source badge config ────────────────────────────────────────────────────
   const sourceBadge = (() => {
- if (item.source === 'live') return { label: 'Live Price', cls: 'badge-green' }
- if (item.source === 'affiliate_redirect') return { label: 'Search Live', cls: 'badge-amber' }
+ if (item.source === 'live') return { label: 'Estimate', cls: 'badge-green' }
+ if (item.source === 'affiliate_redirect') return { label: 'Outside TripSage', cls: 'badge-amber' }
  if (item.source === 'api_error') return { label: 'Unavailable', cls: 'badge-red' }
     return null
   })()

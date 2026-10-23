@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 import HubNav from '@/components/seo/HubNav'
+import ScooterIdpNote from '@/components/content/ScooterIdpNote'
 import Link from 'next/link'
 import {
   Wallet, DollarSign, PiggyBank, TrendingDown, ArrowRight,
@@ -9,8 +10,8 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Bali Trip Cost from India (2026 Budget Guide): Flights, Villas & Expenses | TripSage',
-  description: 'How much does a Bali trip from India cost? Detailed itemized expense breakdown: flights (₹24k-₹38k), hotels & private pool villas, food, visa, transport, and 6-day budget estimates for solo, couple, and family travelers.',
+  title: 'Bali Trip Cost from India: 5-Night Budget | TripSage',
+  description: 'Bali trip cost from India: ₹46,000–₹62,000 per person for 5 nights, checked 22 Oct 2026. Includes flights, stay, food, the visa and the tourist levy.',
   keywords: [
     'Bali trip cost from India',
     'Bali 6 days budget from India',
@@ -20,12 +21,12 @@ export const metadata: Metadata = {
     'Bali private pool villa cost'
   ],
   alternates: {
-    canonical: 'https://tripsage.in/budget/bali-trip-cost-from-india',
+    canonical: 'https://www.tripsage.in/budget/bali-trip-cost-from-india',
   },
   openGraph: {
-    title: 'Bali Trip Cost from India (2026): Itemized Budget & Expense Breakdown',
+    title: 'Bali Trip Cost from India: 5-Night Budget | TripSage',
     description: 'Realistic itemized Bali travel costs from India. Compare budget, mid-range villa stays, flight deals, dining, and total expenses.',
-    url: 'https://tripsage.in/budget/bali-trip-cost-from-india',
+    url: 'https://www.tripsage.in/budget/bali-trip-cost-from-india',
     siteName: 'TripSage',
     images: [
       {
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bali Trip Cost from India (2026): Itemized Budget Guide',
+    title: 'Bali Trip Cost from India: 5-Night Budget | TripSage',
     description: 'Detailed cost breakdown for a 6-7 day Bali trip from India across flights, hotels, food, and activities.',
     images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=85'],
   },
@@ -75,12 +76,12 @@ export default function BaliTripCostPage() {
                 </div>
                 <div>
                   <p className="font-extrabold text-[#1A1A1A]">Written by TripSage Travel Editorial Team</p>
-                  <p className="text-[#6B6B6B]">Reviewed & Fact-Checked by International Travel Specialists</p>
+                  <p className="text-[#6B6B6B]">Facts checked against the sourced 22 Oct 2026 Bali cost notes by the TripSage team</p>
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end gap-2 text-[#6B6B6B]">
                 <span><strong>Published:</strong> August 2026</span>
-                <span><strong>Last Verified:</strong> August 2026</span>
+                <span><strong>Last checked:</strong> 22 October 2026</span>
               </div>
             </div>
 
@@ -90,13 +91,14 @@ export default function BaliTripCostPage() {
                 <Wallet className="w-4 h-4" /> Quick Summary: How Much Does a 6-Day Bali Trip Cost from India?
               </div>
               <p className="text-sm font-semibold text-[#1A1A1A] leading-relaxed mb-4">
-                On average, a 6-day/5-night Bali trip from India costs between <strong>₹45,000 to ₹60,000 per person</strong> on a budget backpacker trip, and <strong>₹55,000 to ₹75,000 per person</strong> (₹1,10,000 – ₹1,50,000 for a couple) for a comfortable mid-range trip with private pool villas and cafe dining.
+                The sourced range checked on 22 October 2026 is <strong>₹46,000–₹62,000 per person for 5 nights</strong>. That is costs other than flights of ₹20,379 plus fares of ₹25,661–₹41,337 seen that day. Use this range instead of the older ₹45,000–₹60,000 headline.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-3 border-t border-[#EA580C]/20">
                 <div className="p-3 rounded-xl bg-white border border-[#E8E0D8]">
                   <span className="text-[#6B6B6B] block">Budget Solo Traveler</span>
-                  <strong className="text-base text-[#1A1A1A]">₹45,000 – ₹60,000</strong>
+                  <strong className="text-base text-[#1A1A1A]">₹46,000–₹62,000</strong>
                   <p className="text-[11px] text-[#6B6B6B] mt-0.5">Hostels/homestays, scooters & warungs</p>
+                  <ScooterIdpNote />
                 </div>
                 <div className="p-3 rounded-xl bg-white border border-[#EA580C]/40">
                   <span className="text-[#EA580C] font-extrabold block">Mid-Range Couple (Per Person)</span>
@@ -151,7 +153,7 @@ export default function BaliTripCostPage() {
                     <td className="p-4 font-bold text-[#1A1A1A]">Local Transport</td>
                     <td className="p-4">₹2,500 – ₹3,500</td>
                     <td className="p-4">₹7,000 – ₹10,000 (shared)</td>
-                    <td className="p-4">Scooter rental (₹450/day) vs. Private Day Driver with AC car (₹3,000/day).</td>
+                    <td className="p-4">Scooter rental (₹450/day) vs. Private Day Driver with AC car (₹3,000/day). <ScooterIdpNote /></td>
                   </tr>
                   <tr>
                     <td className="p-4 font-bold text-[#1A1A1A]">Activities & Temple Entries</td>
@@ -161,9 +163,9 @@ export default function BaliTripCostPage() {
                   </tr>
                   <tr className="bg-orange-50 font-extrabold text-[#1A1A1A]">
                     <td className="p-4">Total Estimated Trip Cost</td>
-                    <td className="p-4 text-[#EA580C]">₹43,075 – ₹58,075</td>
-                    <td className="p-4 text-[#EA580C]">₹71,575 – ₹1,01,575</td>
-                    <td className="p-4">Per adult traveler including flights and visa.</td>
+                    <td className="p-4 text-[#EA580C]">₹46,000 – ₹62,000</td>
+                    <td className="p-4 text-[#EA580C]">₹46,000 – ₹62,000</td>
+                    <td className="p-4">Checked 22 Oct 2026: ground costs ₹20,379 plus fares ₹25,661–₹41,337, per person, 5 nights. Line items above are category guides.</td>
                   </tr>
                 </tbody>
               </table>
@@ -248,7 +250,7 @@ export default function BaliTripCostPage() {
 
             {/* Official Travel Disclaimer */}
             <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-[#6B6B6B] my-6 not-prose">
-              <strong>Editorial Cost Disclaimer:</strong> Flight fares, villa rates, and currency exchange rates (INR/IDR) fluctuate based on seasonal demand, oil prices, and booking timing. All estimates in this guide represent verified market averages for 2026 and should serve as a planning benchmark. Always check real-time airfares and accommodation rates on TripSage before booking.
+              <strong>Editorial Cost Disclaimer:</strong> Flight fares, villa rates, and currency exchange rates (INR/IDR) fluctuate based on seasonal demand, oil prices, and booking timing. All estimates in this guide represent verified market averages for 2026 and should serve as a planning benchmark. Check the airline and your stay’s own site before you pay. TripSage estimates are not live fares.
             </div>
 
             {/* Related Guides Links */}
@@ -275,7 +277,7 @@ export default function BaliTripCostPage() {
         faqs={[
           {
             question: "How much does a 6-day Bali trip cost for a couple from India?",
-            answer: "For a couple, a comfortable 6-day/5-night Bali trip costs approximately ₹1,10,000 to ₹1,50,000 total (₹55,000 – ₹75,000 per person), including return flights, 4-star private pool villas, dining, visa fees, and private transfers."
+            answer: "The sourced figure checked on 22 October 2026 is ₹46,000–₹62,000 per person for 5 nights (ground costs ₹20,379 plus fares ₹25,661–₹41,337)."
           },
           {
             question: "What is the cheapest month to fly to Bali from India?",
@@ -291,7 +293,7 @@ export default function BaliTripCostPage() {
           },
           {
             question: "How much does scooter rental cost in Bali?",
-            answer: "Renting an automatic scooter (like Honda Scoopy or Vario) costs approximately IDR 70,000 to IDR 100,000 per day (~₹380 – ₹550). Always ensure you carry an International Driving Permit (IDP) and wear a helmet."
+            answer: "Renting an automatic scooter costs about IDR 70,000 to IDR 100,000 per day. The Consulate General of India in Bali says an Indian driving licence is not valid in Indonesia, so you need an International Driving Permit (IDP). Rental scooters are often uninsured, so the renter pays for any damage, including third-party damage. If you don't have an IDP, use a car with a driver or app taxis. Source: cgibali.gov.in, checked 22 Oct 2026."
           }
         ]}
       />

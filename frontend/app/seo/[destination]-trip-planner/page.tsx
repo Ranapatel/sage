@@ -45,7 +45,7 @@ export default function Page({ params }: Props) {
           </>
         }
         faqs={[
-          { question: "Is this planner free?", answer: "Yes, you can generate basic itineraries for free." },
+          { question: "Is this planner free?", answer: "Yes. TripSage is free to use." },
           { question: `Can it plan a multi-day trip to ${formattedDestination}?`, answer: "Absolutely! Our AI can handle trips of any length." },
         ]}
       />

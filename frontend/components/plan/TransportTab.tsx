@@ -34,7 +34,7 @@ export const handleUniversalShare = (item: any) => {
   
   const shareTitle = `TripSage Travel Recommendation`
   const shareText = `Check out this travel option on TripSage:\n\n* ${cleanName}\nTiming: ${item.departure || ''} - ${item.arrival || ''} (${item.duration || ''})\nPrice: ${fareStr}/person\n\nPlan and view details on TripSage!`
-  const shareUrl = `https://tripsage.in/plan`
+  const shareUrl = `https://www.tripsage.in/plan`
 
   if (navigator.share) {
     analytics.itineraryShared({ shareMethod: 'social', itemName: cleanName })

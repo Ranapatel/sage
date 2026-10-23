@@ -93,7 +93,7 @@ export default function Wallet() {
     {
       id: 'unlimited_ai',
       title: 'Unlimited AI Itinerary Generation',
-      desc: 'Bypass all daily limits. Generate unlimited AI travel plans & multi-city routes.',
+      desc: 'Extra AI drafts, still one departure city and one destination at a time.',
       cost: 300,
       icon: Sparkles,
       badge: 'POPULAR PERK',

@@ -11,13 +11,15 @@ export default function DussehraTopBanner() {
   useEffect(() => {
     try {
       const isDismissed = sessionStorage.getItem('dussehra_banner_dismissed') === 'true'
-      if (!isDismissed) {
+      if (!isDismissed && getCampaignStatus() !== 'post_festival') {
         startTransition(() => {
           setVisible(true)
         })
       }
     } catch {
-      setVisible(true)
+      startTransition(() => {
+        setVisible(true)
+      })
     }
   }, [])
 

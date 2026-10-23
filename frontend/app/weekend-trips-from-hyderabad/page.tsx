@@ -5,14 +5,14 @@ import Link from 'next/link'
 import { Sparkles, ArrowRight, ShieldCheck, MapPin, Compass, Car, Clock, Navigation } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Weekend Trips from Hyderabad (2026): 7 Best Getaways (100–400km)',
-  description: 'Top 7 weekend getaways from Hyderabad: Hampi (370km), Gandikota (380km), Srisailam (213km), Ananthagiri (80km) with driving routes, bus info & AI trip planner.',
+  title: 'Weekend Trips from Hyderabad | TripSage',
+  description: 'Weekend trips from Hyderabad, including Hampi, Gandikota, Srisailam and Ananthagiri, with distances and how to plan the route.',
   keywords: ['weekend trips from Hyderabad', 'getaways near Hyderabad', 'Hyderabad weekend guide', 'Hampi from Hyderabad', 'Gandikota from Hyderabad', 'places to visit near Hyderabad within 300 km'],
-  alternates: { canonical: 'https://tripsage.in/weekend-trips-from-hyderabad' },
+  alternates: { canonical: 'https://www.tripsage.in/weekend-trips-from-hyderabad' },
   openGraph: {
-    title: 'Best Weekend Trips from Hyderabad: 7 Top Getaways & Routes (2026)',
+    title: 'Weekend Trips from Hyderabad | TripSage',
     description: 'Expert verified weekend getaways from Hyderabad. Distance, driving times, road conditions, and complete expense breakdown.',
-    url: 'https://tripsage.in/weekend-trips-from-hyderabad',
+    url: 'https://www.tripsage.in/weekend-trips-from-hyderabad',
     siteName: 'TripSage',
     images: [{ url: 'https://images.unsplash.com/photo-1589133405370-96f30e9f8072?w=1200&q=85', width: 1200, height: 630, alt: 'Weekend Trips from Hyderabad' }],
     locale: 'en_IN',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Weekend Trips from Hyderabad (2026): 7 Best Getaways (100–400km)',
+    title: 'Weekend Trips from Hyderabad | TripSage',
     description: 'Complete weekend guide from Hyderabad: Hampi, Gandikota, Srisailam, Ananthagiri Hills with road routes and costs.',
     images: ['https://images.unsplash.com/photo-1589133405370-96f30e9f8072?w=1200&q=85'],
   },

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, Sparkles, ShieldCheck, CheckCircle2, HeartHandshake, Compass } from 'lucide-react'
+import { ChevronDown, Sparkles, ShieldCheck, CheckCircle2, Compass } from 'lucide-react'
 import { DUSSEHRA_FAQS } from '@/lib/dussehraConfig'
 
 export default function DussehraFAQTrust() {
@@ -65,10 +65,10 @@ export default function DussehraFAQTrust() {
         <div className="lg:col-span-5 bg-gradient-to-b from-white to-[#FDFBF7] rounded-3xl border border-[#E8E0D8] p-6 sm:p-8 shadow-sm space-y-6">
           <div>
             <h3 className="text-lg sm:text-xl font-black font-display text-[#1A1A1A]">
-              Trusted by travelers
+              What you get
             </h3>
             <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
-              Real people. Real trips. Real stories.
+              A day-by-day draft you can edit.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export default function DussehraFAQTrust() {
               </div>
               <div className="space-y-0.5 text-left">
                 <p className="text-xs sm:text-sm font-bold text-[#1A1A1A]">Personalized itineraries</p>
-                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">Tailored to your specific dates, group and budget</p>
+                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">One route, your dates, and a rupee estimate</p>
               </div>
             </div>
 
@@ -89,7 +89,7 @@ export default function DussehraFAQTrust() {
               </div>
               <div className="space-y-0.5 text-left">
                 <p className="text-xs sm:text-sm font-bold text-[#1A1A1A]">Verified information</p>
-                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">Live connection data from trusted airline and stay partners</p>
+                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">Rupee estimates in the draft, not live fares</p>
               </div>
             </div>
 

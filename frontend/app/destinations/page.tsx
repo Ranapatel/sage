@@ -6,20 +6,20 @@ import Link from 'next/link'
 import { MapPin, Compass, ArrowRight, Sun, Mountain, Building, Heart, User } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Explore Travel Destinations | AI Travel Guides & Itineraries | TripSage',
-  description: 'Discover top domestic and international travel destinations. Explore curated travel guides, seasonal insights, and AI-generated trip plans for India, Southeast Asia, Middle East, and beyond.',
+  title: 'Travel Destinations & Trip Guides | TripSage',
+  description: 'Travel guides for India and nearby countries, with seasonal notes and links to TripSage itineraries, visa pages and budgets.',
   keywords: ['travel destinations', 'India tourist places', 'international travel guides', 'top places to visit in India', 'Southeast Asia travel', 'TripSage destinations'],
   alternates: {
-    canonical: 'https://tripsage.in/destinations',
+    canonical: 'https://www.tripsage.in/destinations',
   },
   openGraph: {
-    title: 'Explore Travel Destinations | AI Travel Guides & Itineraries | TripSage',
+    title: 'Travel Destinations & Trip Guides | TripSage',
     description: 'Discover top domestic and international travel destinations. Explore curated travel guides, seasonal insights, and AI-generated trip plans with TripSage.',
-    url: 'https://tripsage.in/destinations',
+    url: 'https://www.tripsage.in/destinations',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Travel Destinations Hub',
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Explore Travel Destinations | AI Travel Guides & Itineraries | TripSage',
+    title: 'Travel Destinations & Trip Guides | TripSage',
     description: 'Discover top domestic and international travel destinations with AI travel guides on TripSage.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -211,7 +211,7 @@ export default function DestinationsHubPage() {
           },
           {
             question: "Can TripSage plan multi-city destination tours?",
-            answer: "Yes, you can input multiple destination cities (e.g. Jaipur-Jodhpur-Udaipur or Delhi-Singapore-Bali) and TripSage AI will construct an optimized route with transport links."
+            answer: "No. The planner takes one departure city and one destination. A Jaipur–Jodhpur–Udaipur loop or a Delhi–Singapore–Bali route is not something it builds."
           },
           {
             question: "How do I choose the best destination for my budget?",

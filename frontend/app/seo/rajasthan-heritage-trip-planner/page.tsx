@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Rajasthan Royal Heritage Tour Planner | Custom Palaces Itinerary | TripSage',
+  title: 'Rajasthan Heritage Trip Planner | TripSage',
   description: 'Experience royalty. Plan a custom trip to Jaipur, Udaipur, Jodhpur, and Jaisalmer. Book heritage stays and palace tours with TripSage AI.',
   keywords: ['Rajasthan heritage tour planner', 'Jaipur Udaipur itinerary', 'Rajasthan royal packages', 'desert safari Jaisalmer', 'TripSage Rajasthan'],
-  alternates: { canonical: 'https://tripsage.in/seo/rajasthan-heritage-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/rajasthan-heritage-trip-planner' }
 }
 
 export default function Page() {

@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Andaman Honeymoon Planner | Best Andaman Itinerary | TripSage',
+  title: 'Andaman Honeymoon Planner | TripSage',
   description: 'Plan your dream honeymoon in Andaman. Explore romantic resorts in Havelock, pristine beaches, scuba diving, and get a custom AI plan.',
   keywords: ['honeymoon in Andaman', 'Andaman honeymoon package', 'romantic Andaman trip', 'TripSage Andaman honeymoon'],
-  alternates: { canonical: 'https://tripsage.in/seo/honeymoon-in-andaman' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/honeymoon-in-andaman' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Unveil the secluded white-sand beaches and turquoise tropical waters of the Bay of Bengal."
         heroImage="https://images.unsplash.com/photo-1589979482837-e74f2e145060?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Begin Your Married Life in a Tropical Paradise</h2>

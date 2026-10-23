@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Manali Trip Planner | Ultimate Manali Itinerary | TripSage',
+  title: 'Manali Trip Planner: 4-Day Itinerary | TripSage',
   description: 'Plan your perfect Manali trip. From Solang Valley to Old Manali, get the best AI-generated Manali itinerary, hotel recommendations, and more.',
   keywords: ['Manali trip planner', 'Manali itinerary AI', 'best time to visit Manali', 'Manali budget guide'],
-  alternates: { canonical: 'https://tripsage.in/manali-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/manali-trip-planner' }
 }
 
 export default function Page() {
@@ -26,7 +26,7 @@ export default function Page() {
               <li><strong>Old Manali:</strong> Famous for its rustic charm, quaint cafes, and the Hadimba Devi Temple.</li>
               <li><strong>Rohtang Pass:</strong> Experience year-round snow and breathtaking views (permit required).</li>
             </ul>
-            <p>Our AI can help you plan your travel from Delhi or Chandigarh, book the best mountain-view hotels, and create a daily sightseeing schedule.</p>
+            <p>Our AI can draft a day-by-day Manali plan from one departure city, with a rupee estimate. It does not book hotels.</p>
           </>
         }
         faqs={[

@@ -4,30 +4,30 @@ import Image from 'next/image'
 import { Users, Sparkles, ExternalLink, MapPin, ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Our Leadership & Content Team | TripSage',
+  title: 'Our Authors | TripSage',
   description: 'Meet Ranadheer Patel (Founder) and Saram Vishnu Patel (Co-Founder), and the editorial team behind TripSage\'s AI travel planning platform in Hyderabad, India.',
   keywords: ['TripSage founders', 'Ranadheer Patel', 'Saram Vishnu Patel', 'TripSage authors', 'travel technology India', 'TripSage team Hyderabad'],
   alternates: {
-    canonical: 'https://tripsage.in/authors',
+    canonical: 'https://www.tripsage.in/authors',
   },
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: 'Our Leadership & Editorial Team | TripSage',
+    title: 'Our Authors | TripSage',
     description: 'Meet the founders and editorial team behind TripSage\'s AI-powered travel platform.',
-    url: 'https://tripsage.in/authors',
+    url: 'https://www.tripsage.in/authors',
     siteName: 'TripSage',
-    images: [{ url: 'https://tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Leadership & Authors' }],
+    images: [{ url: 'https://www.tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Leadership & Authors' }],
     locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Our Leadership & Editorial Team | TripSage',
+    title: 'Our Authors | TripSage',
     description: 'Meet the founders and travel researchers behind TripSage.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -35,8 +35,8 @@ const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tripsage.in' },
-    { '@type': 'ListItem', position: 2, name: 'Authors & Leadership', item: 'https://tripsage.in/authors' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.tripsage.in' },
+    { '@type': 'ListItem', position: 2, name: 'Authors & Leadership', item: 'https://www.tripsage.in/authors' },
   ],
 }
 
@@ -45,13 +45,13 @@ const foundersSchema = {
   '@graph': [
     {
       '@type': 'Person',
-      '@id': 'https://tripsage.in/authors#ranadheer-patel',
+      '@id': 'https://www.tripsage.in/authors#ranadheer-patel',
       name: 'Ranadheer Patel',
       jobTitle: 'Founder',
       worksFor: {
         '@type': 'Organization',
         name: 'TripSage',
-        url: 'https://tripsage.in',
+        url: 'https://www.tripsage.in',
       },
       address: {
         '@type': 'PostalAddress',
@@ -64,13 +64,13 @@ const foundersSchema = {
     },
     {
       '@type': 'Person',
-      '@id': 'https://tripsage.in/authors#saram-vishnu-patel',
+      '@id': 'https://www.tripsage.in/authors#saram-vishnu-patel',
       name: 'Saram Vishnu Patel',
       jobTitle: 'Co-Founder',
       worksFor: {
         '@type': 'Organization',
         name: 'TripSage',
-        url: 'https://tripsage.in',
+        url: 'https://www.tripsage.in',
       },
       address: {
         '@type': 'PostalAddress',
@@ -122,7 +122,7 @@ const EDITORIAL_ROLES = [
   },
   {
     role: 'Transport Intelligence & Rail/Bus Analyst',
-    focus: 'Indian Railways schedules, intercity bus connectivity, and flight search intelligence.',
+    focus: 'Rail and bus notes used in destination guides. The planner does not search live flights.',
   },
 ]
 

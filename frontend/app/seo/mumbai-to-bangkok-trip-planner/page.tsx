@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Mumbai to Bangkok Trip Planner | Perfect Bangkok Itinerary | TripSage',
+  title: 'Mumbai to Bangkok Trip Planner | TripSage',
   description: 'Plan your perfect trip from Mumbai to Bangkok. Get the best travel routes, budget breakdown, top attractions, and an AI-powered Bangkok itinerary.',
   keywords: ['Mumbai to Bangkok trip planner', 'Bangkok itinerary AI', 'best time to visit Bangkok', 'Bangkok travel guide', 'TripSage Bangkok'],
-  alternates: { canonical: 'https://tripsage.in/seo/mumbai-to-bangkok-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/mumbai-to-bangkok-trip-planner' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Embark on an exciting journey from India's commercial hub to the high-energy streets of Thailand's capital."
         heroImage="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Discover the Magic of Bangkok from Mumbai</h2>
@@ -43,7 +43,7 @@ export default function Page() {
           </>
         }
         faqs={[
-          { question: "Is a visa required for Indians traveling to Bangkok?", answer: "Yes, but Thailand frequently offers Visa-on-Arrival or visa-exempt schemes for Indian citizens. Be sure to check the current travel advisories before flying." },
+          { question: "Is a visa required for Indians traveling to Bangkok?", answer: "Not for a short tourist trip. Indian ordinary-passport holders can enter for up to 30 days under the visa exemption in force since 15 September 2026 (Royal Thai Embassy, New Delhi). Last checked 23 October 2026." },
           { question: "How long is the flight from Mumbai to Bangkok?", answer: "Direct flights from Chhatrapati Shivaji Maharaj International Airport (BOM) to Bangkok (BKK or DMK) take approximately 4 hours and 15 minutes." },
           { question: "How many days are recommended for a Bangkok trip?", answer: "A 3 to 4-day trip is ideal for experiencing the major temples, shopping markets, and local street food scenes of Bangkok." }
         ]}

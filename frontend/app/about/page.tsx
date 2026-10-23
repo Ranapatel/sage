@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Learn what TripSage does, who it is for, and how it works. TripSage is an AI travel planning tool — not a booking provider or travel agency.',
   keywords: ['about TripSage', 'TripSage travel planner', 'AI travel planning India', 'TripSage team', 'TripSage mission'],
   alternates: {
-    canonical: 'https://tripsage.in/about',
+    canonical: 'https://www.tripsage.in/about',
   },
   robots: {
     index: true,
@@ -16,11 +16,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About TripSage | AI-Powered Travel Planning for India',
     description: 'TripSage is an AI-powered travel planning platform built for Indian travellers. Learn what we do, who we serve, and what we do not do.',
-    url: 'https://tripsage.in/about',
+    url: 'https://www.tripsage.in/about',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'About TripSage — AI Travel Planning Platform',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'About TripSage | AI-Powered Travel Planning for India',
     description: 'TripSage is an AI travel planning tool — not a booking provider or travel agency. Learn about our mission and how we work.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -45,13 +45,13 @@ const breadcrumbSchema = {
       '@type': 'ListItem',
       position: 1,
       name: 'Home',
-      item: 'https://tripsage.in',
+      item: 'https://www.tripsage.in',
     },
     {
       '@type': 'ListItem',
       position: 2,
       name: 'About',
-      item: 'https://tripsage.in/about',
+      item: 'https://www.tripsage.in/about',
     },
   ],
 }
@@ -60,8 +60,8 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'TripSage',
-  url: 'https://tripsage.in',
-  logo: 'https://tripsage.in/logo.png',
+  url: 'https://www.tripsage.in',
+  logo: 'https://www.tripsage.in/logo.png',
   foundingDate: '2026',
   foundingLocation: {
     '@type': 'Place',
@@ -152,16 +152,16 @@ export default function AboutPage() {
             </div>
             <div className="space-y-3 text-[#6B6B6B] text-sm leading-relaxed">
               <p>
-                TripSage uses artificial intelligence to generate personalised travel itineraries, estimate trip budgets, summarise visa requirements, and surface flight and hotel options — all in one place.
+                TripSage uses AI to draft a day-by-day plan for one departure city and one destination, with a rupee estimate and visa notes for Indian passports.
               </p>
               <p>
-                When you describe your destination, travel dates, group size, and budget, TripSage builds a day-by-day plan tailored to your preferences. You can explore visa requirements for popular destinations, estimate costs across accommodation, food, transport, and activities, and discover curated destination guides.
+                You enter one departure city, one destination, dates, and a budget. The draft does not change for the number of travellers, and it does not plan a multi-city route. Visa notes and written destination guides sit alongside the estimate.
               </p>
               <ul className="list-disc list-inside space-y-1.5 pl-1 mt-3">
                 <li>AI-generated trip itineraries for domestic and international destinations</li>
                 <li>Budget estimations broken down by category</li>
                 <li>Visa requirement summaries for popular countries</li>
-                <li>Flight and hotel search powered by third-party search APIs</li>
+                <li>No live flight or hotel search in the planner</li>
                 <li>Destination guides and travel blog articles</li>
               </ul>
             </div>
@@ -181,7 +181,7 @@ export default function AboutPage() {
                 <li><strong className="text-[#1A1A1A]">Independent travellers</strong> who plan their own trips and want AI to do the heavy lifting</li>
                 <li><strong className="text-[#1A1A1A]">Budget-conscious travellers</strong> who need realistic cost breakdowns before they commit</li>
                 <li><strong className="text-[#1A1A1A]">First-time international travellers</strong> from India who want clear visa and documentation guidance</li>
-                <li><strong className="text-[#1A1A1A]">Families and groups</strong> planning multi-leg trips with multiple accommodation and transport needs</li>
+                <li><strong className="text-[#1A1A1A]">Travellers</strong> who want a first draft for one destination before they book elsewhere</li>
                 <li><strong className="text-[#1A1A1A]">Travel researchers</strong> comparing destinations, costs, and logistics before deciding</li>
               </ul>
             </div>
@@ -202,7 +202,7 @@ export default function AboutPage() {
               {[
                 {
                   label: 'Not a booking provider',
-                  desc: "TripSage does not sell airline tickets, hotel rooms, bus passes, or tour packages. We display search results and redirect you to the respective provider's website to complete your booking.",
+                  desc: "TripSage does not sell airline tickets, hotel rooms, bus passes, or tour packages, and it does not show live search results to book.",
                 },
                 {
                   label: 'Not a travel agency',
@@ -213,8 +213,8 @@ export default function AboutPage() {
                   desc: 'Visa summaries on TripSage are informational only. Always verify visa requirements through the official embassy or consulate of your destination country.',
                 },
                 {
-                  label: 'Not a referral or affiliate platform',
-                  desc: 'TripSage may earn revenue through affiliate links on some bookings, but this does not influence the recommendations or rankings you see on our platform.',
+                  label: 'How we are paid',
+                  desc: 'TripSage does not sell bookings. Some links to booking partners may be affiliate links, and TripSage may earn a commission; this does not change the options we show.',
                 },
               ].map((item) => (
                 <div key={item.label} className="flex gap-3">

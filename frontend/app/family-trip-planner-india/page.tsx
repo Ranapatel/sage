@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Family Trip Planner India | Best Family Holidays | TripSage',
+  title: 'Family Trip Planner for India | TripSage',
   description: 'Plan the perfect family holiday in India. Discover family-friendly resorts, kid-friendly activities, and stress-free AI itineraries with TripSage.',
   keywords: ['family trip planner India', 'family holidays India', 'kid friendly vacations India', 'best family resorts India'],
-  alternates: { canonical: 'https://tripsage.in/family-trip-planner-india' }
+  alternates: { canonical: 'https://www.tripsage.in/family-trip-planner-india' }
 }
 
 export default function Page() {

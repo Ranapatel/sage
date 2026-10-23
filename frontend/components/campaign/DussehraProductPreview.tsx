@@ -96,8 +96,8 @@ export default function DussehraProductPreview({ onSeeHowItWorksClick }: Props) 
                 </div>
               </div>
               <div className="flex items-center justify-between text-[10px] text-[#6B6B6B] px-1">
-                <span className="font-semibold text-[#1A1A1A]">Direct Partner Links</span>
-                <span className="text-[#EA580C] font-bold">Instant Search</span>
+                <span className="font-semibold text-[#1A1A1A]">Example only</span>
+                <span className="text-[#EA580C] font-bold">Not live fares</span>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ export default function DussehraProductPreview({ onSeeHowItWorksClick }: Props) 
               <h3 className="text-base font-bold text-[#1A1A1A]">Accommodation & transport</h3>
             </div>
             <p className="text-xs sm:text-sm text-[#6B6B6B] leading-relaxed">
-              Real options with photos, transparent rates, and direct booking provider links where available.
+              Example photos in the draft. Rates shown here are not live, and TripSage does not book the stay.
             </p>
           </div>
         </div>

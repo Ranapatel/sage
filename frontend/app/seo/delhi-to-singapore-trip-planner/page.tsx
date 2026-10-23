@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Delhi to Singapore Trip Planner | Complete Singapore Itinerary | TripSage',
+  title: 'Delhi to Singapore Trip Planner | TripSage',
   description: 'Plan the ultimate Delhi to Singapore trip. Find direct flights, entry requirements, budget advice, and a custom AI-designed Singapore itinerary.',
   keywords: ['Delhi to Singapore trip planner', 'Singapore itinerary AI', 'best time to visit Singapore', 'Singapore travel guide', 'TripSage Singapore'],
-  alternates: { canonical: 'https://tripsage.in/seo/delhi-to-singapore-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/delhi-to-singapore-trip-planner' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Embark on an incredible journey to the futuristic garden city of Southeast Asia."
         heroImage="https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Embark on a Delhi to Singapore Adventure</h2>

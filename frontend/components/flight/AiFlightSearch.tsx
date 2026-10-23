@@ -344,7 +344,7 @@ export default function AiFlightSearch({
                     No Operating Flights Found
                   </h3>
                   <p className="text-xs text-[#6B6B6B] leading-relaxed font-medium">
-                    {flightValidation?.message || `No commercial airlines operate live flights between ${tripContext?.from || 'origin'} and ${tripContext?.to || 'destination'} on the selected date.`}
+                    {flightValidation?.message || `No live flights came back for this search. The day-by-day draft is still only an estimate.`}
                   </p>
                   {flights.length > 0 && (
                     <button

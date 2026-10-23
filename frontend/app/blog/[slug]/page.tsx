@@ -18,16 +18,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = BLOG_POSTS.find((p) => p.slug === slug)
   if (!post) return { title: 'Post Not Found' }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tripsage.in'
+  const baseUrl = 'https://www.tripsage.in'
+  const canonical = `${baseUrl}/blog/${post.slug}`
   const ogImageUrl = post.image.startsWith('http') ? post.image : `${baseUrl}${post.image}`
+  const branded = `${post.title} | TripSage`
+  const title = branded.length <= 60 ? branded : post.title
+  const description = post.excerpt.length <= 155 ? post.excerpt : `${post.excerpt.slice(0, 152).trimEnd()}...`
 
   return {
-    title: `${post.title} | TripSage Journal`,
-    description: post.excerpt,
+    title,
+    description,
+    alternates: { canonical },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
+      url: canonical,
       images: [{ url: ogImageUrl }],
+      type: 'article',
     },
   }
 }
@@ -43,8 +50,19 @@ export default async function BlogPostPage({ params }: PageProps) {
   const post = BLOG_POSTS.find((p) => p.slug === slug)
   if (!post) notFound()
 
+  const blogSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    author: { '@type': 'Person', name: post.author },
+    datePublished: post.date,
+    dateModified: post.date,
+    mainEntityOfPage: `https://www.tripsage.in/blog/${post.slug}`,
+  }
+
   return (
     <LandingLayout>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
       <div className="bg-[#FFFBF7] min-h-screen text-[#6B6B6B] font-body">
         {/* Top Progress Bar Accent */}
         <div className="fixed top-0 left-0 w-full h-1 bg-[#E8E0D8] z-[101]">
@@ -125,7 +143,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               <div className="text-center md:text-left">
                 <h4 className="text-xl font-bold text-[#1A1A1A] mb-2">Written by {post.author}</h4>
                 <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4 font-medium">
-                  Senior AI Travel Strategist at TripSage. Dedicated to building smart algorithms and sharing actionable guides to help thousands of travelers explore the world effortlessly.
+                  Senior AI Travel Strategist at TripSage, sharing practical, sourced guides for Indian travellers.
                 </p>
                 <div className="flex items-center justify-center md:justify-start gap-4 text-xs font-bold">
                   <Link href="/blog" className="text-[#EA580C] hover:underline">More Articles by {post.author.split(' ')[0]}</Link>

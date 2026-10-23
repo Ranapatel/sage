@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Best Honeymoon Destinations in India | Romantic Getaways | TripSage',
+  title: 'Best Honeymoon Destinations in India | TripSage',
   description: 'Plan your romantic escape with the best honeymoon destinations in India. From Udaipur to Andaman, find your perfect match with TripSage AI.',
   keywords: ['best honeymoon destinations India', 'romantic trips India', 'honeymoon guide India', 'top couple destinations'],
-  alternates: { canonical: 'https://tripsage.in/best-honeymoon-destinations-india' }
+  alternates: { canonical: 'https://www.tripsage.in/best-honeymoon-destinations-india' }
 }
 
 export default function Page() {
@@ -32,7 +32,7 @@ export default function Page() {
         faqs={[
           { question: "Which is the best month for a honeymoon in India?", answer: "October to March is generally the best time for most of India, while June to September is great for Kerala or the mountains." },
           { question: "Is North or South India better for a honeymoon?", answer: "It depends on your vibe! North offers mountains and royalty, while South offers beaches, greenery, and backwaters." },
-          { question: "Can TripSage help book luxury hotels?", answer: "Yes, our optimizer ranks hotels based on 'Romantic' relevance and provides direct booking links." }
+          { question: "Can TripSage help book luxury hotels?", answer: "No. TripSage can draft a day-by-day plan. It does not rank live hotels or provide booking links." }
         ]}
       />
     </LandingLayout>

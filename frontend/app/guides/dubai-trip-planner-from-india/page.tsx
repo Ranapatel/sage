@@ -9,8 +9,8 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Dubai Trip Planner from India (2026 Guide): 5-Day Blueprint, Budget & Visa | TripSage',
-  description: 'Complete verified Dubai travel planner for Indian tourists. 5-day step-by-step itinerary, direct flight guides (₹18k-₹28k), UAE tourist eVisa rules, Desert Safari tips, Burj Khalifa entry, and itemized cost breakdown.',
+  title: 'Dubai Trip from India: 5-Day Plan & Visa | TripSage',
+  description: 'Dubai trip planner for Indian travellers: a 5-night budget and the GDRFA 30-day visa fee of AED 200 plus 5% VAT. Checked 22 Oct 2026.',
   keywords: [
     'Dubai trip planner from India',
     'Dubai 5 day itinerary from India',
@@ -20,12 +20,12 @@ export const metadata: Metadata = {
     'best time to visit Dubai from India'
   ],
   alternates: {
-    canonical: 'https://tripsage.in/guides/dubai-trip-planner-from-india',
+    canonical: 'https://www.tripsage.in/guides/dubai-trip-planner-from-india',
   },
   openGraph: {
-    title: 'Dubai Trip Planner from India (2026): 5-Day Itinerary, Visa & Budget Guide',
+    title: 'Dubai Trip from India: 5-Day Plan & Visa | TripSage',
     description: 'Expert Dubai travel guide for Indian citizens. 5-day day-by-day blueprint, flight comparisons, visa requirements, and itemized expenses.',
-    url: 'https://tripsage.in/guides/dubai-trip-planner-from-india',
+    url: 'https://www.tripsage.in/guides/dubai-trip-planner-from-india',
     siteName: 'TripSage',
     images: [
       {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Dubai Trip Planner from India (2026 Guide): Itinerary, Visa & Costs',
+    title: 'Dubai Trip from India: 5-Day Plan & Visa | TripSage',
     description: 'Complete 5-day Dubai trip blueprint, flight prices from India, UAE tourist visa rules, and budget breakdown.',
     images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=85'],
   },
@@ -75,12 +75,12 @@ export default function DubaiTripPlannerPage() {
                 </div>
                 <div>
                   <p className="font-extrabold text-[#1A1A1A]">Written by TripSage Travel Editorial Team</p>
-                  <p className="text-[#6B6B6B]">Reviewed & Fact-Checked by Middle East Travel Specialists</p>
+                  <p className="text-[#6B6B6B]">Visa facts checked against GDRFA, ICP and u.ae on 22 Oct 2026</p>
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end gap-2 text-[#6B6B6B]">
                 <span><strong>Published:</strong> August 2026</span>
-                <span><strong>Last Verified:</strong> August 2026</span>
+                <span><strong>Last checked:</strong> 22 October 2026</span>
               </div>
             </div>
 
@@ -90,7 +90,7 @@ export default function DubaiTripPlannerPage() {
                 <Compass className="w-4 h-4" /> Direct Answer: Planning a 5-Day Dubai Trip from India
               </div>
               <p className="text-sm font-semibold text-[#1A1A1A] leading-relaxed mb-4">
-                A 5-day/4-night Dubai holiday from India averages between <strong>₹60,000 to ₹85,000 per person</strong> on a comfortable mid-range budget (₹1,20,000 – ₹1,60,000 for a couple), covering direct flights, 4-star city hotels, UAE tourist visa, Desert Safari, Burj Khalifa At The Top, and metro transit.
+                A 5-night Dubai trip from India, per person sharing, is about <strong>₹64,492–₹70,373</strong> using the sourced January–February figures checked on 22 October 2026 (blog-dubai-draft sources). The home card rounds that to ₹65,000–70,000. Check the airline site for the current fare before you pay.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-3 border-t border-[#EA580C]/20">
                 <div>
@@ -99,7 +99,7 @@ export default function DubaiTripPlannerPage() {
                 </div>
                 <div>
                   <span className="text-[#6B6B6B] block">UAE Tourist Visa</span>
-                  <strong className="text-[#1A1A1A]">~₹6,500 – ₹8,000 (30 Days)</strong>
+                  <strong className="text-[#1A1A1A]">AED 200 + 5% VAT govt fee (30 days) + agent/airline charges</strong>
                 </div>
                 <div>
                   <span className="text-[#6B6B6B] block">Best Travel Window</span>
@@ -112,18 +112,24 @@ export default function DubaiTripPlannerPage() {
               </div>
             </div>
 
-            <h2>1. UAE Visa Requirements for Indian Passport Holders</h2>
+            <h2>1. UAE visa for Indian passport holders (checked 22 October 2026)</h2>
             <p>
-              Indian citizens require an entry visa prior to boarding flights to the UAE, unless holding qualifying third-country visas:
+              Most Indian travellers need a UAE tourist visa <strong>before</strong> they fly. Tourist visas are issued through UAE airlines, hotels or licensed travel agents, or online through ICP or GDRFA Dubai. UAE embassies do not issue them (u.ae).
             </p>
             <ul>
               <li>
-                <strong>30-Day Single Entry Tourist eVisa:</strong> The standard visa for vacationers. Applied online via authorized airlines (Emirates, flydubai, Air Arabia, IndiGo) or licensed UAE travel agencies. Processing takes 2 to 4 working days and costs approximately <strong>AED 300 to AED 380 (~₹6,800 – ₹8,500)</strong> including mandatory travel insurance.
+                <strong>30-day single-entry tourist visa (GDRFA Dubai):</strong> government fee <strong>AED 200 + 5% VAT</strong> (AED 210). A 60-day visa is AED 300 + VAT. You need a passport valid for at least 6 months, an onward or return ticket and <strong>medical insurance valid in the UAE</strong>. Processing takes about 48 hours. Airlines and agents add their own service charges, so confirm the full price before you pay.
               </li>
               <li>
-                <strong>Visa on Arrival for US/UK/EU Visa Holders:</strong> Indian passport holders who possess a valid US Visitor Visa (B1/B2), US Green Card, UK Residence Permit, or EU Schengen Visa with at least 6 months validity are eligible for a <strong>14-day Visa on Arrival</strong> at Dubai airports for approximately <strong>AED 120 (~₹2,700)</strong>.
+                <strong>14-day visa on arrival:</strong> only for Indian ordinary-passport holders with a US visa or green card, or a UK or EU residence visa, each valid for 6 months or more (GDRFA). It can be extended once. ICP added residence permits from Singapore, Japan, South Korea, Australia, New Zealand and Canada on 25 June 2026. ICP lists the 14-day visa at AED 100.
+              </li>
+              <li>
+                <strong>Overstay fine:</strong> AED 50 per day (ICP).
               </li>
             </ul>
+            <p>
+              <em>Sources: gdrfad.gov.ae (tourist visa; visa on arrival for Indian citizens), icp.gov.ae (25 Jun 2026), u.ae (tourist visa). Rules change, so check the official page before you apply.</em>
+            </p>
 
             <h2>2. Itemized 5-Day Dubai Budget Breakdown (Per Person)</h2>
             <div className="overflow-x-auto not-prose my-6 rounded-2xl border border-[#E8E0D8] bg-white shadow-xs">
@@ -145,9 +151,9 @@ export default function DubaiTripPlannerPage() {
                   </tr>
                   <tr>
                     <td className="p-4 font-bold text-[#1A1A1A]">30-Day UAE Tourist Visa</td>
-                    <td className="p-4">₹6,800</td>
-                    <td className="p-4">₹7,500</td>
-                    <td className="p-4">Online eVisa with COVID-19 health cover included.</td>
+                    <td className="p-4">AED 210 (≈₹5,400) govt fee incl. VAT + agent charge</td>
+                    <td className="p-4">AED 210 (≈₹5,400) govt fee incl. VAT + agent charge</td>
+                    <td className="p-4">Medical insurance valid in the UAE is required (GDRFA).</td>
                   </tr>
                   <tr>
                     <td className="p-4 font-bold text-[#1A1A1A]">Hotel Accommodation (4 Nights)</td>
@@ -175,9 +181,9 @@ export default function DubaiTripPlannerPage() {
                   </tr>
                   <tr className="bg-orange-50 font-extrabold text-[#1A1A1A]">
                     <td className="p-4">Total Estimated Trip Cost</td>
-                    <td className="p-4 text-[#EA580C]">₹50,800 – ₹57,000</td>
-                    <td className="p-4 text-[#EA580C]">₹72,000 – ₹88,000</td>
-                    <td className="p-4">Per person for a full 5-day international vacation.</td>
+                    <td className="p-4 text-[#EA580C]">₹64,492 – ₹70,373</td>
+                    <td className="p-4 text-[#EA580C]">₹64,492 – ₹70,373</td>
+                    <td className="p-4">Sourced total per person sharing, 5 nights, checked 22 Oct 2026. Line items above are category guides and are not a second total.</td>
                   </tr>
                 </tbody>
               </table>
@@ -334,11 +340,11 @@ export default function DubaiTripPlannerPage() {
         faqs={[
           {
             question: "How much does a 5-day Dubai trip cost from India?",
-            answer: "On average, a 5-day Dubai trip costs between ₹60,000 to ₹85,000 per person on a comfortable mid-range budget, covering round-trip flights, 4-star hotel stay, 30-day UAE tourist visa, Desert Safari, Burj Khalifa entry, food, and metro transit."
+            answer: "The sourced figure checked on 22 October 2026 is ₹64,492–₹70,373 per person sharing for 5 nights. The home card rounds that to ₹65,000–70,000 for January–February fares."
           },
           {
             question: "Do Indian passport holders get Visa on Arrival in Dubai?",
-            answer: "Indian passport holders can only get a 14-day Visa on Arrival (costing approx. 120 AED) if they have a valid US Visitor Visa (B1/B2), US Green Card, UK Residence Visa, or EU Schengen Visa with at least 6 months validity. Otherwise, an advance 30-day or 60-day tourist eVisa must be obtained."
+            answer: "Most Indian travellers need a tourist visa before they fly. The GDRFA 30-day single-entry fee is AED 200 + 5% VAT. A 14-day visa on arrival is only for holders of a US visa or green card, or a UK or EU residence visa, each valid 6 months. ICP lists that 14-day visa at AED 100 and, from 25 June 2026, also counts residence permits from Singapore, Japan, South Korea, Australia, New Zealand and Canada. Checked 22 Oct 2026."
           },
           {
             question: "What is the best area to stay in Dubai for Indian tourists?",

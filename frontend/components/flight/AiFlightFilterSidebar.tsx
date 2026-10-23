@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import {
-  Bell, Luggage, Briefcase, Filter, ChevronUp, ChevronDown,
+  Luggage, Briefcase, Filter, ChevronUp, ChevronDown,
   RotateCcw, Clock, ShieldCheck, DollarSign
 } from 'lucide-react'
 
@@ -37,7 +37,6 @@ export default function AiFlightFilterSidebar({
   maxPriceLimit,
   maxDurationLimit,
 }: AiFlightFilterSidebarProps) {
-  const [priceAlertsEnabled, setPriceAlertsEnabled] = useState(false)
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     bags: true,
     stops: true,
@@ -61,32 +60,9 @@ export default function AiFlightFilterSidebar({
   return (
     <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 shadow-xs space-y-6 text-[#1A1A1A]">
       
-      {/* ── Price Alert Card Header ── */}
-      <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 font-extrabold text-sm text-[#1A1A1A] font-display">
-            <Bell size={16} className="text-[#EA580C]" />
-            <span>Set up price alerts</span>
-          </div>
-          {/* Toggle Switch */}
-          <button
-            type="button"
-            role="switch"
-            aria-checked={priceAlertsEnabled}
-            onClick={() => setPriceAlertsEnabled(!priceAlertsEnabled)}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              priceAlertsEnabled ? 'bg-[#EA580C]' : 'bg-[#E8E0D8]'
-            }`}
-          >
-            <span
-              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                priceAlertsEnabled ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
-          </button>
-        </div>
+      <div className="bg-[#FFFBF7] border border-[#E8E0D8] rounded-xl p-4">
         <p className="text-xs text-[#6B6B6B] leading-normal font-medium">
-          Receive alerts when the prices for this route change.
+          TripSage does not watch fares or send price alerts. Check the airline for changes.
         </p>
       </div>
 

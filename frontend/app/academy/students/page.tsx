@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, startTransition } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -39,7 +39,9 @@ export default function AcademyStudentsPage() {
   }
 
   useEffect(() => {
-    fetchStudents()
+    startTransition(() => {
+      void fetchStudents()
+    })
   }, [])
 
   const filtered = students.filter(

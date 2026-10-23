@@ -356,7 +356,7 @@ export default function AiFlightCard({
           onClick={handleBookWithKiwi}
           className="w-full sm:w-auto px-6 py-3 min-h-[48px] bg-[#EA580C] hover:bg-[#C2410C] text-white font-black text-xs sm:text-sm rounded-2xl shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 active:scale-95"
         >
-          <span>Book with Kiwi</span>
+          <span>Check on Kiwi</span>
           <ExternalLink size={14} />
         </button>
       </div>

@@ -30,15 +30,15 @@ const VISA_DATA: VisaCard[] = [
     processing: 'Instant (Arrival) or 24-48 hrs online',
     duration: '30 Days (Extendable once)',
     requirement: 'Passport valid 6 months, return ticket, custom declaration.',
-    applyUrl: 'https://molina.imigrasi.go.id/'
+    applyUrl: 'https://evisa.imigrasi.go.id/'
   },
   {
     flag: '🇦🇪',
     name: 'Dubai (UAE)',
     badgeText: 'E-Visa Required',
     badgeType: 'orange',
-    cost: '₹7,500 (approx. depending on agency)',
-    processing: '3 to 5 Working Days',
+    cost: 'AED 200 + 5% VAT govt fee (30 days) + agent charges',
+    processing: 'About 48 hours (GDRFA)',
     duration: '30 Days or 60 Days',
     requirement: 'Passport copy, passport photo, confirmed return flights.',
     applyUrl: 'https://www.gdrfad.gov.ae/'
@@ -46,12 +46,12 @@ const VISA_DATA: VisaCard[] = [
   {
     flag: '🇹🇭',
     name: 'Thailand',
-    badgeText: 'Visa Free / Visa on Arrival',
+    badgeText: 'Visa exemption',
     badgeType: 'green',
-    cost: 'Free (VoA fee currently waived)',
-    processing: 'Instant on Arrival',
-    duration: '30 Days',
-    requirement: 'Passport valid 6 months, return flight, proof of funds.',
+    cost: 'Free',
+    processing: 'No visa needed',
+    duration: 'Up to 30 days (tourism)',
+    requirement: 'Rule since 15 Sep 2026, Royal Thai Embassy New Delhi. Checked 23 Oct 2026.',
     applyUrl: 'https://www.thaievisa.go.th/'
   },
   {
@@ -81,9 +81,9 @@ const VISA_DATA: VisaCard[] = [
     name: 'Vietnam',
     badgeText: 'E-Visa Required',
     badgeType: 'orange',
-    cost: '₹2,100 (USD 25)',
+    cost: 'US$25 (single) / US$50 (multiple)',
     processing: '3 Working Days',
-    duration: '30 Days (Single entry)',
+    duration: 'Up to 90 days, single or multiple entry',
     requirement: 'Passport copy, digital photo, temporary address in Vietnam.',
     applyUrl: 'https://evisa.xuatnhapcanh.gov.vn/'
   }

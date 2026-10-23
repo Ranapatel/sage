@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { Sparkles, Zap, Map, PiggyBank, HeadphonesIcon, BellRing, CheckCircle, ChevronDown } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'How TripSage Works - AI Travel Planning & Itineraries',
+  title: 'How TripSage Works | TripSage',
   description: 'Learn how TripSage uses AI to generate personalized itineraries, find the best deals, and orchestrate your entire travel experience.',
   alternates: {
-    canonical: 'https://tripsage.in/learn-more'
+    canonical: 'https://www.tripsage.in/learn-more'
   }
 }
 
@@ -24,7 +24,7 @@ export default function LearnMorePage() {
             How <span className="text-blue-600">TripSage</span> Works
           </h1>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            Your personal AI travel concierge that orchestrates everything from inspiration to booking, all in one place.
+            An AI draft for one route: a day-by-day plan, a rupee estimate, and visa notes for Indian passports.
           </p>
         </div>
       </section>
@@ -35,7 +35,7 @@ export default function LearnMorePage() {
           <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-slate-100">
             <h2 className="text-3xl font-bold text-slate-900 mb-6 text-center">What is TripSage?</h2>
             <p className="text-lg text-slate-600 leading-relaxed text-center max-w-4xl mx-auto">
-              TripSage is an AI-powered travel operating system. We use advanced AI to instantly generate highly personalized travel itineraries based on your unique preferences, budget, and travel style. We connect with hundreds of real-time sources to bring you live flight prices, hotel availability, and activities, ensuring your plan is always actionable and up-to-date.
+              TripSage drafts a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports. It does not search live flights or hotels, and it does not book travel.
             </p>
           </div>
         </div>
@@ -50,7 +50,7 @@ export default function LearnMorePage() {
               { step: '1', title: 'Tell us your plan', desc: 'Enter your destination, dates, budget, and travel style.' },
               { step: '2', title: 'AI Generation', desc: 'Our AI analyzes millions of data points to craft your ideal itinerary.' },
               { step: '3', title: 'Customize', desc: 'Review, tweak, and perfect your plan with our interactive maps and tools.' },
-              { step: '4', title: 'Book & Go', desc: 'Book your flights and hotels directly through our real-time integrations.' },
+              { step: '4', title: 'Book yourself', desc: 'Use the draft as a starting point, then book flights and hotels on the airline or hotel site.' },
             ].map((s, i) => (
               <div key={i} className="text-center relative">
                 <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-sm border border-blue-100">
@@ -72,11 +72,11 @@ export default function LearnMorePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { icon: Sparkles, title: 'AI Personalization', desc: 'Tailored itineraries matching your exact vibe and budget.' },
-              { icon: Zap, title: 'Real-time Data', desc: 'Live pricing and availability for flights and accommodations.' },
+              { icon: Zap, title: 'Rupee estimates', desc: 'Cost figures in the draft are estimates, not live fares.' },
               { icon: Map, title: 'Smart Maps', desc: 'Interactive routing and visual day-by-day exploration.' },
               { icon: PiggyBank, title: 'Budget Optimization', desc: 'Smart algorithms to maximize value for every dollar spent.' },
-              { icon: BellRing, title: 'Price Alerts', desc: 'Get notified when prices drop for your saved trips.' },
-              { icon: HeadphonesIcon, title: '24/7 Support', desc: 'Always-on assistance before, during, and after your trip.' },
+              { icon: BellRing, title: 'No fare alerts', desc: 'TripSage does not watch fares or send price-drop alerts.' },
+              { icon: HeadphonesIcon, title: 'Support', desc: 'Questions about the planner can go through the support page.' },
             ].map((f, i) => (
               <div key={i} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 transition-all hover:shadow-md">
                 <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6">
@@ -106,7 +106,7 @@ export default function LearnMorePage() {
               <tbody className="bg-white">
                 {[
                   ['Instant AI Itineraries', true, false],
-                  ['Real-time Flight & Hotel Prices', true, false],
+                  ['Rupee cost estimates', true, false],
                   ['Interactive Maps', true, true],
                   ['Budget Optimization', true, false],
                   ['Personalized Style Matching', true, false],
@@ -133,10 +133,10 @@ export default function LearnMorePage() {
           <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">Frequently Asked Questions</h2>
           <div className="space-y-4">
             {[
-              { q: 'Is TripSage free to use?', a: 'Yes, generating itineraries and using our basic planning tools is completely free.' },
-              { q: 'How does the AI create itineraries?', a: 'We use advanced language models combined with real-time travel data APIs to craft personalized plans based on your specific inputs.' },
-              { q: 'Can I book flights and hotels directly?', a: 'Yes, we provide direct booking links for flights and hotels with real-time pricing and availability.' },
-              { q: 'Can I share my itinerary with friends?', a: 'Absolutely! You can easily share your planned trips with travel companions.' },
+              { q: 'Is TripSage free to use?', a: 'Yes. TripSage is free to use.' },
+              { q: 'How does the AI create itineraries?', a: 'The planner writes a day-by-day draft from one departure city, one destination, and your dates. It does not use live flight or hotel prices.' },
+              { q: 'Can I book flights and hotels directly?', a: 'Not on TripSage. Book on the airline or hotel site. The planner does not take payment.' },
+              { q: 'Can I share my itinerary with friends?', a: 'A share action copies a link to the planner. It does not send your personal itinerary to someone else.' },
               { q: 'What happens if my plans change?', a: 'TripSage itineraries are fully customizable. You can adjust dates, swap activities, or regenerate specific days at any time.' },
             ].map((faq, i) => (
               <details key={i} className="group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden [&_summary::-webkit-details-marker]:hidden">

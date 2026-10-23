@@ -385,7 +385,7 @@ function TripMoodPanel({ weather, remaining, fmt, loading }: { weather: any; rem
     { label: 'Pace', value: 'Easy', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', dot: '#16A34A', pill: true },
     { label: 'Weather', value: 'Pack light, rain gear', color: '#B45309', bg: '#FFFBEB', border: '#FDE68A', dot: '#B45309', pill: false },
     { label: 'Budget', value: remaining > 0 ? fmt(remaining) + ' left' : 'On track', color: '#EA580C', bg: '#FFF7ED', border: '#FED7AA', dot: '#EA580C', pill: false },
-    { label: 'Status', value: 'Ready to book', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', dot: '#16A34A', pill: true },
+    { label: 'Status', value: 'Draft only', color: '#57534E', bg: '#F8F6F3', border: '#E8E0D8', dot: '#57534E', pill: true },
   ]
 
   return (

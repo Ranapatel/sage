@@ -339,7 +339,7 @@ export default function DussehraPlannerForm({
           </button>
 
           <p className="text-[11px] text-center text-[#9CA3AF] font-medium pt-0.5">
-            Start planning for free · Transparent partner rates · No hidden charges
+            TripSage is free to use · Rupee estimates, not live fares
           </p>
         </form>
       </div>
@@ -374,7 +374,7 @@ export default function DussehraPlannerForm({
                 Your Trip to {to || 'Your Destination'} is Ready!
               </h3>
               <p className="text-xs sm:text-sm text-[#6B6B6B] leading-relaxed">
-                Sign up in 10 seconds to unlock your day-wise itinerary, compare live flights and hotels, and view map routes.
+                You can draft a plan without signing in. TripSage does not show live flights or hotels.
               </p>
             </div>
 

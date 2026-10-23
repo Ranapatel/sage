@@ -86,7 +86,7 @@ export default function SEOContent({
   }
 
   // Generate dynamic BreadcrumbList Schema
-  const domain = "https://tripsage.in"
+  const domain = "https://www.tripsage.in"
   const pathSegments = pathname ? pathname.split('/').filter(Boolean) : []
   
   const breadcrumbElements = [

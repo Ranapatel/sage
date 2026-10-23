@@ -42,7 +42,7 @@ function TransportCard({ item, showDetail }: Props) {
       timestamp: new Date().toISOString(),
       read: false,
     })
-    toast.success('Option selected! Complete booking →')
+    toast.success('Option noted on this draft.')
   }
 
   const fallbackFlightImage = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80'
@@ -159,7 +159,7 @@ function TransportCard({ item, showDetail }: Props) {
           }}
           className="px-4 sm:px-6 py-3 min-h-[48px] rounded-2xl font-black text-xs sm:text-sm bg-[#EA580C] hover:bg-[#C2410C] text-white shadow-md hover:shadow-xl transition-all duration-200 shrink-0 cursor-pointer active:scale-95 flex items-center justify-center"
         >
-          {item.source === 'affiliate_redirect' ? 'Search Live →' : 'Book Option →'}
+          {item.source === 'affiliate_redirect' ? 'Open outside TripSage →' : 'Estimate only'}
         </a>
       </div>
     </div>

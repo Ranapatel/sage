@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Budget Rajasthan Trip Planner | Affordable Rajasthan Itinerary | TripSage',
+  title: 'Budget Rajasthan Trip Planner | TripSage',
   description: 'Explore royal Rajasthan on a budget. Learn how to visit Jaipur, Jodhpur, and Jaisalmer affordably with an AI-designed budget plan.',
   keywords: ['budget Rajasthan trip', 'cheap Rajasthan travel guide', 'affordable Rajasthan tour', 'TripSage Rajasthan budget'],
-  alternates: { canonical: 'https://tripsage.in/seo/budget-rajasthan-trip' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/budget-rajasthan-trip' }
 }
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
         subtitle="Uncover royal history, colossal forts, and desert sand dunes on a budget."
         heroImage="https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Discover Royal Rajasthan on a Budget</h2>

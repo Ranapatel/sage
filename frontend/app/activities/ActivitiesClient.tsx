@@ -119,7 +119,7 @@ export default function ActivitiesClient() {
               <span className="activities-hero__title-accent">Move You</span>
             </h1>
             <p className="activities-hero__sub">
-              Book tours, adventures &amp; cultural experiences with real-time availability and instant confirmation.
+              Browse activity ideas for a destination. TripSage does not confirm live availability or take the booking.
             </p>
           </div>
         </header>

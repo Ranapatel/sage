@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Solo Travel Guide India | Best Solo Destinations | TripSage',
+  title: 'Solo Travel Guide for India | TripSage',
   description: 'Your ultimate guide to solo travel in India. Find the safest destinations, budget tips, and AI-powered solo itineraries with TripSage.',
   keywords: ['solo travel India', 'solo trip destinations India', 'safe travel for solo women India', 'solo travel guide'],
-  alternates: { canonical: 'https://tripsage.in/seo/solo-travel-guide-india' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/solo-travel-guide-india' }
 }
 
 export default function Page() {

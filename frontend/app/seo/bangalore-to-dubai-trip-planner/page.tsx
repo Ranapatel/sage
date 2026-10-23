@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Bangalore to Dubai Trip Planner | Ultimate Dubai Guide | TripSage',
+  title: 'Bangalore to Dubai Trip Planner | TripSage',
   description: 'Plan your dream Dubai vacation from Bangalore. Discover flight options, cheap luxury stays, desert safaris, and customize an AI itinerary.',
   keywords: ['Bangalore to Dubai trip planner', 'Dubai itinerary AI', 'best time to visit Dubai', 'Dubai travel guide', 'TripSage Dubai'],
-  alternates: { canonical: 'https://tripsage.in/seo/bangalore-to-dubai-trip-planner' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/bangalore-to-dubai-trip-planner' }
 }
 
 export default function Page() {
@@ -17,11 +17,11 @@ export default function Page() {
         subtitle="Embark on a luxury and adventure filled vacation from Silicon Valley of India to Dubai."
         heroImage="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=90"
         ctaText="Generate AI Trip Plan"
-        ctaLink="https://tripsage.in/plan"
+        ctaLink="https://www.tripsage.in/plan"
         content={
           <>
             <h2>Experience the Wonders of Dubai from Bangalore</h2>
-            <p>Design your perfect getaway from Bangalore to Dubai, a city of dazzling superlatives, futuristic skyscrapers, and rich desert heritage. Dubai is a playground of luxury and adventure, boasting the world's tallest building, the Burj Khalifa, the sprawling Dubai Mall, and the stunning artificial island of Palm Jumeirah. Direct flights from Bangalore’s Kempegowda International Airport reach Dubai in just about four hours, making it highly convenient for quick getaways or luxurious shopping retreats. Experience thrilling desert safaris with sandboarding and dune bashing, or relax along the pristine shores of Jumeirah Beach. Whether you're traveling with family or looking for a premium couple's getaway, our AI travel engine customizes your daily sightseeing schedule, estimates your overall expenditures, finds affordable luxury hotels, and guides you on the best times to book flights to maximize your budget.</p>
+            <p>Design your perfect getaway from Bangalore to Dubai, a city of dazzling superlatives, futuristic skyscrapers, and rich desert heritage. Dubai is a playground of luxury and adventure, boasting the world's tallest building, the Burj Khalifa, the sprawling Dubai Mall, and the stunning artificial island of Palm Jumeirah. Direct flights from Bangalore’s Kempegowda International Airport reach Dubai in just about four hours, making it highly convenient for quick getaways or luxurious shopping retreats. Experience thrilling desert safaris with sandboarding and dune bashing, or relax along the pristine shores of Jumeirah Beach. Whether you're traveling with family or looking for a premium couple's getaway, our AI planner can draft a day-by-day Bangalore-to-Dubai plan with a rupee estimate. It does not find live hotels or tell you when to book a flight.</p>
             
             <div className="my-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm">
               <div className="flex flex-col gap-1">

@@ -17,7 +17,7 @@ export default function Footer() {
         <div className="space-y-4">
           <p><strong>Effective Date:</strong> 01 April 2026</p>
           <p>Welcome to TripSage. By accessing or using this platform, you agree to comply with these Terms & Conditions.</p>
-          <p><strong>Service:</strong> TripSage provides AI-powered travel planning, personalized recommendations, and third-party booking links.</p>
+          <p><strong>Service:</strong> TripSage drafts a day-by-day plan for one route, with rupee estimates and visa notes. It does not book travel.</p>
           <p><strong>User Responsibilities:</strong></p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li>Provide accurate and truthful information when using the platform</li>
@@ -155,7 +155,23 @@ export default function Footer() {
             <div>
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Legal</h4>
               <div className="flex flex-col gap-4">
-                {legalLinks.map((link) => (
+                <Link href="/terms-and-conditions" className="hover:text-[#EA580C] transition-colors text-left flex items-center gap-2 group">
+                  <FileText size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
+                  Terms & Conditions
+                </Link>
+                <Link href="/privacy-policy" className="hover:text-[#EA580C] transition-colors text-left flex items-center gap-2 group">
+                  <Shield size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
+                  Privacy Policy
+                </Link>
+                <Link href="/disclaimer" className="hover:text-[#EA580C] transition-colors text-left flex items-center gap-2 group">
+                  <AlertCircle size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
+                  Disclaimer
+                </Link>
+                <Link href="/cookie-policy" className="hover:text-[#EA580C] transition-colors text-left flex items-center gap-2 group">
+                  <Cookie size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" />
+                  Cookie Policy
+                </Link>
+                {legalLinks.filter((link) => link.title === 'Refund Policy' || link.title === 'Grievance Redressal').map((link) => (
                   <button 
                     key={link.title}
                     onClick={() => setActiveLegal(link)} 
@@ -172,15 +188,16 @@ export default function Footer() {
               <h4 className="font-bold mb-6 uppercase tracking-widest text-[#1A1A1A]">Social</h4>
               <div className="flex flex-col gap-4">
                 <a
-                  href="https://www.instagram.com/tripsage.in?stkn=MTB3YjA4eWYzdXo0"
+                  href="https://www.instagram.com/tripsage.in"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <Instagram size={16} strokeWidth={1.5} className="text-[#57534E] group-hover:text-[#1C1917] transition-colors" /> Instagram
                 </a>
+                {/* TODO(B1): @SageTrip8016 is the footer handle, but the founder has not confirmed it as official. Do not copy it into schema or twitter:site. */}
                 <a
-                  href="https://x.com/SageTrip8016?s=20"
+                  href="https://x.com/SageTrip8016"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#EA580C] transition-colors duration-300 flex items-center gap-2 group"

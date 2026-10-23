@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { ExternalLink, Globe, Plane, Building2, Map, AlertTriangle } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Sources & References | Official Travel & Visa Sources Used by TripSage',
-  description: 'A curated list of official government, embassy, airline, and tourism sources that TripSage uses to compile itineraries, visa guides, and travel information.',
+  title: 'Sources & References | TripSage',
+  description: 'Official government, embassy, airline and tourism sources TripSage uses for itineraries and visa notes.',
   keywords: ['TripSage sources', 'travel information sources', 'visa sources India', 'official embassy sources', 'government travel portals'],
   alternates: {
-    canonical: 'https://tripsage.in/sources',
+    canonical: 'https://www.tripsage.in/sources',
   },
   robots: {
     index: true,
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Sources & References | TripSage',
     description: 'Official government, embassy, airline, and tourism portals used by TripSage to compile travel and visa information.',
-    url: 'https://tripsage.in/sources',
+    url: 'https://www.tripsage.in/sources',
     siteName: 'TripSage',
-    images: [{ url: 'https://tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Sources & References' }],
+    images: [{ url: 'https://www.tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Sources & References' }],
     locale: 'en_IN',
     type: 'website',
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Sources & References | TripSage',
     description: 'Official sources TripSage uses for visa, travel, airline, and hotel information.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -34,8 +34,8 @@ const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tripsage.in' },
-    { '@type': 'ListItem', position: 2, name: 'Sources', item: 'https://tripsage.in/sources' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.tripsage.in' },
+    { '@type': 'ListItem', position: 2, name: 'Sources', item: 'https://www.tripsage.in/sources' },
   ],
 }
 

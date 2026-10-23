@@ -6,20 +6,20 @@ import Link from 'next/link'
 import { FileCheck, ShieldCheck, CheckCircle2, AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Global Visa Requirements & Travel Entry Guides | TripSage',
-  description: 'Check visa requirements, Visa on Arrival (VoA) rules, e-Visa application processes, and entry guidelines for Indian travelers heading to Thailand, Bali, Dubai, Singapore, Vietnam, and more.',
-  keywords: ['visa guide for Indian passport', 'Thailand visa on arrival', 'Bali eVisa cost', 'Dubai tourist visa rules', 'Singapore visa requirements', 'Vietnam eVisa application', 'TripSage visa hub'],
+  title: 'Visa Requirements for Indian Travellers | TripSage',
+  description: 'Visa notes for Indian travellers heading to Thailand, Bali, Dubai, Singapore and Vietnam. Check each official page before you travel.',
+  keywords: ['visa guide for Indian passport', 'Thailand 30 day visa exemption', 'Sri Lanka ETA for Indians', 'Bali eVisa cost', 'Dubai tourist visa rules', 'Singapore visa requirements', 'Vietnam eVisa application', 'TripSage visa hub'],
   alternates: {
-    canonical: 'https://tripsage.in/visa',
+    canonical: 'https://www.tripsage.in/visa',
   },
   openGraph: {
-    title: 'Global Visa Requirements & Travel Entry Guides | TripSage',
+    title: 'Visa Requirements for Indian Travellers | TripSage',
     description: 'Check visa requirements, Visa on Arrival (VoA) rules, e-Visa application processes, and official entry guidelines with TripSage.',
-    url: 'https://tripsage.in/visa',
+    url: 'https://www.tripsage.in/visa',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Visa Requirements & Entry Guides',
@@ -30,20 +30,20 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Global Visa Requirements & Travel Entry Guides | TripSage',
+    title: 'Visa Requirements for Indian Travellers | TripSage',
     description: 'Check visa rules, VoA fees, e-Visa forms, and document checklists on TripSage.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
 export default function VisaHubPage() {
   const visaDestinations = [
-    { country: 'Thailand', type: 'Visa-Free / VoA', fee: 'Free / 2,000 THB', stay: '30 Days', processing: 'Instant / Online' },
+    { country: 'Thailand', type: 'Visa exemption (tourism)', fee: 'Free', stay: 'Up to 30 days', processing: 'No visa needed (from 15 Sep 2026)' },
     { country: 'Bali (Indonesia)', type: 'Visa on Arrival (e-VoA)', fee: '500,000 IDR (~$35)', stay: '30 Days', processing: 'Instant at airport' },
-    { country: 'Dubai (UAE)', type: 'Pre-arranged eVisa', fee: '~$90 - $110', stay: '30 Days', processing: '2 - 4 Working Days' },
+    { country: 'Dubai (UAE)', type: 'Tourist visa before travel', fee: 'AED 200 + 5% VAT (30 days), plus agent fee', stay: '30 or 60 days', processing: 'About 48 hours' },
     { country: 'Singapore', type: 'Paper eVisa via Agent', fee: '30 SGD + Agent fee', stay: '30 Days', processing: '3 - 5 Working Days' },
-    { country: 'Vietnam', type: 'Online e-Visa', fee: '25 USD', stay: '30 - 90 Days', processing: '3 Working Days' },
-    { country: 'Sri Lanka', type: 'ETA (Online)', fee: '~$20 - $50', stay: '30 Days', processing: '24 - 48 Hours' },
+    { country: 'Vietnam', type: 'Online e-Visa', fee: 'US$25 (single) / US$50 (multiple)', stay: 'Up to 90 days', processing: '3 Working Days' },
+    { country: 'Sri Lanka', type: 'Tourist ETA (apply before travel)', fee: 'Free', stay: '30 days', processing: 'Apply online before arrival' },
   ]
 
   return (
@@ -58,7 +58,7 @@ export default function VisaHubPage() {
           <>
             <h2>Essential International Visa Categories</h2>
             <p>
-              Understanding entry policies before booking international flights is essential for hassle-free travel. <strong>TripSage</strong> outlines verified entry rules and processing times for top destination countries. Explore our comprehensive guides for <Link href="/visa/thailand-visa-for-indian-citizens">Thailand Visa on Arrival rules</Link> and <Link href="/visa/bali-visa-for-indian-citizens">Bali eVisa requirements</Link>, or plan custom trips to Dubai, Singapore, and Vietnam.
+              Understanding entry policies before booking international flights is essential for hassle-free travel. <strong>TripSage</strong> outlines verified entry rules and processing times for top destination countries. Explore our comprehensive guides for <Link href="/visa/thailand-visa-for-indian-citizens">Thailand visa exemption rules</Link> and <Link href="/visa/bali-visa-for-indian-citizens">Bali eVisa requirements</Link>, or plan custom trips to Dubai, Singapore, and Vietnam.
             </p>
 
             {/* Destination Visa Overview Table */}
@@ -90,6 +90,9 @@ export default function VisaHubPage() {
                 </tbody>
               </table>
             </div>
+            <p>
+              Sri Lanka: Indian nationals can get a tourist ETA free of charge for 30 days, with a double entry inside that period, and must apply before travel. In force since 25 May 2026. Source: eta.gov.lk/slvisa. Thailand: 30-day visa exemption for ordinary passports since 15 September 2026. Source: Royal Thai Embassy, New Delhi. Last checked 23 October 2026.
+            </p>
 
             <h2>Mandatory Entry Checklists for International Travelers</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 not-prose">
@@ -97,7 +100,7 @@ export default function VisaHubPage() {
                 <ShieldCheck className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-extrabold text-sm text-[#1A1A1A] mb-1">Passport Validity</h3>
-                  <p className="text-xs text-[#6B6B6B]">Your passport must have at least 6 months validity remaining from your scheduled date of return, plus at least 2 blank pages.</p>
+                  <p className="text-xs text-[#6B6B6B]">Your passport should be valid for at least 6 months from the date you arrive (Indonesia: evisa.imigrasi.go.id; UAE: GDRFA). Some countries have different rules, so check each destination&apos;s official page.</p>
                 </div>
               </div>
 
@@ -166,7 +169,7 @@ export default function VisaHubPage() {
           },
           {
             question: "How long should my passport be valid when traveling internationally?",
-            answer: "Almost all international destinations require your passport to have at least 6 months validity remaining beyond your intended return date."
+            answer: "Your passport should be valid for at least 6 months from the date you arrive (Indonesia: evisa.imigrasi.go.id; UAE: GDRFA). Some countries have different rules, so check each destination's official page."
           }
         ]}
       />

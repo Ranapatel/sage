@@ -4,28 +4,28 @@ import SEOContent from '@/components/ui/SEOContent'
 import HubNav from '@/components/seo/HubNav'
 import Link from 'next/link'
 import {
-  FileCheck, ShieldCheck, CheckCircle2, AlertTriangle, ArrowRight,
-  ExternalLink, Calendar, CreditCard, Clock, Plane, Sparkles, UserCheck, Banknote
+  FileCheck, ShieldCheck, AlertTriangle, ArrowRight,
+  Calendar, Plane, Sparkles, UserCheck
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Thailand Visa for Indian Citizens (2026 Guide): 60-Day Exemption, Rules & Checklist | TripSage',
-  description: 'Official verified guide on Thailand visa for Indian passport holders. Check 60-day visa exemption scheme (Free/₹0), entry rules, 20,000 THB proof of funds requirement, 30-day extension process, and document checklist.',
+  title: 'Thailand Visa for Indians 2026: 30-Day Visa Exemption',
+  description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 23 Oct 2026.',
   keywords: [
     'Thailand visa for Indian citizens',
     'is Thailand visa free for Indians',
-    'Thailand 60 days visa exemption India',
-    'Thailand visa on arrival fee for Indians',
-    'Thailand immigration funds proof requirement',
+    'Thailand 30 day visa exemption India',
+    'Thailand visa exemption from 15 September 2026',
+    'Royal Thai Embassy New Delhi visa exemption',
     'Bangkok Phuket entry rules Indian passport'
   ],
   alternates: {
-    canonical: 'https://tripsage.in/visa/thailand-visa-for-indian-citizens',
+    canonical: 'https://www.tripsage.in/visa/thailand-visa-for-indian-citizens',
   },
   openGraph: {
-    title: 'Thailand Visa for Indian Citizens (2026): 60-Day Visa Exemption & Official Rules',
-    description: 'Official rules on Thailand 60-day visa exemption for Indian passport holders. Fee (Free), funds proof, return flight rules, and 30-day extensions.',
-    url: 'https://tripsage.in/visa/thailand-visa-for-indian-citizens',
+    title: 'Thailand Visa for Indians 2026: 30-Day Visa Exemption',
+    description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 23 Oct 2026.',
+    url: 'https://www.tripsage.in/visa/thailand-visa-for-indian-citizens',
     siteName: 'TripSage',
     images: [
       {
@@ -40,21 +40,21 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Thailand Visa for Indian Citizens (2026): 60-Day Exemption & Checklist',
-    description: 'Verified guidelines on Thailand visa-free entry, 60-day stay, extension rules, and document requirements for Indian travelers.',
+    title: 'Thailand Visa for Indians 2026: 30-Day Visa Exemption',
+    description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026. Checked 23 Oct 2026.',
     images: ['https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&q=85'],
   },
 }
 
 export default function ThailandVisaPage() {
   const publishedDate = '2026-08-15T00:00:00+05:30'
-  const lastVerifiedDate = '2026-08-20T00:00:00+05:30'
+  const lastVerifiedDate = '2026-10-22T00:00:00+05:30'
 
   return (
     <LandingLayout>
       <SEOContent
-        title="Thailand Visa for Indian Citizens: 60-Day Visa Exemption, Rules & Checklist"
-        subtitle="Heading to Bangkok, Phuket, or Krabi? Learn all about the official 60-day visa exemption scheme for Indian passport holders, airport entry procedures, proof of funds requirements, and extension rules."
+        title="Thailand Visa for Indian Citizens: 30-Day Visa Exemption (from 15 Sep 2026)"
+        subtitle="Heading to Bangkok, Phuket, or Krabi? Indian ordinary-passport holders can enter Thailand for tourism for up to 30 days from 15 September 2026, per the Royal Thai Embassy in New Delhi."
         heroImage="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1920&q=90"
         ctaText="Plan Your Thailand Trip"
         ctaLink="/plan"
@@ -62,7 +62,7 @@ export default function ThailandVisaPage() {
           author: 'TripSage Travel Editorial Team',
           datePublished: publishedDate,
           dateModified: lastVerifiedDate,
-          description: 'Official rules on Thailand 60-day visa exemption for Indian passport holders, fee, document checklist, and funds proof.',
+          description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 23 Oct 2026.',
           image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&q=85'
         }}
         content={
@@ -75,12 +75,12 @@ export default function ThailandVisaPage() {
                 </div>
                 <div>
                   <p className="font-extrabold text-[#1A1A1A]">Written by TripSage Travel Editorial Team</p>
-                  <p className="text-[#6B6B6B]">Reviewed & Fact-Checked by International Immigration Specialists</p>
+                  <p className="text-[#6B6B6B]">Facts checked against the Royal Thai Embassy, New Delhi on 23 Oct 2026 by the TripSage team</p>
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end gap-2 text-[#6B6B6B]">
                 <span><strong>Published:</strong> August 2026</span>
-                <span><strong>Last Verified:</strong> August 2026</span>
+                <span><strong>Last checked:</strong> 23 October 2026</span>
               </div>
             </div>
 
@@ -90,41 +90,37 @@ export default function ThailandVisaPage() {
                 <FileCheck className="w-4 h-4" /> Direct Answer: Do Indians Need a Visa for Thailand?
               </div>
               <p className="text-sm font-semibold text-[#1A1A1A] leading-relaxed mb-3">
-                <strong>No visa application is required prior to travel.</strong> Under the official <strong>Visa Exemption Scheme</strong>, Indian passport holders can enter Thailand for tourism for up to <strong>60 days without paying any visa fee (Free / ₹0)</strong>. It can also be extended once in Thailand for an additional 30 days.
+                <strong>Do Indians need a visa for Thailand?</strong> No, not for a short tourist trip. Under the 30-day visa exemption scheme, Indian ordinary-passport holders entering Thailand for tourism can stay up to <strong>30 days</strong>. The scheme took effect on <strong>15 September 2026</strong> (Royal Thai Embassy, New Delhi). For a longer stay or another purpose, check the embassy&apos;s visa page before you travel. <em>Last checked: 23 October 2026. Source: newdelhi.thaiembassy.org.</em>
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-3 border-t border-[#EA580C]/20">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs pt-3 border-t border-[#EA580C]/20">
                 <div>
                   <span className="text-[#6B6B6B] block">Visa Fee</span>
-                  <strong className="text-green-600 font-extrabold text-sm">₹0 (Free Exemption)</strong>
+                  <strong className="text-green-600 font-extrabold text-sm">Free</strong>
                 </div>
                 <div>
                   <span className="text-[#6B6B6B] block">Permitted Stay</span>
-                  <strong className="text-[#1A1A1A]">60 Days (Extendable)</strong>
+                  <strong className="text-[#1A1A1A]">30 Days</strong>
                 </div>
                 <div>
                   <span className="text-[#6B6B6B] block">Entry Ports</span>
-                  <strong className="text-[#1A1A1A]">All Int'l Airports & Borders</strong>
-                </div>
-                <div>
-                  <span className="text-[#6B6B6B] block">Funds Requirement</span>
-                  <strong className="text-[#1A1A1A]">20,000 THB / Person</strong>
+                  <strong className="text-[#1A1A1A]">All Int&apos;l Airports & Borders</strong>
                 </div>
               </div>
             </div>
 
-            <h2>1. Key Features of the 60-Day Thailand Visa Exemption</h2>
+            <h2>1. Key Features of the 30-Day Thailand Visa Exemption</h2>
             <p>
-              The Royal Thai Government established the expanded 60-day visa exemption policy to boost international tourism. Here is how it functions for Indian travelers:
+              From 15 September 2026, the Royal Thai Embassy in New Delhi describes a 30-day visa exemption for Indian ordinary-passport holders entering for tourism. Here is how that works:
             </p>
             <ul>
               <li>
-                <strong>No Advance Application:</strong> You do not need to visit a Thai embassy, apply on third-party websites, or pay any agent fees.
+                <strong>No Advance Application:</strong> You do not need to visit a Thai embassy, apply on third-party websites, or pay any agent fees for this short tourist stay.
               </li>
               <li>
-                <strong>Direct Immigration Clearance:</strong> Proceed directly to the main immigration counters at Bangkok (Suvarnabhumi BKK / Don Mueang DMK), Phuket (HKT), or Chiang Mai (CNX) airports. The immigration officer will stamp an entry permit valid for 60 days in your passport.
+                <strong>Direct Immigration Clearance:</strong> Proceed directly to the main immigration counters at Bangkok (Suvarnabhumi BKK / Don Mueang DMK), Phuket (HKT), or Chiang Mai (CNX) airports. The permitted stay under this exemption is 30 days.
               </li>
               <li>
-                <strong>Extendable for 30 Days:</strong> If you wish to extend your stay beyond 60 days, you can apply at any local Thai Immigration Office for 1,900 THB (~₹4,500), granting a total stay of up to 90 days.
+                <strong>Longer stays:</strong> For a longer stay or a purpose other than tourism, check the embassy&apos;s visa page before you travel. TripSage has not confirmed an in-country extension or a funds figure for this 30-day scheme.
               </li>
             </ul>
 
@@ -141,7 +137,7 @@ export default function ThailandVisaPage() {
                 <Plane className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-extrabold text-sm text-[#1A1A1A] mb-1">Confirmed Return or Onward Ticket</h4>
-                  <p className="text-xs text-[#6B6B6B]">A confirmed commercial flight ticket exiting Thailand within 60 days of entry. Required by both airlines at boarding and Thai immigration.</p>
+                  <p className="text-xs text-[#6B6B6B]">A confirmed ticket out of Thailand. Airlines and Thai immigration can ask for it at boarding or on arrival. Checked 23 Oct 2026.</p>
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-[#FFFBF7] border border-[#E8E0D8] flex items-start gap-3">
@@ -149,13 +145,6 @@ export default function ThailandVisaPage() {
                 <div>
                   <h4 className="font-extrabold text-sm text-[#1A1A1A] mb-1">Proof of Accommodation</h4>
                   <p className="text-xs text-[#6B6B6B]">Confirmed hotel or resort booking vouchers for your initial stay in Thailand.</p>
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#FFFBF7] border border-[#E8E0D8] flex items-start gap-3">
-                <Banknote className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-extrabold text-sm text-[#1A1A1A] mb-1">Proof of Adequate Living Funds</h4>
-                  <p className="text-xs text-[#6B6B6B]">Minimum of <strong>20,000 THB per person</strong> (~₹47,000) or <strong>40,000 THB per family</strong> (~₹94,000) in cash, traveler's cheques, or bank statements upon spot-check.</p>
                 </div>
               </div>
             </div>
@@ -177,7 +166,7 @@ export default function ThailandVisaPage() {
                 <strong>Biometric Verification:</strong> Present your passport and return boarding pass. The immigration officer will take your fingerprint scan and photograph.
               </li>
               <li>
-                <strong>Receive 60-Day Stamp:</strong> The officer will stamp your passport with your permitted date of stay (60 days from arrival). Verify the date stamped before leaving the counter.
+                <strong>Check the Stay Date:</strong> The officer stamps the permitted date of stay. Under the exemption in force from 15 September 2026, that stay is 30 days. Verify the date before you leave the counter.
               </li>
               <li>
                 <strong>Baggage & Customs:</strong> Collect your checked baggage and proceed through the Green Customs Channel (Nothing to Declare).
@@ -191,13 +180,6 @@ export default function ThailandVisaPage() {
                 <div>
                   <strong className="text-red-900 block font-bold mb-0.5">Paying Unnecessary Third-Party Fees:</strong>
                   <span className="text-red-800">Scam websites and rogue travel agents often charge ₹3,000–₹5,000 claiming to issue a "Thailand Tourist Visa". Entry under the exemption is completely free.</span>
-                </div>
-              </div>
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-xs">
-                <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-amber-900 block font-bold mb-0.5">Carrying Insufficient Living Expenses:</strong>
-                  <span className="text-amber-800">While spot-checks are random, Thai immigration regulations mandate proof of 20,000 THB in cash or equivalent currency per solo traveler.</span>
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3 text-xs">
@@ -260,24 +242,21 @@ export default function ThailandVisaPage() {
         }
         faqs={[
           {
-            question: "Is Thailand visa-free for Indian passport holders?",
-            answer: "Yes, Indian passport holders can enter Thailand without applying for a visa in advance under the 60-Day Visa Exemption Scheme. Entry is free (₹0 visa fee) at all international airports and checkpoints."
+            question: "Do Indians need a visa for Thailand?",
+            answer: "No, not for a short tourist trip. Under the 30-day visa exemption, Indian ordinary-passport holders can stay up to 30 days. The scheme took effect on 15 September 2026 (Royal Thai Embassy, New Delhi). Checked 23 October 2026."
           },
           {
             question: "How many days can Indian tourists stay in Thailand without a visa?",
-            answer: "Indian citizens receive a stamp permitting up to 60 days upon arrival. This can be extended once for an additional 30 days at a local Thai immigration office for 1,900 THB (~₹4,500)."
+            answer: "Up to 30 days for tourism under the exemption that took effect on 15 September 2026. For a longer stay or another purpose, check the Royal Thai Embassy visa page before you travel."
           },
-          {
-            question: "Is proof of funds (20,000 THB) mandatory for Indians entering Thailand?",
-            answer: "Yes, Thai immigration law requires each foreign tourist to have proof of adequate funds—at least 20,000 THB per solo traveler or 40,000 THB per family (or equivalent in USD/INR/credit cards)—in case of random immigration spot-checks."
-          },
+
           {
             question: "Do Indians need to fill out the TM6 paper arrival card at Thai airports?",
             answer: "No, the TM6 arrival card requirement is currently suspended for air arrivals at all major international airports in Thailand."
           },
           {
-            question: "Can I extend my 60-day Thailand visa exemption while in Thailand?",
-            answer: "Yes, you can extend your stay by an additional 30 days before your initial 60 days expire by visiting any Thai Immigration Bureau office (such as in Bangkok, Phuket, Pattaya, or Chiang Mai) and paying the 1,900 THB processing fee."
+            question: "What if I need to stay in Thailand longer than 30 days?",
+            answer: "For a longer stay or another purpose, check the Royal Thai Embassy visa page before you travel. An in-country extension and a funds figure were not confirmed for this 30-day scheme. Last checked 23 October 2026."
           }
         ]}
       />

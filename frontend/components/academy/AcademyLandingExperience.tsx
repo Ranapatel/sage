@@ -97,7 +97,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           transition={{ delay: 0.14 }}
           className="text-sm sm:text-lg md:text-xl text-[#57534E] max-w-2xl mx-auto mt-3 sm:mt-4 font-normal leading-relaxed px-1 sm:px-0"
         >
-          A free masterclass into the foundations, cognitive architectures, and future of
+          A masterclass on the foundations, cognitive architectures, and future of
           human-level AI.
         </motion.p>
 
@@ -368,7 +368,7 @@ export default function AcademyLandingExperience({ onEnrolled }: AcademyLandingE
           <p className="text-xs sm:text-sm text-[#57534E] leading-relaxed max-w-2xl mx-auto">
             At TripSage, we engineer autonomous multi-agent intelligence daily to solve complex real-world
             travel planning and logistics. We believe true AGI knowledge belongs to everyone. This course is
-            100% free, non-commercial, and open to all engineers, researchers, and students worldwide.
+            Non-commercial, and open to engineers, researchers, and students worldwide.
           </p>
         </div>
       </section>

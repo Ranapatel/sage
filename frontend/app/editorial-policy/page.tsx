@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { FileEdit, Bot, AlertTriangle, RefreshCw, Clock, Mail, ExternalLink } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Editorial Policy | How TripSage Creates & Reviews Content — TripSage',
+  title: 'Editorial Policy | TripSage',
   description: 'Read TripSage\'s editorial policy: who writes travel content, our AI-assistance disclosure, how we handle corrections, and how often visa information is updated.',
   keywords: ['TripSage editorial policy', 'travel content policy', 'AI content disclosure', 'correction policy', 'editorial standards'],
   alternates: {
-    canonical: 'https://tripsage.in/editorial-policy',
+    canonical: 'https://www.tripsage.in/editorial-policy',
   },
   robots: {
     index: true,
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Editorial Policy | TripSage',
     description: 'How TripSage creates, reviews, and updates travel content — including our AI-assistance disclosure and correction policy.',
-    url: 'https://tripsage.in/editorial-policy',
+    url: 'https://www.tripsage.in/editorial-policy',
     siteName: 'TripSage',
-    images: [{ url: 'https://tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Editorial Policy' }],
+    images: [{ url: 'https://www.tripsage.in/logo.png', width: 1200, height: 630, alt: 'TripSage Editorial Policy' }],
     locale: 'en_IN',
     type: 'website',
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Editorial Policy | TripSage',
     description: 'Our editorial standards, AI-assistance disclosure, and correction policy.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 
@@ -34,8 +34,8 @@ const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tripsage.in' },
-    { '@type': 'ListItem', position: 2, name: 'Editorial Policy', item: 'https://tripsage.in/editorial-policy' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.tripsage.in' },
+    { '@type': 'ListItem', position: 2, name: 'Editorial Policy', item: 'https://www.tripsage.in/editorial-policy' },
   ],
 }
 

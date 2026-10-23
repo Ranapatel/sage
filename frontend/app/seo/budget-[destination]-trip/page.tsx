@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const formattedDestination = formatString(destination);
   
   return generateSEOMetadata({
-    title: `Budget Trip to ${formattedDestination} | Affordable Travel Guide`,
+    title: `Budget ${formattedDestination} Trip | TripSage`,
     description: `Plan a cheap and affordable budget trip to ${formattedDestination}. Discover low-cost hotels, cheap flights, and budget travel tips.`,
     slug: `/seo/budget-${destination}-trip`,
     keywords: [`budget trip ${formattedDestination}`, `cheap travel ${formattedDestination}`, `affordable vacations ${formattedDestination}`, `${formattedDestination} on a budget`],

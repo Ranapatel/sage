@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, startTransition } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import AcademyLandingExperience from '@/components/academy/AcademyLandingExperience'
@@ -21,13 +21,17 @@ export default function AcademyPage() {
       if (stored) {
         const parsed = JSON.parse(stored)
         if (parsed?.student?.email) {
-          setEnrolledSession(parsed)
+          startTransition(() => {
+            setEnrolledSession(parsed)
+          })
         }
       }
     } catch (e) {
       console.warn('Could not read academy session from localStorage')
     } finally {
-      setIsLoaded(true)
+      startTransition(() => {
+        setIsLoaded(true)
+      })
     }
   }, [])
 

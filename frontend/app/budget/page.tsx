@@ -6,20 +6,20 @@ import Link from 'next/link'
 import { Wallet, DollarSign, PiggyBank, TrendingDown, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Travel Budget Calculator & Cost Estimator | TripSage',
-  description: 'Estimate travel costs, plan trip budgets, and find money-saving tips for domestic and international trips. Compare cheap flights, budget hotels, and daily expenses with TripSage.',
+  title: 'Travel Budget Calculator | TripSage',
+  description: 'Estimate a trip budget for India and nearby countries. Compare typical flight, stay and daily costs before you book.',
   keywords: ['travel budget calculator', 'trip cost estimator', 'budget travel India', 'cheap international trips', 'Goa trip under 10000', 'budget Bali trip', 'TripSage budget tool'],
   alternates: {
-    canonical: 'https://tripsage.in/budget',
+    canonical: 'https://www.tripsage.in/budget',
   },
   openGraph: {
-    title: 'Travel Budget Calculator & Cost Estimator | TripSage',
+    title: 'Travel Budget Calculator | TripSage',
     description: 'Estimate travel costs, plan trip budgets, and find money-saving tips for domestic and international trips with TripSage.',
-    url: 'https://tripsage.in/budget',
+    url: 'https://www.tripsage.in/budget',
     siteName: 'TripSage',
     images: [
       {
-        url: 'https://tripsage.in/logo.png',
+        url: 'https://www.tripsage.in/logo.png',
         width: 1200,
         height: 630,
         alt: 'TripSage Travel Budget & Cost Calculator',
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Travel Budget Calculator & Cost Estimator | TripSage',
+    title: 'Travel Budget Calculator | TripSage',
     description: 'Estimate travel costs, compare budget stays, flights, and daily expenses on TripSage.',
-    images: ['https://tripsage.in/logo.png'],
+    images: ['https://www.tripsage.in/logo.png'],
   },
 }
 

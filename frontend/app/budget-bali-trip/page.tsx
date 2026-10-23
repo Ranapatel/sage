@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Budget Bali Trip Guide | Affordable Bali Itinerary | TripSage',
+  title: 'Budget Bali Trip from India | TripSage',
   description: 'Plan an affordable Bali trip from India. Discover the best time to visit, cheap flights, and budget stays in Ubud, Kuta, and Uluwatu.',
   keywords: ['budget Bali trip', 'Bali trip from India cost', 'affordable Bali itinerary', 'Bali travel guide'],
-  alternates: { canonical: 'https://tripsage.in/budget-bali-trip' }
+  alternates: { canonical: 'https://www.tripsage.in/budget-bali-trip' }
 }
 
 export default function Page() {
@@ -26,7 +26,7 @@ export default function Page() {
               <li><strong>Stay in Homestays:</strong> Bali's guesthouses (homestays) are beautiful, clean, and often cost less than ₹1,500 per night.</li>
               <li><strong>Eat at Warungs:</strong> Local Indonesian eateries (warungs) serve delicious Nasi Goreng for just a few dollars.</li>
             </ul>
-            <p>Our AI can help you calculate the exact cost of your Bali trip, including currency conversion and live flight prices.</p>
+            <p>Our AI can draft a Bali plan with a rupee estimate. It does not show live flight prices.</p>
           </>
         }
         faqs={[

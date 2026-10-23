@@ -3,10 +3,10 @@ import LandingLayout from '@/components/layout/LandingLayout'
 import SEOContent from '@/components/ui/SEOContent'
 
 export const metadata: Metadata = {
-  title: 'Golden Triangle India Itinerary | Delhi, Agra, Jaipur Tour | TripSage',
+  title: 'Golden Triangle Itinerary: Delhi to Jaipur | TripSage',
   description: 'Plan the ultimate 4-6 day Golden Triangle tour of India. Explore Delhi\'s historical heritage, Agra\'s Taj Mahal, and Jaipur\'s royal palaces with TripSage AI.',
   keywords: ['Golden Triangle India itinerary', 'Delhi Agra Jaipur tour', 'India Golden Triangle trip planner', 'Delhi Agra Jaipur travel guide', 'TripSage Golden Triangle'],
-  alternates: { canonical: 'https://tripsage.in/seo/golden-triangle-india-itinerary' }
+  alternates: { canonical: 'https://www.tripsage.in/seo/golden-triangle-india-itinerary' }
 }
 
 export default function Page() {
@@ -44,7 +44,7 @@ export default function Page() {
               <li><strong>Local Bazaars:</strong> Shop for traditional block-print textiles, blue pottery, and exquisite hand-cut gemstones.</li>
             </ul>
 
-            <p>Our intelligent AI travel engine helps you balance your transit schedules, book premium AC express trains, and optimize your local sightseeing hours for a flawless, stress-free Golden Triangle trip.</p>
+            <p>This page is a written Golden Triangle route. The AI planner drafts one destination at a time and does not book trains.</p>
           </>
         }
         faqs={[
