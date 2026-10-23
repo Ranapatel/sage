@@ -8,7 +8,7 @@ import { FileCheck, ShieldCheck, CheckCircle2, AlertTriangle, ArrowRight, Extern
 export const metadata: Metadata = {
   title: 'Visa Requirements for Indian Travellers | TripSage',
   description: 'Visa notes for Indian travellers heading to Thailand, Bali, Dubai, Singapore and Vietnam. Check each official page before you travel.',
-  keywords: ['visa guide for Indian passport', 'Thailand visa on arrival', 'Bali eVisa cost', 'Dubai tourist visa rules', 'Singapore visa requirements', 'Vietnam eVisa application', 'TripSage visa hub'],
+  keywords: ['visa guide for Indian passport', 'Thailand 30 day visa exemption', 'Sri Lanka ETA for Indians', 'Bali eVisa cost', 'Dubai tourist visa rules', 'Singapore visa requirements', 'Vietnam eVisa application', 'TripSage visa hub'],
   alternates: {
     canonical: 'https://www.tripsage.in/visa',
   },
@@ -43,7 +43,7 @@ export default function VisaHubPage() {
     { country: 'Dubai (UAE)', type: 'Tourist visa before travel', fee: 'AED 200 + 5% VAT (30 days), plus agent fee', stay: '30 or 60 days', processing: 'About 48 hours' },
     { country: 'Singapore', type: 'Paper eVisa via Agent', fee: '30 SGD + Agent fee', stay: '30 Days', processing: '3 - 5 Working Days' },
     { country: 'Vietnam', type: 'Online e-Visa', fee: 'US$25 (single) / US$50 (multiple)', stay: 'Up to 90 days', processing: '3 Working Days' },
-    { country: 'Sri Lanka', type: 'ETA (Online)', fee: '~$20 - $50', stay: '30 Days', processing: '24 - 48 Hours' },
+    { country: 'Sri Lanka', type: 'Tourist ETA (apply before travel)', fee: 'Free', stay: '30 days', processing: 'Apply online before arrival' },
   ]
 
   return (
@@ -90,6 +90,9 @@ export default function VisaHubPage() {
                 </tbody>
               </table>
             </div>
+            <p>
+              Sri Lanka: Indian nationals can get a tourist ETA free of charge for 30 days, with a double entry inside that period, and must apply before travel. In force since 25 May 2026. Source: eta.gov.lk/slvisa. Thailand: 30-day visa exemption for ordinary passports since 15 September 2026. Source: Royal Thai Embassy, New Delhi. Last checked 23 October 2026.
+            </p>
 
             <h2>Mandatory Entry Checklists for International Travelers</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 not-prose">

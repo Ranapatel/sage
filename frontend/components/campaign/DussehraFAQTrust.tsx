@@ -68,7 +68,7 @@ export default function DussehraFAQTrust() {
               What you get
             </h3>
             <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
-              A plan you can edit, with links out to the providers.
+              A day-by-day draft you can edit.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export default function DussehraFAQTrust() {
               </div>
               <div className="space-y-0.5 text-left">
                 <p className="text-xs sm:text-sm font-bold text-[#1A1A1A]">Personalized itineraries</p>
-                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">Tailored to your specific dates, group and budget</p>
+                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">One route, your dates, and a rupee estimate</p>
               </div>
             </div>
 
@@ -89,7 +89,7 @@ export default function DussehraFAQTrust() {
               </div>
               <div className="space-y-0.5 text-left">
                 <p className="text-xs sm:text-sm font-bold text-[#1A1A1A]">Verified information</p>
-                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">Fare and hotel options with links to book directly with providers</p>
+                <p className="text-[11px] sm:text-xs text-[#6B6B6B]">Rupee estimates in the draft, not live fares</p>
               </div>
             </div>
 

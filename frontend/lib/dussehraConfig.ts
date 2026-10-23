@@ -35,7 +35,7 @@ export const DUSSEHRA_CAMPAIGN: DussehraCampaignConfig = {
   startDate: '2026-10-14T00:00:00+05:30',
   endDate: '2026-10-25T23:59:59+05:30',
   isFreePlanning: true,
-  freePlanningNote: 'Start planning for free.',
+  freePlanningNote: 'Draft a day-by-day plan for one route.',
 }
 
 export type CampaignStatus = 'upcoming' | 'active' | 'post_festival'
@@ -176,23 +176,23 @@ export interface FAQItem {
 export const DUSSEHRA_FAQS: FAQItem[] = [
   {
     question: 'Is TripSage free to use?',
-    answer: 'Yes. Generating personalized itineraries and exploring travel options on TripSage is 100% free. When you decide to book flights, hotels, trains or activities, you are directed to verified booking providers where you complete transactions at their standard transparent rates.',
+    answer: 'You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee.',
   },
   {
     question: 'Does TripSage book flights and hotels directly?',
-    answer: 'TripSage is an AI-powered travel operating system and planning assistant. We aggregate and organize live routes, accommodations, and activities. When you select an option, we connect you directly to trusted booking partners (such as airline sites, MakeMyTrip, Booking.com, and IRCTC) to complete your reservation safely.',
+    answer: 'The draft does not include live flight or hotel prices, and TripSage does not book travel. Check the airline or hotel before you pay.',
   },
   {
     question: 'Are the prices accurate?',
-    answer: 'We retrieve real-time and baseline estimates from live travel APIs and aggregator data. Because travel fares and hotel room availability fluctuate based on demand and seasonality, final prices should always be confirmed on the official booking partner page before payment.',
+    answer: 'Figures in a TripSage draft are estimates, not live prices. Check the airline or hotel before you pay.',
   },
   {
     question: 'Do I need to sign up before planning?',
-    answer: 'No sign up is required to start planning. You can enter your destination, dates and budget right away to generate an itinerary. If you wish to save multiple trips, share plans with friends, or access your trip history across devices, you can quickly sign in with your email or Google account via Clerk.',
+    answer: 'No. You can draft a plan without an account. The planner uses one departure city and one destination.',
   },
   {
     question: 'Can TripSage help me plan within my budget?',
-    answer: 'Yes. TripSage tailors transport suggestions, hotel tiers, and daily activity estimates based on your entered budget. You can set a per-person or total trip budget in INR, helping you see realistic allocations across transit, lodging, and local experiences.',
+    answer: 'You can enter a budget in rupees. The draft uses it as a cost estimate for one route. It does not look up live fares.',
   },
 ]
 

@@ -633,7 +633,7 @@ export default function HotelRecommendations({ destination, checkin, checkout, m
             animation: 'spin 0.8s linear infinite',
           }} />
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Fetching live hotel recommendations from Hotelbeds…
+            Looking up stay ideas…
           </span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>

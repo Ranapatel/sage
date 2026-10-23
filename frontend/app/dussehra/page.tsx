@@ -108,13 +108,6 @@ export default function DussehraPage() {
       url: 'https://www.tripsage.in',
       logo: 'https://www.tripsage.in/logo.png',
     },
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'INR',
-      availability: 'https://schema.org/InStock',
-      url: 'https://www.tripsage.in/dussehra',
-    },
   }
 
   return (

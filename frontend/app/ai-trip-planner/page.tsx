@@ -7,14 +7,14 @@ import { Sparkles, Compass, Search, Calendar, ShieldCheck, Zap } from 'lucide-re
 
 export const metadata: Metadata = {
   title: 'AI Trip Planner for Indian Travellers | TripSage',
-  description: 'Plan custom travel itineraries in seconds with TripSage\'s AI trip planner. Instant day-by-day plans, flight & hotel price comparisons, budget breakdowns, and smart recommendations.',
+  description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
   keywords: ['AI trip planner', 'personalized travel itinerary', 'AI itinerary generator', 'flight hotel price comparison', 'TripSage AI', 'smart travel planning'],
   alternates: {
     canonical: 'https://www.tripsage.in/ai-trip-planner',
   },
   openGraph: {
     title: 'AI Trip Planner for Indian Travellers | TripSage',
-    description: 'Plan custom travel itineraries in seconds with TripSage\'s AI trip planner. Instant day-by-day plans, flight & hotel price comparisons, and budget breakdowns.',
+    description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
     url: 'https://www.tripsage.in/ai-trip-planner',
     siteName: 'TripSage',
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'AI Trip Planner for Indian Travellers | TripSage',
-    description: 'Plan custom travel itineraries in seconds with TripSage\'s AI trip planner. Instant day-by-day plans, flight & hotel comparisons.',
+    description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
     images: ['https://www.tripsage.in/logo.png'],
   },
 }
@@ -41,7 +41,7 @@ export default function AITripPlannerPage() {
     <LandingLayout>
       <SEOContent
         title="AI trip planner for Indian travellers"
-        subtitle="Day-by-day plans with rupee budgets and visa notes. Fare and hotel options come with links to book directly with providers."
+        subtitle="A day-by-day draft for one departure city and one destination, with rupee estimates and visa notes for Indian passports."
         heroImage="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=90"
         ctaText="Plan with TripSage"
         ctaLink="/plan"
@@ -79,7 +79,7 @@ export default function AITripPlannerPage() {
                 </div>
                 <h3 className="text-base font-extrabold text-[#1A1A1A] mb-2">3. Integrated Options</h3>
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                  Compare flight fares, hotel recommendations, train and bus options, and daily budget breakdowns directly within your plan.
+                  Review the day-by-day draft and its rupee estimate. Live fares are not included.
                 </p>
               </div>
             </div>
@@ -90,16 +90,16 @@ export default function AITripPlannerPage() {
                 <strong>Instant Day-by-Day Itineraries:</strong> Get structured schedules tailored to your travel style, complete with timing recommendations and location mapping.
               </li>
               <li>
-                <strong>Flight & Hotel Price Search:</strong> Discover real-time flight options and hotel recommendations with direct links to compare partner fares.
+                <strong>Rupee estimates:</strong> The draft includes a cost estimate in INR. It does not search live flights or hotels.
               </li>
               <li>
-                <strong>Multi-Mode Transport Planning:</strong> Evaluate flights, trains (IRCTC route helpers), intercity buses, and rental cab choices for seamless transit between cities.
+                <strong>One route:</strong> The planner takes one departure city and one destination. It does not build a multi-city route or book buses between cities.
               </li>
               <li>
-                <strong>Transparent Budget Tracking:</strong> View clear expense estimates across stays, transport, dining, and activities before you book.
+                <strong>Cost estimate:</strong> See a rupee split across the draft before you check prices on your own.
               </li>
               <li>
-                <strong>Customizable & Saved Trips:</strong> Edit itineraries on the fly, save trip plans to your personal profile, and access them anytime.
+                <strong>Editable draft:</strong> Change the day-by-day plan on screen. This page does not promise that the draft is stored on your profile.
               </li>
             </ul>
 
@@ -107,14 +107,14 @@ export default function AITripPlannerPage() {
               <Zap className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Ready to create your custom itinerary?</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Start generating your personalized travel plan in under 60 seconds with our free AI engine.
+                Generate a day-by-day draft for one route, with a rupee estimate and visa notes.
               </p>
               <Link
                 href="/plan"
                 rel="nofollow"
                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Plan with TripSage — Free <Sparkles className="w-4 h-4" />
+                Plan with TripSage <Sparkles className="w-4 h-4" />
               </Link>
             </div>
 
@@ -128,7 +128,7 @@ export default function AITripPlannerPage() {
                 <ShieldCheck className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-extrabold text-xs text-[#1A1A1A] mb-1">No Distortions</h4>
-                  <p className="text-xs text-[#6B6B6B]">Unbiased pricing and transparent search options with direct travel links.</p>
+                  <p className="text-xs text-[#6B6B6B]">A planning draft with a rupee estimate. You book on the airline or hotel site.</p>
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-white border border-[#E8E0D8] flex items-start gap-3">
@@ -144,7 +144,7 @@ export default function AITripPlannerPage() {
         faqs={[
           {
             question: "Is the TripSage AI Trip Planner free to use?",
-            answer: "Yes, you can generate custom itineraries, compare flight/hotel options, and save trip plans for free on TripSage."
+            answer: "You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee."
           },
           {
             question: "How does TripSage generate my itinerary?",
@@ -152,11 +152,11 @@ export default function AITripPlannerPage() {
           },
           {
             question: "Can I customize the generated itinerary?",
-            answer: "Yes, after generating a plan you can adjust activities, change travel dates, filter flights and hotels, and modify budget parameters."
+            answer: "Yes. You can edit activities and dates on the draft. The planner does not filter live flights or hotels."
           },
           {
             question: "Does TripSage handle flight and hotel bookings?",
-            answer: "TripSage provides real-time search options and direct referral links to trusted booking partners for flights, hotels, trains, and buses."
+            answer: "The draft does not include live flight or hotel prices, and TripSage does not book travel. Check the airline or hotel before you pay."
           }
         ]}
       />

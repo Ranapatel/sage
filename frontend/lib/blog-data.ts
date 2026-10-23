@@ -25,7 +25,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <p>Unlike traditional search engines, AI-powered travel assistants like <a href="/">TripSage</a> don't just show you what's available; they show you what's <em>relevant</em>. By understanding your past preferences, budget constraints, and even your travel "vibe," AI can filter out the noise and present a curated selection of experiences.</p>
       
       <h2>Real-Time Adaptation</h2>
-      <p>The most significant shift in 2026 is the ability for itineraries to update in real-time. If a flight is delayed or weather conditions change, the AI automatically re-routes your plans, suggest alternative activities, and handles the logistics without you lifting a finger. Check out our <a href="/ai-trip-planner-india">AI Trip Planner for India</a> to see this in action.</p>
+      <p>TripSage drafts a day-by-day plan for one route. It does not watch your flight or re-route you if plans change. See the <a href="/ai-trip-planner">AI trip planner</a> for what the draft includes.</p>
       
       <h3>Conclusion</h3>
       <p>We are entering an era where travel is no longer about the stress of planning, but the joy of the journey itself. AI is the silent orchestrator making it all possible.</p>
@@ -72,7 +72,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <p>Traveling just before or after the peak season can save you up to 50% on accommodation while still offering great weather. This works perfectly for <a href="/manali-trip-planner">Manali trips</a> in late autumn.</p>
       
       <h2>3. Use AI for Price Tracking</h2>
-      <p>AI tools can now predict price drops with incredible accuracy. Set alerts and let the algorithms do the heavy lifting for you.</p>
+      <p>Check a couple of dates on the airline site. A midweek departure is often cheaper than a Friday or Sunday flight. TripSage does not track fares.</p>
       
       <p>By implementing these simple hacks, you can travel more often and stay longer in your favorite destinations. Don't forget to check our <a href="/cheapest-international-trips-from-india">cheapest international trips</a> guide for more ideas.</p>
     `
@@ -120,7 +120,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <p>End your royal tour in Udaipur, a romantic city of lakes and white marble palaces. The City Palace, towering over Lake Pichola, is a stunning labyrinth of courtyards, pavilions, and hanging gardens. A sunset boat cruise on Lake Pichola, floating past the legendary Lake Palace (now a luxury hotel), is the ultimate way to wrap up your Rajasthan adventure.</p>
 
       <h2>Let AI Design Your Royal Tour</h2>
-      <p>Planning a multi-city heritage tour can be logistically challenging, especially when arranging private transfers, heritage stays, and guided excursions. Our specialized <a href="/seo/rajasthan-heritage-trip-planner">Rajasthan Heritage Trip Planner</a> makes this seamless by designing a tailored route based on your budget, travel speed, and historic interests.</p>
+      <p>A heritage loop through several cities takes planning of its own. The <a href="/seo/rajasthan-heritage-trip-planner">Rajasthan guide</a> is a written route. The AI planner drafts one destination at a time and does not book transfers.</p>
     `
   },
   {

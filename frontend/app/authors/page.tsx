@@ -122,7 +122,7 @@ const EDITORIAL_ROLES = [
   },
   {
     role: 'Transport Intelligence & Rail/Bus Analyst',
-    focus: 'Indian Railways schedules, intercity bus connectivity, and flight search intelligence.',
+    focus: 'Rail and bus notes used in destination guides. The planner does not search live flights.',
   },
 ]
 

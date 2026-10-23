@@ -35,7 +35,7 @@ export default function Page() {
     <LandingLayout>
       <SEOContent
         title="Budget Bali Trip from India: Total Cost, 6-Day Plan & Flight Hacks"
-        subtitle="Turn your tropical island dream into reality on a sensible budget. Discover exact costs in Indian Rupees, Visa on Arrival rules, homestay bargains, and an optimized 6-day route."
+        subtitle="A 6-day Bali route with rupee estimates and visa notes. Costs in this guide are benchmarks, not live fares."
         heroImage="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1920&q=90"
         ctaText="Plan with TripSage"
         ctaLink="/plan"
@@ -148,7 +148,7 @@ export default function Page() {
               <Sparkles className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Build your custom Bali itinerary in seconds</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                TripSage AI compares live flight deals from Delhi, Mumbai, and Bangalore, optimizes your routes between Ubud and the southern beaches, and builds a realistic budget plan.
+                TripSage can draft a day-by-day Bali plan with a rupee estimate. It does not compare live flights or book hotels.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link
@@ -156,7 +156,7 @@ export default function Page() {
                   rel="nofollow"
                   className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
                 >
-                  Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
+                  Plan with TripSage <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/destinations"

@@ -1,22 +1,22 @@
 export const HOME_FAQS = [
   {
     q: 'Is TripSage completely free to use?',
-    a: 'Yes, generating itineraries and using our basic planning tools is completely free. We earn money through affiliate bookings with our flight and hotel partners, meaning you pay the exact same price.',
+    a: 'You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee.',
   },
   {
-    q: 'Where does TripSage get flight and hotel rates?',
-    a: 'Fare and hotel options with links to book directly with providers.',
+    q: 'Does TripSage show live flight and hotel prices?',
+    a: 'The draft does not include live flight or hotel prices, and TripSage does not book travel. Check the airline or hotel before you pay.',
   },
   {
     q: 'Can I customize the generated itineraries?',
-    a: 'Absolutely. Every day is modular. You can add, edit, remove activities, swap hotels, or search for different transport connections.',
+    a: 'Yes. You can edit the day-by-day draft after it is generated.',
   },
   {
     q: 'What destinations does TripSage support?',
-    a: 'While we support planning for global routes, our blueprint destinations are highly optimized for direct bookings, itineraries, and visa requirements.',
+    a: 'You can draft a plan for one destination at a time, including places in India and common international trips, with visa notes for Indian passports.',
   },
   {
     q: 'Does TripSage handle booking cancellations?',
-    a: 'TripSage is a planning assistant. Stays and partner options are booked directly with official providers (such as Hotelbeds, Booking.com, etc.), and cancellations are managed according to each provider’s terms.',
+    a: 'No. TripSage does not take the booking, so it does not handle cancellations. A ticket or stay you buy elsewhere follows that provider’s rules.',
   },
 ]

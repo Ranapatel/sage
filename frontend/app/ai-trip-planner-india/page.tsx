@@ -21,7 +21,7 @@ export default function Page() {
             <p>India is a vast and diverse country with countless destinations, cultures, and experiences. Planning a trip here can be overwhelming. TripSage uses advanced artificial intelligence to analyze your preferences, budget, and travel style to craft the perfect journey.</p>
             <h3>Smart Features for Indian Travelers</h3>
             <ul>
-              <li><strong>Real-time Logistics:</strong> We check live flight and train availability across India.</li>
+              <li><strong>One route:</strong> The draft covers one departure city and one destination, with a rupee estimate. It does not check live flights or trains.</li>
               <li><strong>Hyper-Local Insights:</strong> Our AI understands seasonal weather patterns, from monsoons in Goa to winters in Manali.</li>
               <li><strong>Budget Optimization:</strong> Find the best value for your money, whether you're looking for luxury palaces in Rajasthan or budget stays in Rishikesh.</li>
             </ul>
@@ -29,7 +29,7 @@ export default function Page() {
           </>
         }
         faqs={[
-          { question: "Is TripSage's AI planner free?", answer: "Yes, you can generate basic itineraries and search for real-time travel options for free." },
+          { question: "Is TripSage's AI planner free?", answer: "You can generate a day-by-day draft for one departure city and one destination, with rupee estimates and visa notes. A published price for TripSage has not been set, and this page does not state a fee." },
           { question: "Can it plan for specific Indian states?", answer: "Absolutely! Our AI covers all 28 states and 8 union territories, providing detailed plans for any city or region." },
           { question: "Does it include budget options?", answer: "Yes, you can specify your budget during the planning phase, and the AI will prioritize options that fit your financial range." }
         ]}

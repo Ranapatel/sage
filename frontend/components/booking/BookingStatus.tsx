@@ -476,9 +476,8 @@ export default function BookingStatus() {
           <Info size={16} className="text-[#EA580C]" /> Terms & Conditions
         </p>
         <p>
-          Prices and availability may change in real time. Final booking price is confirmed at checkout.
-          Free cancellation is available up to 24 hours before check-in for most properties.
-          Users must verify travel documents and regulations before departure.
+          This screen does not confirm a booking. TripSage does not take payment or promise free cancellation.
+          Check the airline or hotel, and your travel documents, before you go.
         </p>
       </div>
     </div>

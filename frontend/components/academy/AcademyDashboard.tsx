@@ -31,7 +31,7 @@ const INTRO_VIDEO_DATA = {
     'An orientation into TripSage Academy, our educational mission, how modern cognitive architectures operate, and how to navigate the masterclass curriculum.',
   videoUrl: '/academy/intro.mp4',
   takeaways: [
-    'Why TripSage Academy created this free AGI masterclass',
+    'Why TripSage Academy created this AGI masterclass',
     'How the syllabus and course structure are organized',
     'How to track progress towards earning your Verified Certificate',
     'Practical real-world application to autonomous agent systems',

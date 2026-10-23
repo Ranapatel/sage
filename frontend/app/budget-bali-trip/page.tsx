@@ -26,7 +26,7 @@ export default function Page() {
               <li><strong>Stay in Homestays:</strong> Bali's guesthouses (homestays) are beautiful, clean, and often cost less than ₹1,500 per night.</li>
               <li><strong>Eat at Warungs:</strong> Local Indonesian eateries (warungs) serve delicious Nasi Goreng for just a few dollars.</li>
             </ul>
-            <p>Our AI can help you calculate the exact cost of your Bali trip, including currency conversion and live flight prices.</p>
+            <p>Our AI can draft a Bali plan with a rupee estimate. It does not show live flight prices.</p>
           </>
         }
         faqs={[

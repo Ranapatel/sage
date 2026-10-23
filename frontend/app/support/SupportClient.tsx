@@ -23,18 +23,18 @@ import {
 } from 'lucide-react'
 
 const FAQS = [
-  { q: 'How does TripSage generate itineraries?', a: 'TripSage uses an advanced AI planner to analyze your budget, travel style, group type, and preferences to generate personalized day-by-day itineraries in real-time.' },
-  { q: 'Are the hotel prices real?', a: 'Yes! Prices are fetched in real-time from travel APIs. However, prices can change frequently, so we recommend booking quickly when you find a good deal.' },
-  { q: 'How does booking work?', a: 'TripSage supports direct hotel bookings processed on our platform. Ground transport options provide direct routing or links to partner sites.' },
+  { q: 'How does TripSage generate itineraries?', a: 'It drafts a day-by-day plan for one departure city and one destination, with a rupee estimate and visa notes. Traveller count is not applied.' },
+  { q: 'Are the hotel prices real?', a: 'No. Figures in the draft are estimates. Check the hotel before you pay.' },
+  { q: 'How does booking work?', a: 'It does not. Book flights, hotels, and ground transport on the provider’s own site.' },
   { q: 'Is my data stored?', a: 'TripSage follows a minimal data storage policy. Your trip preferences are stored in your session for real-time optimization. We do not resell personal data.' },
   { q: 'What if weather alerts or notifications are wrong?', a: 'Weather data is sourced from live APIs and updated regularly. While we aim for accuracy, always verify critical information from official sources before traveling.' },
-  { q: 'Can I export my itinerary?', a: 'Yes! From the Itinerary tab, you can export your day-by-day plan as a PDF or share it with your travel group via a link.' },
+  { q: 'Can I export my itinerary?', a: 'You can download a PDF of the draft from the plan view. A share link opens the planner; it does not send your personal itinerary.' },
 ]
 
 const BOT_RESPONSES: Record<string, string> = {
   default: "Thanks for reaching out! Our team typically replies within a few minutes. How can I help you with your trip today?",
-  hotel: "For hotel queries, share your booking ID and check-in date. We'll coordinate directly with the property.",
-  refund: "Refund requests are handled by the third-party provider you booked through (e.g. Booking.com). We can help you find the right contact.",
+  hotel: "TripSage does not book hotels. Check the stay on the hotel’s own site.",
+  refund: "TripSage does not take payment, so it cannot refund a booking. Contact the provider you paid.",
   itinerary: "AI itineraries can be regenerated anytime! Go to the Plan tab and click Refresh. Need a custom change? Describe what you'd like.",
   cancel: "Cancellation policies depend on the booking platform. We recommend checking the booking confirmation email for your provider's policy.",
   hi: "Hey there! I'm the TripSage support bot. Ask me anything about your trip, bookings, or the app!",

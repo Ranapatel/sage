@@ -10,7 +10,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'Thailand Visa for Indians 2026: 30-Day Visa Exemption',
-  description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 22 Oct 2026.',
+  description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 23 Oct 2026.',
   keywords: [
     'Thailand visa for Indian citizens',
     'is Thailand visa free for Indians',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Thailand Visa for Indians 2026: 30-Day Visa Exemption',
-    description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 22 Oct 2026.',
+    description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 23 Oct 2026.',
     url: 'https://www.tripsage.in/visa/thailand-visa-for-indian-citizens',
     siteName: 'TripSage',
     images: [
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Thailand Visa for Indians 2026: 30-Day Visa Exemption',
-    description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026. Checked 22 Oct 2026.',
+    description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026. Checked 23 Oct 2026.',
     images: ['https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&q=85'],
   },
 }
@@ -62,7 +62,7 @@ export default function ThailandVisaPage() {
           author: 'TripSage Travel Editorial Team',
           datePublished: publishedDate,
           dateModified: lastVerifiedDate,
-          description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 22 Oct 2026.',
+          description: 'Indian passport holders can visit Thailand visa-free for tourism for up to 30 days from 15 Sep 2026, per the Royal Thai Embassy. Checked 23 Oct 2026.',
           image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&q=85'
         }}
         content={
@@ -75,12 +75,12 @@ export default function ThailandVisaPage() {
                 </div>
                 <div>
                   <p className="font-extrabold text-[#1A1A1A]">Written by TripSage Travel Editorial Team</p>
-                  <p className="text-[#6B6B6B]">Facts checked against the Royal Thai Embassy, New Delhi on 22 Oct 2026 by the TripSage team</p>
+                  <p className="text-[#6B6B6B]">Facts checked against the Royal Thai Embassy, New Delhi on 23 Oct 2026 by the TripSage team</p>
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end gap-2 text-[#6B6B6B]">
                 <span><strong>Published:</strong> August 2026</span>
-                <span><strong>Last checked:</strong> 22 October 2026</span>
+                <span><strong>Last checked:</strong> 23 October 2026</span>
               </div>
             </div>
 
@@ -90,7 +90,7 @@ export default function ThailandVisaPage() {
                 <FileCheck className="w-4 h-4" /> Direct Answer: Do Indians Need a Visa for Thailand?
               </div>
               <p className="text-sm font-semibold text-[#1A1A1A] leading-relaxed mb-3">
-                <strong>Do Indians need a visa for Thailand?</strong> No, not for a short tourist trip. Under the 30-day visa exemption scheme, Indian ordinary-passport holders entering Thailand for tourism can stay up to <strong>30 days</strong>. The scheme took effect on <strong>15 September 2026</strong> (Royal Thai Embassy, New Delhi). For a longer stay or another purpose, check the embassy&apos;s visa page before you travel. <em>Last checked: 22 October 2026. Source: newdelhi.thaiembassy.org.</em>
+                <strong>Do Indians need a visa for Thailand?</strong> No, not for a short tourist trip. Under the 30-day visa exemption scheme, Indian ordinary-passport holders entering Thailand for tourism can stay up to <strong>30 days</strong>. The scheme took effect on <strong>15 September 2026</strong> (Royal Thai Embassy, New Delhi). For a longer stay or another purpose, check the embassy&apos;s visa page before you travel. <em>Last checked: 23 October 2026. Source: newdelhi.thaiembassy.org.</em>
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs pt-3 border-t border-[#EA580C]/20">
                 <div>
@@ -137,7 +137,7 @@ export default function ThailandVisaPage() {
                 <Plane className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-extrabold text-sm text-[#1A1A1A] mb-1">Confirmed Return or Onward Ticket</h4>
-                  <p className="text-xs text-[#6B6B6B]">A confirmed ticket out of Thailand. Airlines and Thai immigration can ask for it at boarding or on arrival. Checked 22 Oct 2026.</p>
+                  <p className="text-xs text-[#6B6B6B]">A confirmed ticket out of Thailand. Airlines and Thai immigration can ask for it at boarding or on arrival. Checked 23 Oct 2026.</p>
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-[#FFFBF7] border border-[#E8E0D8] flex items-start gap-3">
@@ -243,7 +243,7 @@ export default function ThailandVisaPage() {
         faqs={[
           {
             question: "Do Indians need a visa for Thailand?",
-            answer: "No, not for a short tourist trip. Under the 30-day visa exemption, Indian ordinary-passport holders can stay up to 30 days. The scheme took effect on 15 September 2026 (Royal Thai Embassy, New Delhi). Checked 22 October 2026."
+            answer: "No, not for a short tourist trip. Under the 30-day visa exemption, Indian ordinary-passport holders can stay up to 30 days. The scheme took effect on 15 September 2026 (Royal Thai Embassy, New Delhi). Checked 23 October 2026."
           },
           {
             question: "How many days can Indian tourists stay in Thailand without a visa?",
@@ -256,7 +256,7 @@ export default function ThailandVisaPage() {
           },
           {
             question: "What if I need to stay in Thailand longer than 30 days?",
-            answer: "For a longer stay or another purpose, check the Royal Thai Embassy visa page before you travel. An in-country extension and a funds figure were not confirmed for this 30-day scheme. Last checked 22 October 2026."
+            answer: "For a longer stay or another purpose, check the Royal Thai Embassy visa page before you travel. An in-country extension and a funds figure were not confirmed for this 30-day scheme. Last checked 23 October 2026."
           }
         ]}
       />

@@ -90,7 +90,7 @@ export default function DubaiTripPlannerPage() {
                 <Compass className="w-4 h-4" /> Direct Answer: Planning a 5-Day Dubai Trip from India
               </div>
               <p className="text-sm font-semibold text-[#1A1A1A] leading-relaxed mb-4">
-                A 5-night Dubai trip from India, per person sharing, is about <strong>₹64,492–₹70,373</strong> using the sourced January–February figures checked on 22 October 2026 (blog-dubai-draft sources). The home card rounds that to ₹65,000–70,000. Confirm the live fare before you book.
+                A 5-night Dubai trip from India, per person sharing, is about <strong>₹64,492–₹70,373</strong> using the sourced January–February figures checked on 22 October 2026 (blog-dubai-draft sources). The home card rounds that to ₹65,000–70,000. Check the airline site for the current fare before you pay.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-3 border-t border-[#EA580C]/20">
                 <div>

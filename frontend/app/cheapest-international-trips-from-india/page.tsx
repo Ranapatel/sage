@@ -26,13 +26,13 @@ export default function Page() {
               <li><strong>Thailand:</strong> The classic choice for a reason. Great flights, amazing islands, and something for every budget.</li>
               <li><strong>Sri Lanka:</strong> Beautiful beaches, tea plantations, and ancient temples just a short flight away.</li>
             </ul>
-            <p>Use our AI search to compare live flight prices across multiple countries to find the absolute cheapest deal for your dates.</p>
+            <p>Use the planner to draft one destination at a time, with a rupee estimate. It does not compare live flight prices.</p>
           </>
         }
         faqs={[
           { question: "Which is the cheapest country to visit from India?", answer: "Vietnam and Sri Lanka currently offer some of the best value for money in terms of daily expenses." },
           { question: "Do I need a lot of documents for these trips?", answer: "Many of these countries offer E-visas or Visa on Arrival for Indian passport holders, making it very easy to plan." },
-          { question: "How can I find cheap flights?", answer: "Use our real-time engine to track price trends and book at least 4-6 weeks in advance." }
+          { question: "How can I find cheap flights?", answer: "Check the airline site, often 4–6 weeks ahead. TripSage does not track live fares." }
         ]}
       />
     </LandingLayout>

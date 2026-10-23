@@ -127,7 +127,7 @@ export default function DussehraClient() {
             {/* Supporting Note */}
             <div className="flex items-center gap-2 text-xs text-[#6B6B6B] font-medium pt-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-              <span>Start planning for free · Transparent partner rates · No card required</span>
+              <span>Draft a day-by-day plan · Rupee estimates, not live fares</span>
             </div>
           </div>
 

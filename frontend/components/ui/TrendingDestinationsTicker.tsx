@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react'
 import { TrendingUp } from 'lucide-react'
 
 const TRENDING_ITEMS = [
-  '1,480 travelers planned a trip to Vietnam today',
-  'Goa 3-day itineraries trending up +320% this week',
-  'Bali Hidden Gem routes unlocked by 940 explorers',
-  'Ladakh bike expeditions planned by 620 users today',
-  'Thailand multi-city routes saved 1,150 times this week'
+  'One departure city, one destination',
+  'Day-by-day drafts with rupee estimates',
+  'Visa notes for Indian passports',
+  'Edit the draft after it is generated',
+  'Book flights and hotels on their own sites'
 ]
 
 export default function TrendingDestinationsTicker() {

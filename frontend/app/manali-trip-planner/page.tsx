@@ -26,7 +26,7 @@ export default function Page() {
               <li><strong>Old Manali:</strong> Famous for its rustic charm, quaint cafes, and the Hadimba Devi Temple.</li>
               <li><strong>Rohtang Pass:</strong> Experience year-round snow and breathtaking views (permit required).</li>
             </ul>
-            <p>Our AI can help you plan your travel from Delhi or Chandigarh, book the best mountain-view hotels, and create a daily sightseeing schedule.</p>
+            <p>Our AI can draft a day-by-day Manali plan from one departure city, with a rupee estimate. It does not book hotels.</p>
           </>
         }
         faqs={[

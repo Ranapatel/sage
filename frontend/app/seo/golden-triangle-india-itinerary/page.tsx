@@ -44,7 +44,7 @@ export default function Page() {
               <li><strong>Local Bazaars:</strong> Shop for traditional block-print textiles, blue pottery, and exquisite hand-cut gemstones.</li>
             </ul>
 
-            <p>Our intelligent AI travel engine helps you balance your transit schedules, book premium AC express trains, and optimize your local sightseeing hours for a flawless, stress-free Golden Triangle trip.</p>
+            <p>This page is a written Golden Triangle route. The AI planner drafts one destination at a time and does not book trains.</p>
           </>
         }
         faqs={[

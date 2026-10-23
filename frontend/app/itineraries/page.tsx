@@ -92,7 +92,7 @@ export default function ItinerariesHubPage() {
     <LandingLayout>
       <SEOContent
         title="Curated Travel Itineraries & Smart Route Guides"
-        subtitle="Explore expertly crafted itineraries for short weekend trips, 1-week vacations, and multi-city international adventures. Customize any plan instantly with TripSage AI."
+        subtitle="Written routes for weekends and one-week trips. The AI planner drafts one destination at a time."
         heroImage="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=90"
         ctaText="Plan with TripSage"
         ctaLink="/plan"
@@ -121,7 +121,7 @@ export default function ItinerariesHubPage() {
                 </div>
                 <h3 className="font-extrabold text-base text-[#1A1A1A] mb-2">7-Day Classic Holidays</h3>
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                  The ideal timeframe for single destinations or 2-city combinations with a balanced pace.
+                  A useful length for one destination, with a balanced pace.
                 </p>
               </div>
 
@@ -131,7 +131,7 @@ export default function ItinerariesHubPage() {
                 </div>
                 <h3 className="font-extrabold text-base text-[#1A1A1A] mb-2">10+ Day Expeditions</h3>
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                  Multi-state heritage circuits and overseas journeys combining flights, trains, and stays.
+                  Longer written guides. The AI planner still drafts one destination at a time.
                 </p>
               </div>
             </div>
@@ -181,13 +181,13 @@ export default function ItinerariesHubPage() {
                 <strong>Geographical Efficiency:</strong> Places are ordered by physical proximity to minimize transit back-and-forth.
               </li>
               <li>
-                <strong>Integrated Transit & Stay Options:</strong> View real-time flight options, train search links, bus schedules, and hotel selections directly aligned with each day of your trip.
+                <strong>One destination:</strong> The AI draft is a day-by-day plan with a rupee estimate. It does not show live flights, buses, or hotels.
               </li>
               <li>
-                <strong>Real-Time Weather & Season Readiness:</strong> Recommendations adapt based on monsoons, summer peaks, or winter conditions.
+                <strong>Season notes:</strong> Written guides mention typical seasons. The planner does not watch live weather.
               </li>
               <li>
-                <strong>Fully Customizable:</strong> Swap activities, re-order days, adjust budgets, and save changes to your TripSage account.
+                <strong>Editable draft:</strong> You can change activities on the plan. This page does not promise that edits are stored on your account.
               </li>
             </ul>
 
@@ -202,7 +202,7 @@ export default function ItinerariesHubPage() {
                 rel="nofollow"
                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
+                Plan with TripSage <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </>
@@ -210,15 +210,15 @@ export default function ItinerariesHubPage() {
         faqs={[
           {
             question: "Can I edit an itinerary after it is generated?",
-            answer: "Yes, you can edit activity timings, add or remove places, change hotels, and modify transport options directly inside your TripSage workspace."
+            answer: "Yes. You can edit the day-by-day draft. TripSage does not change live hotels or transport for you."
           },
           {
             question: "Are these itineraries suitable for family or solo travel?",
-            answer: "Yes, when generating your plan you can select travel preferences such as 'Family', 'Solo', 'Couples', or 'Friends' to adjust the pace and style of activities."
+            answer: "The planner drafts one route. It does not change the plan based on traveller count."
           },
           {
             question: "How do I access my saved itineraries?",
-            answer: "All saved itineraries are stored under your personal profile in TripSage under 'My Trips' for easy reference anytime."
+            answer: "This page does not promise a saved library. You can download a PDF of the draft from the plan view. A share link does not send your personal itinerary to someone else."
           }
         ]}
       />

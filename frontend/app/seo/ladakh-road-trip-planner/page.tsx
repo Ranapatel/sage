@@ -33,12 +33,12 @@ export default function Page() {
             <p>Ladakh is an beautiful but unforgiving environment. To ensure a safe and thrilling trip, follow these core guidelines:</p>
             <ol>
               <li><strong>Prioritize Acclimatization (AMS Prevention):</strong> Leh sits at 11,500 feet. Spend your first 36-48 hours in Leh resting completely. Avoid physical exertion, drink plenty of water, and let your body adapt to the thin air.</li>
-              <li><strong>Inner Line Permits (ILP):</strong> You will need official government permits to visit restricted frontier zones like Pangong Tso, Nubra Valley, and Tso Moriri. These can be easily applied for online or through our AI concierge.</li>
+              <li><strong>Inner Line Permits (ILP):</strong> You will need official government permits to visit restricted frontier zones like Pangong Tso, Nubra Valley, and Tso Moriri. Apply for them on the official permit site before you travel.</li>
               <li><strong>Pack Smart Layers:</strong> The mountain sun is intense, but temperatures plummet rapidly in the shade or after sunset. Bring heavy windproof jackets, thermal underwear, wool socks, and reliable UV-protection sunglasses.</li>
               <li><strong>Cash and Connectivity:</strong> Only postpaid connections (primarily Jio and Airtel) work in Ladakh. ATMs are rare outside Leh, so carry adequate physical cash for fuel, stays, and food in remote villages.</li>
             </ol>
 
-            <p>Our intelligent AI trip planner helps you map out your daily driving limits, identifies altitude-safe stay locations, secures necessary permit paperwork, and monitors real-time weather and pass openings automatically.</p>
+            <p>A TripSage draft can outline a day-by-day Leh plan with a rupee estimate. It does not file permits or watch live weather and pass openings.</p>
           </>
         }
         faqs={[

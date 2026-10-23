@@ -17,14 +17,14 @@ const faqSchema = {
 
 export const metadata: Metadata = {
   title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-  description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
+  description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
   keywords: ['AI trip planner India', 'travel planner app', 'cheapest flights India', 'itinerary planner AI', 'TripSage', 'smart travel'],
   alternates: {
     canonical: 'https://www.tripsage.in',
   },
   openGraph: {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-    description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
+    description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
     url: 'https://www.tripsage.in',
     siteName: 'TripSage',
     images: [
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-    description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
+    description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
     images: ['https://www.tripsage.in/logo.png'],
   },
 }

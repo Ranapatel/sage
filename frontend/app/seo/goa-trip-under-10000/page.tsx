@@ -135,7 +135,7 @@ export default function Page() {
                   rel="nofollow"
                   className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
                 >
-                  Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
+                  Plan with TripSage <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/budget"
@@ -151,7 +151,7 @@ export default function Page() {
               <li><strong>Travel in Shoulder Season:</strong> October, November, February, and March offer 40% lower accommodation prices compared to late December peak weeks.</li>
               <li><strong>Kadamba Shuttles Over Taxis:</strong> Goa airport (Mopa &amp; Dabolim) operates direct electric express shuttle buses to Panaji, Calangute, and Margao for ₹150–₹250 compared to ₹1,500+ cabs.</li>
               <li><strong>Split Scooter Rentals:</strong> Traveling as a pair halves your scooter rental and fuel cost to just ₹350 per person for the entire trip.</li>
-              <li><strong>Cross-Check Stays on TripSage:</strong> Compare hostel dorms and guesthouses on our <Link href="/destinations">destinations hub</Link> to secure free breakfast and zero cancellation fees.</li>
+              <li><strong>Check stays yourself:</strong> Look up hostels and guesthouses on their own sites. TripSage does not book stays or promise breakfast and cancellation terms.</li>
             </ul>
           </>
         }

@@ -250,7 +250,7 @@ export default function BaliTripCostPage() {
 
             {/* Official Travel Disclaimer */}
             <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-[#6B6B6B] my-6 not-prose">
-              <strong>Editorial Cost Disclaimer:</strong> Flight fares, villa rates, and currency exchange rates (INR/IDR) fluctuate based on seasonal demand, oil prices, and booking timing. All estimates in this guide represent verified market averages for 2026 and should serve as a planning benchmark. Always check real-time airfares and accommodation rates on TripSage before booking.
+              <strong>Editorial Cost Disclaimer:</strong> Flight fares, villa rates, and currency exchange rates (INR/IDR) fluctuate based on seasonal demand, oil prices, and booking timing. All estimates in this guide represent verified market averages for 2026 and should serve as a planning benchmark. Check the airline and your stay’s own site before you pay. TripSage estimates are not live fares.
             </div>
 
             {/* Related Guides Links */}

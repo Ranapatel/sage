@@ -75,19 +75,18 @@ export default function HeroSection() {
             className="text-base sm:text-lg text-[#94A3B8] leading-relaxed mt-5 max-w-xl"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
-            TripSage reads 10,000+ travel blogs, reviews, and live prices to build your 
-            personalized itinerary with exact costs in ₹, visa requirements, and booking links.
+            TripSage drafts a day-by-day plan for one departure city and one destination, with a rupee estimate and visa notes for Indian passports.
           </p>
 
           {/* Feature Pill Tags */}
           <div className="flex flex-wrap items-center gap-3 mt-6">
             <div className="flex items-center gap-2 border border-[#F26522]/30 bg-[#F26522]/10 rounded-full px-3.5 py-1.5 text-[#F26522] text-xs font-semibold">
               <Sparkles size={14} className="shrink-0" />
-              Indian Visa Assured
+              Visa notes for Indian passports
             </div>
             <div className="flex items-center gap-2 border border-white/10 bg-white/5 rounded-full px-3.5 py-1.5 text-slate-300 text-xs font-medium">
               <Zap size={14} className="text-amber-400 shrink-0" />
-              Real-time ₹ Prices
+              Rupee estimates
             </div>
             <div className="flex items-center gap-2 border border-white/10 bg-white/5 rounded-full px-3.5 py-1.5 text-slate-300 text-xs font-medium">
               <ShieldCheck size={14} className="text-emerald-400 shrink-0" />

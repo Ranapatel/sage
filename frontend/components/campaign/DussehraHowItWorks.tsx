@@ -60,7 +60,7 @@ export default function DussehraHowItWorks({ onBuildTripClick }: Props) {
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-[#1A1A1A]">Explore your options.</h3>
                 <p className="text-xs sm:text-sm text-[#6B6B6B] leading-relaxed">
-                  Review your itinerary, available transport or accommodation options, and booking links where supported.
+                  Review the day-by-day draft and its rupee estimate. TripSage does not book transport or stays.
                 </p>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function DussehraHowItWorks({ onBuildTripClick }: Props) {
               </div>
 
               {/* Hotel Preview */}
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-2">Verified Stays</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-2">Example stay</p>
               <div className="flex items-center gap-2.5 bg-[#FFFBF7] p-2 rounded-xl border border-[#E8E0D8]/60 text-xs">
                 <img
                   src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=80&auto=format&fit=crop"
@@ -216,7 +216,7 @@ export default function DussehraHowItWorks({ onBuildTripClick }: Props) {
             </div>
 
             <div className="pt-2 border-t border-[#E8E0D8]/60 flex items-center justify-between text-[10px] text-[#9CA3AF]">
-              <span>Fare and hotel options with links to book directly with providers</span>
+              <span>Rupee estimates in the draft, not live fares</span>
             </div>
           </div>
         </div>

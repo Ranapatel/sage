@@ -3,12 +3,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'TripSage Academy | TripSage',
   description:
-    'A free 5-episode course on how AI systems reason.',
+    'A 5-episode course on how AI systems reason.',
   alternates: { canonical: 'https://www.tripsage.in/academy' },
   openGraph: {
     title: 'TripSage Academy | TripSage',
     description:
-      'Enroll in the free 5-episode Foundations of AGI course by TripSage. Beginner friendly with progress tracking and completion certificate.',
+      'Enroll in the 5-episode Foundations of AGI course by TripSage. Beginner friendly with progress tracking and completion certificate.',
     url: 'https://www.tripsage.in/academy',
     siteName: 'TripSage',
     images: [

@@ -451,7 +451,7 @@ export default function HomeClient() {
               className="text-xs sm:text-sm text-[#334155] font-medium leading-relaxed max-w-lg mx-auto"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              From flight tickets to daily schedules, TripSage organizes your entire journey with transparent costs and instant clarity.
+              One departure city and one destination. A day-by-day draft with rupee estimates and visa notes for Indian passports.
             </p>
 
           </div>
@@ -526,7 +526,7 @@ export default function HomeClient() {
                 <div className="text-left space-y-0.5">
                   <p className="text-sm font-bold text-[#1A1A1A] tracking-tight">Where to next?</p>
                   <p className="text-[11px] font-medium text-[#6B6B6B] flex items-center gap-1">
-                    <span>{form.to ? form.to : 'Tap to search flights & itineraries'}</span>
+                    <span>{form.to ? form.to : 'Tap to draft a day-by-day plan'}</span>
                     <ArrowRight size={11} strokeWidth={2} className="text-[#EA580C]" />
                   </p>
                 </div>
@@ -541,7 +541,7 @@ export default function HomeClient() {
           <div className="relative z-10 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest text-[#6B6B6B] pt-12 sm:pt-24 md:pt-44 uppercase">
             <span>Precision Day-by-Day Itineraries</span> &nbsp;·&nbsp;
             <span>Live Visa Guidance</span> &nbsp;·&nbsp;
-            <span>Fare and hotel options with links to book directly with providers</span>
+            <span>Rupee estimates, not live fares</span>
           </div>
 
         </div>
@@ -565,7 +565,7 @@ export default function HomeClient() {
               <span className="text-sm font-bold text-[#EA580C] block mb-1">02</span>
               <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 2 — We build the plan</h4>
               <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
-                Fare and hotel options with links to book directly with providers.
+                Rupee estimates, not live fares.
               </p>
             </div>
 
@@ -574,7 +574,7 @@ export default function HomeClient() {
               <span className="text-sm font-bold text-[#EA580C] block mb-1">03</span>
               <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 3 — Pick and book</h4>
               <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
-                Refine details and book directly with travel providers.
+                Edit the draft, then book flights and hotels yourself.
               </p>
             </div>
           </div>
@@ -595,7 +595,7 @@ export default function HomeClient() {
                 Trending Destinations
               </h2>
               <p className="text-xs md:text-sm text-[#6B6B6B] font-medium mt-1">
-                Curated global routes and domestic getaways with live visa guidance and instant AI itineraries.
+                Single-destination drafts with rupee estimates and visa notes for Indian passports.
               </p>
             </div>
 
@@ -731,7 +731,7 @@ export default function HomeClient() {
       <section className="py-12 md:py-16 bg-[#FFF4EE]">
         <div className="max-w-7xl mx-auto px-4 md:px-6 text-left">
           <h2 className="font-display text-3xl font-bold text-[#1A1A1A] tracking-tight mb-10">
-            Everything handled for you
+            What the draft includes
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 w-full">
@@ -741,9 +741,9 @@ export default function HomeClient() {
                 <Plane size={20} strokeWidth={1.5} />
               </div>
               <div className="space-y-1.5">
-                <h4 className="font-display font-semibold text-lg text-[#1A1A1A]">Flights and hotels</h4>
+                <h4 className="font-display font-semibold text-lg text-[#1A1A1A]">Rupee estimates</h4>
                 <p className="text-sm text-[#6B6B6B] leading-relaxed">
-                  Compare best-value flight connections and top rated hotel recommendations matching your profile.
+                  The draft includes a rupee cost estimate. It does not show live flights or hotels.
                 </p>
               </div>
             </div>
@@ -756,7 +756,7 @@ export default function HomeClient() {
               <div className="space-y-1.5">
                 <h4 className="font-display font-semibold text-lg text-[#1A1A1A]">Visa guidance</h4>
                 <p className="text-sm text-[#6B6B6B] leading-relaxed">
-                  Automatic visa requirements check and step-by-step guidance for Indian passport holders.
+                  Visa notes for Indian passports, based on the official pages cited on each guide.
                 </p>
               </div>
             </div>
@@ -769,7 +769,7 @@ export default function HomeClient() {
               <div className="space-y-1.5">
                 <h4 className="font-display font-semibold text-lg text-[#1A1A1A]">Smart itineraries</h4>
                 <p className="text-sm text-[#6B6B6B] leading-relaxed">
-                  Tailored day-by-day travel plans, instant budget calculations, and curated local hidden gems.
+                  A day-by-day plan for one destination, with a rupee estimate you can edit.
                 </p>
               </div>
             </div>

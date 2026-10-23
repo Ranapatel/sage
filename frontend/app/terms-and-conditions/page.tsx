@@ -74,21 +74,21 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">3. Third-Party Services</h2>
             <p>
-              TripSage acts as a search engine and aggregator for transport and activities, redirecting you to external third-party providers for finalizing reservations. We are not responsible for the pricing, availability, cancellations, or service quality provided by these third parties.
+              TripSage drafts a day-by-day plan for one route. It does not search live flights or hotels and it does not take bookings. Anything you buy, you buy on the airline, hotel, or other provider’s own site, under that provider’s terms.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">4. Pricing</h2>
             <p>
-              All prices displayed on TripSage are dynamic, estimated, and subject to change based on real-time availability. Hotel rooms are booked directly on our platform via our direct booking system. For other services (activities, local ground transport), TripSage may earn affiliate commissions from partner bookings made through our links.
+              Figures in a TripSage draft are estimates, not live prices. TripSage does not run a checkout and does not state a product price on this page.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">5. Cancellations & Refunds</h2>
             <p>
-              For hotel reservations booked directly on TripSage, modifications and cancellations are subject to the specific room cancellation policies selected at the time of booking. For flights and other third-party services, cancellations and refunds are strictly managed by their respective providers.
+              TripSage does not take bookings, so it does not change or cancel them. Cancellations and refunds are handled by the provider you pay.
             </p>
           </section>
 

@@ -199,7 +199,7 @@ export default function DestinationsHubPage() {
                 rel="nofollow"
                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
               >
-                Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
+                Plan with TripSage <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </>
@@ -211,7 +211,7 @@ export default function DestinationsHubPage() {
           },
           {
             question: "Can TripSage plan multi-city destination tours?",
-            answer: "Yes, you can input multiple destination cities (e.g. Jaipur-Jodhpur-Udaipur or Delhi-Singapore-Bali) and TripSage AI will construct an optimized route with transport links."
+            answer: "No. The planner takes one departure city and one destination. A Jaipur–Jodhpur–Udaipur loop or a Delhi–Singapore–Bali route is not something it builds."
           },
           {
             question: "How do I choose the best destination for my budget?",

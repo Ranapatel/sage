@@ -265,7 +265,7 @@ export default function AiDiscoverCarsPlanner() {
                     rel="noopener noreferrer"
                     className="px-5 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-black rounded-2xl text-xs shadow-md transition-all cursor-pointer active:scale-95 font-display"
                   >
-                    Reserve Fleet ↗
+                    Check outside TripSage ↗
                   </a>
                 </div>
               </div>

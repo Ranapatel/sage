@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: 'AI Trip Planner India | Plan Smart Travel with TripSage',
     template: '%s'
   },
-  description: 'Plan your trips instantly using AI. Compare the cheapest flights in India, book hotels, and generate smart itineraries with TripSage.',
+  description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
   keywords: ['AI trip planner India', 'travel planner app', 'cheapest flights India', 'itinerary planner AI', 'TripSage', 'smart travel', 'AI travel agent', 'holiday planner'],
   authors: [{ name: 'TripSage Team' }],
   creator: 'TripSage',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-    description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
+    description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
     url: 'https://www.tripsage.in',
     siteName: 'TripSage',
     images: [
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'AI Trip Planner India | Plan Smart Travel with TripSage',
-    description: 'Plan your trips instantly using AI. Compare flights, hotels, and itineraries with TripSage.',
+    description: 'Draft a day-by-day plan for one departure city and one destination, with rupee estimates and visa notes for Indian passports.',
     images: ['/logo.png'],
     // TODO(B1): Do not set twitter:site or twitter:creator until the founder confirms the official X handle.
     // https://twitter.com/tripsage belongs to an unrelated account and must not be used.
@@ -90,7 +90,7 @@ const organizationSchema = {
     'https://www.instagram.com/tripsage.in',
     'https://www.linkedin.com/company/tripsage/',
   ],
-  description: 'AI-powered travel planning platform in India for instant itineraries, flights, and hotel bookings.',
+  description: 'AI trip drafts for Indian travellers: one route, a day-by-day plan, rupee estimates, and visa notes.',
 }
 
 const softwareSchema = {
@@ -99,11 +99,7 @@ const softwareSchema = {
   "name": "TripSage",
   "operatingSystem": "Any",
   "applicationCategory": "TravelApplication",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "INR"
-  }
+  "description": "Day-by-day trip drafts for one route, with rupee estimates and visa notes for Indian passports."
 };
 
 const websiteSchema = {

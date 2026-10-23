@@ -259,7 +259,7 @@ export default function BaliSevenDayItineraryPage() {
               <Sparkles className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Want to customize this 7-day plan?</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Adjust dates, swap activities, find budget-friendly villas, and get live flight comparisons directly inside the TripSage AI Travel OS.
+                Adjust dates and activities on a day-by-day draft. TripSage does not compare live flights or book villas.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link

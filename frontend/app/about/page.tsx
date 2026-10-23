@@ -152,16 +152,16 @@ export default function AboutPage() {
             </div>
             <div className="space-y-3 text-[#6B6B6B] text-sm leading-relaxed">
               <p>
-                TripSage uses artificial intelligence to generate personalised travel itineraries, estimate trip budgets, summarise visa requirements, and surface flight and hotel options — all in one place.
+                TripSage uses AI to draft a day-by-day plan for one departure city and one destination, with a rupee estimate and visa notes for Indian passports.
               </p>
               <p>
-                When you describe your destination, travel dates, group size, and budget, TripSage builds a day-by-day plan tailored to your preferences. You can explore visa requirements for popular destinations, estimate costs across accommodation, food, transport, and activities, and discover curated destination guides.
+                You enter one departure city, one destination, dates, and a budget. The draft does not change for the number of travellers, and it does not plan a multi-city route. Visa notes and written destination guides sit alongside the estimate.
               </p>
               <ul className="list-disc list-inside space-y-1.5 pl-1 mt-3">
                 <li>AI-generated trip itineraries for domestic and international destinations</li>
                 <li>Budget estimations broken down by category</li>
                 <li>Visa requirement summaries for popular countries</li>
-                <li>Flight and hotel search powered by third-party search APIs</li>
+                <li>No live flight or hotel search in the planner</li>
                 <li>Destination guides and travel blog articles</li>
               </ul>
             </div>
@@ -181,7 +181,7 @@ export default function AboutPage() {
                 <li><strong className="text-[#1A1A1A]">Independent travellers</strong> who plan their own trips and want AI to do the heavy lifting</li>
                 <li><strong className="text-[#1A1A1A]">Budget-conscious travellers</strong> who need realistic cost breakdowns before they commit</li>
                 <li><strong className="text-[#1A1A1A]">First-time international travellers</strong> from India who want clear visa and documentation guidance</li>
-                <li><strong className="text-[#1A1A1A]">Families and groups</strong> planning multi-leg trips with multiple accommodation and transport needs</li>
+                <li><strong className="text-[#1A1A1A]">Travellers</strong> who want a first draft for one destination before they book elsewhere</li>
                 <li><strong className="text-[#1A1A1A]">Travel researchers</strong> comparing destinations, costs, and logistics before deciding</li>
               </ul>
             </div>
@@ -202,7 +202,7 @@ export default function AboutPage() {
               {[
                 {
                   label: 'Not a booking provider',
-                  desc: "TripSage does not sell airline tickets, hotel rooms, bus passes, or tour packages. We display search results and redirect you to the respective provider's website to complete your booking.",
+                  desc: "TripSage does not sell airline tickets, hotel rooms, bus passes, or tour packages, and it does not show live search results to book.",
                 },
                 {
                   label: 'Not a travel agency',

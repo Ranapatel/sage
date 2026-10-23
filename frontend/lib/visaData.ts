@@ -42,7 +42,7 @@ const BASE = ['Passport (valid > 6 months)', 'Return flight ticket', 'Accommodat
 
 export const VISA_DB: { keywords: string[]; data: VisaEntry }[] = [
   { keywords: ['thailand','bangkok','phuket','krabi','chiang mai','koh samui','pattaya'],
-    data: v('Thailand','Visa exemption (tourism, up to 30 days from 15 Sep 2026)','No visa needed','Ready',[...BASE],'Free for a short tourist trip. For a longer stay or another purpose, check the Royal Thai Embassy in New Delhi before you travel. Checked 22 Oct 2026.','https://newdelhi.thaiembassy.org/en/page/visa') },
+    data: v('Thailand','Visa exemption (tourism, up to 30 days from 15 Sep 2026)','No visa needed','Ready',[...BASE],'Free for a short tourist trip. For a longer stay or another purpose, check the Royal Thai Embassy in New Delhi before you travel. Checked 23 Oct 2026.','https://newdelhi.thaiembassy.org/en/page/visa') },
   { keywords: ['maldives','male','hulhumale'],
     data: v('Maldives','Visa on Arrival (30 days)','Instant on arrival','Ready',[...BASE,'IMUGA Traveler Declaration (online, within 96 hrs of arrival)'],'Fill IMUGA form before departure — takes 5 minutes. Free of charge.','https://imuga.immigration.gov.mv/') },
   { keywords: ['bali','indonesia','jakarta','lombok','yogyakarta','komodo'],
@@ -64,7 +64,7 @@ export const VISA_DB: { keywords: string[]; data: VisaEntry }[] = [
   { keywords: ['peru','machu picchu','lima','cusco','nazca'],
     data: v('Peru','Visa-free (183 days)','Instant','Ready',['Passport (valid > 6 months)','Return ticket','Proof of funds'],'No visa required for Indians. Entry is very straightforward.','https://www.migraciones.gob.pe/') },
   { keywords: ['sri lanka','colombo','kandy','galle','sigiriya','ella'],
-    data: v('Sri Lanka','Electronic Travel Authorization (ETA)','24-48 hours online','Easy',[...BASE,'ETA approval email (apply at eta.gov.lk)'],'Apply ETA at eta.gov.lk. Fee ~Rs 1,700. Approved within 24 hours typically.','https://www.eta.gov.lk/') },
+    data: v('Sri Lanka','Tourist ETA, free for 30 days','Apply before travel','Easy',[...BASE,'ETA approval (apply before travel)'],'Indian ordinary, diplomatic, official, and service passports can get a tourist ETA free of charge for 30 days, with a double entry inside that period. You still apply before travel. Effective 25 May 2026. Last checked 23 Oct 2026.','https://www.eta.gov.lk/slvisa/') },
   { keywords: ['cambodia','siem reap','phnom penh','angkor'],
     data: v('Cambodia','E-Visa / Visa on Arrival','3 business days (E-Visa)','Easy',[...BASE,'Passport photo (4x6cm)','USD 30 visa fee'],'E-Visa recommended over VoA. Apply at evisa.gov.kh.','https://www.evisa.gov.kh/') },
   { keywords: ['kenya','nairobi','maasai mara','mombasa'],

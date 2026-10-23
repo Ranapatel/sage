@@ -53,7 +53,7 @@ export default function Page() {
               Planning an international holiday from India does not require lakhs of rupees. In 2026, multiple neighboring destinations in Southeast Asia and South Asia offer all-inclusive 5-to-7 day vacations for under ₹40,000 to ₹50,000 per person, including round-trip flights. The top 6 cheapest international destinations for Indian travelers are: Vietnam (flights from ₹15k, daily cost ₹1,800), Thailand (30-day visa exemption from 15 Sep 2026, flights from ₹14k, daily cost ₹2,200), Bali (flights from ₹20k, daily cost ₹2,500), Sri Lanka (flights from ₹12k, daily cost ₹2,000), Nepal (no passport/visa required for Indians, budget from ₹15k), and Malaysia (visa-free for up to 30 days until 31 Dec 2026, with MDAC before arrival; flights from ₹16k).
             </p>
             <p>
-              With our <Link href="/ai-trip-planner">AI trip planner</Link>, you can compare live multi-city airfares, discover clean central hostels and hotels, and simulate your daily spending down to the last rupee.
+              With our <Link href="/ai-trip-planner">AI trip planner</Link>, you can draft a day-by-day plan for one destination, with a rupee estimate and visa notes. It does not compare live airfares or book hotels.
             </p>
 
             {/* Comparison Table */}
@@ -87,7 +87,7 @@ export default function Page() {
                     <td className="py-3 px-4 font-bold text-[#1A1A1A]">Sri Lanka (Colombo &amp; Galle)</td>
                     <td className="py-3 px-4 font-bold text-[#EA580C]">₹11,000 – ₹15,000</td>
                     <td className="py-3 px-4">₹1,600 – ₹2,400 / day</td>
-                    <td className="py-3 px-4">Online ETA waiver or nominal fee</td>
+                    <td className="py-3 px-4">Free 30-day tourist ETA since 25 May 2026; apply at eta.gov.lk before travel. Last checked 23 Oct 2026.</td>
                     <td className="py-3 px-4 font-bold text-emerald-700">₹28,000 – ₹38,000</td>
                   </tr>
                   <tr>
@@ -146,7 +146,7 @@ export default function Page() {
                   rel="nofollow"
                   className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer"
                 >
-                  Plan with TripSage — Free <ArrowRight className="w-4 h-4" />
+                  Plan with TripSage <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/budget"

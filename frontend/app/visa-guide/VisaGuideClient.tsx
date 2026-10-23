@@ -51,7 +51,7 @@ const VISA_DATA: VisaCard[] = [
     cost: 'Free',
     processing: 'No visa needed',
     duration: 'Up to 30 days (tourism)',
-    requirement: 'Rule since 15 Sep 2026, Royal Thai Embassy New Delhi. Checked 22 Oct 2026.',
+    requirement: 'Rule since 15 Sep 2026, Royal Thai Embassy New Delhi. Checked 23 Oct 2026.',
     applyUrl: 'https://www.thaievisa.go.th/'
   },
   {

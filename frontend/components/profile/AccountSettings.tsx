@@ -236,8 +236,8 @@ export default function AccountSettings() {
 
         <div className="space-y-3">
           {[
-            { label: 'Trip booking confirmations & receipts', desc: 'Get email when a booking is confirmed or updated', value: notifEmail, set: setNotifEmail },
-            { label: 'Exclusive deals & price drop alerts', desc: 'Personalised flight and hotel offers for your saved routes', value: notifOffers, set: setNotifOffers },
+            { label: 'Account email', desc: 'Email about your TripSage account. TripSage does not send booking receipts.', value: notifEmail, set: setNotifEmail },
+            { label: 'Product news', desc: 'Occasional notes about the planner. TripSage does not send fare alerts.', value: notifOffers, set: setNotifOffers },
             { label: 'Trip reminders & itinerary updates', desc: 'Reminders 48 hours before your planned trips', value: notifTripUpdates, set: setNotifTripUpdates },
           ].map((item) => (
             <div

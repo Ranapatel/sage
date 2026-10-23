@@ -81,9 +81,9 @@ export default function BusesEmpty({
 
       {/* External Redirect Card */}
       <div className="glass p-8 border border-slate-200/60 rounded-2xl bg-white shadow-sm text-center max-w-2xl mx-auto space-y-4">
-        <h4 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Search Live Partners</h4>
+        <h4 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Not in this draft</h4>
         <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-          Open MakeMyTrip directly to search for regional or unlisted local operators on this route.
+          TripSage did not find buses for this route. You can look them up yourself on MakeMyTrip.
         </p>
         <div className="max-w-xs mx-auto pt-2">
           <BookingButton

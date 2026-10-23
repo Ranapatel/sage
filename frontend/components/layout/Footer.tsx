@@ -17,7 +17,7 @@ export default function Footer() {
         <div className="space-y-4">
           <p><strong>Effective Date:</strong> 01 April 2026</p>
           <p>Welcome to TripSage. By accessing or using this platform, you agree to comply with these Terms & Conditions.</p>
-          <p><strong>Service:</strong> TripSage provides AI-powered travel planning, personalized recommendations, and third-party booking links.</p>
+          <p><strong>Service:</strong> TripSage drafts a day-by-day plan for one route, with rupee estimates and visa notes. It does not book travel.</p>
           <p><strong>User Responsibilities:</strong></p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li>Provide accurate and truthful information when using the platform</li>
