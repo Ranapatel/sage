@@ -73,6 +73,8 @@ interface Props {
   /** Trip end date (YYYY-MM-DD). Together with startDate, drives the day count. */
   endDate?: string
   onRegenerate?: () => void
+  /** Shown with the loading skeleton while a plan is being generated. */
+  progressMessage?: string
 }
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Constants Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -884,9 +886,13 @@ DayIntelligencePanel.displayName = 'DayIntelligencePanel'
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Loading skeleton Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
-function ItineraryLoadingSkeleton() {
+function ItineraryLoadingSkeleton({ message }: { message?: string }) {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6">
+      {message && (
+        <p role="status" className="text-sm font-semibold text-[#1A1A1A]">{message}</p>
+      )}
+      <div className="space-y-6 animate-pulse">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-2">
@@ -916,6 +922,7 @@ function ItineraryLoadingSkeleton() {
         </div>
         <div className="hidden lg:block h-64 rounded-2xl" style={{ background: '#F0EBE4' }} />
       </div>
+      </div>
     </div>
   )
 }
@@ -929,6 +936,7 @@ function ItineraryView({
   startDate,
   endDate,
   onRegenerate,
+  progressMessage,
 }: Props) {
   // ─── Source of truth ────────────────────────────────────────────────────
   // The selected travel date range is the ONLY source of truth for the
@@ -1289,7 +1297,7 @@ function ItineraryView({
     }
   }, [destination])
 
-  if (loading) return <ItineraryLoadingSkeleton />
+  if (loading) return <ItineraryLoadingSkeleton message={progressMessage} />
 
   if (totalDayCount === 0) {
     return (

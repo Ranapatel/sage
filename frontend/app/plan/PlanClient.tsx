@@ -9,6 +9,14 @@ import { isIndianTrip } from '@/lib/indianCities'
 import { useSocket } from '@/hooks/useSocket'
 import { tripAPI } from '@/lib/api'
 import { fetchWithRetry } from '@/lib/fetchWithRetry'
+import {
+  ITINERARY_GENERATE_MAX_RETRIES,
+  ITINERARY_GENERATE_TIMEOUT_MS,
+  ITINERARY_PROGRESS_MESSAGE,
+  combineAbortSignals,
+  itineraryRequestConfig,
+  liveItineraryDays,
+} from '@/lib/itineraryGenerate'
 import { formatDate, getDaysBetween, getDayCount, getDateForDay } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { useUser } from '@clerk/nextjs'
@@ -586,9 +594,10 @@ export default function PlanClient() {
           console.warn('[Weather] failed after retries:', err.message)
           return null
         }),
-        // Itinerary fetched in parallel
+        // Itinerary fetched in parallel. One attempt, up to 150s.
+        // A retry would start another generation while the first is still running.
         fetchWithRetry(
-          (s) => {
+          (attemptSignal) => {
             // Use the inclusive day count so a 4 Aug→10 Aug trip
             // requests 7 days, not 6. getDayCount is the single source of truth.
             let daysCount = getDayCount(p.startDate, p.endDate)
@@ -606,12 +615,15 @@ export default function PlanClient() {
               startDate: p.startDate,
               isMultiCity: p.isMultiCity,
               stops: p.stops,
-            }, { signal: s || signal })
+            }, itineraryRequestConfig(combineAbortSignals(attemptSignal, signal)))
           },
-          { timeout: 45000, maxRetries: 2, label: 'Itinerary' }
-
+          {
+            timeout: ITINERARY_GENERATE_TIMEOUT_MS,
+            maxRetries: ITINERARY_GENERATE_MAX_RETRIES,
+            label: 'Itinerary',
+          }
         ).catch(err => {
-          if (err.message?.includes('canceled') || err.name === 'AbortError') return null
+          if (err.message?.includes('canceled') || err.name === 'AbortError' || err.code === 'ERR_CANCELED') return null
           console.warn('[Itinerary] backend call completed with fallback:', err.message)
           return null
         }),
@@ -642,9 +654,10 @@ export default function PlanClient() {
         setWeather(weatherResult.data)
       }
 
-      // Populate itinerary
-      if (itineraryResult?.data?.itinerary && itineraryResult.data.itinerary.length > 0) {
-        setItinerary(itineraryResult.data.itinerary)
+      // Populate itinerary. A real payload wins; transport failures still get the local draft.
+      const liveDays = liveItineraryDays(itineraryResult)
+      if (liveDays) {
+        setItinerary(liveDays)
       } else {
         // Fallback itinerary generator ensures users always get a complete day-by-day plan.
         // Use the inclusive getDayCount so a 4 Aug→10 Aug trip becomes 7 days, not 6.
@@ -1193,6 +1206,16 @@ export default function PlanClient() {
         {/* Main Content Area */}
         <div className="flex-1 min-w-0">
           <main>
+            {aiThinking && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="mb-4 flex items-start gap-3 rounded-2xl border border-[#FED7AA] bg-[#FFF7ED] px-4 py-3"
+              >
+                <span className="mt-0.5 inline-block h-4 w-4 shrink-0 rounded-full border-2 border-[#EA580C] border-t-transparent animate-spin" aria-hidden="true" />
+                <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">{ITINERARY_PROGRESS_MESSAGE}</p>
+              </div>
+            )}
             <Suspense fallback={<TabLoader />}>
               {/* MULTI-CITY STOPS MANAGER CARD */}
               {activeTab === 'overview' && searchForm.isMultiCity && (
@@ -1419,6 +1442,7 @@ export default function PlanClient() {
                 startDate={tripContext.startDate}
                 endDate={tripContext.endDate}
                 onRegenerate={handleRegenerate}
+                progressMessage={aiThinking ? ITINERARY_PROGRESS_MESSAGE : undefined}
               />
             </div>
           )}

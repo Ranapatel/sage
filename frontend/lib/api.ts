@@ -224,11 +224,13 @@ export const tripAPI = {
   getIpLocation: (): Promise<ApiResponse<any>> =>
     API.get('/api/places/ip-location'),
 
+  // Pass `timeout` from itineraryRequestConfig. The instance default above is 60s,
+  // which is shorter than a live generation (about 80–100s).
   generateItinerary: (params: {
     destination: string; days: number; budget: number; currency?: string
     style: string; preferences: string[]; members: number; startDate?: string
     isMultiCity?: boolean; stops?: Array<{ city: string; nights: number }>
-  }, config?: { signal?: AbortSignal }): Promise<ApiResponse<ItineraryData>> =>
+  }, config?: { signal?: AbortSignal; timeout?: number }): Promise<ApiResponse<ItineraryData>> =>
     API.post('/api/itinerary/generate', params, config),
 
   optimizeBudget: (params: {
