@@ -155,16 +155,29 @@ function Skeleton({ className = '' }: { className?: string }) {
 
 // ── Budget math ───────────────────────────────────────────────────────────────
 
-function useBudgetBreakdown(budget: number, nights: number, travelers: number, currency: string) {
+function useBudgetBreakdown(
+  budget: number,
+  nights: number,
+  travelers: number,
+  currency: string,
+  costSummary?: { total: number; flights: number; hotels: number; food: number; activities: number } | null,
+) {
   return useMemo(() => {
     const sym = SYMBOLS[currency] ?? currency
     const locale = currency === 'INR' ? 'en-IN' : 'en-US'
     const fmt = (n: number) => `${sym}${Math.round(n).toLocaleString(locale)}`
 
-    const travel = Math.round(budget * 0.40)
-    const stay = Math.round(budget * 0.25)
-    const activities = Math.round(budget * 0.20)
-    const totalEstimated = travel + stay + activities
+    const matched = costSummary
+      && costSummary.flights + costSummary.hotels + costSummary.food + costSummary.activities === costSummary.total
+      ? costSummary
+      : null
+    const travel = matched ? matched.flights : Math.floor(budget * 0.40)
+    const stay = matched ? matched.hotels : Math.floor(budget * 0.25)
+    const activities = matched ? matched.activities : Math.floor(budget * 0.20)
+    const food = matched
+      ? matched.food
+      : Math.max(0, Math.round(budget) - travel - stay - activities)
+    const totalEstimated = travel + stay + food + activities
     const remaining = budget - totalEstimated
     const perPerson = travelers > 0 ? Math.round(totalEstimated / travelers) : totalEstimated
     const pctUsed = budget > 0 ? Math.min(100, (totalEstimated / budget) * 100) : 0
@@ -172,8 +185,8 @@ function useBudgetBreakdown(budget: number, nights: number, travelers: number, c
     const saverPerPerson = Math.round(perPerson * 0.85)
     const comfortPerPerson = Math.round(perPerson * 1.15)
 
-    return { sym, fmt, travel, stay, activities, totalEstimated, remaining, perPerson, pctUsed, saverPerPerson, comfortPerPerson }
-  }, [budget, travelers, currency])
+    return { sym, fmt, travel, stay, food, activities, totalEstimated, remaining, perPerson, pctUsed, saverPerPerson, comfortPerPerson }
+  }, [budget, travelers, currency, costSummary])
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
@@ -601,21 +614,23 @@ function TripStoryCard({
 // ── RIGHT: Budget Compass with Donut Ring ─────────────────────────────────────
 
 function BudgetCompass({
-  loading, budget, totalEstimated, remaining, travel, stay, activities, pctUsed, fmt, sym
+  loading, budget, totalEstimated, remaining, travel, stay, food, activities, pctUsed, fmt, sym
 }: {
   loading: boolean; budget: number; totalEstimated: number; remaining: number
-  travel: number; stay: number; activities: number
+  travel: number; stay: number; food: number; activities: number
   pctUsed: number; fmt: (n: number) => string; sym: string
 }) {
   const breakdowns = [
     { label: 'Travel', amount: travel, color: '#EA580C' },
     { label: 'Stay', amount: stay, color: '#3B82F6' },
+    { label: 'Food & local', amount: food, color: '#16A34A' },
     { label: 'Activities', amount: activities, color: '#7C3AED' },
   ]
 
   const donutSegments = [
     { value: travel, color: '#EA580C' },
     { value: stay, color: '#3B82F6' },
+    { value: food, color: '#16A34A' },
     { value: activities, color: '#7C3AED' },
     { value: Math.max(0, remaining), color: '#E2E8F0' },
   ]
@@ -650,7 +665,10 @@ function BudgetCompass({
           {loading ? (
             <Skeleton className="h-7 w-28 mb-1.5" />
           ) : (
-            <p className="text-[24px] font-black text-slate-900 leading-none">{fmt(budget)}</p>
+            <>
+              <p className="text-[24px] font-black text-slate-900 leading-none">{fmt(totalEstimated)}</p>
+              <p className="text-[10px] font-semibold text-slate-400 mt-1">Trip total{budget > 0 ? ` · budget ${fmt(budget)}` : ''}</p>
+            </>
           )}
           <div className="mt-1.5 space-y-0.5">
             <div className="flex items-center gap-1.5">
@@ -1734,8 +1752,8 @@ function OverviewTab({
 
   const nights = Math.max(1, days - 1)
 
-  const { fmt, travel, stay, activities, totalEstimated, remaining, perPerson, pctUsed } =
-    useBudgetBreakdown(budget, nights, travelers, currency)
+  const { fmt, travel, stay, food, activities, totalEstimated, remaining, perPerson, pctUsed } =
+    useBudgetBreakdown(budget, nights, travelers, currency, tripContext.costSummary)
 
   const routeText = useMemo(() => {
     if (tripContext.isMultiCity && tripContext.stops && tripContext.stops.length > 0) {
@@ -1884,6 +1902,7 @@ function OverviewTab({
                 remaining={remaining}
                 travel={travel}
                 stay={stay}
+                food={food}
                 activities={activities}
                 pctUsed={pctUsed}
                 fmt={fmt}
@@ -2015,6 +2034,7 @@ function OverviewTab({
             remaining={remaining}
             travel={travel}
             stay={stay}
+            food={food}
             activities={activities}
             pctUsed={pctUsed}
             fmt={fmt}

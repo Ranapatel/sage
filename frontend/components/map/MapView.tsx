@@ -209,7 +209,6 @@ export default function MapView({
       address: `12 Beach Road, ${destination.split(',')[0]}`,
       checkIn: tripContext?.startDate || '2026-06-25',
       checkOut: tripContext?.endDate || '2026-06-28',
-      rating: 4.8,
       status: 'Confirmed',
     }
   }, [propHotels, destination, tripContext])
@@ -323,7 +322,7 @@ export default function MapView({
           category: p.category || 'attraction',
           price: p.price || 'Free / Included',
           duration: p.duration || '1.5 - 2 hrs',
-          rating: p.rating || 4.7,
+          rating: typeof p.rating === 'number' && p.rating > 0 ? p.rating : undefined,
           image: p.heroImage || p.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
         })
       })
@@ -1106,7 +1105,9 @@ export default function MapView({
           <div>
             <h4 className="text-sm font-black text-[#1A1A1A] truncate">{selectedStop.name}</h4>
             <div className="flex items-center gap-3 text-[11px] text-[#4A4A4A] mt-1 font-bold">
-              <span className="inline-flex items-center gap-1 text-amber-600"><Star size={11} className="fill-amber-500" /><span>{selectedStop.rating}</span></span>
+              {selectedStop.rating != null && (
+                <span className="inline-flex items-center gap-1 text-amber-600"><Star size={11} className="fill-amber-500" /><span>{selectedStop.rating}</span></span>
+              )}
               <span className="inline-flex items-center gap-1 text-[#6B6B6B]"><Clock size={11} className="text-[#6B6B6B]" /><span>{selectedStop.duration}</span></span>
               <span className="inline-flex items-center gap-1 text-emerald-700 font-extrabold"><IndianRupee size={11} /><span>{selectedStop.price}</span></span>
             </div>

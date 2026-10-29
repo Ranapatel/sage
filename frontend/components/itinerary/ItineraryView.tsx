@@ -25,6 +25,7 @@ import { tripAPI } from '@/lib/api'
 import TravelMemories from '@/components/photos/TravelMemories'
 import { addBookmark } from '@/lib/bookmarkUtils'
 import { getDayCount, getDateForDay } from '@/lib/utils'
+import { placeSpend } from '@/lib/planFacts'
 import StoryCardModal from './StoryCardModal'
 import CollaborativeInviteModal from './CollaborativeInviteModal'
 
@@ -695,17 +696,7 @@ const DayIntelligencePanel = memo(({
   const pace = deriveDayPace(day.places)
 
   // Estimate total daily spend from places
-  const totalSpend = day.places.reduce((acc, p) => {
-    if (!p.estimatedSpend) return acc
-    const nums = p.estimatedSpend.match(/\d+/g)
-    if (nums) {
-      const avg = nums.length === 2
-        ? (parseInt(nums[0]) + parseInt(nums[1])) / 2
-        : parseInt(nums[0])
-      return acc + avg
-    }
-    return acc
-  }, 0)
+  const totalSpend = day.places.reduce((acc, p) => acc + placeSpend(p), 0)
 
   // Estimate total travel time
   const totalTravel = day.places.reduce((acc, p) => {
