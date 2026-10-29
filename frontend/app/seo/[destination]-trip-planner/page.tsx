@@ -31,7 +31,7 @@ export default function Page({ params }: Props) {
     <LandingLayout>
       <SEOContent
         title={`The Smartest Trip Planner for ${formattedDestination}`}
-        subtitle={`Experience the best of ${formattedDestination}. Our AI creates personalized itineraries for your next adventure in seconds.`}
+        subtitle={`A day-by-day draft for ${formattedDestination}. One destination, not a multi-city route, and not adjusted for the season.`}
         content={
           <>
             <h2>Why Use an AI Trip Planner for {formattedDestination}?</h2>

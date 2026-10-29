@@ -87,7 +87,7 @@ export default function AITripPlannerPage() {
             <h2>Core Capabilities of TripSage AI</h2>
             <ul>
               <li>
-                <strong>Instant Day-by-Day Itineraries:</strong> Get structured schedules tailored to your travel style, complete with timing recommendations and location mapping.
+                <strong>Day-by-day draft:</strong> A schedule for one destination, with suggested times. It is not instant, and it is not a multi-city route.
               </li>
               <li>
                 <strong>Rupee estimates:</strong> The draft includes a cost estimate in INR. It does not search live flights or hotels.
@@ -134,8 +134,8 @@ export default function AITripPlannerPage() {
               <div className="p-4 rounded-xl bg-white border border-[#E8E0D8] flex items-start gap-3">
                 <Calendar className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-extrabold text-xs text-[#1A1A1A] mb-1">Seasonal & Regional Logic</h4>
-                  <p className="text-xs text-[#6B6B6B]">Itineraries tailored to local weather patterns and regional highlights.</p>
+                  <h4 className="font-extrabold text-xs text-[#1A1A1A] mb-1">Not season-aware</h4>
+                  <p className="text-xs text-[#6B6B6B]">The draft does not change for monsoon, winter, or heat. Written guides mention typical seasons separately.</p>
                 </div>
               </div>
             </div>

@@ -204,7 +204,7 @@ export function getDussehraSharePayload(source = 'share_button') {
   const utmParams = `utm_source=${source}&utm_medium=campaign&utm_campaign=dussehra_2026`
   const fullUrl = `${baseUrl}?${utmParams}`
 
-  const message = `✨ Burn your boring plans! Check out The Great Dussehra Escape on TripSage.\nCreate your personalized travel itinerary around your dates and budget in seconds:\n${fullUrl}`
+  const message = `Check The Great Dussehra Escape on TripSage.\nThe planner drafts one destination. It does not book the trip:\n${fullUrl}`
 
   return {
     url: fullUrl,

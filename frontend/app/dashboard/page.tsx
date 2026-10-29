@@ -313,7 +313,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="font-bold text-[#1A1A1A]">No trip plans yet</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Start by entering your route, dates, and budget. Our AI will build your perfect travel board instantly.
+                  Start by entering one route, dates, and a budget. The draft is one destination. It is not instant.
                 </p>
               </div>
               <Link

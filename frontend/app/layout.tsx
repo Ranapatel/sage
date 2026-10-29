@@ -8,7 +8,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import AuthGuardModal from '@/components/auth/AuthGuardModal'
 import { ContextProvider } from '@/context/ContextProvider'
 import { PageViewTracker } from '@/components/analytics/PageViewTracker'
-import { GA_MEASUREMENT_ID } from '@/lib/analytics/service'
+import { GA_MEASUREMENT_ID, isGaConfigured } from '@/lib/analytics/service'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -171,19 +171,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PageViewTracker />
           </Suspense>
 
-          {/* Google Analytics GA4 */}
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
-            `}
-          </Script>
+          {/* Google Analytics GA4. No tag until NEXT_PUBLIC_GA_MEASUREMENT_ID is set. */}
+          {isGaConfigured(GA_MEASUREMENT_ID) && (
+            <>
+              <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+                strategy="afterInteractive"
+              />
+              <Script id="ga4-init" strategy="afterInteractive">
+                {`
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+                `}
+              </Script>
+            </>
+          )}
 
           {/*
             * Slow-connection detection — afterInteractive so it only runs client-side.

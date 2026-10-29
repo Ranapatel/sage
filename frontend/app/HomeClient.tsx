@@ -556,7 +556,7 @@ export default function HomeClient() {
               <span className="text-sm font-bold text-[#EA580C] block mb-1">01</span>
               <h4 className="font-display font-semibold text-[#1A1A1A] text-lg">Step 1 — Tell us where</h4>
               <p className="text-xs md:text-sm text-[#6B6B6B] leading-relaxed">
-                Input departure, destination, and dates in seconds.
+                Enter one departure city, one destination, and your dates.
               </p>
             </div>
 

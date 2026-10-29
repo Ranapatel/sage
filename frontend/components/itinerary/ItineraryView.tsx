@@ -25,6 +25,8 @@ import { tripAPI } from '@/lib/api'
 import TravelMemories from '@/components/photos/TravelMemories'
 import { addBookmark } from '@/lib/bookmarkUtils'
 import { getDayCount, getDateForDay } from '@/lib/utils'
+import { analytics } from '@/lib/analytics'
+import { buildSharePayload, planFromTrip } from '@/lib/sharePlan'
 import StoryCardModal from './StoryCardModal'
 import CollaborativeInviteModal from './CollaborativeInviteModal'
 
@@ -1270,24 +1272,30 @@ function ItineraryView({
   }, [destination])
 
   const handleShareDay = useCallback(() => {
-    const url = typeof window !== 'undefined' ? window.location.href : 'https://www.tripsage.in'
-    const brandedMessage = `TripSage AI — Smart Travel Plan\nCheck out my AI-planned itinerary for ${destination || 'my trip'}!\n\nPlan your own custom trip at: ${url}`
+    const plan = planFromTrip({ destination, startDate, endDate, itinerary })
+    if (!plan) {
+      toast.error('Nothing to share yet.')
+      return
+    }
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.tripsage.in'
+    const payload = buildSharePayload(plan, origin)
+    analytics.tripShared({ method: typeof navigator !== 'undefined' && navigator.share ? 'native_share' : 'copy_link', trip_days: plan.days.length })
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
-        title: `TripSage AI Plan — ${destination || 'My Trip'}`,
-        text: brandedMessage,
-        url: url,
-      }).then(() => toast.success("Shared via TripSage!"))
+        title: payload.title,
+        text: payload.text,
+        url: payload.url || undefined,
+      }).then(() => toast.success('Shared this plan.'))
       .catch(() => {
-        navigator.clipboard.writeText(brandedMessage)
-        toast.success("TripSage branded link copied!")
+        navigator.clipboard.writeText(payload.text)
+        toast.success('Plan copied.')
       })
     } else {
-      navigator.clipboard.writeText(brandedMessage)
-      toast.success("TripSage branded link copied to clipboard!")
+      navigator.clipboard.writeText(payload.text)
+      toast.success('Plan copied.')
     }
-  }, [destination])
+  }, [destination, startDate, endDate, itinerary])
 
   if (loading) return <ItineraryLoadingSkeleton />
 

@@ -39,8 +39,20 @@ import {
   OutboundBookingClickedParams,
 } from './types';
 
-export const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-P4KSB6TZVG';
+/**
+ * The only measurement ID. There is no built-in property.
+ * Set NEXT_PUBLIC_GA_MEASUREMENT_ID to the GA4 property that should receive
+ * events. Until it is set, the tag is not loaded and events are not sent.
+ */
+export function readGaMeasurementId(): string {
+  return (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '').trim()
+}
+
+export const GA_MEASUREMENT_ID = readGaMeasurementId()
+
+export function isGaConfigured(id = readGaMeasurementId()): boolean {
+  return /^G-[A-Z0-9]+$/.test(id)
+}
 
 // PII detection patterns for privacy protection
 const EMAIL_REGEX = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/gi;
@@ -168,6 +180,9 @@ class AnalyticsService {
     if (typeof window === 'undefined') {
       return; // Never execute server-side
     }
+    if (!isGaConfigured()) {
+      return
+    }
 
     try {
       // 1. Sanitize all incoming parameters against PII
@@ -255,6 +270,7 @@ class AnalyticsService {
    */
   public pageview(url: string, title?: string): void {
     if (typeof window === 'undefined') return;
+    if (!isGaConfigured()) return;
 
     try {
       const isDev = process.env.NODE_ENV === 'development';
@@ -287,7 +303,7 @@ class AnalyticsService {
       }
       // gtag('config', …) sends exactly one page_view with all params.
       // Do NOT also call gtag('event', 'page_view', …) — that would double-count.
-      pw.gtag('config', GA_MEASUREMENT_ID, {
+      pw.gtag('config', readGaMeasurementId(), {
         ...pageParams,
       });
     } catch (err) {
@@ -361,6 +377,21 @@ class AnalyticsService {
   }
   public itineraryShared(params: ItinerarySharedParams): void {
     this.trackEvent('itinerary_shared', params);
+  }
+  public tripGenerated(params: CommonMetadata = {}): void {
+    this.trackEvent('trip_generated', params);
+  }
+  public tripGenerationFailed(params: CommonMetadata = {}): void {
+    this.trackEvent('trip_generation_failed', params);
+  }
+  public planViewed(params: CommonMetadata = {}): void {
+    this.trackEvent('plan_viewed', params);
+  }
+  public tripSaved(params: CommonMetadata = {}): void {
+    this.trackEvent('trip_saved', params);
+  }
+  public tripShared(params: CommonMetadata = {}): void {
+    this.trackEvent('trip_shared', params);
   }
   public itineraryDeleted(params?: ItineraryDeletedParams): void {
     this.trackEvent('itinerary_deleted', params || {});
