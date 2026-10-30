@@ -202,6 +202,7 @@ export default function PlanClient() {
   const isSignedIn = isClerkSignedIn || isLoggedIn
 
   const [activeTab, setActiveTab] = useState('overview')
+  const [planQuality, setPlanQuality] = useState<'live' | 'partial' | 'fallback' | null>(null)
   const [showNotifs, setShowNotifs] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const [aiThinking, setAiThinking] = useState(false)
@@ -522,6 +523,8 @@ export default function PlanClient() {
     setLoading(true)
     setAiThinking(true)
     setError(null)
+    setPlanQuality(null)
+    setTrip({ costSummary: null })
 
     // Activate ALL tabs simultaneously so every section shows loading skeletons at once
     activateAllTabs()
@@ -606,6 +609,7 @@ export default function PlanClient() {
 
             return tripAPI.generateItinerary({
               destination: p.to,
+              from: p.from,
               days: daysCount,
               budget: budgetInINR,
               currency: currency,
@@ -654,15 +658,39 @@ export default function PlanClient() {
         setWeather(weatherResult.data)
       }
 
-      // Populate itinerary. A real payload wins; transport failures still get the local draft.
+      // One response. A starter outline is labeled; a timeout or empty payload uses the local draft.
+      const aiStatus = itineraryResult?.meta?.aiStatus
+        || (itineraryResult?.meta?.fallback ? 'fallback' : null)
       const liveDays = liveItineraryDays(itineraryResult)
+      let quality: 'live' | 'partial' | 'fallback' = 'live'
       if (liveDays) {
         setItinerary(liveDays)
+        quality = aiStatus === 'fallback' ? 'fallback' : aiStatus === 'partial' ? 'partial' : 'live'
       } else {
-        // Fallback itinerary generator ensures users always get a complete day-by-day plan.
-        // Use the inclusive getDayCount so a 4 Aug→10 Aug trip becomes 7 days, not 6.
         const calcDays = getDayCount(p.startDate, p.endDate) || 3
         setItinerary(createFallbackItinerary(p.to, calcDays, p.style, p.startDate))
+        quality = 'fallback'
+        console.warn('[Itinerary] AI step did not return a full plan.', {
+          aiStatus: aiStatus || 'missing',
+          message: itineraryResult?.meta?.phases || itineraryResult?.error || 'empty',
+        })
+      }
+      setPlanQuality(quality)
+      const breakdown = itineraryResult?.data?.budgetBreakdown
+      const totalEstimated = itineraryResult?.data?.totalEstimatedCost
+      if (breakdown && typeof totalEstimated === 'number') {
+        const flights = Math.round(Number(breakdown.flightsEstimate ?? breakdown.transportEstimate) || 0)
+        const hotels = Math.round(Number(breakdown.hotelsEstimate) || 0)
+        const food = Math.round(Number(breakdown.foodEstimate) || 0)
+        const activities = Math.round(Number(breakdown.activitiesEstimate) || 0)
+        const sum = flights + hotels + food + activities
+        setTrip({
+          costSummary: sum === Math.round(totalEstimated)
+            ? { total: sum, flights, hotels, food, activities }
+            : null,
+        })
+      } else {
+        setTrip({ costSummary: null })
       }
 
       // Subscribe to real-time updates via WebSocket (price drops, alerts)
@@ -671,8 +699,10 @@ export default function PlanClient() {
       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: 'Trip Ready',
-        message: `Your ${p.to} trip plan is ready!`,
+        title: quality === 'fallback' ? 'Starter outline' : 'Trip Ready',
+        message: quality === 'fallback'
+          ? `The AI step did not finish a full ${p.to} plan. A starter outline is showing.`
+          : `Your ${p.to} trip plan is ready!`,
         timestamp: new Date().toISOString(),
         read: false,
       })
@@ -681,7 +711,13 @@ export default function PlanClient() {
       setAiThinking(false)
       // Save results to cache
       saveToCache()
-      toast.success('Trip plan generated!', { id: 'search-done' })
+      if (quality === 'fallback') {
+        toast('Starter outline only. The AI step did not finish.', { id: 'search-done', icon: '!' })
+      } else if (quality === 'partial') {
+        toast('Plan ready. Some days were filled from a starter outline.', { id: 'search-done' })
+      } else {
+        toast.success('Trip plan generated!', { id: 'search-done' })
+      }
 
       // SEO Phase 5 Analytics: Trip plan successfully generated
       analytics.plannerCompleted({
@@ -690,7 +726,7 @@ export default function PlanClient() {
         travelers: p.travelers,
         hasTransport: Boolean(searchResult?.data?.transport?.length),
         hasHotels: Boolean(searchResult?.data?.hotels?.length),
-        hasItinerary: Boolean(itineraryResult?.data?.itinerary?.length),
+        hasItinerary: quality !== 'fallback' && Boolean(itineraryResult?.data?.itinerary?.length),
       })
 
     } catch (err: any) {
@@ -1217,6 +1253,18 @@ export default function PlanClient() {
               </div>
             )}
             <Suspense fallback={<TabLoader />}>
+              {planQuality === 'fallback' && (
+                <div role="status" className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                  <p className="font-extrabold">Starter outline, not a full AI plan</p>
+                  <p className="mt-1 text-xs leading-relaxed">The AI step did not finish. Dates follow the dates you picked. Places and costs are a template until you generate again.</p>
+                </div>
+              )}
+              {planQuality === 'partial' && (
+                <div role="status" className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                  <p className="font-extrabold">Part of this plan is a starter outline</p>
+                  <p className="mt-1 text-xs leading-relaxed">The AI response was incomplete, so the missing days were filled from a template. Those days are not a full model plan.</p>
+                </div>
+              )}
               {/* MULTI-CITY STOPS MANAGER CARD */}
               {activeTab === 'overview' && searchForm.isMultiCity && (
                 <div className="mb-6 max-w-7xl mx-auto w-full box-border animate-fade-in">

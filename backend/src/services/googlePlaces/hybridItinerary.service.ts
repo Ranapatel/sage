@@ -24,47 +24,69 @@ import {
 const { cacheGet, cacheSet, generateCacheKey } = require('../../config/redis')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const LLM_MODEL = 'openai/gpt-oss-120b'
+// One non-reasoning model for the itinerary. gpt-oss-120b is a reasoning model:
+// three sequential calls to it were the 78–118s path. Ranking and review
+// summaries no longer call a model. Override with GROQ_ITINERARY_MODEL.
+const ITINERARY_MODEL = process.env.GROQ_ITINERARY_MODEL || 'llama-3.3-70b-versatile'
+const LLM_MODEL = ITINERARY_MODEL
 
 export class HybridItineraryService {
   /**
    * Main entry point to generate a premium optimized hybrid itinerary
    */
   static async generate(params: HybridItineraryParams): Promise<HybridItinerary> {
-    const { destination, from, days, budget, currency = 'INR', style, members, preferences = [], startDate } = params
+    const { destination, from, days, budget, style, members, preferences = [], startDate } = params
 
     // ── 0. Canonical Destination Context (Single Source of Truth) ────────────
     const { DestinationResolverService } = require('../destinationResolver.service')
     const destContext = await DestinationResolverService.resolve(destination)
-    const destinationCity = destContext.city
 
-    // ── 0. Redis Cache Check ────────────────────────────────────────────────
-    const cacheKey = generateCacheKey('hybrid_itinerary_v6', {
+    // Exact budget and start date made this key miss for almost every visitor.
+    // Dates are stamped from the request on the way out. Budget is a 10k band.
+    // Origin stays in the key so Delhi→Goa and Mumbai→Goa do not share a plan.
+    const budgetBand = Math.round((Number(budget) || 0) / 10000) * 10000
+    const { stampItineraryDates, reconcileTripCost, originCity } = require('../itineraryFacts')
+    const cacheKey = generateCacheKey('hybrid_itinerary_v8', {
       destination: destContext.city,
       lat: destContext.latitude,
       lng: destContext.longitude,
-      from,
+      from: originCity(from),
       days,
-      budget,
+      budgetBand,
       style,
       members,
-      startDate,
       preferences: preferences.join(','),
     })
+    const finish = (raw: any, aiStatus: string) => {
+      const stamped = stampItineraryDates({ ...raw, destination, days, style, aiStatus }, startDate)
+      return reconcileTripCost(stamped, { budget }) as HybridItinerary
+    }
 
     try {
       const cached = await cacheGet(cacheKey)
-      if (cached && Array.isArray((cached as any).itinerary) && (cached as any).itinerary.length >= days) {
+      if (cached && (cached as any).aiStatus === 'live' && Array.isArray((cached as any).itinerary) && (cached as any).itinerary.length >= days) {
         console.log(`[HybridItinerary] ✅ Cache HIT for "${destContext.city}" (${(cached as any).itinerary.length} days)`)
-        return cached as HybridItinerary
+        return finish(cached, 'live')
       }
     } catch { /* proceed without cache */ }
 
     console.log(`[HybridItinerary] 🚀 Generating hybrid itinerary for "${destContext.city}" (${days} days)...`)
+    const phases: Record<string, number> = {}
+    const startedAt = Date.now()
+    let mark = startedAt
+    const stop = () => {
+      if (params.shouldAbort?.()) {
+        const err = new Error('CLIENT_CLOSED')
+        throw err
+      }
+    }
 
     // ── 1. Phase 1: Destination Intelligence (Candidates Discovery) ─────────
+    stop()
     let candidates = await this.discoverCandidates(destContext.normalizedName, preferences, destContext)
-    console.log(`[HybridItinerary] Discovered ${candidates.length} candidate places in "${destContext.city}"`)
+    phases.discoverMs = Date.now() - mark
+    mark = Date.now()
+    console.log(`[HybridItinerary] Discovered ${candidates.length} candidate places in "${destContext.city}" in ${phases.discoverMs}ms`)
 
     const minRequiredCandidates = Math.max(20, days * 3)
     if (candidates.length < minRequiredCandidates) {
@@ -75,51 +97,60 @@ export class HybridItineraryService {
 
       mockPlaces.forEach((p: any, i: number) => {
         if (!existingNames.has(p.name.toLowerCase())) {
-          candidates.push({
-            id: `curated_cand_${i}_${Date.now()}`,
-            name: p.name,
-            address: `${p.name}, ${destContext.city}`,
-            latitude: destContext.latitude + ((i + 1) * 0.004 * (i % 2 === 0 ? 1 : -1)),
-            longitude: destContext.longitude + ((i + 1) * 0.004 * (i % 3 === 0 ? 1 : -1)),
-            rating: 4.7,
-            userRatingsTotal: 150 + i * 25,
-            priceLevel: p.cost ? (p.cost > 500 ? 2 : 1) : 0,
-            category: (p.category || 'attractions').toLowerCase(),
-            types: ['tourist_attraction'],
-            photoUrl: null,
-            googleMapsUrl: '',
-            isOpenNow: true,
-            source: 'google_places' as const,
-          })
+          candidates.push(this.outlinePlace(p, i, destContext.city, destContext.latitude, destContext.longitude, 'curated_cand'))
         }
       })
     }
 
-    // ── 2. Phase 2: AI Place Ranking ────────────────────────────────────────
-    const rankedCandidates = await this.rankCandidates(candidates, params)
-    console.log(`[HybridItinerary] AI ranked top candidates. Selecting best matches...`)
+    // Local matrix only. The old Groq ranking call added up to 20s and
+    // duplicated this score.
+    stop()
+    const sample = candidates[0]
+    const solarTimes = SolarTimeService.calculateSolarTimes(
+      sample?.latitude || destContext.latitude,
+      sample?.longitude || destContext.longitude,
+      startDate,
+    )
+    const rankedCandidates = RankingMatrixService.rankCandidates(candidates, params, solarTimes).map(sc => ({
+      ...sc.place,
+      score: Math.round(sc.totalScore * 100),
+      reason: 'A fit for this trip.',
+    }))
+    phases.rankMs = Date.now() - mark
+    mark = Date.now()
 
-    // ── 3. Phase 3 & 4: AI Itinerary Generation & Route Optimization ────────
+    stop()
     const itineraryData = await this.generateOptimizedItinerary(rankedCandidates, params)
-    console.log(`[HybridItinerary] Day-by-day itinerary structured and optimized.`)
-
-    // ── 4. Phase 5 & 6: Place Enrichment & AI Review Intelligence ───────────
-    const enrichedItinerary = await this.enrichItineraryPlaces(itineraryData)
-    console.log(`[HybridItinerary] Places enriched and review summaries generated.`)
-
-    const finalItinerary = {
-      ...enrichedItinerary,
-      destination,
-      days,
-      style,
+    phases.llmMs = Date.now() - mark
+    mark = Date.now()
+    const aiStatus = itineraryData.aiStatus || 'live'
+    if (aiStatus !== 'live') {
+      console.warn(`[HybridItinerary] AI step ${aiStatus}. The response is a starter outline, not a full model plan.`)
+    } else {
+      console.log(`[HybridItinerary] Day-by-day itinerary structured in ${phases.llmMs}ms with ${ITINERARY_MODEL}.`)
     }
 
-    // ── 5. Cache result (24 hours) ──────────────────────────────────────────
-    try {
-      await cacheSet(cacheKey, finalItinerary, 86400)
-    } catch { /* silent */ }
+    // Photos and ratings already came back with discovery. A second Groq
+    // review pass and a per-slot image lookup were serial and not required
+    // for a usable plan.
+    const enrichedItinerary = this.attachCandidateFacts(itineraryData, rankedCandidates)
+    phases.enrichMs = Date.now() - mark
+    phases.totalMs = Date.now() - startedAt
+    console.log(`[HybridItinerary] phases ${JSON.stringify(phases)} aiStatus=${aiStatus}`)
 
-    return finalItinerary as HybridItinerary
+    const finished = finish(enrichedItinerary, aiStatus) as any
+    finished.generationPhases = phases
+
+    if (aiStatus === 'live') {
+      try {
+        const { generationPhases, ...cacheable } = finished
+        await cacheSet(cacheKey, cacheable, 86400)
+      } catch { /* silent */ }
+    } else {
+      console.warn('[HybridItinerary] Starter outline was not cached.')
+    }
+
+    return finished as HybridItinerary
   }
 
   /**
@@ -133,7 +164,8 @@ export class HybridItineraryService {
     const destinationCity = destination.split(',')[0].trim()
 
     // Always query these core categories for rich candidate coverage
-    const categoriesToQuery: PlaceCategory[] = ['attractions', 'landmarks', 'parks', 'museums', 'restaurants', 'cafes']
+    // Four searches, not nine. More categories added serial wait when Google was slow.
+    const categoriesToQuery: PlaceCategory[] = ['attractions', 'restaurants']
 
     const prefLower = preferences.map(p => p.toLowerCase())
     if (prefLower.some(p => p.includes('nature') || p.includes('outdoor') || p.includes('scenic') || p.includes('view'))) {
@@ -147,7 +179,7 @@ export class HybridItineraryService {
     }
 
     // Deduplicate categories, query in parallel
-    const uniqueCategories = Array.from(new Set(categoriesToQuery))
+    const uniqueCategories = Array.from(new Set(categoriesToQuery)).slice(0, 2)
 
     const locationBias = destContext && destContext.latitude && destContext.longitude ? {
       circle: {
@@ -214,7 +246,7 @@ export class HybridItineraryService {
     })
 
     // Also run a custom "hidden gems", "viewpoints" or generic "things to do" query to discover offbeat places
-    const extraQueries = ['viewpoints', 'hidden gems', 'things to do']
+    const extraQueries = ['viewpoints', 'things to do']
     const extraPromises = extraQueries.map(async (extra) => {
       try {
         const data = await googleRequest<any>({
@@ -373,8 +405,8 @@ ${candidateListStr}`
       // Sort by score descending
       return scoredCandidates.sort((a: any, b: any) => b.score - a.score)
     } catch (err: any) {
-      console.warn(`[HybridItinerary/Ranking] LLM ranking failed: ${err.message}. Using default rating sorting.`)
-      return candidates.map(c => ({ ...c, score: 80, reason: 'Highly rated local spot.' }))
+      console.warn(`[HybridItinerary/Ranking] LLM ranking failed: ${err.message}. Keeping the candidate order.`)
+      return candidates.map(c => ({ ...c, score: 80, reason: 'Kept in discovery order.' }))
     }
   }
 
@@ -387,18 +419,12 @@ ${candidateListStr}`
     const destinationCity = destination.split(',')[0].trim()
 
     // Select candidate pool proportional to the trip length (4 slots per day)
-    const topCandidatesCount = Math.max(25, days * 4 + 4)
+    const topCandidatesCount = Math.min(16, Math.max(12, days * 4))
     const topCandidates = rankedCandidates.slice(0, topCandidatesCount)
 
-    const candidatesListStr = topCandidates.map((c, i) => `
-- Name: ${c.name}
-  Place ID: ${c.id}
-  Category: ${c.category}
-  Coords: [${c.latitude}, ${c.longitude}]
-  Avg Rating: ${c.rating}
-  Est Price Level: ${c.priceLevel !== null ? c.priceLevel : 'unspecified'}
-  Reason: ${c.reason}
-`).join('\n')
+    const candidatesListStr = topCandidates.map((c, i) =>
+      `${i}. ${c.name} | ${c.category} | rating ${c.rating ?? '-'} | id ${c.id}`
+    ).join('\n')
 
     const systemPrompt = `You are TripSage, an expert local travel planner.
 Your job: Generate a premium, highly optimized ${days}-day itinerary for ${destinationCity} using ONLY the provided candidates pool.
@@ -461,18 +487,26 @@ Members: ${members}
 Budget: ${budget} ${currency}
 Preferences: ${preferences.join(', ')}
 Starting date: ${startDate || 'unspecified'}
+Day 1 date MUST be ${startDate || 'the start date'}. Each next day is the next calendar date. Do not use today's date.
 
 Candidate Places:
 ${candidatesListStr}`
 
+    if (!apiKey) {
+      console.warn('[HybridItinerary/Generation] GROQ_API_KEY missing. Returning a starter outline.')
+      const missing = this.buildFallbackHybridItinerary(rankedCandidates, params)
+      missing.aiStatus = 'fallback'
+      return missing
+    }
+
     try {
       const res = await axios.post(GROQ_API_URL, {
-        model: LLM_MODEL,
+        model: ITINERARY_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 4096,
+        max_tokens: Math.min(4000, 600 + days * 450),
         temperature: 0.2,
         response_format: { type: 'json_object' }
       }, {
@@ -480,7 +514,7 @@ ${candidatesListStr}`
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        timeout: 35000,
+        timeout: 18000,
       })
 
       const content = res.data.choices[0]?.message?.content
@@ -500,13 +534,22 @@ ${candidatesListStr}`
             }
           }
           parsed.itinerary.sort((a: any, b: any) => a.day - b.day)
+          parsed.aiStatus = 'partial'
+          console.warn('[HybridItinerary/Generation] AI step incomplete. Missing days were filled from the starter outline.')
+        } else {
+          parsed.aiStatus = 'live'
         }
         return parsed
       }
-      return this.buildFallbackHybridItinerary(rankedCandidates, params)
+      console.warn('[HybridItinerary/Generation] AI step returned no days. Using the starter outline.')
+      const empty = this.buildFallbackHybridItinerary(rankedCandidates, params)
+      empty.aiStatus = 'fallback'
+      return empty
     } catch (err: any) {
-      console.warn('[HybridItinerary/Generation] LLM generation failed, constructing fallback itinerary from candidates:', err.message)
-      return this.buildFallbackHybridItinerary(rankedCandidates, params)
+      console.warn(`[HybridItinerary/Generation] AI step failed (${err.message}). Using the starter outline.`)
+      const failed = this.buildFallbackHybridItinerary(rankedCandidates, params)
+      failed.aiStatus = 'fallback'
+      return failed
     }
   }
 
@@ -527,29 +570,14 @@ ${candidatesListStr}`
       const existingNames = new Set(candList.map(c => c.name.toLowerCase()))
       mockPlaces.forEach((p: any, i: number) => {
         if (!existingNames.has(p.name.toLowerCase())) {
-          candList.push({
-            id: `fb_cand_${i}_${Date.now()}`,
-            name: p.name,
-            address: `${p.name}, ${destCity}`,
-            latitude: 0,
-            longitude: 0,
-            rating: 4.8,
-            userRatingsTotal: 250,
-            priceLevel: p.cost ? (p.cost > 500 ? 2 : 1) : 0,
-            category: (p.category || 'attractions').toLowerCase(),
-            types: ['landmark'],
-            photoUrl: null,
-            googleMapsUrl: '',
-            isOpenNow: true,
-            source: 'google_places' as const,
-          })
+          candList.push(this.outlinePlace(p, i, destCity, 0, 0, 'fb_cand'))
         }
       })
     }
 
     if (candList.length === 0) {
       candList = [
-        { id: 'fb_1', name: `Central Landmark — ${destCity}`, category: 'attractions', rating: 4.8, userRatingsTotal: 250, priceLevel: 1, latitude: 0, longitude: 0, address: destCity, types: ['landmark'], photoUrl: null, googleMapsUrl: '', isOpenNow: true, source: 'google_places' }
+        this.outlinePlace({ name: `Central Landmark — ${destCity}`, category: 'attractions' }, 1, destCity, 0, 0, 'fb')
       ]
     }
 
@@ -567,7 +595,7 @@ ${candidatesListStr}`
 
       itinerary.push({
         day: d,
-        date: new Date(Date.now() + (d - 1) * 86400000).toISOString().split('T')[0],
+        date: require('../itineraryFacts').dateForDay(params.startDate, d),
         slots: {
           morning: {
             placeId: morningCand.id,
@@ -636,134 +664,21 @@ ${candidatesListStr}`
   }
 
   /**
-   * Fetches full metadata for selected itinerary places and generates AI review summaries in a single batch
+   * Copies ratings, photos, and map links already collected during discovery.
+   * Does not call Groq or image providers.
    */
-  private static async enrichItineraryPlaces(itineraryData: any): Promise<HybridItinerary> {
+  private static attachCandidateFacts(itineraryData: any, candidates: TripSagePlace[] = []): any {
+    const byId = new Map<string, TripSagePlace>()
+    for (const candidate of candidates) {
+      if (candidate?.id) byId.set(candidate.id, candidate)
+    }
+
     const days: any[] = itineraryData.itinerary || []
-    
-    // 1. Gather all unique Place IDs in the itinerary slots
-    const placeIds = new Set<string>()
-    days.forEach(d => {
-      const slots = d.slots || {}
-      Object.keys(slots).forEach(key => {
-        const slot = slots[key]
-        if (slot && slot.placeId) {
-          placeIds.add(slot.placeId)
-        }
-      })
-    })
-
-    const uniqueIds = Array.from(placeIds)
-    if (uniqueIds.length === 0) return itineraryData
-
-    console.log(`[HybridItinerary/Enrichment] Fetching details for ${uniqueIds.length} unique stops...`)
-
-    // 2. Fetch Google Place Details in parallel
-    const detailsPromises = uniqueIds.map(async (id) => {
-      try {
-        return await getPlaceDetails(id)
-      } catch (err: any) {
-        console.warn(`[HybridItinerary/Enrichment] Failed to fetch details for Place ID "${id}":`, err.message)
-        return null
-      }
-    })
-
-    const detailsResults = await Promise.all(detailsPromises)
-    const detailsMap = new Map<string, any>()
-    detailsResults.forEach(d => {
-      if (d && d.id) {
-        detailsMap.set(d.id, d)
-      }
-    })
-
-    // 3. Compile reviews for a single batch AI call to summarize reviews
-    const apiKey = process.env.GROQ_API_KEY
-    let reviewsSummaryMap = new Map<string, PlaceReviewSummary>()
-
-    if (apiKey) {
-      const placesForSummary = uniqueIds.map(id => {
-        const detailsObj = detailsMap.get(id)
-        if (!detailsObj) return null
-        return {
-          id,
-          name: detailsObj.name,
-          reviews: (detailsObj.reviews || []).map((r: any) => `(${r.rating} stars) ${r.text.substring(0, 150)}`).slice(0, 3)
-        }
-      }).filter(Boolean)
-
-      if (placesForSummary.length > 0) {
-        const summarySystemPrompt = `You are a Travel Review Intelligence Analyzer.
-Given a list of places and some user reviews for each, generate a structured compilation of review summaries.
-Keep it strictly under 100 words per place, highly actionable.
-
-Output ONLY a valid JSON object matching this schema:
-{
-  "summaries": {
-    "PLACE_ID_STRING": {
-      "loved": ["Feature 1 loved", "Feature 2 loved"],
-      "complaints": ["Complaint 1", "Complaint 2"],
-      "photographyTips": ["Tip 1", "Tip 2"],
-      "accessibilityNotes": "Wheelchair access info or walking conditions",
-      "bestHours": "e.g. 08:00 - 10:00 or Sunset",
-      "whoShouldVisit": "Description of target visitor",
-      "whoShouldSkip": "Description of who might not like it",
-      "hiddenTips": ["Lesser known tip 1"]
-    }
-  }
-}`
-
-        const summaryUserPrompt = `Summarize the reviews for these places:
-${JSON.stringify(placesForSummary, null, 2)}`
-
-        // Attempt LLM call with a 1-retry fallback on 429
-        const makeLlmCall = async (attempt = 1): Promise<any> => {
-          try {
-            return await axios.post(GROQ_API_URL, {
-              model: LLM_MODEL,
-              messages: [
-                { role: 'system', content: summarySystemPrompt },
-                { role: 'user', content: summaryUserPrompt },
-              ],
-              max_tokens: 2000,
-              temperature: 0.2,
-              response_format: { type: 'json_object' }
-            }, {
-              headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-              },
-              timeout: 20000,
-            })
-          } catch (err: any) {
-            if (err.response?.status === 429 && attempt === 1) {
-              console.warn('[HybridItinerary/Enrichment] Rate limited (429) on review summary. Retrying in 1.5s...')
-              await new Promise(resolve => setTimeout(resolve, 1500))
-              return makeLlmCall(2)
-            }
-            throw err
-          }
-        }
-
-        try {
-          const summaryRes = await makeLlmCall()
-          const summaryContent = summaryRes.data.choices[0]?.message?.content
-          const parsedSummaries = JSON.parse(summaryContent || '{}').summaries || {}
-          Object.keys(parsedSummaries).forEach(key => {
-            reviewsSummaryMap.set(key, parsedSummaries[key])
-          })
-        } catch (err: any) {
-          console.warn('[HybridItinerary/Enrichment] Failed to generate AI review summaries:', err.message)
-        }
-      }
-    }
-
-    const assignedUrls = new Set<string>()
     const destinationCity = itineraryData.destination || ''
-
-    // 4. Enrich every slot in the itinerary days list sequentially to preserve duplicate prevention
     const enrichedDays: any[] = []
-    for (const d of days) {
-      const slots = d.slots || {}
+
+    for (const day of days) {
+      const slots = day.slots || {}
       const enrichedSlots: any = {}
 
       for (const key of Object.keys(slots)) {
@@ -772,74 +687,25 @@ ${JSON.stringify(placesForSummary, null, 2)}`
           enrichedSlots[key] = null
           continue
         }
-
-        let rating: number | null = null
-        let reviewsCount: number | null = null
-        let googleMapsUrl: string = ''
-        let phone: string | null = null
-        let website: string | null = null
-        let openingHours: string[] | null = null
-        let coordinates: [number, number] | null = null
-        let reviewSummary: PlaceReviewSummary | null = null
-
-        let selectedPhotoUrl: string | null = null
-        let isAiIllustration = false
-
-        if (slot.placeId && detailsMap.has(slot.placeId)) {
-          const detail = detailsMap.get(slot.placeId)
-          rating = detail.rating
-          reviewsCount = detail.userRatingsTotal
-          googleMapsUrl = detail.googleMapsUrl
-          phone = detail.phone
-          website = detail.website
-          openingHours = detail.openingHours
-          coordinates = [detail.latitude, detail.longitude]
-          reviewSummary = reviewsSummaryMap.get(slot.placeId) || null
-
-          // Find first non-duplicate official photo
-          const detailPhotos = detail.photos || []
-          for (const p of detailPhotos) {
-            if (p.url && !assignedUrls.has(p.url)) {
-              selectedPhotoUrl = p.url
-              break
-            }
-          }
-        }
-
-        // If no photo selected yet, resolve via centralized ImageService
-        if (!selectedPhotoUrl) {
-          try {
-            const resolved = await ImageService.resolvePlaceImages({
-              placeId: slot.placeId,
-              placeName: slot.name,
-              city: destinationCity,
-              category: slot.category,
-              ignoreUrls: assignedUrls
-            })
-            selectedPhotoUrl = resolved.imageUrl
-            isAiIllustration = !!resolved.isAiIllustration
-          } catch (err: any) {
-            console.warn(`[HybridItinerary/Enrichment] ImageService failed for "${slot.name}":`, err.message)
-          }
-        }
-
-        if (selectedPhotoUrl) {
-          assignedUrls.add(selectedPhotoUrl)
-        }
-
+        const known = slot.placeId ? byId.get(slot.placeId) : undefined
+        const cost = Number(slot.estimatedCost)
+        const estimatedCost = Number.isFinite(cost) ? Math.max(0, Math.round(cost)) : 0
+        const photo = known?.photoUrl || slot.photoUrl || null
         enrichedSlots[key] = {
           ...slot,
-          rating,
-          reviewsCount,
-          photoUrl: selectedPhotoUrl,
-          image: selectedPhotoUrl, // Keep both photoUrl and image for compatibility
-          isAiIllustration,
-          googleMapsUrl,
-          phone,
-          website,
-          openingHours,
-          coordinates,
-          reviewSummary,
+          estimatedCost,
+          estimatedSpend: `₹${estimatedCost.toLocaleString('en-IN')}`,
+          rating: known?.rating ?? null,
+          reviewsCount: known?.userRatingsTotal ?? null,
+          photoUrl: photo,
+          image: photo || slot.image || null,
+          googleMapsUrl: known?.googleMapsUrl || slot.googleMapsUrl || (
+            slot.name
+              ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${slot.name} ${destinationCity}`)}`
+              : ''
+          ),
+          coordinates: known ? [known.latitude, known.longitude] : (slot.coordinates || null),
+          reviewSummary: null,
         }
       }
 
@@ -847,60 +713,58 @@ ${JSON.stringify(placesForSummary, null, 2)}`
         enrichedSlots.morning,
         enrichedSlots.afternoon,
         enrichedSlots.evening,
-        enrichedSlots.night
+        enrichedSlots.night,
       ].filter(Boolean)
 
-      // Invariant: Ensure every day has at least 3 active places
-      if (placesList.length < 3) {
-        const { generateMockPlaces } = require('../aiService')
-        const backupPlaces = generateMockPlaces(destinationCity || 'Destination')
-        const usedNames = new Set(placesList.map((p: any) => p.name?.toLowerCase()))
-        const allSlots = ['morning', 'afternoon', 'evening', 'night']
-
-        for (const slotKey of allSlots) {
-          if (!enrichedSlots[slotKey]) {
-            const pick = backupPlaces.find((bp: any) => !usedNames.has(bp.name.toLowerCase())) || backupPlaces[placesList.length % backupPlaces.length]
-            if (pick) {
-              usedNames.add(pick.name.toLowerCase())
-              const defaultTimes: Record<string, string> = { morning: '09:00', afternoon: '13:00', evening: '17:00', night: '20:00' }
-              enrichedSlots[slotKey] = {
-                placeId: null,
-                name: pick.name,
-                time: defaultTimes[slotKey] || '12:00',
-                category: (pick.category || 'attractions').toLowerCase(),
-                activity: pick.description || `Sightseeing & exploration at ${pick.name}`,
-                visitDurationMinutes: 90,
-                estimatedCost: pick.cost || 100,
-                tip: `Recommended timing: ${pick.bestTime || 'daytime'}`,
-                rating: 4.8,
-                reviewsCount: 180,
-                photoUrl: null,
-                image: null,
-                isAiIllustration: false,
-                googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pick.name + ' ' + destinationCity)}`,
-                phone: null,
-                website: null,
-                openingHours: null,
-                coordinates: null,
-                reviewSummary: null,
-              }
-              placesList.push(enrichedSlots[slotKey])
-              if (placesList.length >= 3) break
-            }
-          }
-        }
-      }
-
       enrichedDays.push({
-        ...d,
+        ...day,
         slots: enrichedSlots,
-        places: placesList,
+        places: placesList.length > 0 ? placesList : (Array.isArray(day.places) ? day.places : []),
       })
     }
 
     return {
       ...itineraryData,
       itinerary: enrichedDays,
+    }
+  }
+
+  /**
+   * Kept for callers that still ask for the old enrichment entry point.
+   * It no longer makes Groq or image requests.
+   */
+  private static async enrichItineraryPlaces(itineraryData: any, candidates: TripSagePlace[] = []): Promise<any> {
+    return this.attachCandidateFacts(itineraryData, candidates)
+  }
+
+
+  /**
+   * A catalog or starter place. It has no Google rating, review count, phone, or hours.
+   * Those fields stay null so the plan does not show invented numbers.
+   */
+  private static outlinePlace(
+    place: { name: string; category?: string },
+    index: number,
+    city: string,
+    latitude: number,
+    longitude: number,
+    idPrefix: string,
+  ): TripSagePlace {
+    return {
+      id: `${idPrefix}_${index}`,
+      name: place.name,
+      address: place.name ? `${place.name}, ${city}` : city,
+      latitude: Number.isFinite(latitude) ? latitude : 0,
+      longitude: Number.isFinite(longitude) ? longitude : 0,
+      rating: null,
+      userRatingsTotal: null,
+      priceLevel: null,
+      category: ((place.category || 'attractions').toLowerCase() as PlaceCategory),
+      types: ['tourist_attraction'],
+      photoUrl: null,
+      googleMapsUrl: '',
+      isOpenNow: null,
+      source: 'google_places',
     }
   }
 

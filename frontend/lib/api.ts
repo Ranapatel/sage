@@ -27,9 +27,19 @@ export interface SearchData {
   flightValidation?: any
 }
 
+export interface ItineraryBudgetBreakdown {
+  flightsEstimate?: number
+  transportEstimate?: number
+  hotelsEstimate?: number
+  foodEstimate?: number
+  activitiesEstimate?: number
+  remainingBudget?: number
+}
+
 export interface ItineraryData {
   itinerary: any[]
   totalEstimatedCost?: number
+  budgetBreakdown?: ItineraryBudgetBreakdown
   tips?: string[]
 }
 
@@ -227,7 +237,7 @@ export const tripAPI = {
   // Pass `timeout` from itineraryRequestConfig. The instance default above is 60s,
   // which is shorter than a live generation (about 80–100s).
   generateItinerary: (params: {
-    destination: string; days: number; budget: number; currency?: string
+    destination: string; from?: string; days: number; budget: number; currency?: string
     style: string; preferences: string[]; members: number; startDate?: string
     isMultiCity?: boolean; stops?: Array<{ city: string; nights: number }>
   }, config?: { signal?: AbortSignal; timeout?: number }): Promise<ApiResponse<ItineraryData>> =>
@@ -274,14 +284,9 @@ export const tripAPI = {
             address: 'City Center, Destination',
             formattedAddress: 'City Center, Destination',
             category: 'Attractions',
-            rating: 4.7,
-            userRatingCount: 180,
-            priceLevel: 2,
             heroImage: heroUrl,
             photos: [{ url: heroUrl, thumbnail: heroUrl, attributions: [] }],
-            openNow: true,
-            isOpenNow: true,
-            description: 'Popular local attraction featuring rich cultural heritage and scenic views.'
+            description: 'Place details could not be loaded.'
           }
         }
         return fallback

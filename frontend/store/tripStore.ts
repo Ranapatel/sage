@@ -16,6 +16,14 @@ export interface UserProfile {
   members: number
 }
 
+export interface TripCostSummary {
+  total: number
+  flights: number
+  hotels: number
+  food: number
+  activities: number
+}
+
 export interface TripContext {
   startLocation: string
   destination: string
@@ -24,6 +32,7 @@ export interface TripContext {
   currentDay: number
   isMultiCity?: boolean
   stops?: Array<{ city: string; nights: number }>
+  costSummary?: TripCostSummary | null
 }
 
 export interface TransportOption {
