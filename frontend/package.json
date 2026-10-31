@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:seo": "node --test tests/seo-indexability.test.mjs"
+    "test:seo": "node --test tests/seo-indexability.test.mjs",
+    "test:itinerary-timeout": "node --experimental-strip-types --test tests/itinerary-generate-timeout.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.39.5",

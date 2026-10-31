@@ -9,6 +9,14 @@ import { isIndianTrip } from '@/lib/indianCities'
 import { useSocket } from '@/hooks/useSocket'
 import { tripAPI } from '@/lib/api'
 import { fetchWithRetry } from '@/lib/fetchWithRetry'
+import {
+  ITINERARY_GENERATE_MAX_RETRIES,
+  ITINERARY_GENERATE_TIMEOUT_MS,
+  ITINERARY_PROGRESS_MESSAGE,
+  combineAbortSignals,
+  itineraryRequestConfig,
+  liveItineraryDays,
+} from '@/lib/itineraryGenerate'
 import { formatDate, getDaysBetween, getDayCount, getDateForDay } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { useUser } from '@clerk/nextjs'
@@ -195,6 +203,7 @@ export default function PlanClient() {
   const isSignedIn = isClerkSignedIn || isLoggedIn
 
   const [activeTab, setActiveTab] = useState('overview')
+  const [planQuality, setPlanQuality] = useState<'live' | 'partial' | 'fallback' | null>(null)
   const [showNotifs, setShowNotifs] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const [aiThinking, setAiThinking] = useState(false)
@@ -313,20 +322,22 @@ export default function PlanClient() {
       : null
     if (shared) {
       const restored = itineraryFromPlan(shared)
-      setItinerary(restored as any)
-      setTrip({
-        destination: shared.destination,
-        startDate: shared.startDate || '',
-        endDate: shared.endDate || '',
+      Promise.resolve().then(() => {
+        setItinerary(restored as any)
+        setTrip({
+          destination: shared.destination,
+          startDate: shared.startDate || '',
+          endDate: shared.endDate || '',
+        })
+        setSearchForm(prev => ({
+          ...prev,
+          to: shared.destination,
+          startDate: shared.startDate || prev.startDate,
+          endDate: shared.endDate || prev.endDate,
+        }))
+        setActiveTab('itinerary')
+        startTransition(() => setInitialized(true))
       })
-      setSearchForm(prev => ({
-        ...prev,
-        to: shared.destination,
-        startDate: shared.startDate || prev.startDate,
-        endDate: shared.endDate || prev.endDate,
-      }))
-      setActiveTab('itinerary')
-      startTransition(() => setInitialized(true))
       return
     }
     const saved = sessionStorage.getItem('tripContext')
@@ -536,6 +547,8 @@ export default function PlanClient() {
     setLoading(true)
     setAiThinking(true)
     setError(null)
+    setPlanQuality(null)
+    setTrip({ costSummary: null })
 
     // Activate ALL tabs simultaneously so every section shows loading skeletons at once
     activateAllTabs()
@@ -609,9 +622,10 @@ export default function PlanClient() {
           console.warn('[Weather] failed after retries:', err.message)
           return null
         }),
-        // Itinerary fetched in parallel
+        // Itinerary fetched in parallel. One attempt, up to 150s.
+        // A retry would start another generation while the first is still running.
         fetchWithRetry(
-          async (s) => {
+          async (attemptSignal) => {
             // Use the inclusive day count so a 4 Aug→10 Aug trip
             // requests 7 days, not 6. getDayCount is the single source of truth.
             let daysCount = getDayCount(p.startDate, p.endDate)
@@ -621,6 +635,7 @@ export default function PlanClient() {
             try {
               return await tripAPI.generateItinerary({
               destination: p.to,
+              from: p.from,
               days: daysCount,
               budget: budgetInINR,
               currency: currency,
@@ -630,15 +645,18 @@ export default function PlanClient() {
               startDate: p.startDate,
               isMultiCity: p.isMultiCity,
               stops: p.stops,
-            }, { signal: s || signal })
+            }, itineraryRequestConfig(combineAbortSignals(attemptSignal, signal)))
             } finally {
               generationMs = Date.now() - started
             }
           },
-          { timeout: 45000, maxRetries: 2, label: 'Itinerary' }
-
+          {
+            timeout: ITINERARY_GENERATE_TIMEOUT_MS,
+            maxRetries: ITINERARY_GENERATE_MAX_RETRIES,
+            label: 'Itinerary',
+          }
         ).catch(err => {
-          if (err.message?.includes('canceled') || err.name === 'AbortError') return null
+          if (err.message?.includes('canceled') || err.name === 'AbortError' || err.code === 'ERR_CANCELED') return null
           console.warn('[Itinerary] backend call completed with fallback:', err.message)
           return null
         }),
@@ -669,14 +687,39 @@ export default function PlanClient() {
         setWeather(weatherResult.data)
       }
 
-      // Populate itinerary
-      if (itineraryResult?.data?.itinerary && itineraryResult.data.itinerary.length > 0) {
-        setItinerary(itineraryResult.data.itinerary)
+      // One response. A starter outline is labeled; a timeout or empty payload uses the local draft.
+      const aiStatus = itineraryResult?.meta?.aiStatus
+        || (itineraryResult?.meta?.fallback ? 'fallback' : null)
+      const liveDays = liveItineraryDays(itineraryResult)
+      let quality: 'live' | 'partial' | 'fallback' = 'live'
+      if (liveDays) {
+        setItinerary(liveDays)
+        quality = aiStatus === 'fallback' ? 'fallback' : aiStatus === 'partial' ? 'partial' : 'live'
       } else {
-        // Fallback itinerary generator ensures users always get a complete day-by-day plan.
-        // Use the inclusive getDayCount so a 4 Aug→10 Aug trip becomes 7 days, not 6.
         const calcDays = getDayCount(p.startDate, p.endDate) || 3
         setItinerary(createFallbackItinerary(p.to, calcDays, p.style, p.startDate))
+        quality = 'fallback'
+        console.warn('[Itinerary] AI step did not return a full plan.', {
+          aiStatus: aiStatus || 'missing',
+          message: itineraryResult?.meta?.phases || itineraryResult?.error || 'empty',
+        })
+      }
+      setPlanQuality(quality)
+      const breakdown = itineraryResult?.data?.budgetBreakdown
+      const totalEstimated = itineraryResult?.data?.totalEstimatedCost
+      if (breakdown && typeof totalEstimated === 'number') {
+        const flights = Math.round(Number(breakdown.flightsEstimate ?? breakdown.transportEstimate) || 0)
+        const hotels = Math.round(Number(breakdown.hotelsEstimate) || 0)
+        const food = Math.round(Number(breakdown.foodEstimate) || 0)
+        const activities = Math.round(Number(breakdown.activitiesEstimate) || 0)
+        const sum = flights + hotels + food + activities
+        setTrip({
+          costSummary: sum === Math.round(totalEstimated)
+            ? { total: sum, flights, hotels, food, activities }
+            : null,
+        })
+      } else {
+        setTrip({ costSummary: null })
       }
 
       // Subscribe to real-time updates via WebSocket (price drops, alerts)
@@ -685,8 +728,10 @@ export default function PlanClient() {
       addNotification({
         id: Date.now().toString(),
         type: 'info',
-        title: 'Trip Ready',
-        message: `Your ${p.to} trip plan is ready!`,
+        title: quality === 'fallback' ? 'Starter outline' : 'Trip Ready',
+        message: quality === 'fallback'
+          ? `The AI step did not finish a full ${p.to} plan. A starter outline is showing.`
+          : `Your ${p.to} trip plan is ready!`,
         timestamp: new Date().toISOString(),
         read: false,
       })
@@ -695,7 +740,13 @@ export default function PlanClient() {
       setAiThinking(false)
       // Save results to cache
       saveToCache()
-      toast.success('Trip plan generated!', { id: 'search-done' })
+      if (quality === 'fallback') {
+        toast('Starter outline only. The AI step did not finish.', { id: 'search-done', icon: '!' })
+      } else if (quality === 'partial') {
+        toast('Plan ready. Some days were filled from a starter outline.', { id: 'search-done' })
+      } else {
+        toast.success('Trip plan generated!', { id: 'search-done' })
+      }
 
       // SEO Phase 5 Analytics: Trip plan successfully generated
       const serverDays = itineraryResult?.data?.itinerary
@@ -709,7 +760,7 @@ export default function PlanClient() {
         travelers: p.travelers,
         hasTransport: Boolean(searchResult?.data?.transport?.length),
         hasHotels: Boolean(searchResult?.data?.hotels?.length),
-        hasItinerary: hasRealPlan,
+        hasItinerary: hasRealPlan && quality !== 'fallback',
       })
       if (hasRealPlan) {
         analytics.tripGenerated({
@@ -809,10 +860,11 @@ export default function PlanClient() {
     }
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.tripsage.in'
     const payload = buildSharePayload(plan, origin)
-    const method = typeof navigator !== 'undefined' && navigator.share ? 'native_share' : 'copy_link'
+    const canNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+    const method = canNativeShare ? 'native_share' : 'copy_link'
     analytics.tripShared({ method, trip_days: plan.days.length })
 
-    if (navigator.share) {
+    if (canNativeShare) {
       navigator.share({
         title: payload.title,
         text: payload.text,
@@ -1275,7 +1327,29 @@ export default function PlanClient() {
         {/* Main Content Area */}
         <div className="flex-1 min-w-0">
           <main>
+            {aiThinking && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="mb-4 flex items-start gap-3 rounded-2xl border border-[#FED7AA] bg-[#FFF7ED] px-4 py-3"
+              >
+                <span className="mt-0.5 inline-block h-4 w-4 shrink-0 rounded-full border-2 border-[#EA580C] border-t-transparent animate-spin" aria-hidden="true" />
+                <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">{ITINERARY_PROGRESS_MESSAGE}</p>
+              </div>
+            )}
             <Suspense fallback={<TabLoader />}>
+              {planQuality === 'fallback' && (
+                <div role="status" className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                  <p className="font-extrabold">Starter outline, not a full AI plan</p>
+                  <p className="mt-1 text-xs leading-relaxed">The AI step did not finish. Dates follow the dates you picked. Places and costs are a template until you generate again.</p>
+                </div>
+              )}
+              {planQuality === 'partial' && (
+                <div role="status" className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                  <p className="font-extrabold">Part of this plan is a starter outline</p>
+                  <p className="mt-1 text-xs leading-relaxed">The AI response was incomplete, so the missing days were filled from a template. Those days are not a full model plan.</p>
+                </div>
+              )}
               {/* MULTI-CITY STOPS MANAGER CARD */}
               {activeTab === 'overview' && searchForm.isMultiCity && (
                 <div className="mb-6 max-w-7xl mx-auto w-full box-border animate-fade-in">
@@ -1506,6 +1580,7 @@ export default function PlanClient() {
                 startDate={tripContext.startDate}
                 endDate={tripContext.endDate}
                 onRegenerate={handleRegenerate}
+                progressMessage={aiThinking ? ITINERARY_PROGRESS_MESSAGE : undefined}
               />
             </div>
           )}

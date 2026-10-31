@@ -199,6 +199,8 @@ export interface HybridItineraryParams {
   members: number
   preferences?: string[]
   startDate?: string
+  /** Set when the HTTP client has gone away. Checked between stages. */
+  shouldAbort?: () => boolean
   persona?: UserPersonaVector
   pace?: 'Relaxed' | 'Balanced' | 'Packed'
   walkingToleranceKm?: number

@@ -90,11 +90,8 @@ router.get('/activities/:destination', [
       name: p.name,
       category: p.category || category || 'Tourist Attractions',
       description: p.description,
-      rating: 4.8 - (i * 0.1),
-      userRatingCount: 150 + (i * 25),
       priceLevel: p.cost ? (p.cost > 500 ? '$$$' : '$$') : '$',
       formattedAddress: `${p.name}, ${cityName}`,
-      openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop'],
       photoCount: 1
@@ -114,11 +111,8 @@ router.get('/activities/:destination', [
       name: p.name,
       category: p.category || category || 'Tourist Attractions',
       description: p.description,
-      rating: 4.7,
-      userRatingCount: 120,
       priceLevel: '$$',
       formattedAddress: `${p.name}, ${cityName}`,
-      openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80&auto=format&fit=crop'],
       photoCount: 1
@@ -209,11 +203,8 @@ router.get('/restaurants/:destination', [
       name: `${p.name} Dining`,
       category: 'Restaurants',
       description: p.description,
-      rating: 4.6,
-      userRatingCount: 200,
       priceLevel: '$$',
       formattedAddress: `${p.name}, ${cityName}`,
-      openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop'],
       photoCount: 1
@@ -233,11 +224,8 @@ router.get('/restaurants/:destination', [
       name: `${p.name} Dining`,
       category: 'Restaurants',
       description: p.description,
-      rating: 4.6,
-      userRatingCount: 200,
       priceLevel: '$$',
       formattedAddress: `${p.name}, ${cityName}`,
-      openNow: true,
       heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop',
       photos: ['https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop'],
       photoCount: 1
@@ -275,21 +263,13 @@ router.get('/details/:placeId', [
         address: 'City Center, Destination',
         formattedAddress: 'City Center, Destination',
         category: isRest ? 'Restaurants' : 'Tourist Attractions',
-        rating: 4.7,
-        userRatingCount: 180,
         priceLevel: 2,
         heroImage,
         photos: gallery,
         photoCount: gallery.length,
-        openNow: true,
-        isOpenNow: true,
         description: isRest
-          ? 'Popular local restaurant serving authentic regional specialties with high visitor ratings.'
-          : 'Highly recommended local attraction featuring rich cultural heritage and scenic views.',
-        openingHours: ['Monday - Sunday: 09:00 AM - 10:00 PM'],
-        reviews: [
-          { author: 'Curated Traveler', rating: 5, text: 'Must-visit spot with incredible ambience and service!', relativeTime: 'a week ago' }
-        ],
+          ? 'Place details were not loaded for this restaurant.'
+          : 'Place details were not loaded for this stop.',
         source: 'fallback_mock'
       },
       meta: { timestamp: new Date().toISOString(), source: 'fallback_mock' }
@@ -311,13 +291,9 @@ router.get('/details/:placeId', [
           address: 'City Center, Destination',
           formattedAddress: 'City Center, Destination',
           category: 'Attractions',
-          rating: 4.6,
-          userRatingCount: 120,
           heroImage,
           photos: gallery.length > 0 ? gallery : [{ url: heroImage, thumbnail: heroImage, attributions: [] }],
           photoCount: gallery.length || 1,
-          openNow: true,
-          isOpenNow: true,
           source: 'fallback'
         },
         meta: { timestamp: new Date().toISOString(), source: 'fallback' }
@@ -342,13 +318,9 @@ router.get('/details/:placeId', [
         address: 'City Center, Destination',
         formattedAddress: 'City Center, Destination',
         category: 'Attractions',
-        rating: 4.6,
-        userRatingCount: 150,
         heroImage,
         photos: gallery.length > 0 ? gallery : [{ url: heroImage, thumbnail: heroImage, attributions: [] }],
         photoCount: gallery.length || 1,
-        openNow: true,
-        isOpenNow: true,
         source: 'soft_fallback',
         error: err.message
       },

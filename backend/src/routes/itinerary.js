@@ -7,6 +7,27 @@ const { cacheGet, cacheSet, generateCacheKey } = require('../config/redis')
 const { v4: uuidv4 } = require('uuid')
 const { DestinationResolverService } = require('../services/destinationResolver.service')
 const { validateAndSanitizeItinerary } = require('../middleware/destinationValidationGuard')
+const { stampItineraryDates, reconcileTripCost, originCity } = require('../services/itineraryFacts')
+
+function budgetBand(budget) {
+  return Math.round((Number(budget) || 0) / 10000) * 10000
+}
+
+function publishPlan(data, { startDate, budget }) {
+  const phases = data?.generationPhases || null
+  const aiStatus = data?.aiStatus || 'live'
+  const clean = { ...(data || {}) }
+  delete clean.generationPhases
+  const stamped = stampItineraryDates(clean, startDate)
+  const reconciled = reconcileTripCost(stamped, { budget })
+  delete reconciled.aiStatus
+  return {
+    data: reconciled,
+    aiStatus,
+    fallback: aiStatus !== 'live',
+    phases,
+  }
+}
 
 const itineraryValidation = [
   body('destination').trim().notEmpty().isLength({ max: 100 }),
@@ -42,12 +63,30 @@ router.post('/generate', itineraryValidation, async (req, res) => {
 
   const { destination, from, days, budget, currency = 'INR', style, members = 2, preferences = [], startDate } = req.body
   const requestId = uuidv4()
+  let clientClosed = false
+  req.on('close', () => { clientClosed = true })
 
-  // Check cache first
-  const cacheKey = generateCacheKey('itinerary_v6', { destination, from, days, budget, style, startDate, members, preferences: preferences.join(',') })
+  // startDate and the exact budget are not part of the key. Dates are stamped
+  // for the request, and the cost lines are reconciled to this budget.
+  // Origin is part of the key: two trips to the same place from different cities
+  // must not share a cached plan. v7 omitted it.
+  const cacheKey = generateCacheKey('itinerary_v8', {
+    destination,
+    from: originCity(from),
+    days,
+    budgetBand: budgetBand(budget),
+    style,
+    members,
+    preferences: preferences.join(','),
+  })
   const cached = await cacheGet(cacheKey)
-  if (cached && Array.isArray(cached.data?.itinerary) && cached.data.itinerary.length >= days) {
-    return res.json({ ...cached, meta: { ...cached.meta, requestId, cache: true } })
+  if (cached && cached.meta?.aiStatus === 'live' && Array.isArray(cached.data?.itinerary) && cached.data.itinerary.length >= days) {
+    const published = publishPlan(cached.data, { startDate, budget })
+    return res.json({
+      ...cached,
+      data: published.data,
+      meta: { ...cached.meta, requestId, cache: true, aiStatus: 'live', fallback: false, phases: null },
+    })
   }
 
   const hasGoogleKey = process.env.GOOGLE_PLACES_API_KEY &&
@@ -70,15 +109,24 @@ router.post('/generate', itineraryValidation, async (req, res) => {
           style,
           members,
           preferences,
-          startDate
+          startDate,
+          shouldAbort: () => clientClosed || req.destroyed,
         });
         isHybrid = true;
       } catch (hybridErr) {
-        console.warn(`[Itinerary Route] Hybrid Itinerary Engine failed (${hybridErr.message}) — falling back to legacy AI engine.`);
-        const result = await generateItinerary({ destination, from, days, budget, currency, style, members, preferences, startDate })
-        if (!result.success) throw new Error('Itinerary generation failed')
-        const enrichedItinerary = await enrichItineraryWithRealCoords(result.data.itinerary, destination)
-        enrichedData = { ...result.data, itinerary: enrichedItinerary }
+        if (clientClosed || hybridErr.message === 'CLIENT_CLOSED') {
+          console.log(`[Itinerary Route] Client closed during generation (${requestId}). Stopped.`)
+          return
+        }
+        if (String(hybridErr.message || '').includes('DESTINATION_NOT_FOUND')) throw hybridErr
+        console.warn(`[Itinerary Route] AI step failed (${hybridErr.message}). Returning a starter outline instead of a second model call.`)
+        enrichedData = {
+          itinerary: [],
+          aiStatus: 'fallback',
+          totalEstimatedCost: 0,
+          budgetBreakdown: {},
+          tips: ['The AI step did not finish. This outline is a starter, not a full plan.'],
+        }
       }
     } else {
       console.log('[Itinerary Route] Google Places key not configured. Running legacy geocoded engine...');
@@ -101,14 +149,25 @@ router.post('/generate', itineraryValidation, async (req, res) => {
       console.warn(`[Itinerary Route] Destination resolution warning: ${resolveErr.message}`)
     }
 
+    if (clientClosed) {
+      console.log(`[Itinerary Route] Client closed before the response (${requestId}).`)
+      return
+    }
+
     // Validate itinerary stops against canonical destination
     let validatedData = enrichedData
-    if (destContext) {
+    if (destContext && Array.isArray(enrichedData?.itinerary) && enrichedData.itinerary.length > 0) {
       validatedData = validateAndSanitizeItinerary(enrichedData, destContext)
     }
 
-    await cacheSet(cacheKey, { success: true, data: validatedData })
-    res.json({
+    const published = publishPlan(validatedData, { startDate, budget })
+    if (published.aiStatus !== 'live') {
+      console.warn(`[Itinerary Route] aiStatus=${published.aiStatus} requestId=${requestId} destination=${destination} startDate=${startDate || 'none'}`)
+    } else {
+      console.log(`[Itinerary Route] aiStatus=live requestId=${requestId} phases=${JSON.stringify(published.phases)}`)
+    }
+
+    const body = {
       success: true,
       meta: {
         timestamp: new Date().toISOString(),
@@ -117,11 +176,19 @@ router.post('/generate', itineraryValidation, async (req, res) => {
         googleEnriched: hasGoogleKey,
         isHybrid,
         canonicalDestination: destContext ? destContext.city : destination,
+        aiStatus: published.aiStatus,
+        fallback: published.fallback,
+        phases: published.phases,
       },
-      data: validatedData,
-      message: 'LIVE_UPDATE',
+      data: published.data,
+      message: published.fallback ? 'STARTER_OUTLINE' : 'LIVE_UPDATE',
       error: null,
-    })
+    }
+
+    if (published.aiStatus === 'live' && Array.isArray(published.data?.itinerary) && published.data.itinerary.length >= days) {
+      await cacheSet(cacheKey, { success: true, data: published.data, meta: { aiStatus: 'live' } })
+    }
+    res.json(body)
   } catch (err) {
     console.error('[Itinerary Route] Error:', err.message)
     res.status(500).json({

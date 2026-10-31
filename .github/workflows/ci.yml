@@ -43,6 +43,8 @@ jobs:
         run: npx prisma generate
 
       - name: Validate Prisma schema
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db?schema=public
         run: npx prisma validate
 
       - name: Typecheck (tsc --noEmit)

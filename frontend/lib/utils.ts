@@ -117,14 +117,18 @@ export function getDayCount(startDate?: string | null, endDate?: string | null):
  */
 export function getDateForDay(startDate: string | null | undefined, dayNumber: number): string | null {
   if (!startDate || !dayNumber || dayNumber < 1) return null
-  const s = new Date(startDate)
-  if (isNaN(s.getTime())) return null
-  const d = new Date(s.getTime())
-  d.setDate(d.getDate() + (dayNumber - 1))
-  // Use local-time formatting to avoid UTC off-by-one
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(startDate)
+  if (!match) return null
+  // Date-only strings are calendar days. Parsing them with Date() is UTC
+  // midnight, which shifts the day in timezones behind UTC.
+  const dt = new Date(Date.UTC(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]) + (dayNumber - 1),
+  ))
+  const yyyy = dt.getUTCFullYear()
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(dt.getUTCDate()).padStart(2, '0')
   return `${yyyy}-${mm}-${dd}`
 }
 

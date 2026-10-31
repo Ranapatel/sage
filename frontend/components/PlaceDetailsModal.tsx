@@ -156,9 +156,8 @@ export default function PlaceDetailsModal({
   const lng = resolvedCoords ? resolvedCoords.lng : null;
   const hasCoords = lat !== null && lng !== null;
 
-  // Smart UI fallback calculations
-  const displayRating = place.rating || 4.5;
-  const displayHours = place.openingHours || '9:00 AM - 6:00 PM';
+  const displayRating = typeof place.rating === 'number' && place.rating > 0 ? place.rating : null
+  const displayHours = place.openingHours?.trim() ? place.openingHours : null
   const displayDuration = place.visitDuration || '1.5 - 2 Hours';
   const displayAddress = place.address || `${place.name}, ${destinationName}`;
   const displayDistance = place.distance || '4.2 km (from center)';
@@ -173,10 +172,12 @@ export default function PlaceDetailsModal({
       )}`;
 
   const handleShare = () => {
-    const shareText = `Check out ${place.name} in ${destinationName}!
-Address: ${displayAddress}
-Hours: ${displayHours}
-Rating: ${displayRating}/5`;
+    const shareText = [
+      `Check out ${place.name} in ${destinationName}!`,
+      `Address: ${displayAddress}`,
+      displayHours ? `Hours: ${displayHours}` : null,
+      displayRating != null ? `Rating: ${displayRating}/5` : null,
+    ].filter(Boolean).join('\n')
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareText);
@@ -262,26 +263,27 @@ Rating: ${displayRating}/5`;
                     </h2>
                   </div>
 
-                  {/* Rating representation */}
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <div className="flex text-amber-500">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(displayRating)
-                              ? 'fill-amber-500'
-                              : i < displayRating
-                                ? 'fill-amber-500/50'
-                                : 'text-zinc-300 dark:text-zinc-600'
-                          }`}
-                        />
-                      ))}
+                  {displayRating != null && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className="flex text-amber-500">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < Math.floor(displayRating)
+                                ? 'fill-amber-500'
+                                : i < displayRating
+                                  ? 'fill-amber-500/50'
+                                  : 'text-zinc-300 dark:text-zinc-600'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+                        {displayRating.toFixed(1)} / 5.0
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
-                      {displayRating.toFixed(1)} / 5.0
-                    </span>
-                  </div>
+                  )}
                 </div>
 
                 {/* Place details grid */}
@@ -299,18 +301,19 @@ Rating: ${displayRating}/5`;
                     </div>
                   </div>
 
-                  {/* Open Hours */}
-                  <div className="flex gap-3 items-start p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                    <Clock className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="block text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500">
-                        Hours
-                      </span>
-                      <span className="text-xs text-zinc-700 dark:text-zinc-300 leading-snug">
-                        {displayHours}
-                      </span>
+                  {displayHours && (
+                    <div className="flex gap-3 items-start p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                      <Clock className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="block text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500">
+                          Hours
+                        </span>
+                        <span className="text-xs text-zinc-700 dark:text-zinc-300 leading-snug">
+                          {displayHours}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Estimated Visit Duration */}
                   <div className="flex gap-3 items-start p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">

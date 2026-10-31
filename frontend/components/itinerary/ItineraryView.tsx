@@ -25,6 +25,7 @@ import { tripAPI } from '@/lib/api'
 import TravelMemories from '@/components/photos/TravelMemories'
 import { addBookmark } from '@/lib/bookmarkUtils'
 import { getDayCount, getDateForDay } from '@/lib/utils'
+import { placeSpend } from '@/lib/planFacts'
 import { analytics } from '@/lib/analytics'
 import { buildSharePayload, planFromTrip } from '@/lib/sharePlan'
 import StoryCardModal from './StoryCardModal'
@@ -75,6 +76,8 @@ interface Props {
   /** Trip end date (YYYY-MM-DD). Together with startDate, drives the day count. */
   endDate?: string
   onRegenerate?: () => void
+  /** Shown with the loading skeleton while a plan is being generated. */
+  progressMessage?: string
 }
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Constants Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -695,17 +698,7 @@ const DayIntelligencePanel = memo(({
   const pace = deriveDayPace(day.places)
 
   // Estimate total daily spend from places
-  const totalSpend = day.places.reduce((acc, p) => {
-    if (!p.estimatedSpend) return acc
-    const nums = p.estimatedSpend.match(/\d+/g)
-    if (nums) {
-      const avg = nums.length === 2
-        ? (parseInt(nums[0]) + parseInt(nums[1])) / 2
-        : parseInt(nums[0])
-      return acc + avg
-    }
-    return acc
-  }, 0)
+  const totalSpend = day.places.reduce((acc, p) => acc + placeSpend(p), 0)
 
   // Estimate total travel time
   const totalTravel = day.places.reduce((acc, p) => {
@@ -886,9 +879,13 @@ DayIntelligencePanel.displayName = 'DayIntelligencePanel'
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Loading skeleton Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
-function ItineraryLoadingSkeleton() {
+function ItineraryLoadingSkeleton({ message }: { message?: string }) {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6">
+      {message && (
+        <p role="status" className="text-sm font-semibold text-[#1A1A1A]">{message}</p>
+      )}
+      <div className="space-y-6 animate-pulse">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-2">
@@ -918,6 +915,7 @@ function ItineraryLoadingSkeleton() {
         </div>
         <div className="hidden lg:block h-64 rounded-2xl" style={{ background: '#F0EBE4' }} />
       </div>
+      </div>
     </div>
   )
 }
@@ -931,6 +929,7 @@ function ItineraryView({
   startDate,
   endDate,
   onRegenerate,
+  progressMessage,
 }: Props) {
   // ─── Source of truth ────────────────────────────────────────────────────
   // The selected travel date range is the ONLY source of truth for the
@@ -1279,9 +1278,10 @@ function ItineraryView({
     }
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.tripsage.in'
     const payload = buildSharePayload(plan, origin)
-    analytics.tripShared({ method: typeof navigator !== 'undefined' && navigator.share ? 'native_share' : 'copy_link', trip_days: plan.days.length })
+    const canNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+    analytics.tripShared({ method: canNativeShare ? 'native_share' : 'copy_link', trip_days: plan.days.length })
 
-    if (typeof navigator !== 'undefined' && navigator.share) {
+    if (canNativeShare) {
       navigator.share({
         title: payload.title,
         text: payload.text,
@@ -1297,7 +1297,7 @@ function ItineraryView({
     }
   }, [destination, startDate, endDate, itinerary])
 
-  if (loading) return <ItineraryLoadingSkeleton />
+  if (loading) return <ItineraryLoadingSkeleton message={progressMessage} />
 
   if (totalDayCount === 0) {
     return (

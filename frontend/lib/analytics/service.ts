@@ -252,7 +252,6 @@ class AnalyticsService {
       if (typeof w.gtag !== 'function') {
         w.dataLayer = w.dataLayer || [];
         w.gtag = function gtag() {
-          // eslint-disable-next-line prefer-rest-params
           w.dataLayer.push(arguments);
         };
       }
@@ -292,19 +291,23 @@ class AnalyticsService {
       }
 
       const pw = window as any;
-      // Install the gtag shim if gtag.js hasn't loaded yet so the config call
-      // is queued in dataLayer and replayed when the script arrives.
+      // Install the gtag shim if gtag.js hasn't loaded yet so the event is
+      // queued in dataLayer and replayed when the script arrives.
       if (typeof pw.gtag !== 'function') {
         pw.dataLayer = pw.dataLayer || [];
         pw.gtag = function gtag() {
-          // eslint-disable-next-line prefer-rest-params
           pw.dataLayer.push(arguments);
         };
       }
-      // gtag('config', …) sends exactly one page_view with all params.
-      // Do NOT also call gtag('event', 'page_view', …) — that would double-count.
-      pw.gtag('config', readGaMeasurementId(), {
+      // layout.tsx configures the tag with send_page_view:false. A later
+      // gtag('config') does not send a page_view on the first load, so the
+      // landing stays invisible. One explicit event is the page view.
+      // Do not also call gtag('config') here — that can add a second hit
+      // on client navigations.
+      pw.gtag('event', 'page_view', {
+        page_location: window.location.href,
         ...pageParams,
+        send_to: readGaMeasurementId(),
       });
     } catch (err) {
       if (process.env.NODE_ENV === 'development') {

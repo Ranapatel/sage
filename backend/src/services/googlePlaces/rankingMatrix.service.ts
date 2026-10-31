@@ -55,8 +55,8 @@ export class RankingMatrixService {
       }
 
       // 2. Rating & Review Quality (Weight: 0.25)
-      const rating = place.rating || 4.0
-      const reviews = place.userRatingsTotal || 100
+      const rating = typeof place.rating === 'number' && place.rating > 0 ? place.rating : 0
+      const reviews = typeof place.userRatingsTotal === 'number' && place.userRatingsTotal > 0 ? place.userRatingsTotal : 0
       const ratingScore = Math.min(1.0, (rating / 5.0) * (Math.log10(reviews + 1) / 4.0))
 
       // 3. Solar & Timing Fit (Weight: 0.15)
