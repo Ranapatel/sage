@@ -175,7 +175,7 @@ export default function DestinationsHubPage() {
             <h2>How TripSage Simplifies Destination Choice</h2>
             <ul>
               <li>
-                <strong>Seasonal Weather Alignment:</strong> Discover which destinations offer peak experiences based on your travel dates.
+                <strong>Season notes are in the guides:</strong> The planner does not pick a destination or change the days based on your travel dates.
               </li>
               <li>
                 <strong>Realistic Travel Durations:</strong> Determine how many days you need for a destination, avoiding rushed itineraries.
@@ -192,7 +192,7 @@ export default function DestinationsHubPage() {
               <Compass className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Have a destination in mind?</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Type any city or country into TripSage AI and generate a personalized travel itinerary instantly.
+                Type one city into TripSage and draft a day-by-day plan. It is not instant, and it is not a multi-city tour.
               </p>
               <Link
                 href="/plan"

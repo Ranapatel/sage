@@ -22,6 +22,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useUser } from '@clerk/nextjs'
 import { SYMBOLS, formatPrice, ALL_CURRENCIES, convertToINR } from '@/lib/currency'
 import { trackEvent, analytics, type SafePlannerErrorCategory } from '@/lib/analytics'
+import { buildSharePayload, decodePlan, itineraryFromPlan, planFromTrip, planLooksLikeStarterOutline } from '@/lib/sharePlan'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -314,8 +315,31 @@ export default function PlanClient() {
   const runSearchRef = useRef<((params?: any) => Promise<void>) | null>(null)
 
 
-  // Load from session on mount
+  // Load from session on mount. A shared ?trip= link wins over the last session.
   useEffect(() => {
+    const shared = typeof window !== 'undefined'
+      ? decodePlan(new URLSearchParams(window.location.search).get('trip') || '')
+      : null
+    if (shared) {
+      const restored = itineraryFromPlan(shared)
+      Promise.resolve().then(() => {
+        setItinerary(restored as any)
+        setTrip({
+          destination: shared.destination,
+          startDate: shared.startDate || '',
+          endDate: shared.endDate || '',
+        })
+        setSearchForm(prev => ({
+          ...prev,
+          to: shared.destination,
+          startDate: shared.startDate || prev.startDate,
+          endDate: shared.endDate || prev.endDate,
+        }))
+        setActiveTab('itinerary')
+        startTransition(() => setInitialized(true))
+      })
+      return
+    }
     const saved = sessionStorage.getItem('tripContext')
     if (saved) {
       try {
@@ -563,6 +587,7 @@ export default function PlanClient() {
       }))
     }
 
+    let generationMs = 0
     try {
       // Fire all data fetches in parallel via Promise.all with timeout + retry
       const [searchResult, weatherResult, itineraryResult] = await Promise.all([
@@ -600,14 +625,15 @@ export default function PlanClient() {
         // Itinerary fetched in parallel. One attempt, up to 150s.
         // A retry would start another generation while the first is still running.
         fetchWithRetry(
-          (attemptSignal) => {
+          async (attemptSignal) => {
             // Use the inclusive day count so a 4 Aug→10 Aug trip
             // requests 7 days, not 6. getDayCount is the single source of truth.
             let daysCount = getDayCount(p.startDate, p.endDate)
             if (daysCount === 0) daysCount = 3
             daysCount = Math.min(Math.max(daysCount, 1), 90)
-
-            return tripAPI.generateItinerary({
+            const started = Date.now()
+            try {
+              return await tripAPI.generateItinerary({
               destination: p.to,
               from: p.from,
               days: daysCount,
@@ -620,6 +646,9 @@ export default function PlanClient() {
               isMultiCity: p.isMultiCity,
               stops: p.stops,
             }, itineraryRequestConfig(combineAbortSignals(attemptSignal, signal)))
+            } finally {
+              generationMs = Date.now() - started
+            }
           },
           {
             timeout: ITINERARY_GENERATE_TIMEOUT_MS,
@@ -720,14 +749,32 @@ export default function PlanClient() {
       }
 
       // SEO Phase 5 Analytics: Trip plan successfully generated
+      const serverDays = itineraryResult?.data?.itinerary
+      const starter = Boolean(itineraryResult?.meta?.fallback)
+        || itineraryResult?.meta?.aiStatus === 'fallback'
+        || planLooksLikeStarterOutline(serverDays)
+      const hasRealPlan = Array.isArray(serverDays) && serverDays.length > 0 && !starter
       analytics.plannerCompleted({
         // destination intentionally omitted — privacy rule: no trip destinations
         durationDays: days,
         travelers: p.travelers,
         hasTransport: Boolean(searchResult?.data?.transport?.length),
         hasHotels: Boolean(searchResult?.data?.hotels?.length),
-        hasItinerary: quality !== 'fallback' && Boolean(itineraryResult?.data?.itinerary?.length),
+        hasItinerary: hasRealPlan && quality !== 'fallback',
       })
+      if (hasRealPlan) {
+        analytics.tripGenerated({
+          trip_days: serverDays.length,
+          generation_ms: generationMs,
+          is_fallback: false,
+        })
+      } else {
+        analytics.tripGenerationFailed({
+          error_type: itineraryResult ? 'fallback' : 'timeout',
+          trip_days: days,
+          generation_ms: generationMs,
+        })
+      }
 
     } catch (err: any) {
       setError(err.message)
@@ -752,6 +799,29 @@ export default function PlanClient() {
   useEffect(() => {
     runSearchRef.current = runSearch
   })
+
+  // plan_viewed once the generated days have been on screen for 20 seconds.
+  // Hidden tabs do not count. A new plan starts the timer over.
+  const planViewKey = itinerary.length > 0
+    ? `${tripContext.destination}|${tripContext.startDate}|${itinerary.length}|${itinerary[0]?.date || ''}`
+    : ''
+  useEffect(() => {
+    if (!planViewKey) return
+    let elapsed = 0
+    let fired = false
+    const timer = window.setInterval(() => {
+      if (document.hidden) return
+      elapsed += 1
+      if (elapsed < 20 || fired) return
+      fired = true
+      window.clearInterval(timer)
+      analytics.planViewed({
+        trip_days: itinerary.length,
+        is_fallback: planLooksLikeStarterOutline(itinerary),
+      })
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [planViewKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRegenerate = useCallback(async () => {
     const toastId = toast.loading("Regenerating itinerary...")
@@ -778,22 +848,35 @@ export default function PlanClient() {
   }, [searchForm, userProfile, getCacheKey])
 
   const handleShareTrip = useCallback(() => {
-    const destination = tripContext.destination || 'my trip'
-    const shareText = `Check out my ${destination} trip plan on TripSage! 🌍✈️`
-    const shareUrl = `https://www.tripsage.in/plan`
+    const plan = planFromTrip({
+      destination: tripContext.destination,
+      startDate: tripContext.startDate,
+      endDate: tripContext.endDate,
+      itinerary,
+    })
+    if (!plan) {
+      toast.error('Generate a plan before sharing.')
+      return
+    }
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.tripsage.in'
+    const payload = buildSharePayload(plan, origin)
+    const canNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+    const method = canNativeShare ? 'native_share' : 'copy_link'
+    analytics.tripShared({ method, trip_days: plan.days.length })
 
-    // Use native Web Share API on mobile devices (shows OS share sheet)
-    if (navigator.share) {
-      navigator.share({ title: `TripSage – ${destination} Trip`, text: shareText, url: shareUrl })
-        .catch(() => {}) // user cancelled — no error needed
+    if (canNativeShare) {
+      navigator.share({
+        title: payload.title,
+        text: payload.text,
+        url: payload.url || undefined,
+      }).catch(() => {})
       return
     }
 
-    // Desktop fallback — copy the TripSage plan URL with a clear note
-    navigator.clipboard.writeText(`${shareText}\n${shareUrl}`)
-      .then(() => toast.success('Link copied! Note: your friend will need to plan their own trip — personal itineraries aren\'t shared yet.', { duration: 5000 }))
-      .catch(() => toast.error('Could not copy link.'))
-  }, [tripContext.destination])
+    navigator.clipboard.writeText(payload.text)
+      .then(() => toast.success('Plan copied. The link opens these days.'))
+      .catch(() => toast.error('Could not copy the plan.'))
+  }, [tripContext.destination, tripContext.startDate, tripContext.endDate, itinerary])
 
   const handleSaveTrip = useCallback(async () => {
     if (!tripContext.destination) {
@@ -838,6 +921,7 @@ export default function PlanClient() {
         const response = await tripAPI.saveTrip(record)
         if (response.success) {
           await addBookmark('itinerary', tripContext.destination)
+          analytics.tripSaved({ logged_in_before_save: true, trip_days: (itinerary || []).length })
           toast.success("Trip saved to your profile!")
         } else {
           throw new Error(response.message || "Failed to save to database")
@@ -858,6 +942,7 @@ export default function PlanClient() {
           members: userProfile.members
         })
         await addBookmark('itinerary', tripContext.destination)
+        analytics.tripSaved({ logged_in_before_save: false, trip_days: (itinerary || []).length })
         toast.success("Saved to browser! Log in to sync across devices.")
       }
     } catch (err: any) {
@@ -1429,7 +1514,12 @@ export default function PlanClient() {
 
           {itinerary.length > 0 && (
             <div className="mx-auto mb-4 flex max-w-2xl justify-center px-4">
-              <WhatsAppShareButton destination={tripContext.destination} />
+              <WhatsAppShareButton
+                destination={tripContext.destination}
+                startDate={tripContext.startDate}
+                endDate={tripContext.endDate}
+                itinerary={itinerary}
+              />
             </div>
           )}
 

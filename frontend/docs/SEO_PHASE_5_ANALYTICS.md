@@ -13,8 +13,8 @@ TripSage implements Google Analytics 4 (GA4) with a zero-duplication architectur
   - Page tracking is handled by `frontend/components/analytics/PageViewTracker.tsx` which tracks pathname and search parameter changes.
   - **Single Tag Rule Enforced:** No duplicate GA4 script tags were added.
 - **GA4 Measurement ID:**
-  - Primary default ID: `G-P4KSB6TZVG` (production)
-  - Environment variable override: `process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID`
+  - The tag is loaded only from `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+  - There is no hardcoded property. `G-P4KSB6TZVG` is what the live site sends today because the old fallback used it. `G-2F49Z4DK2H` is the other ID named in AP-015. Neither is chosen in code.
 
 ---
 
@@ -91,7 +91,7 @@ analytics.outboundBookingClicked({ provider: 'Kiwi.com', category: 'flight', des
 ### Step 1: Google Tag Assistant
 1. Open [Google Tag Assistant](https://tagassistant.google.com/).
 2. Enter the domain URL (e.g., `https://tripsage.ai`).
-3. Verify that only **one** Google Tag (`G-P4KSB6TZVG`) is detected and connected.
+3. Verify that the only Google Tag is the value of `NEXT_PUBLIC_GA_MEASUREMENT_ID`. If that variable is unset, no TripSage tag should load.
 
 ### Step 2: GA4 DebugView
 1. In Google Analytics, navigate to **Admin > Data display > DebugView**.

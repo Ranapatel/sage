@@ -272,7 +272,7 @@ function EmptyState({ onTabChange, onSearch }: { onTabChange: (t: string) => voi
           Where are you going?
         </h2>
         <p className="text-xs sm:text-sm text-[#6B6B6B] leading-relaxed max-w-md mx-auto font-medium">
-          Enter your destination below or tap a popular trip to generate your AI itinerary in seconds.
+          Enter one destination, or tap a popular trip, to draft a day-by-day plan. It is one route, not several cities.
         </p>
       </div>
 
