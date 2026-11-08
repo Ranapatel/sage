@@ -4,7 +4,7 @@ import SEOContent from '@/components/ui/SEOContent'
 import { generateMetadata as generateSEOMetadata } from '@/config/seo'
 
 type Props = {
-  params: { category: string }
+  params: Promise<{ category: string }>
 }
 
 function formatString(str: string) {
@@ -12,7 +12,8 @@ function formatString(str: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const category = params?.category || 'travel';
+  const resolvedParams = await params;
+  const category = resolvedParams?.category || 'travel';
   const formattedCategory = formatString(category);
   
   return generateSEOMetadata({
@@ -23,8 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default function Page({ params }: Props) {
-  const category = params?.category || 'travel';
+export default async function Page({ params }: Props) {
+  const resolvedParams = await params;
+  const category = resolvedParams?.category || 'travel';
   const formattedCategory = formatString(category);
 
   return (

@@ -1,4 +1,4 @@
-import { isSameCountry } from './countryUtils'
+import { isSameCountry } from './countryUtils.ts'
 
 // ─── AI Smart Train Planner Engine & Data-Driven Transport Intelligence ──────────────
 

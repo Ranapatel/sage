@@ -19,6 +19,17 @@ const { body, param, validationResult } = require('express-validator')
 const { v4: uuidv4 } = require('uuid')
 const hotelbedsService = require('../services/hotelbedsService')
 const { generateVoucherData } = require('../services/voucherService')
+const { authMiddleware } = require('../middleware/auth.middleware')
+
+function verifyBookingOwnership(booking, reqUser) {
+  if (!booking || !reqUser) return false
+  const userId = reqUser.id
+  const clerkUserId = reqUser.clerkUserId
+  return Boolean(
+    (booking.userId && (booking.userId === userId || booking.userId === clerkUserId)) ||
+    (booking.userClerkId && (booking.userClerkId === clerkUserId || booking.userClerkId === userId))
+  )
+}
 
 const fs = require('fs')
 const path = require('path')
@@ -53,6 +64,47 @@ function saveBookings(map) {
 
 const bookings = loadBookings()
 
+let hotelBookingStore
+try {
+  hotelBookingStore = require('../models/HotelBooking').hotelBookingStore
+} catch (_) {}
+
+async function getBookingRecord(id) {
+  if (hotelBookingStore) {
+    try {
+      const b = await hotelBookingStore.get(id)
+      if (b) return b
+    } catch (_) {}
+  }
+  let b = bookings.get(id)
+  if (!b) {
+    try {
+      if (fs.existsSync(BOOKINGS_FILE)) {
+        const raw = fs.readFileSync(BOOKINGS_FILE, 'utf8')
+        const data = JSON.parse(raw)
+        if (data[id]) {
+          b = data[id]
+          bookings.set(id, b)
+        }
+      }
+    } catch (_) {}
+  }
+  return b || null
+}
+
+async function saveBookingRecord(booking) {
+  bookings.set(booking.id, booking)
+  saveBookings(bookings)
+  if (hotelBookingStore) {
+    try {
+      await hotelBookingStore.save(booking)
+    } catch (e) {
+      console.warn('[Booking Route] Database save notice:', e.message)
+    }
+  }
+  return booking
+}
+
 // ─── POST /api/booking/init ───────────────────────────────────────────────────
 /**
  * Creates a new booking.
@@ -78,7 +130,7 @@ const bookings = loadBookings()
  *   contact: { email: 'john@example.com', phone: '+91-9876543210' }
  * }
  */
-router.post('/init', [
+router.post('/init', authMiddleware, [
   body('type').isIn(['flight', 'hotel']),
   body('itemId').trim().notEmpty().isLength({ max: 200 }),
   body('userDetails').isObject(),
@@ -208,6 +260,8 @@ router.post('/init', [
       // ── Store complete booking record ──────────────────────────────────────
       const booking = {
         id:               bookingId,
+        userId:           req.user.id,
+        userClerkId:      req.user.clerkUserId,
         type,
         itemId,
         status:           result.status || 'CONFIRMED',
@@ -244,7 +298,7 @@ router.post('/init', [
           checkOut: userDetails.checkOut,
         },
       }
-      bookings.set(bookingId, booking)
+      await saveBookingRecord(booking)
       saveBookings(bookings)
 
       return res.json({
@@ -296,14 +350,18 @@ router.post('/init', [
 })
 
 // ─── POST /api/booking/:id/confirm ───────────────────────────────────────────
-router.post('/:id/confirm', [
+router.post('/:id/confirm', authMiddleware, [
   param('id').isUUID(),
 ], async (req, res) => {
-  const booking = bookings.get(req.params.id)
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' })
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) return res.status(400).json({ success: false, error: 'Invalid booking ID' })
+  const booking = await getBookingRecord(req.params.id)
+  if (!booking || !verifyBookingOwnership(booking, req.user)) {
+    return res.status(404).json({ success: false, error: 'Booking not found' })
+  }
   booking.status     = 'CONFIRMED'
   booking.confirmedAt = new Date().toISOString()
-  bookings.set(req.params.id, booking)
+  await saveBookingRecord(booking)
   saveBookings(bookings)
   res.json({ success: true, data: booking, message: 'Booking confirmed!' })
 })
@@ -313,11 +371,15 @@ router.post('/:id/confirm', [
  * Returns structured voucher data for a confirmed booking.
  * Includes all fields required by Hotelbeds voucher certification.
  */
-router.get('/:id/voucher', [
+router.get('/:id/voucher', authMiddleware, [
   param('id').isUUID(),
 ], async (req, res) => {
-  const booking = bookings.get(req.params.id)
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' })
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) return res.status(400).json({ success: false, error: 'Invalid booking ID' })
+  const booking = await getBookingRecord(req.params.id)
+  if (!booking || !verifyBookingOwnership(booking, req.user)) {
+    return res.status(404).json({ success: false, error: 'Booking not found' })
+  }
   if (booking.type !== 'hotel') return res.status(400).json({ success: false, error: 'Voucher only available for hotel bookings' })
 
   const voucherData = generateVoucherData(booking)
@@ -328,11 +390,15 @@ router.get('/:id/voucher', [
 /**
  * Cancels a confirmed hotel booking.
  */
-router.post('/:id/cancel', [
+router.post('/:id/cancel', authMiddleware, [
   param('id').isUUID(),
 ], async (req, res) => {
-  const booking = bookings.get(req.params.id)
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' })
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) return res.status(400).json({ success: false, error: 'Invalid booking ID' })
+  const booking = await getBookingRecord(req.params.id)
+  if (!booking || !verifyBookingOwnership(booking, req.user)) {
+    return res.status(404).json({ success: false, error: 'Booking not found' })
+  }
   if (booking.type !== 'hotel') return res.status(400).json({ success: false, error: 'Cancellation only available for hotel bookings' })
   if (booking.status === 'CANCELLED') return res.status(400).json({ success: false, error: 'Booking is already cancelled' })
 
@@ -341,7 +407,7 @@ router.post('/:id/cancel', [
     if (cancelResult.success) {
       booking.status = 'CANCELLED'
       booking.cancelledAt = new Date().toISOString()
-      bookings.set(req.params.id, booking)
+      await saveBookingRecord(booking)
       saveBookings(bookings)
       return res.json({ success: true, message: 'Booking cancelled successfully', data: booking })
     } else {
@@ -354,9 +420,13 @@ router.post('/:id/cancel', [
 })
 
 // ─── GET /api/booking/:id ─────────────────────────────────────────────────────
-router.get('/:id', [param('id').isUUID()], async (req, res) => {
-  const booking = bookings.get(req.params.id)
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' })
+router.get('/:id', authMiddleware, [param('id').isUUID()], async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) return res.status(400).json({ success: false, error: 'Invalid booking ID' })
+  const booking = await getBookingRecord(req.params.id)
+  if (!booking || !verifyBookingOwnership(booking, req.user)) {
+    return res.status(404).json({ success: false, error: 'Booking not found' })
+  }
   res.json({ success: true, data: booking })
 })
 

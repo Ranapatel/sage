@@ -27,6 +27,7 @@ import type {
 } from '@/types/activities'
 
 import axios from 'axios'
+import { getClerkToken } from './clerkToken'
 
 const _ACT = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -40,7 +41,10 @@ _ACT.interceptors.request.use((config) => {
     const sid = sessionStorage.getItem('sessionId')
     if (sid) config.headers['x-session-id'] = sid
   }
-  if (!config.headers['Authorization'] && typeof localStorage !== 'undefined') {
+  const clerkToken = getClerkToken()
+  if (clerkToken && !config.headers['Authorization']) {
+    config.headers['Authorization'] = `Bearer ${clerkToken}`
+  } else if (!config.headers['Authorization'] && typeof localStorage !== 'undefined') {
     try {
       const raw    = localStorage.getItem('tripsage-auth')
       const parsed = raw ? JSON.parse(raw) : null

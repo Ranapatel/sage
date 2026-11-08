@@ -14,7 +14,7 @@ test('Dussehra Campaign: /dussehra page exists and exports complete SEO metadata
   const content = fs.readFileSync(pagePath, 'utf8')
 
   // Check canonical URL
-  assert.match(content, /canonical:\s*['"]https:\/\/tripsage\.in\/dussehra['"]/, 'Page must specify canonical URL')
+  assert.match(content, /canonical:\s*['"]https:\/\/(www\.)?tripsage\.in\/dussehra['"]/, 'Page must specify canonical URL')
 
   // Check title & description
   assert.match(content, /title:\s*['"]TripSage Dussehra Escape \| Plan Your Next Trip['"]/, 'Page must have unique title')

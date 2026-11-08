@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator')
 const { searchHotels, searchBuses, searchCars, searchFlights, generateMockHotels } = require('../services/travelService')
 const { getWeather } = require('../services/weatherService')
 let enrichHotelsWithImages = async (hotels) => hotels;
+let enrichFlightsWithImages = async (flights) => flights;
 try {
   enrichHotelsWithImages = require('../services/imageService').enrichHotelsWithImages;
 } catch (e) {

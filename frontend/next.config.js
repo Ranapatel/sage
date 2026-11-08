@@ -4,7 +4,7 @@ const nextConfig = {
   compress: true,
   allowedDevOrigins: ['192.168.0.123', '192.168.0.123:3000', 'localhost:3000', '127.0.0.1:3000', '127.0.0.1'],
   images: {
-    unoptimized: true,
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },

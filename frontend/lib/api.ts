@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance } from 'axios'
+import { getClerkToken } from './clerkToken'
 import type { TrainStationInfo, TrainOption } from '@/store/tripStore'
 
 // ─── Shared response shape from TripSage backend ─────────────────────────────
@@ -178,7 +179,11 @@ _API.interceptors.request.use((config) => {
   }
   // Inject the Clerk bearer token if present in localStorage. The backend's
   // authMiddleware requires it on protected endpoints (e.g. /api/context/*).
-  if (typeof localStorage !== 'undefined') {
+  const clerkToken = getClerkToken()
+  if (clerkToken && !config.headers?.Authorization) {
+    config.headers = config.headers ?? {}
+    ;(config.headers as any).Authorization = `Bearer ${clerkToken}`
+  } else if (typeof localStorage !== 'undefined') {
     try {
       const raw = localStorage.getItem('tripsage-auth')
       if (raw) {

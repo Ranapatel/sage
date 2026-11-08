@@ -1,0 +1,56 @@
+{
+  "11111111-2222-3333-4444-555555555555": {
+    "id": "11111111-2222-3333-4444-555555555555",
+    "userId": "usr_userA_123",
+    "userClerkId": "clerk_userA_123",
+    "type": "hotel",
+    "itemId": "hbd_test_101",
+    "status": "CONFIRMED",
+    "bookingReference": "HBD-REF-TEST-999",
+    "hotelName": "Secure Oasis Resort",
+    "hotelAddress": "Goa, India",
+    "checkIn": "2026-12-01",
+    "checkOut": "2026-12-04",
+    "totalPrice": 12000,
+    "currency": "INR",
+    "guests": [
+      {
+        "firstName": "Alice",
+        "lastName": "Smith"
+      }
+    ],
+    "cancellationPolicies": [
+      {
+        "amount": "0",
+        "from": "2026-11-25T00:00:00Z"
+      }
+    ]
+  },
+  "01ec8b64-264c-4bf2-aa0b-79cf351b95be": {
+    "id": "01ec8b64-264c-4bf2-aa0b-79cf351b95be",
+    "userId": "usr_userA_123",
+    "userClerkId": "clerk_userA_123",
+    "type": "hotel",
+    "itemId": "hbd_test_101",
+    "status": "CONFIRMED",
+    "bookingReference": "HBD-REF-TEST-999",
+    "hotelName": "Secure Oasis Resort",
+    "hotelAddress": "Goa, India",
+    "checkIn": "2026-12-01",
+    "checkOut": "2026-12-04",
+    "totalPrice": 12000,
+    "currency": "INR",
+    "guests": [
+      {
+        "firstName": "Alice",
+        "lastName": "Smith"
+      }
+    ],
+    "cancellationPolicies": [
+      {
+        "amount": "0",
+        "from": "2026-11-25T00:00:00Z"
+      }
+    ]
+  }
+}

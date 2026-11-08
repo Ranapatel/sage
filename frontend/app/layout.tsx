@@ -5,6 +5,7 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import KeepAlive from '@/components/KeepAlive'
 import { ClerkProvider } from '@clerk/nextjs'
+import ClerkTokenSync from '@/components/auth/ClerkTokenSync'
 import AuthGuardModal from '@/components/auth/AuthGuardModal'
 import { ContextProvider } from '@/context/ContextProvider'
 import { PageViewTracker } from '@/components/analytics/PageViewTracker'
@@ -151,6 +152,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body suppressHydrationWarning>
         <ClerkProvider clerkJSUrl={process.env.NEXT_PUBLIC_CLERK_JS}>
+          <ClerkTokenSync />
 
           {/* JSON-LD structured data for SEO */}
           <script

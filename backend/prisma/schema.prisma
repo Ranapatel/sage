@@ -187,8 +187,11 @@ model TravelPreference {
 model SavedItem {
   id          String   @id @default(uuid())
   userId      String
-  type        String
-  referenceId String
+  type        String?
+  referenceId String?
+  title       String
+  details     Json
+  itemType    String?
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -279,7 +282,7 @@ model TransportRoutes {
 model TransportProviders {
   id          String   @id @default(uuid())
   name        String   @unique
-  type        String
+  type        String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 }
@@ -464,4 +467,16 @@ model RecommendationLog {
 
   @@index([userId, module, createdAt])
   @@index([inputHash])
+}
+
+
+model Review {
+  id         String   @id @default(uuid())
+  userId     String?
+  name       String
+  location   String
+  rating     Int
+  reviewText String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

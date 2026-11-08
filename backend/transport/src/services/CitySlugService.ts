@@ -48,7 +48,18 @@ export class CitySlugService {
       return this.cache.get(normalized)!;
     }
 
-    // If it's not in the supported seed map, throw CITY_NOT_FOUND with suggestions
+    // 3. Dynamic resolution fallback for any unseeded city
+    const dynamicSlug = normalized.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    if (dynamicSlug.length > 0) {
+      const dynamicCity: CityInfo = {
+        name: cleanedQuery.charAt(0).toUpperCase() + cleanedQuery.slice(1),
+        slug: dynamicSlug,
+      };
+      this.cache.set(normalized, dynamicCity);
+      return dynamicCity;
+    }
+
+    // If it's completely unresolvable, throw CITY_NOT_FOUND with suggestions
     const suggestions = this.getSuggestions(cleanedQuery);
     throw new HttpException(
       {

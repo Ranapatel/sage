@@ -144,16 +144,19 @@ export class TransportService {
         error.message,
       );
 
-      // Provider Unavailable Envelope — always includes searchUrl
-      throw new HttpException(
-        {
-          status: 'unavailable',
-          code: 'PROVIDER_UNAVAILABLE',
-          message: `Train booking search failed: ${error.message}`,
-          searchUrl,
-        },
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      // Return graceful fallback with valid searchUrl
+      return {
+        provider: 'MakeMyTrip',
+        origin: { name: origin.name, code: origin.code, city: origin.city },
+        destination: { name: destination.name, code: destination.code, city: destination.city },
+        travelDate: departureDate,
+        preferredClass: travelClass || 'ALL',
+        searchUrl,
+        results: [],
+        cacheHit: false,
+        generatedAt: new Date().toISOString(),
+        message: `Live train search temporarily unavailable. View direct options on MakeMyTrip: ${searchUrl}`,
+      };
     }
   }
 
@@ -255,15 +258,19 @@ export class TransportService {
         error.message,
       );
 
-      throw new HttpException(
-        {
-          status: 'unavailable',
-          code: 'PROVIDER_UNAVAILABLE',
-          message: `Bus booking search failed: ${error.message}`,
-          searchUrl,
-        },
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      // Return graceful fallback with valid searchUrl
+      return {
+        provider: 'MakeMyTrip',
+        origin: { name: origin.name, slug: origin.slug },
+        destination: { name: destination.name, slug: destination.slug },
+        travelDate: departureDate,
+        searchUrl,
+        results: [],
+        cacheHit: false,
+        generatedAt: new Date().toISOString(),
+        message: `Live bus search temporarily unavailable. View direct options on MakeMyTrip: ${searchUrl}`,
+        isDomestic: true,
+      };
     }
   }
 

@@ -64,7 +64,11 @@ router.post('/generate', itineraryValidation, async (req, res) => {
   const { destination, from, days, budget, currency = 'INR', style, members = 2, preferences = [], startDate } = req.body
   const requestId = uuidv4()
   let clientClosed = false
-  req.on('close', () => { clientClosed = true })
+  res.on('close', () => {
+    if (!res.writableEnded) {
+      clientClosed = true
+    }
+  })
 
   // startDate and the exact budget are not part of the key. Dates are stamped
   // for the request, and the cost lines are reconciled to this budget.
@@ -110,7 +114,7 @@ router.post('/generate', itineraryValidation, async (req, res) => {
           members,
           preferences,
           startDate,
-          shouldAbort: () => clientClosed || req.destroyed,
+          shouldAbort: () => clientClosed,
         });
         isHybrid = true;
       } catch (hybridErr) {
@@ -119,13 +123,12 @@ router.post('/generate', itineraryValidation, async (req, res) => {
           return
         }
         if (String(hybridErr.message || '').includes('DESTINATION_NOT_FOUND')) throw hybridErr
-        console.warn(`[Itinerary Route] AI step failed (${hybridErr.message}). Returning a starter outline instead of a second model call.`)
+        console.warn(`[Itinerary Route] AI step failed (${hybridErr.message}). Generating populated fallback outline...`)
+        const { getMockItinerary } = require('../services/aiService');
+        const mockFallback = getMockItinerary({ destination, days, budget, members, startDate });
         enrichedData = {
-          itinerary: [],
+          ...mockFallback,
           aiStatus: 'fallback',
-          totalEstimatedCost: 0,
-          budgetBreakdown: {},
-          tips: ['The AI step did not finish. This outline is a starter, not a full plan.'],
         }
       }
     } else {

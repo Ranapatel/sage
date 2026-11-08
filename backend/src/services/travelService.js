@@ -483,7 +483,10 @@ async function searchFlights({ from, to, date, returnDate, budget, travelers = 2
   // 3. Fallback to direct Kiwi Tequila Live Flight Search if NestJS microservice yielded 0 offers
   if (flightResults.length === 0) {
     try {
-      const kiwiApiKey = process.env.KIWI_API_KEY || 'E68S4y88qEa4l6lZ3y_r8WzYQ8aZ9s8Z'
+      const kiwiApiKey = process.env.KIWI_API_KEY
+      if (!kiwiApiKey) {
+        throw new Error('KIWI_API_KEY_NOT_CONFIGURED')
+      }
       const [year, month, day] = departureDate.split('-')
       const kiwiDateStr = `${day}/${month}/${year}`
 

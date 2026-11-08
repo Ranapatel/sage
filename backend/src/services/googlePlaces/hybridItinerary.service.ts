@@ -27,7 +27,8 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 // One non-reasoning model for the itinerary. gpt-oss-120b is a reasoning model:
 // three sequential calls to it were the 78–118s path. Ranking and review
 // summaries no longer call a model. Override with GROQ_ITINERARY_MODEL.
-const ITINERARY_MODEL = process.env.GROQ_ITINERARY_MODEL || 'llama-3.3-70b-versatile'
+const ITINERARY_MODEL = process.env.GROQ_ITINERARY_MODEL || process.env.GROQ_MODEL || 'openai/gpt-oss-120b'
+const FALLBACK_MODEL = 'openai/gpt-oss-20b'
 const LLM_MODEL = ITINERARY_MODEL
 
 export class HybridItineraryService {
@@ -369,14 +370,14 @@ Total Budget: ${budget} INR
 Candidates:
 ${candidateListStr}`
 
-    try {
-      const res = await axios.post(GROQ_API_URL, {
-        model: LLM_MODEL,
+        const callGroq = async (modelToUse: string) => {
+      return await axios.post(GROQ_API_URL, {
+        model: modelToUse,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 1500,
+        max_tokens: 8000,
         temperature: 0.2,
         response_format: { type: 'json_object' }
       }, {
@@ -384,11 +385,24 @@ ${candidateListStr}`
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        timeout: 20000,
+        timeout: 60000,
       })
+    }
 
-      const content = res.data.choices[0]?.message?.content
-      const parsed = JSON.parse(content || '{}')
+    try {
+      let res: any;
+      try {
+        res = await callGroq(ITINERARY_MODEL);
+      } catch (err: any) {
+        console.warn(`[HybridItinerary/Generation] ${ITINERARY_MODEL} failed: ${err.message}. Retrying with ${FALLBACK_MODEL}...`);
+        res = await callGroq(FALLBACK_MODEL);
+      }
+
+      let content = res.data.choices[0]?.message?.content || '';
+      if (content) content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : (content || '{}'))
       const scores = parsed.ranked || []
 
       // Map scores back to candidate place objects
@@ -428,6 +442,7 @@ ${candidateListStr}`
 
     const systemPrompt = `You are TripSage, an expert local travel planner.
 Your job: Generate a premium, highly optimized ${days}-day itinerary for ${destinationCity} using ONLY the provided candidates pool.
+CRITICAL REQUIREMENT: The 'itinerary' array MUST contain exactly ${days} day objects (from day 1 to day ${days}). You must produce all ${days} days complete with 4 slots each.
 
 CORE RULES:
 1. GEOGRAPHICAL CLUSTERING: Group nearby coordinates on the same day to minimize travel time.
@@ -488,6 +503,7 @@ Budget: ${budget} ${currency}
 Preferences: ${preferences.join(', ')}
 Starting date: ${startDate || 'unspecified'}
 Day 1 date MUST be ${startDate || 'the start date'}. Each next day is the next calendar date. Do not use today's date.
+CRITICAL: The 'itinerary' JSON array MUST contain exactly ${days} day items (day 1 to day ${days}). Never return fewer than ${days} days.
 
 Candidate Places:
 ${candidatesListStr}`
@@ -499,14 +515,14 @@ ${candidatesListStr}`
       return missing
     }
 
-    try {
-      const res = await axios.post(GROQ_API_URL, {
-        model: ITINERARY_MODEL,
+    const callGroq = async (modelToUse: string) => {
+      return await axios.post(GROQ_API_URL, {
+        model: modelToUse,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: Math.min(4000, 600 + days * 450),
+        max_tokens: 8000,
         temperature: 0.2,
         response_format: { type: 'json_object' }
       }, {
@@ -514,11 +530,23 @@ ${candidatesListStr}`
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        timeout: 18000,
+        timeout: 60000,
       })
+    }
 
-      const content = res.data.choices[0]?.message?.content
-      const parsed = JSON.parse(content || '{}')
+    try {
+      let res: any;
+      try {
+        res = await callGroq(ITINERARY_MODEL);
+      } catch (err: any) {
+        console.warn(`[HybridItinerary/Generation] ${ITINERARY_MODEL} failed: ${err.message}. Retrying with ${FALLBACK_MODEL}...`);
+        res = await callGroq(FALLBACK_MODEL);
+      }
+
+      let content = res.data.choices[0]?.message?.content || '';
+      if (content) content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : (content || '{}'))
       if (parsed.itinerary && Array.isArray(parsed.itinerary) && parsed.itinerary.length > 0) {
         // Guarantee all requested days are present
         if (parsed.itinerary.length < days) {

@@ -1,5 +1,12 @@
 try {
-  require('ts-node').register({ transpileOnly: true })
+  require('ts-node').register({
+    project: require('path').join(__dirname, '../tsconfig.json'),
+    transpileOnly: true,
+    compilerOptions: {
+      module: 'CommonJS',
+      moduleResolution: 'node'
+    }
+  })
 } catch (_) {
   // ts-node already registered or running in precompiled mode
 }
@@ -51,27 +58,35 @@ if (missing.length > 0) {
 // ── App & CORS ────────────────────────────────────────────────────────────────
 const app = express()
 
-const allowedOrigin = (origin, callback) => {
-  if (!origin) return callback(null, true) // curl / Postman / server-side
-  if (process.env.NODE_ENV !== 'production') return callback(null, true) // allow all in dev
+const ALLOWED_ORIGINS = new Set([
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://localhost:5000',
+  'http://localhost:5001',
+  'https://tripsage.in',
+  'https://www.tripsage.in',
+]);
 
-  const allowed = [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://localhost:5000',
-    'http://localhost:5001',
-    'https://tripsage.in',
-    'https://www.tripsage.in',
-  ]
-  if (process.env.CORS_ORIGIN) allowed.push(process.env.CORS_ORIGIN)
-
-  if (allowed.some(a => origin.startsWith(a))) return callback(null, true)
-
-  // Reject disallowed origins in production
-  return callback(new Error('Not allowed by CORS'), false)
+if (process.env.CORS_ORIGIN) {
+  process.env.CORS_ORIGIN.split(',').forEach(o => {
+    const trimmed = o.trim();
+    if (trimmed) ALLOWED_ORIGINS.add(trimmed);
+  });
 }
+
+const allowedOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true); // curl / Postman / server-side
+
+  // Strict exact comparison against whitelist (rejects prefix spoofing like tripsage.in.attacker.org)
+  if (ALLOWED_ORIGINS.has(origin)) {
+    return callback(null, true);
+  }
+
+  // Reject disallowed origins
+  return callback(new Error('Not allowed by CORS'), false);
+};
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
 // crossOriginResourcePolicy MUST be "cross-origin": frontend (e.g. :3000) and
@@ -97,10 +112,15 @@ app.use(morgan('dev'))
 const isDev = process.env.NODE_ENV !== 'production'
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isDev ? 5000 : 1000, // 5000 requests per 15 min in dev, 1000 in prod
+  max: isDev ? 100000 : 1000, // 100,000 requests per 15 min in dev, 1000 in prod
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    if (isDev) return true;
+    const ip = req.ip || req.connection?.remoteAddress || '';
+    return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+  },
 })
 app.use('/api/', limiter)
 
@@ -123,7 +143,7 @@ try {
   app.use('/api/profile',       require('./routes/profile'))
 }
 app.use('/api/places',        require('./routes/places'))
-app.use('/api/places',        require('./routes/placesIntegration').default)
+// Merged into ./routes/places
 app.use('/api/reviews',       require('./routes/reviews'))
 app.use('/api/hotels',        require('./routes/hotels'))
 app.use('/api/transport',     require('./routes/transport'))
@@ -274,7 +294,7 @@ function createAndListen(port) {
 
   // Listen on port without restricting to IPv4 0.0.0.0, enabling dual-stack (IPv6 [::1] + IPv4 127.0.0.1)
   // on Windows so modern browsers requesting http://localhost:PORT don't get ERR_CONNECTION_REFUSED.
-  server.listen(port)
+  server.listen(port, '0.0.0.0')
 
   server.once('listening', () => {
     activePort = port
@@ -325,7 +345,7 @@ function cleanPortWindows(port) {
         const localAddr = parts[1] || '';
         const state = parts[3] || '';
         const pid = parts[parts.length - 1];
-        if (localAddr.endsWith(`:${port}`) && state === 'LISTENING') {
+        if (localAddr.endsWith(`:${port}`)) {
           if (pid && !isNaN(parseInt(pid, 10)) && parseInt(pid, 10) !== process.pid && parseInt(pid, 10) !== 0) {
             try {
               execSync(`taskkill /PID ${pid} /T /F`, { stdio: 'ignore' });
@@ -351,7 +371,7 @@ function startNestService() {
   console.log(`[TripSage] 🚀 Starting NestJS transport microservice (${isProd ? 'production' : 'development'})...`);
 
   const isWindows = process.platform === 'win32';
-  const cmd = 'npm';
+  const cmd = isWindows ? 'npm.cmd' : 'npm';
   const args = isProd ? ['run', 'start:prod'] : ['run', 'start:dev'];
   const childEnv = { ...process.env, PORT: '4001' };
 

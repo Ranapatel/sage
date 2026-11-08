@@ -175,6 +175,8 @@ export interface SearchTrainsResult {
   results: TrainResult[];
   cacheHit: boolean;
   generatedAt: string;
+  message?: string;
+  isDomestic?: boolean;
 }
 
 export interface SearchBusesInput {
@@ -192,6 +194,8 @@ export interface SearchBusesResult {
   results: BusResult[];
   cacheHit: boolean;
   generatedAt: string;
+  message?: string;
+  isDomestic?: boolean;
 }
 
 export interface StationInfo {

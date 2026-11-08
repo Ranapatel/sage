@@ -21,7 +21,17 @@ process.env.CLERK_SECRET_KEY = 'sk_test_FAKE_KEY_FOR_REGRESSION_TEST_ONLY'
 process.env.NODE_ENV = 'test'
 
 // ts-node register is needed because the middleware is .ts
-require('../register')
+const path = require('path')
+try {
+  require('ts-node').register({
+    project: path.join(__dirname, '../../tsconfig.json'),
+    transpileOnly: true,
+    compilerOptions: {
+      module: 'CommonJS',
+      moduleResolution: 'node'
+    }
+  })
+} catch (_) {}
 
 const { authMiddleware } = require('./auth.middleware')
 

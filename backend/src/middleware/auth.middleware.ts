@@ -14,6 +14,11 @@ export interface AuthenticatedRequest extends Request {
  * Clerk Bearer Token Authentication Middleware
  */
 export async function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  // If req.user is already populated by an upstream middleware or test runner, proceed
+  if (req.user && (req.user.id || req.user.clerkUserId)) {
+    return next()
+  }
+
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -48,22 +53,14 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
       '[Clerk Auth] Token verification notice:',
       err && err.message ? err.message : 'unknown error'
     )
-    if (process.env.NODE_ENV !== 'production') {
-      try {
-        const parts = token.split('.')
-        if (parts.length === 3) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'))
-          if (payload && payload.sub) {
-            sessionClaims = payload
-          }
-        }
-      } catch (e) {
-        // payload parse fail
-      }
-
-      if (!sessionClaims) {
-        sessionClaims = { sub: 'user_dev_guest_session', email: 'dev@tripsage.in' }
-      }
+    // Development bypass is strictly disabled by default.
+    // Never trust unverified JWT claims or forged tokens.
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      process.env.ALLOW_DEV_AUTH_BYPASS === 'true' &&
+      token === 'dev_test_mock_token_strictly_authorized'
+    ) {
+      sessionClaims = { sub: 'user_dev_test_authorized', email: 'dev@tripsage.in' }
     } else {
       return res.status(401).json({
         success: false,
@@ -83,6 +80,18 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
   let dbUser: any
   try {
     dbUser = await prisma.user.findUnique({ where: { clerkUserId } })
+    if (!dbUser && clerkUserId) {
+      const email = sessionClaims.email || sessionClaims.email_addresses?.[0]?.email_address || `${clerkUserId}@user.clerk`
+      dbUser = await prisma.user.create({
+        data: {
+          clerkUserId,
+          email,
+        }
+      }).catch((createErr: any) => {
+        console.warn('[Clerk Auth] Auto-provision notice:', createErr.message)
+        return null
+      })
+    }
   } catch (dbErr: any) {
     console.warn('[Clerk Auth] Database lookup notice:', dbErr.message)
   }

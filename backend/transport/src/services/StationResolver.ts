@@ -115,7 +115,22 @@ export class StationResolver {
       console.warn('[StationResolver] ERAIL API fallback failed:', e);
     }
 
-    // 4. Fail and return suggestions
+    // 4. Fallback to clean dynamic station info to allow deep links and booking redirects
+    const dynamicCode = cleanedQuery.replace(/[^A-Za-z]/g, '').slice(0, 4).toUpperCase();
+    if (dynamicCode.length >= 2) {
+      const dynamicStation: StationInfo = {
+        name: cleanedQuery,
+        code: dynamicCode,
+        city: cleanedQuery,
+      };
+      this.cache.set(normalized, {
+        info: dynamicStation,
+        expiry: Date.now() + this.CACHE_TTL_MS,
+      });
+      return dynamicStation;
+    }
+
+    // 5. Fail and return suggestions
     const suggestions = this.getSuggestions(cleanedQuery);
     throw new HttpException(
       {

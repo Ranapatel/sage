@@ -59,10 +59,10 @@ async function runProductionTests() {
     const savedItem = await prisma.savedItem.create({
       data: {
         userId: user.id,
-        itemType: 'hotel',
         type: 'hotel',
         title: 'Grand Paris Hotel',
         details: { price: 250, currency: 'EUR' },
+        referenceId: 'hotel_paris_123',
       },
     })
     assert.ok(savedItem.id, 'SavedItem ID should be generated')
@@ -71,7 +71,7 @@ async function runProductionTests() {
     await prisma.user.delete({ where: { id: user.id } })
     console.log('✅ [Test 3 Passed] User & SavedItem Schema Relations verified cleanly!')
 
-    console.log('🎉 ALL PRODUCTION READINESS INTEGRATION TESTS PASSED 100%!')
+    console.log('\n🎉 ALL PRODUCTION READINESS INTEGRATION TESTS PASSED 100%!')
   } catch (err: any) {
     console.error('❌ [Test Failure]:', err.message || err)
     process.exit(1)

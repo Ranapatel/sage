@@ -6,6 +6,8 @@
  * - Intercepts 401 Unauthorized status, clears 'tripsage-auth' token, and redirects to '/auth'.
  */
 
+import { getClerkToken } from './clerkToken'
+
 const getBaseUrl = (): string => {
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL
@@ -14,6 +16,8 @@ const getBaseUrl = (): string => {
 }
 
 const getAuthToken = (): string | null => {
+  const clerkToken = getClerkToken()
+  if (clerkToken) return clerkToken
   if (typeof window === 'undefined') return null
   try {
     const raw = localStorage.getItem('tripsage-auth')

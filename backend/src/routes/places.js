@@ -89,6 +89,29 @@ const EXCLUDE_KEYWORDS = [
   'canal', 'peak', 'canyon', 'peninsula', 'cape', 'reef', 'beach', 'plain', 'plateau', 'volcano'
 ]
 
+
+// ── In-Memory Autocomplete LRU Cache (15 min TTL) ───────────────────────────
+const autocompleteCache = new Map();
+const CACHE_TTL_MS = 15 * 60 * 1000;
+
+function getCachedAutocomplete(key) {
+  const cached = autocompleteCache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > CACHE_TTL_MS) {
+    autocompleteCache.delete(key);
+    return null;
+  }
+  return cached.data;
+}
+
+function setCachedAutocomplete(key, data) {
+  if (autocompleteCache.size > 500) {
+    const oldestKey = autocompleteCache.keys().next().value;
+    autocompleteCache.delete(oldestKey);
+  }
+  autocompleteCache.set(key, { timestamp: Date.now(), data });
+}
+
 function isCityOrAirport(name, displayName) {
   const n = (name || '').toLowerCase()
   const d = (displayName || '').toLowerCase()
@@ -135,6 +158,10 @@ router.get('/autocomplete', async (req, res) => {
   res.set('ETag', false)
 
   const rawQuery = (req.query.query || '').trim()
+  const cached = getCachedAutocomplete(rawQuery.toLowerCase());
+  if (cached) {
+    return res.json({ success: true, data: cached, source: 'cache' });
+  }
   if (!rawQuery || rawQuery.length < 2) {
     return res.json({ success: true, data: cityFallback(rawQuery || 'a'), source: 'builtin' })
   }
@@ -163,7 +190,7 @@ router.get('/autocomplete', async (req, res) => {
       'User-Agent': 'TripSage/2.0 (travel planning; contact: rana@tripsage.in)',
       'Accept-Language': 'en',
     },
-    timeout: 3000,
+    timeout: 1200,
   }).catch(err => {
     console.warn('[Places] Nominatim error:', err.message)
     return { data: [] }
@@ -171,7 +198,7 @@ router.get('/autocomplete', async (req, res) => {
 
   const photonPromise = axios.get('https://photon.komoot.io/api/', {
     params: { q: query, limit: 12, lang: 'en' },
-    timeout: 3000,
+    timeout: 1200,
     headers: { 'User-Agent': 'TripSage/2.0' },
   }).catch(err => {
     console.warn('[Places] Photon error:', err.message)
@@ -266,7 +293,8 @@ router.get('/autocomplete', async (req, res) => {
   }
 
   // ── Combine: builtins first, then Nominatim, then Photon ──────────────────
-  const combined = [...builtinResults, ...nominatimResults, ...photonResults].slice(0, 6)
+  const combined = [...builtinResults, ...nominatimResults, ...photonResults].slice(0, 6);
+  setCachedAutocomplete(rawQuery.toLowerCase(), combined);
   if (combined.length > 0) {
     return res.json({ success: true, data: combined, source: 'combined' })
   }
@@ -310,5 +338,12 @@ router.get('/ip-location', async (req, res) => {
     return res.json({ success: false, data: null, error: 'Unable to detect location' })
   }
 })
+
+try {
+  const placesIntegration = require('./placesIntegration')
+  router.use('/', placesIntegration.default || placesIntegration)
+} catch (e) {
+  console.warn('[Places] Could not attach placesIntegration sub-routes:', e.message)
+}
 
 module.exports = router

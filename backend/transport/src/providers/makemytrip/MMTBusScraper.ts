@@ -39,6 +39,15 @@ const STATIC_BUS_ROUTES: Record<string, StaticRoute[]> = {
     { operatorName: 'KSRTC Airavat', busType: 'Volvo AC Semi-Sleeper', departure: '14:15', arrival: '20:15', duration: '6h 00m', price: 720, seatsAvailable: 16, rating: 4.1, amenities: ['Charging Port', 'Water Bottle', 'Reading Light'] },
     { operatorName: 'Asian Xpress', busType: 'Volvo Multi-Axle AC Sleeper', departure: '23:00', arrival: '05:00', duration: '6h 00m', price: 950, seatsAvailable: 9, rating: 4.4, amenities: ['WiFi', 'Charging Port', 'Blanket', 'Snacks'] }
   ],
+  'mumbai-panaji': [
+    { operatorName: 'VRL Travels', busType: 'Volvo Multi-Axle AC Sleeper', departure: '19:00', arrival: '08:00', duration: '13h 00m', price: 1400, seatsAvailable: 11, rating: 4.2, amenities: ['Charging Port', 'Blanket', 'Reading Light', 'Water Bottle'] },
+    { operatorName: 'Atmaram Travels', busType: 'Volvo AC Sleeper (2+1)', departure: '18:30', arrival: '07:45', duration: '13h 15m', price: 1200, seatsAvailable: 8, rating: 3.7, amenities: ['Charging Port', 'Blanket'] },
+    { operatorName: 'Paul Travels', busType: 'Bharat Benz AC Sleeper', departure: '20:00', arrival: '09:00', duration: '13h 00m', price: 1350, seatsAvailable: 14, rating: 4.1, amenities: ['WiFi', 'Charging Port', 'Blanket', 'Snacks'] }
+  ],
+  'hyderabad-panaji': [
+    { operatorName: 'Orange Travels', busType: 'Volvo Multi-Axle AC Sleeper', departure: '18:00', arrival: '08:30', duration: '14h 30m', price: 1600, seatsAvailable: 21, rating: 4.5, amenities: ['WiFi', 'Charging Port', 'Blanket', 'Track My Bus', 'Snacks'] },
+    { operatorName: 'VRL Travels', busType: 'Volvo Multi-Axle AC Sleeper', departure: '19:15', arrival: '09:15', duration: '14h 00m', price: 1750, seatsAvailable: 16, rating: 4.2, amenities: ['Charging Port', 'Blanket', 'Water Bottle'] }
+  ],
   'mumbai-goa': [
     { operatorName: 'VRL Travels', busType: 'Volvo Multi-Axle AC Sleeper', departure: '19:00', arrival: '08:00', duration: '13h 00m', price: 1400, seatsAvailable: 11, rating: 4.2, amenities: ['Charging Port', 'Blanket', 'Reading Light', 'Water Bottle'] },
     { operatorName: 'Atmaram Travels', busType: 'Volvo AC Sleeper (2+1)', departure: '18:30', arrival: '07:45', duration: '13h 15m', price: 1200, seatsAvailable: 8, rating: 3.7, amenities: ['Charging Port', 'Blanket'] },

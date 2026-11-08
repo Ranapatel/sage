@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'openai/gpt-oss-120b'
+const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b'
 
 /**
  * Generate AI-powered itinerary using Groq GPT OSS 120B
@@ -184,17 +184,18 @@ Return JSON in this exact schema:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 3000,
+      max_tokens: (MODEL.includes('oss-120b') || MODEL.includes('reasoning')) ? 8000 : 4000,
       temperature: 0.3,
     }, {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      timeout: 30000,
+      timeout: 60000,
     })
 
-    const content = response.data.choices[0]?.message?.content
+    let content = response.data.choices[0]?.message?.content
+    if (content) content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
     if (!content) throw new Error('Empty AI response')
 
     // Extract JSON block from text (handles markdown code fences)
@@ -206,7 +207,7 @@ Return JSON in this exact schema:
       throw new Error('Invalid itinerary format')
     }
 
-    return { success: true, data: parsed }
+    return { success: true, data: parsed, meta: { fallback: false, model: MODEL } }
   } catch (err) {
     const errorMsg = err.response?.data?.error?.message || err.message
     console.error('[Groq AI] Error:', errorMsg)
@@ -240,14 +241,15 @@ async function getRecommendations({ destination, category, budget, currency = 'I
         content: `List top 5 ${category} in ${destination} for a ${style} traveler. Total budget is strictly ${budgetDisplay} — every recommendation MUST stay within this budget.
         Return only JSON: {"recommendations": [{"name": "", "description": "", "price": 0, "rating": 0, "category": ""}]}`
       }],
-      max_tokens: 1000,
+      max_tokens: 4000,
       temperature: 0.3,
     }, {
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       timeout: 10000,
     })
 
-    const content = response.data.choices[0]?.message?.content
+    let content = response.data.choices[0]?.message?.content
+    if (content) content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
     const jsonMatch = content?.match(/\{[\s\S]*\}/)
     const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
     return { success: true, data: parsed.recommendations || [] }
@@ -336,7 +338,8 @@ IMPORTANT: All prices must be in Indian Rupees (₹). Do NOT use the $ symbol or
       timeout: 20000,
     })
 
-    const content = response.data.choices[0]?.message?.content
+    let content = response.data.choices[0]?.message?.content
+    if (content) content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
     if (!content) throw new Error('Empty AI response')
 
     return { success: true, data: content }

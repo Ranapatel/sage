@@ -31,7 +31,7 @@ export default function ClerkTokenSync() {
     // Signed in → fetch a fresh JWT and store it. getToken() automatically
     // refreshes if the token is near expiry.
     let cancelled = false
-    ;(async () => {
+    const syncToken = async () => {
       try {
         const token = await getToken()
         if (!cancelled) {
@@ -43,10 +43,21 @@ export default function ClerkTokenSync() {
           setClerkToken(null)
         }
       }
-    })()
+    }
+
+    syncToken()
+
+    // Refresh token every 50 seconds to prevent expiration
+    const interval = setInterval(syncToken, 50000)
+
+    // Refresh when user returns to tab
+    const onFocus = () => syncToken()
+    window.addEventListener('focus', onFocus)
 
     return () => {
       cancelled = true
+      clearInterval(interval)
+      window.removeEventListener('focus', onFocus)
     }
   }, [isLoaded, isSignedIn, getToken])
 
