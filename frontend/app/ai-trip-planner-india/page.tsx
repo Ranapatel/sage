@@ -14,7 +14,7 @@ export default function Page() {
     <LandingLayout>
       <SEOContent
         title="The Smartest AI Trip Planner for India"
-        subtitle="Experience the future of travel planning. From the Himalayas to the backwaters of Kerala, our AI creates personalized itineraries in seconds."
+        subtitle="A day-by-day draft for one departure city and one destination in India. It is not a multi-city route, and it does not adjust for the season."
         content={
           <>
             <h2>Why Use an AI Trip Planner for India?</h2>
@@ -22,7 +22,7 @@ export default function Page() {
             <h3>Smart Features for Indian Travelers</h3>
             <ul>
               <li><strong>One route:</strong> The draft covers one departure city and one destination, with a rupee estimate. It does not check live flights or trains.</li>
-              <li><strong>Hyper-Local Insights:</strong> Our AI understands seasonal weather patterns, from monsoons in Goa to winters in Manali.</li>
+              <li><strong>Not season-aware:</strong> The draft does not change for a Goa monsoon or a Manali winter. Check the season yourself.</li>
               <li><strong>Budget Optimization:</strong> Find the best value for your money, whether you're looking for luxury palaces in Rajasthan or budget stays in Rishikesh.</li>
             </ul>
             <p>Ready to explore India like never before? Our AI engine is trained on millions of travel data points to ensure you get the most efficient and enjoyable route possible.</p>

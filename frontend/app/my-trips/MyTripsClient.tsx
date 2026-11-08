@@ -181,7 +181,7 @@ export default function MyTripsClient() {
             <div className="space-y-2">
               <h3 className="text-lg font-bold text-white">No Trips Found</h3>
               <p className="text-slate-400 text-sm leading-relaxed max-w-xs mx-auto">
-                You haven't planned any trips yet. Create a custom AI itinerary in seconds.
+                You haven't planned any trips yet. Draft a day-by-day plan for one destination.
               </p>
             </div>
 

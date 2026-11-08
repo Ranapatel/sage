@@ -17,12 +17,12 @@ export const POPULAR_DESTINATIONS = [
 ]
 
 export const FEATURES = [
-  { icon: Sparkles, title: 'AI-Powered Planning', desc: 'AI planner generates personalized itineraries in seconds' },
+  { icon: Sparkles, title: 'AI-Powered Planning', desc: 'A day-by-day draft for one departure city and one destination' },
   { icon: Zap, title: 'Real-Time Data', desc: 'Live flight prices, hotel availability, and weather updates' },
   { icon: Compass, title: 'Smart Navigation', desc: 'Interactive maps with clickable places and route optimization' },
   { icon: Headphones, title: '24/7 Support', desc: 'Our AI and support team are here for you anytime, anywhere' },
   { icon: Banknote, title: 'Budget Optimizer', desc: 'Score-based ranking: affordability × rating × relevance' },
-  { icon: Users, title: 'Travel OS', desc: 'From profile to booking — your complete travel operating system' },
+  { icon: Users, title: 'Travel OS', desc: 'A draft plan with links out to airlines and hotels. TripSage does not book travel.' },
 ]
 
 export const HERO_IMAGES = [

@@ -113,7 +113,7 @@ export default function MethodologyPage() {
             <ul className="list-disc list-inside space-y-1.5 pl-1">
               <li>Sequences attractions logically by geography to minimise travel time</li>
               <li>Balances popular landmarks with local, off-the-beaten-path experiences</li>
-              <li>Accounts for local opening hours, seasonal factors, and typical crowd levels</li>
+              <li>Does not look up live opening hours, the season, or crowd levels. Treat timing notes as a draft.</li>
               <li>Includes practical notes on transport between stops</li>
             </ul>
             <p>

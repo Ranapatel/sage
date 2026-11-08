@@ -369,7 +369,7 @@ export default function RakshaBandhanEventPage() {
             Popular Sibling Getaways
           </h2>
           <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-            Ready to turn your credits into memories? Launch our AI planner to create day-by-day itineraries in seconds.
+            Ready to turn your credits into memories? The planner drafts a day-by-day itinerary for one destination.
           </p>
         </div>
 

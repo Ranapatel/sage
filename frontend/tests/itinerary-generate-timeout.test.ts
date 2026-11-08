@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import { fetchWithRetry } from '../lib/fetchWithRetry.ts'
 import {
   ITINERARY_GENERATE_MAX_RETRIES,
@@ -100,6 +101,13 @@ test('missing or empty itinerary payload selects the fallback', () => {
   assert.equal(liveItineraryDays(null), null)
   assert.equal(liveItineraryDays({ data: { itinerary: [] } }), null)
   assert.deepEqual(liveItineraryDays({ data: { itinerary: [{ day: 3 }] } }), [{ day: 3 }])
+})
+
+test('the plan page keeps the 150s generate request', () => {
+  const source = readFileSync(new URL('../app/plan/PlanClient.tsx', import.meta.url), 'utf8')
+  assert.match(source, /itineraryRequestConfig\(combineAbortSignals\(attemptSignal, signal\)\)/)
+  assert.match(source, /timeout:\s*ITINERARY_GENERATE_TIMEOUT_MS/)
+  assert.match(source, /maxRetries:\s*ITINERARY_GENERATE_MAX_RETRIES/)
 })
 
 test('page navigation abort and the attempt abort share one signal', () => {

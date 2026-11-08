@@ -125,7 +125,7 @@ export default function Page() {
             {/* Call to Action Box */}
             <div className="my-10 bg-gradient-to-br from-[#FFF4EE] via-[#FFFBF7] to-[#FFF4EE] p-8 rounded-3xl border border-[#EA580C]/40 text-center not-prose shadow-sm">
               <Sparkles className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
-              <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Build your custom Goa trip in 30 seconds</h3>
+              <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Draft a Goa trip for one route</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
                 Let TripSage AI calculate the exact route, recommend top-rated budget hostels, and optimize your daily itinerary based on your departure city.
               </p>

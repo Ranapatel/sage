@@ -293,7 +293,7 @@ export default function DubaiTripPlannerPage() {
               <Sparkles className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Generate your custom Dubai itinerary now</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Use TripSage AI to compare direct flight fares from your home city in India, discover top 4-star hotels near Dubai Metro stations, and generate a day-by-day route in seconds.
+                Use TripSage to draft a day-by-day Dubai plan from one Indian city. It does not compare live fares, and it does not finish in a few seconds.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link

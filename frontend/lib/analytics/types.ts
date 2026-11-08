@@ -212,6 +212,11 @@ export type AnalyticsEventName =
   | 'itinerary_generation_failed'
   | 'itinerary_saved'
   | 'itinerary_shared'
+  | 'trip_generated'
+  | 'trip_generation_failed'
+  | 'plan_viewed'
+  | 'trip_saved'
+  | 'trip_shared'
   | 'itinerary_deleted'
   // Search
   | 'flight_search'

@@ -55,7 +55,7 @@ export default function Page() {
               Planning a trip in India still means checking trains, weather, and distances yourself. TripSage drafts a day-by-day plan for one departure city and one destination, with a rupee estimate and visa notes for Indian passports. A Goa weekend, a Rajasthan stay, or a Kerala trip is one route at a time, not a multi-city booking.
             </p>
             <p>
-              Rather than scrolling through conflicting travel blogs and outdated forum threads, TripSage analyzes thousands of travel parameters—from monsoon weather windows in the Western Ghats to peak tourist seasons in the Himalayas—to deliver an optimized route plan instantly.
+              TripSage drafts one departure city and one destination. It does not watch the monsoon or the Himalayan season, and it does not build a multi-city route. Written guides on this site still describe those trips.
             </p>
 
             {/* Feature Highlights Grid */}
@@ -73,9 +73,9 @@ export default function Page() {
                 <div className="w-10 h-10 rounded-xl bg-orange-100 text-[#EA580C] flex items-center justify-center mb-4">
                   <Calendar className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-extrabold text-[#1A1A1A] mb-2">Seasonal Accuracy</h3>
+                <h3 className="text-base font-extrabold text-[#1A1A1A] mb-2">One destination</h3>
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                  Automatically adjusts outdoor sightseeing schedules for North Indian summer heat waves and coastal monsoon downpours.
+                  The planner does not change the days for summer heat or a coastal monsoon. Check the season yourself.
                 </p>
               </div>
               <div className="bg-[#FFFBF7] p-6 rounded-2xl border border-[#E8E0D8]">
@@ -89,9 +89,9 @@ export default function Page() {
               </div>
             </div>
 
-            <h2>Top Popular Indian Travel Circuits Planned with TripSage</h2>
+            <h2>Written guides for Indian trips</h2>
             <p>
-              Explore our verified, pre-built route blueprints or customize them using our <Link href="/ai-trip-planner">AI trip planner core tool</Link>:
+              These are articles, not plans the AI builds. The planner itself is one departure city and one destination. A Golden Triangle loop is not generated as one trip.
             </p>
 
             <div className="space-y-4 my-6 not-prose">
@@ -153,7 +153,7 @@ export default function Page() {
               <Sparkles className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Create your India travel plan right now</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Tell our AI your departure city, destination, and budget, and get a customized day-by-day travel plan in under 60 seconds.
+                Tell TripSage one departure city, one destination, and a budget. It drafts a day-by-day plan. It does not promise a time, and it does not plan several cities in one route.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link

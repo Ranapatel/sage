@@ -263,7 +263,7 @@ export default function SEOContent({
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
           <h2 className="text-3xl md:text-5xl font-extrabold mb-6 font-display">Ready for your next adventure?</h2>
           <p className="text-orange-100 mb-10 text-base md:text-lg max-w-2xl mx-auto font-medium">
-            Plan your perfect trip in seconds with our AI travel engine. Compare prices, generate itineraries, and book with confidence.
+            Draft a day-by-day plan for one route. TripSage links out to other sites and does not book the trip.
           </p>
           <Link 
             href={ctaLink} 

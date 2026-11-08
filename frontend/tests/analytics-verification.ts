@@ -3,7 +3,7 @@
  * Tests event firing, parameter shapes, PII scrubbing, and metadata enrichment.
  */
 
-import { analytics, GA_MEASUREMENT_ID } from '../lib/analytics/service';
+import { analytics, readGaMeasurementId } from '../lib/analytics/service';
 
 let passed = 0;
 let failed = 0;
@@ -40,8 +40,13 @@ const sentEvents: Array<{ command: string; eventName: string; params: any }> = [
 
 console.log('--- TripSage SEO Phase 5 Analytics Verification ---\n');
 
-// 1. Verify GA_MEASUREMENT_ID
-assert(GA_MEASUREMENT_ID === 'G-P4KSB6TZVG' || GA_MEASUREMENT_ID.startsWith('G-'), `GA4 Measurement ID is valid: ${GA_MEASUREMENT_ID}`);
+// 1. The measurement ID is only the env var. This process sets one so later
+// events are delivered to the mocked gtag. An unset var sends nothing.
+process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = 'G-TESTONLY1'
+assert(readGaMeasurementId() === 'G-TESTONLY1', 'measurement id is read from NEXT_PUBLIC_GA_MEASUREMENT_ID')
+delete process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+assert(readGaMeasurementId() === '', 'an unset env var does not fall back to a guessed property')
+process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = 'G-TESTONLY1'
 
 // 2. Test destination_viewed event
 analytics.destinationViewed({

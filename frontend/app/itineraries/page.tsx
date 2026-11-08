@@ -195,7 +195,7 @@ export default function ItinerariesHubPage() {
               <Sparkles className="w-8 h-8 text-[#EA580C] mx-auto mb-3" />
               <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-2">Want a custom itinerary built specifically for you?</h3>
               <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mb-6">
-                Tell our AI planner your dates, starting city, destination, and budget to generate a custom itinerary in seconds.
+                Tell the planner your dates, one starting city, one destination, and a budget. It drafts a day-by-day plan. It does not build a multi-city route.
               </p>
               <Link
                 href="/plan"
