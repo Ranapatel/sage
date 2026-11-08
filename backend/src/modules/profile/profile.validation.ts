@@ -22,7 +22,10 @@ export const updatePreferencesSchema = z.object({
 
 export const savedItemSchema = z.object({
   type: z.enum(['destination', 'itinerary', 'hotel', 'activity', 'restaurant']),
-  referenceId: z.string().min(1)
+  referenceId: z.string().min(1),
+  title: z.string().optional(),
+  details: z.any().optional(),
+  itemType: z.string().optional()
 })
 
 export const memorySchema = z.object({

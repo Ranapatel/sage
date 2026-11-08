@@ -126,11 +126,17 @@ export class ProfileService {
     })
     if (existing) return existing
 
+    const title = data.title || (data.referenceId ? `${data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) : 'Saved'}: ${data.referenceId}` : 'Saved Item');
+    const details = data.details || {};
+
     return prisma.savedItem.create({
       data: {
         userId,
         type: data.type,
-        referenceId: data.referenceId
+        referenceId: data.referenceId,
+        title,
+        details,
+        itemType: data.itemType || data.type || null,
       }
     })
   }
